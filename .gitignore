@@ -1,0 +1,9 @@
+#minuit to be compiled on each computer
+
+output.txt
+
+#.out files produced by fortrat
+a.out
+*.out
+*.mod
+aTMDe-temporary
