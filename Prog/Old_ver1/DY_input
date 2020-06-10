@@ -1,0 +1,58 @@
+# input file for DY cross-section evaluation 
+# based arTeMiDe ver. 1.1
+
+# Program evaluates the DY differential cross-section for neutral vector bosons (Z+gamma*)
+# The output is \int dQ^2 dy^2 d \sigma/dqT/dQ^2 dy^2 [pb]
+# The integrals over Q and y are optional
+
+# preserve the line numbering relative to *A,B,...-lines!
+#
+#
+
+*1 : Type of process 1=p+p, 2=p+pbar
+1
+
+*2 : Value of \sqrt{s} [GeV]
+8000
+
+*3 : The range of Q[GeV] (for single-Q value set second number=0)
+66 116
+
+*4 : The range of y (for single-y value set second number=0)
+-2.4 2.4
+
+
+*5 : Include cuts on the lepton pair? (1=yes, 0=no)
+1
+
+*5a: Pt cut value (pt>..[GeV])
+20
+
+*5b: eta cut value ( .. < eta < ..)
+-2.4 2.4
+
+
+*6 : Order of theory 1=LO, 2=NLO, 3=NNLO
+3
+
+*7 : Evaluate scaling-variation error-band (no=0, yes only c1=1, yes only c2=2, yes only c3=3, yes only c4=4, yes general=5)
+5
+
+*8 : Integrate over qt-bins (=1) evaluate at given qt (=0)
+1
+
+*8a : Lengh of qT-bin list
+11
+
+*qT: List of qT bins (or values of qT if *6=0). Note, that current version expected to discribe data for qT<~ 0.2 Q
+0.0	2.0
+2.0	4.0
+4.0	6.0
+6.0	8.0
+8.0	10.0
+10.0	12.0
+12.0	14.0
+14.0	16.0
+16.0	18.0
+18.0	20.0
+20.0	22.5

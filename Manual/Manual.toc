@@ -1,0 +1,92 @@
+\tocdepth@munge 
+\contentsline {section}{\numberline {}Contents}{1}{section*.1}% 
+\tocdepth@restore 
+\contentsline {section}{\numberline {}Glossary}{4}{section*.2}% 
+\contentsline {section}{\numberline {I}General structure and user input of \texttt {artemide}}{5}{section*.3}% 
+\contentsline {subsection}{\numberline {A}General concept}{5}{section*.4}% 
+\contentsline {subsection}{\numberline {B}Organization of TMD factorized cross-section and its implementation in \texttt {artemide}}{5}{section*.5}% 
+\contentsline {subsection}{\numberline {C}User defined functions and options}{7}{section*.6}% 
+\contentsline {subsection}{\numberline {D}Installation}{8}{section*.7}% 
+\contentsline {subsection}{\numberline {E}Python interface: \texttt {harpy}}{8}{section*.8}% 
+\contentsline {subsection}{\numberline {F}Constants file and version compatibility}{9}{section*.9}% 
+\contentsline {section}{\numberline {II}Theory}{11}{section*.10}% 
+\contentsline {subsection}{\numberline {A}Definition of TMD distributions}{11}{section*.11}% 
+\contentsline {subsection}{\numberline {B}Evolution of TMD distributions}{11}{section*.12}% 
+\contentsline {subsubsection}{\numberline {1}Equipotential lines \& $\zeta $-prescription}{12}{section*.13}% 
+\contentsline {subsubsection}{\numberline {2}Exact solution for evolution to special line}{13}{section*.14}% 
+\contentsline {subsection}{\numberline {C}Expressions for evolution functions in \texttt {artemide}}{14}{section*.15}% 
+\contentsline {subsubsection}{\numberline {1}Fixed order RAD:}{14}{section*.16}% 
+\contentsline {subsubsection}{\numberline {2}Resummed RAD:}{14}{section*.17}% 
+\contentsline {subsubsection}{\numberline {3}Fixed order $\zeta $-line:}{15}{section*.18}% 
+\contentsline {subsubsection}{\numberline {4}Resummed $\zeta $-line:}{15}{section*.19}% 
+\contentsline {subsubsection}{\numberline {5}Exact $\zeta $-line:}{16}{section*.20}% 
+\contentsline {section}{\numberline {III}\texttt {aTMDe\_setup} module}{17}{section*.21}% 
+\contentsline {subsection}{\numberline {A}aTMDe\_Setup}{18}{section*.22}% 
+\contentsline {section}{\numberline {IV}\texttt {aTMDe\_control} module}{19}{section*.23}% 
+\contentsline {subsection}{\numberline {A}Passing non-perturbative parameters}{19}{section*.24}% 
+\contentsline {section}{\numberline {V}\texttt {QCDinput} module}{21}{section*.25}% 
+\contentsline {subsection}{\numberline {A}Initialization}{21}{section*.26}% 
+\contentsline {section}{\numberline {VI}\texttt {EWinput} module}{22}{section*.27}% 
+\contentsline {subsection}{\numberline {A}$\alpha _{\text {QED}}$}{22}{section*.28}% 
+\contentsline {section}{\numberline {VII}\texttt {TMD\_AD} module}{23}{section*.29}% 
+\contentsline {section}{\numberline {VIII}\texttt {TMDR\_model}}{24}{section*.30}% 
+\contentsline {section}{\numberline {IX}\texttt {TMDR} module}{25}{section*.31}% 
+\contentsline {subsection}{\numberline {A}Types of evolution}{25}{section*.32}% 
+\contentsline {subsection}{\numberline {B}Assumptions and approximations}{26}{section*.33}% 
+\contentsline {subsection}{\numberline {C}Initialization}{26}{section*.34}% 
+\contentsline {subsection}{\numberline {D}NP input and NP parameters}{26}{section*.35}% 
+\contentsline {subsection}{\numberline {E}Evaluating TMD evolution kernel}{27}{section*.36}% 
+\contentsline {subsection}{\numberline {F}Inverted evolution and the lowest available Q}{27}{section*.37}% 
+\contentsline {section}{\numberline {X}\texttt {uTMDPDF\_model}}{28}{section*.38}% 
+\contentsline {section}{\numberline {XI}\texttt {uTMDPDF} module}{29}{section*.39}% 
+\contentsline {subsection}{\numberline {A}Initialization}{29}{section*.40}% 
+\contentsline {subsection}{\numberline {B}Definition of TMD model, $f_{NP}$ and parameters}{30}{section*.41}% 
+\contentsline {subsection}{\numberline {C}Evaluating unpolarized TMD PDFs}{30}{section*.42}% 
+\contentsline {subsection}{\numberline {D}Composite TMD}{31}{section*.43}% 
+\contentsline {subsection}{\numberline {E}Grid construction}{31}{section*.44}% 
+\contentsline {subsection}{\numberline {F}Theoretical uncertainties}{32}{section*.45}% 
+\contentsline {subsection}{\numberline {G}Technical note}{32}{section*.46}% 
+\contentsline {section}{\numberline {XII}\texttt {uTMDFF} module}{34}{section*.47}% 
+\contentsline {section}{\numberline {XIII}\texttt {lpTMDPDF} module}{34}{section*.48}% 
+\contentsline {section}{\numberline {XIV}\texttt {TMDs} module}{35}{section*.49}% 
+\contentsline {subsection}{\numberline {A}Definition of low-scales}{35}{section*.50}% 
+\contentsline {subsection}{\numberline {B}Evaluating TMDs}{36}{section*.51}% 
+\contentsline {subsection}{\numberline {C}Products of TMDs}{36}{section*.52}% 
+\contentsline {subsection}{\numberline {D}Theoretical uncertainties}{36}{section*.53}% 
+\contentsline {section}{\numberline {XV}\texttt {TMDF} module}{37}{section*.54}% 
+\contentsline {subsection}{\numberline {A}Initialization}{37}{section*.55}% 
+\contentsline {subsection}{\numberline {B}Evaluating Structure functions}{37}{section*.56}% 
+\contentsline {subsection}{\numberline {C}Enumeration of structure functions}{39}{section*.57}% 
+\contentsline {subsection}{\numberline {D}Tests}{43}{section*.58}% 
+\contentsline {section}{\numberline {XVI}\texttt {TMDX{\_}DY} module}{44}{section*.59}% 
+\contentsline {subsection}{\numberline {A}Initialization}{45}{section*.60}% 
+\contentsline {subsection}{\numberline {B}Setting up the parameters of cross-section}{45}{section*.61}% 
+\contentsline {subsection}{\numberline {C}Cross-section evaluation}{46}{section*.62}% 
+\contentsline {subsection}{\numberline {D}Parallel computation}{49}{section*.63}% 
+\contentsline {subsection}{\numberline {E}\texttt {LeptonCutsDY}}{49}{section*.64}% 
+\contentsline {subsection}{\numberline {F}Variation of scale}{49}{section*.65}% 
+\contentsline {subsection}{\numberline {G}Options for evaluation of DY-like cross-section}{49}{section*.66}% 
+\contentsline {subsubsection}{\numberline {1}$\pi ^2$-resummation}{49}{section*.67}% 
+\contentsline {subsubsection}{\numberline {2}Power corrections}{49}{section*.68}% 
+\contentsline {subsection}{\numberline {H}Enumeration of processes}{50}{section*.69}% 
+\contentsline {section}{\numberline {XVII}\texttt {TMDX{\_}SIDIS} module}{52}{section*.70}% 
+\contentsline {subsection}{\numberline {A}Setting up the parameters of cross-section}{52}{section*.71}% 
+\contentsline {subsection}{\numberline {B}Cross-section evaluation}{53}{section*.72}% 
+\contentsline {subsection}{\numberline {C}Kinematic cuts}{55}{section*.73}% 
+\contentsline {subsection}{\numberline {D}Power corrections}{55}{section*.74}% 
+\contentsline {subsection}{\numberline {E}Bin-integration routines}{56}{section*.75}% 
+\contentsline {subsection}{\numberline {F}Enumeration of processes}{56}{section*.76}% 
+\contentsline {subsection}{\numberline {G}SIDIS theory}{57}{section*.77}% 
+\contentsline {subsubsection}{\numberline {1}Kinematics}{57}{section*.78}% 
+\contentsline {subsubsection}{\numberline {2}Cross-section}{57}{section*.79}% 
+\contentsline {section}{\numberline {XVIII}\texttt {TMDs\_inKT} module}{59}{section*.80}% 
+\contentsline {section}{\numberline {XIX}Supplementary codes}{62}{section*.81}% 
+\contentsline {section}{\numberline {XX}Harpy}{63}{section*.82}% 
+\contentsline {section}{\numberline {}References}{66}{section*.83}% 
+\contentsline {section}{\numberline {XXI}Version history}{67}{section*.84}% 
+\contentsline {section}{\numberline {XXII}Version of input-file}{71}{section*.85}% 
+\contentsline {section}{\numberline {XXIII}Backup}{72}{section*.86}% 
+\contentsline {subsection}{\numberline {}TO DO LIST}{72}{section*.87}% 
+\contentsline {subsection}{\numberline {A}artemide structure before v2.04}{73}{section*.88}% 
+\contentsline {subsection}{\numberline {B}artemide structure before v2.00}{74}{section*.89}% 
+\contentsline {subsection}{\numberline {C}artemide structure before v1.3}{75}{section*.90}% 

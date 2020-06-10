@@ -6,4 +6,5 @@ output.txt
 a.out
 *.out
 *.mod
+*.o
 aTMDe-temporary
