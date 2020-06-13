@@ -81,7 +81,7 @@ function FNP(x,bT,hadron,lambdaNP)
 
     bb=bT**2
     
-    FNP0=lambdaNP(1)*Cosh(-lambdaNP(2)*bb/sqrt(1+lambdaNP(3)*bb))*(1-x)**lambdaNP(4)*x**lambdaNP(5)
+    FNP0=lambdaNP(1)*exp(-lambdaNP(2)*bb/sqrt(1+lambdaNP(3)*bb))*(1-x)**lambdaNP(4)*x**lambdaNP(5)
 
     !    FNP0=Exp(-lambdaNP(1)*bb)
 

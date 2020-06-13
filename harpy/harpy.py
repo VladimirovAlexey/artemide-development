@@ -70,6 +70,30 @@ def setNPparameters_uTMDFF(l):
         artemide.harpy.setlambda_utmdff(numpy.asfortranarray(l))
     else:
         artemide.harpy.setreplica_utmdff(int(l))
+        
+def setNPparameters_lpTMDPDF(l):
+    """Setting NP parameters for the model of lpTMDPDF
+                Arguments: (l)
+                Argument overloading:
+                (integer)        = loads replica
+                (array)          = set array on NP parameters
+    """
+    if isinstance(l,list) or isinstance(l,numpy.ndarray):
+        artemide.harpy.setlambda_lptmdpdf(numpy.asfortranarray(l))
+    else:
+        artemide.harpy.setreplica_lptmdpdf(int(l))
+
+def setNPparameters_SiversTMDPDF(l):
+    """Setting NP parameters for the model of SiversTMDPDF
+                Arguments: (l)
+                Argument overloading:
+                (integer)        = loads replica
+                (array)          = set array on NP parameters
+    """
+    if isinstance(l,list) or isinstance(l,numpy.ndarray):
+        artemide.harpy.setlambda_siverstmdpdf(numpy.asfortranarray(l))
+    else:
+        artemide.harpy.setreplica_siverstmdpdf(int(l))
 
 
 def varyScales(c1,c2,c3,c4):

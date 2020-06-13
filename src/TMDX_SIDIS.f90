@@ -900,14 +900,12 @@ contains
    real(dp) :: interX,X1,X2,X3,X4,X5
    real(dp) :: value,valueAB,valueACB
    real(dp) :: yMin_in,yMax_in,y2,y3,y4,deltay
-   real(dp)::valueMax,valueMaxNew,vv
+   real(dp)::valueMax,vv
    
    deltay=yMax_in-yMin_in
    y2=yMin_in+deltay/4d0
    y3=yMin_in+deltay/2d0
    y4=yMax_in-deltay/4d0
-   
-   valueMaxNew=valueMax
    
    call SetZ(y2,var)
    X2=Xsec(var,process)
@@ -919,8 +917,8 @@ contains
    valueACB=deltay*(X1+4d0*X2+2d0*X3+4d0*X4+X5)/12d0
    
    If(ABS((valueACB-valueAB)/valueMax)>toleranceZ) then
-    interX=integralOverZpoint_S_Rec(var,process,yMin_in,y3,X1,X2,X3,valueMaxNew)&
-	  +integralOverZpoint_S_Rec(var,process,y3,yMax_in,X3,X4,X5,valueMaxNew)
+    interX=integralOverZpoint_S_Rec(var,process,yMin_in,y3,X1,X2,X3,valueMax)&
+	  +integralOverZpoint_S_Rec(var,process,y3,yMax_in,X3,X4,X5,valueMax)
    else
     interX=valueACB
    end if
@@ -1069,7 +1067,7 @@ contains
    real(dp) :: interX,X1,X2,X3,X4,X5
    real(dp) :: value,valueAB,valueACB
    real(dp) :: yMin_in,yMax_in,y2,y3,y4,deltay
-   real(dp)::valueMax,valueMaxNew,vv
+   real(dp)::valueMax,vv
    logical::doZ
    real(dp)::zmin,zMax
    
@@ -1077,8 +1075,6 @@ contains
    y2=yMin_in+deltay/4d0
    y3=yMin_in+deltay/2d0
    y4=yMax_in-deltay/4d0
-   
-   valueMaxNew=valueMax
    
    call SetX(y2,var)
    X2= Xsec_Zint(var,process,doZ,zMin,zMax)   
@@ -1090,8 +1086,8 @@ contains
    valueACB=deltay*(X1+4d0*X2+2d0*X3+4d0*X4+X5)/12d0
    
    If(ABS((valueACB-valueAB)/valueMax)>toleranceX) then
-    interX=integralOverXpoint_S_Rec(var,process,doZ,zMin,zMax,yMin_in,y3,X1,X2,X3,valueMaxNew)&
-	  +integralOverXpoint_S_Rec(var,process,doZ,zMin,zMax,y3,yMax_in,X3,X4,X5,valueMaxNew)
+    interX=integralOverXpoint_S_Rec(var,process,doZ,zMin,zMax,yMin_in,y3,X1,X2,X3,valueMax)&
+	  +integralOverXpoint_S_Rec(var,process,doZ,zMin,zMax,y3,yMax_in,X3,X4,X5,valueMax)
    else
     interX=valueACB
    end if
@@ -1103,7 +1099,7 @@ contains
   
   !!! the variable doQ check should the integration over x be performed
   !!! if doQ=true, the integration is done
-  !!! if doQ=facle the single value (at xMin) is returned
+  !!! if doQ=false the single value (at xMin) is returned
   function Xsec_Zint_Xint_Qint(var,process,doZ,zMin,zMax,doX,xMin,xMax,doQ,Qmin_in,Qmax_in,doCut,Cuts)
     real(dp),dimension(1:13),intent(in) :: var
     logical::doX,doQ,doCut,doZ
@@ -1139,6 +1135,7 @@ contains
       
       if(Qmin<Qmax) then 
 	Xsec_Zint_Xint_Qint=integralOverQpoint_S(var,process,doZ,zMin,zMax,doX,xMin,xMax,Qmin,Qmax,doCut,Cuts)
+	!Xsec_Zint_Xint_Qint=integralOverQ2point_S(var,process,doZ,zMin,zMax,doX,xMin,xMax,1d0/(Qmax**2),1d0/(Qmin**2),doCut,Cuts)
       else!!! it is possible that cuts cut out the integration range completely
 	Xsec_Zint_Xint_Qint=0d0
       end if
@@ -1172,7 +1169,6 @@ contains
 	Xsec_Zint_Xint_Qint=0d0
       end if
     end if
-    
   end function Xsec_Zint_Xint_Qint
   !--------------Simpsons--------------------
   !!!! parameter valueMax remembers the approximate value of integral to weight the tolerance.
@@ -1197,15 +1193,15 @@ contains
    y4=yMax_in-deltay/4d0
    
    call SetQ(yMin_in,var)
-   X1=2*yMin_in*Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
+   X1=2d0*yMin_in*Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
    call SetQ(y2,var)
-   X2=2*y2*Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
+   X2=2d0*y2*Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
    call SetQ(y3,var)
-   X3=2*y3*Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
+   X3=2d0*y3*Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
    call SetQ(y4,var)
-   X4=2*y4*Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
+   X4=2d0*y4*Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
    call SetQ(yMax_in,var)
-   X5=2*yMax_in*Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
+   X5=2d0*yMax_in*Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
    
    !!approximate integral value
    valueMax=deltay*(X1+4d0*X2+2d0*X3+4d0*X4+X5)/12d0
@@ -1222,7 +1218,7 @@ contains
    real(dp) :: interX,X1,X2,X3,X4,X5
    real(dp) :: value,valueAB,valueACB
    real(dp) :: yMin_in,yMax_in,y2,y3,y4,deltay
-   real(dp)::valueMax,valueMaxNew,vv
+   real(dp)::valueMax,vv
    logical::doX,doCut,doZ
    real(dp),dimension(1:4),intent(in)::Cuts
    real(dp)::xMin,xMax,zMin,zMax
@@ -1232,7 +1228,6 @@ contains
    y3=yMin_in+deltay/2d0
    y4=yMax_in-deltay/4d0
    
-   valueMaxNew=valueMax
    
    call SetQ(y2,var)
    X2=2*y2*Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
@@ -1244,8 +1239,8 @@ contains
    valueACB=deltay*(X1+4d0*X2+2d0*X3+4d0*X4+X5)/12d0
    
    If(ABS((valueACB-valueAB)/valueMax)>tolerance) then
-    interX=integralOverQpoint_S_Rec(var,process,doZ,zMin,zMax,doX,xMin,xMax,doCut,Cuts,yMin_in,y3,X1,X2,X3,valueMaxNew)&
-	  +integralOverQpoint_S_Rec(var,process,doZ,zMin,zMax,doX,xMin,xMax,doCut,Cuts,y3,yMax_in,X3,X4,X5,valueMaxNew)
+    interX=integralOverQpoint_S_Rec(var,process,doZ,zMin,zMax,doX,xMin,xMax,doCut,Cuts,yMin_in,y3,X1,X2,X3,valueMax)&
+	  +integralOverQpoint_S_Rec(var,process,doZ,zMin,zMax,doX,xMin,xMax,doCut,Cuts,y3,yMax_in,X3,X4,X5,valueMax)
    else
     interX=valueACB
    end if
@@ -1253,8 +1248,9 @@ contains
   end function integralOverQpoint_S_Rec
   
   
-    !--------------Simpsons--------------------
-    !!! integration over Q2
+  !--------------Simpsons--------------------
+  !!! integration over y=1/Q2  (jacobian=1/2/y^{3/2})
+  !!!
   !!!! parameter valueMax remembers the approximate value of integral to weight the tolerance.
   !!!! evaluation is done by adaptive simpson
   !!!! First we evaluate over 5 points and estimate the integral, and then split it to 3+3 and send to adaptive
@@ -1275,16 +1271,16 @@ contains
    y3=yMin_in+deltay/2d0
    y4=yMax_in-deltay/4d0
    
-   call SetQ2(yMin_in,var)
-   X1=Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
-   call SetQ2(y2,var)
-   X2=Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
-   call SetQ2(y3,var)
-   X3=Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
-   call SetQ2(y4,var)
-   X4=Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
-   call SetQ2(yMax_in,var)
-   X5=Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
+   call SetQ2(1d0/yMin_in,var)
+   X1=Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)/yMin_in**2
+   call SetQ2(1d0/y2,var)
+   X2=Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)/y2**2
+   call SetQ2(1d0/y3,var)
+   X3=Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)/y3**2
+   call SetQ2(1d0/y4,var)
+   X4=Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)/y4**2
+   call SetQ2(1d0/yMax_in,var)
+   X5=Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)/yMax_in**2
 
    !!approximate integral value
    valueMax=deltay*(X1+4d0*X2+2d0*X3+4d0*X4+X5)/12d0
@@ -1301,7 +1297,7 @@ contains
    real(dp) :: interX,X1,X2,X3,X4,X5
    real(dp) :: value,valueAB,valueACB
    real(dp) :: yMin_in,yMax_in,y2,y3,y4,deltay
-   real(dp)::valueMax,valueMaxNew,vv
+   real(dp)::valueMax,vv
    logical::doX,doCut,doZ
    real(dp),dimension(1:4),intent(in)::Cuts
    real(dp)::xMin,xMax,zMin,zMax
@@ -1310,21 +1306,19 @@ contains
    y2=yMin_in+deltay/4d0
    y3=yMin_in+deltay/2d0
    y4=yMax_in-deltay/4d0
+      
+   call SetQ2(1d0/y2,var)
+   X2=Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)/y2**2
    
-   valueMaxNew=valueMax
-   
-   call SetQ2(y2,var)
-   X2=Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
-   
-   call SetQ2(y4,var)
-   X4=Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)  
+   call SetQ2(1d0/y4,var)
+   X4=Xsec_Zint_Xint(var,process,doZ,zMin,zMax,doX,xmin,xmax,doCut,Cuts)/y4**2
    
    valueAB=deltay*(X1+4d0*X3+X5)/6d0
    valueACB=deltay*(X1+4d0*X2+2d0*X3+4d0*X4+X5)/12d0
    
    If(ABS((valueACB-valueAB)/valueMax)>tolerance) then
-    interX=integralOverQ2point_S_Rec(var,process,doZ,zMin,zMax,doX,xMin,xMax,doCut,Cuts,yMin_in,y3,X1,X2,X3,valueMaxNew)&
-	  +integralOverQ2point_S_Rec(var,process,doZ,zMin,zMax,doX,xMin,xMax,doCut,Cuts,y3,yMax_in,X3,X4,X5,valueMaxNew)
+    interX=integralOverQ2point_S_Rec(var,process,doZ,zMin,zMax,doX,xMin,xMax,doCut,Cuts,yMin_in,y3,X1,X2,X3,valueMax)&
+	  +integralOverQ2point_S_Rec(var,process,doZ,zMin,zMax,doX,xMin,xMax,doCut,Cuts,y3,yMax_in,X3,X4,X5,valueMax)
    else
     interX=valueACB
    end if
