@@ -21,6 +21,7 @@ module IO_functions
   character(len=*), parameter :: c_green = '32'
   character(len=*), parameter :: c_green_bold = '32;1'
   character(len=*), parameter :: c_yellow = '33'
+  character(len=*), parameter :: c_yellow_bold = '33;1'
   character(len=*), parameter :: c_blue = '34'
   character(len=*), parameter :: c_magenta = '35'
   character(len=*), parameter :: c_cyan = '36'

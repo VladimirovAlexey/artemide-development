@@ -36,11 +36,20 @@ allocate(central(1:numB))
 allocate(mean(1:numB))
 allocate(deviation(1:numB))
 
+! call artemide_SetNPparameters_TMDR((/500d0,0d0/))
+
 do i=1,numB
   central(i)=DNP(mu, b(i),1)
   mean(i)=0d0
   deviation=0d0
 end do
+
+! do i=1,numB
+! !!!! D vs. b[GeV]
+!   write(*,"('{',F10.7,',',F10.7,'},')") &
+!        b(i),central(i)
+! end do
+! stop
 
 do j=1,numR
   call artemide_GetReplicaFromFile(repFILE,j,NParray)

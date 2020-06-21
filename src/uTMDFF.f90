@@ -21,7 +21,7 @@ implicit none
 private
 
 !Current version of module
-character (len=5),parameter :: version="v2.04"
+character (len=5),parameter :: version="v2.05"
 character (len=7),parameter :: moduleName="uTMDFF"
 !Last appropriate version of constants-file
 integer,parameter::inputver=12
@@ -184,33 +184,35 @@ subroutine uTMDFF_Initialize(file,prefix)
     read(51,*) orderMain
 
     SELECT CASE(trim(orderMain))
+        CASE ("NA")
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NA',color(" (TMD=fNP)",c_yellow)
+            order_global=-50
         CASE ("LO")
-    if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: LO'
-    order_global=0
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: LO'
+            order_global=0
         CASE ("LO+")
-    if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: LO+'
-    order_global=0
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: LO+'
+            order_global=0
         CASE ("NLO")
-    if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NLO'
-    order_global=1
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NLO'
+            order_global=1
         CASE ("NLO+")
-    if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NLO+'
-    order_global=1
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NLO+'
+            order_global=1
         CASE ("NNLO")
-    if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO'
-    order_global=2
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO'
+            order_global=2
         CASE ("NNLO+")
-    if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO+'
-    order_global=2
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO+'
+            order_global=2
         CASE DEFAULT
-    if(outputLevel>0)write(*,*) WarningString('Initialize: unknown order for coefficient function. Switch to NLO.',moduleName)
-    if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NLO'
-    order_global=1
+            if(outputLevel>0) write(*,*) &
+                WarningString('Initialize: unknown order for coefficient function. Switch to NLO.',moduleName)
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NLO'
+            order_global=1
         END SELECT
 
-        if(outputLevel>2) then
-        write(*,'(A,I1)') ' |  Coef.func.    =as^',order_global
-        end if
+    if(outputLevel>2 .and. order_global>-1) write(*,'(A,I1)') ' |  Coef.func.    =as^',order_global
 
     !------ Compositeness
     call MoveTO(51,'*p2  ')
@@ -218,11 +220,11 @@ subroutine uTMDFF_Initialize(file,prefix)
 
     if(outputLevel>2) then
         if(IsComposite) then
-        write(*,'(A,I1)') ' |  Use compsite  =TRUE'
+            write(*,'(A,I1)') ' |  Use compsite  =TRUE'
         else
-        write(*,'(A,I1)') ' |  Use compsite  =FALSE'
+            write(*,'(A,I1)') ' |  Use compsite  =FALSE'
         end if
-        end if
+    end if
 
     !-------------parameters of NP model
     call MoveTO(51,'*B   ')

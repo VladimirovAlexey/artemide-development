@@ -68,12 +68,12 @@ do i=1,iMax
     call TMDs_inKT_ResetCounters()
 end do
 
-! x=0.01d0
-! do i=1,iMax
-! 
-!     TT=uTMDPDF_kT_5(x,qT(i),1)
-!     write(*,*) "{",qT(i),",", TT(1),"},"
-! end do
+x=0.01d0
+do i=1,iMax
+
+    TT=uTMDPDF_kT_5(x,qT(i),1)
+    write(*,*) "{",qT(i),",", TT(1),"},"
+end do
 
 
 end program example

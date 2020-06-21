@@ -20,7 +20,7 @@ implicit none
 private 
 
 !Current version of module
-character (len=5),parameter :: version="v2.04"
+character (len=5),parameter :: version="v2.05"
 character (len=12),parameter :: moduleName="SiversTMDPDF"
 !Last appropriate verion of constants-file
 integer,parameter::inputver=12
@@ -160,6 +160,9 @@ subroutine SiversTMDPDF_Initialize(file,prefix)
     read(51,*) orderMain
 
     SELECT CASE(trim(orderMain))
+        CASE ("NA")
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NA',color(" (TMD=fNP)",c_yellow)
+            order_global=-50
         CASE ("LO")
             if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: LO'
             order_global=0
@@ -168,14 +171,12 @@ subroutine SiversTMDPDF_Initialize(file,prefix)
             order_global=0        
         CASE DEFAULT
             if(outputLevel>0) write(*,*) &
-             WarningString('Initialize: unknown order for coefficient function. Switch to LO.',moduleName)
+                WarningString('Initialize: unknown order for coefficient function. Switch to LO.',moduleName)
             if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: LO'
             order_global=0
         END SELECT
 
-        if(outputLevel>2) then
-        write(*,'(A,I1)') ' |  Coef.func.    =as^',order_global
-        end if
+    if(outputLevel>2 .and. order_global>-1) write(*,'(A,I1)') ' |  Coef.func.    =as^',order_global
         
     !------ Compositeness
     call MoveTO(51,'*p2  ')

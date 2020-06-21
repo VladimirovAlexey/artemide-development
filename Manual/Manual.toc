@@ -48,45 +48,46 @@
 \contentsline {subsection}{\numberline {G}Technical note}{32}{section*.46}% 
 \contentsline {section}{\numberline {XII}\texttt {uTMDFF} module}{34}{section*.47}% 
 \contentsline {section}{\numberline {XIII}\texttt {lpTMDPDF} module}{34}{section*.48}% 
-\contentsline {section}{\numberline {XIV}\texttt {TMDs} module}{35}{section*.49}% 
-\contentsline {subsection}{\numberline {A}Definition of low-scales}{35}{section*.50}% 
-\contentsline {subsection}{\numberline {B}Evaluating TMDs}{36}{section*.51}% 
-\contentsline {subsection}{\numberline {C}Products of TMDs}{36}{section*.52}% 
-\contentsline {subsection}{\numberline {D}Theoretical uncertainties}{36}{section*.53}% 
-\contentsline {section}{\numberline {XV}\texttt {TMDF} module}{37}{section*.54}% 
-\contentsline {subsection}{\numberline {A}Initialization}{37}{section*.55}% 
-\contentsline {subsection}{\numberline {B}Evaluating Structure functions}{37}{section*.56}% 
-\contentsline {subsection}{\numberline {C}Enumeration of structure functions}{39}{section*.57}% 
-\contentsline {subsection}{\numberline {D}Tests}{43}{section*.58}% 
-\contentsline {section}{\numberline {XVI}\texttt {TMDX{\_}DY} module}{44}{section*.59}% 
-\contentsline {subsection}{\numberline {A}Initialization}{45}{section*.60}% 
-\contentsline {subsection}{\numberline {B}Setting up the parameters of cross-section}{45}{section*.61}% 
-\contentsline {subsection}{\numberline {C}Cross-section evaluation}{46}{section*.62}% 
-\contentsline {subsection}{\numberline {D}Parallel computation}{49}{section*.63}% 
-\contentsline {subsection}{\numberline {E}\texttt {LeptonCutsDY}}{49}{section*.64}% 
-\contentsline {subsection}{\numberline {F}Variation of scale}{49}{section*.65}% 
-\contentsline {subsection}{\numberline {G}Options for evaluation of DY-like cross-section}{49}{section*.66}% 
-\contentsline {subsubsection}{\numberline {1}$\pi ^2$-resummation}{49}{section*.67}% 
-\contentsline {subsubsection}{\numberline {2}Power corrections}{49}{section*.68}% 
-\contentsline {subsection}{\numberline {H}Enumeration of processes}{50}{section*.69}% 
-\contentsline {section}{\numberline {XVII}\texttt {TMDX{\_}SIDIS} module}{52}{section*.70}% 
-\contentsline {subsection}{\numberline {A}Setting up the parameters of cross-section}{52}{section*.71}% 
-\contentsline {subsection}{\numberline {B}Cross-section evaluation}{53}{section*.72}% 
-\contentsline {subsection}{\numberline {C}Kinematic cuts}{55}{section*.73}% 
-\contentsline {subsection}{\numberline {D}Power corrections}{55}{section*.74}% 
-\contentsline {subsection}{\numberline {E}Bin-integration routines}{56}{section*.75}% 
-\contentsline {subsection}{\numberline {F}Enumeration of processes}{56}{section*.76}% 
-\contentsline {subsection}{\numberline {G}SIDIS theory}{57}{section*.77}% 
-\contentsline {subsubsection}{\numberline {1}Kinematics}{57}{section*.78}% 
-\contentsline {subsubsection}{\numberline {2}Cross-section}{57}{section*.79}% 
-\contentsline {section}{\numberline {XVIII}\texttt {TMDs\_inKT} module}{59}{section*.80}% 
-\contentsline {section}{\numberline {XIX}Supplementary codes}{62}{section*.81}% 
-\contentsline {section}{\numberline {XX}Harpy}{63}{section*.82}% 
-\contentsline {section}{\numberline {}References}{66}{section*.83}% 
-\contentsline {section}{\numberline {XXI}Version history}{67}{section*.84}% 
-\contentsline {section}{\numberline {XXII}Version of input-file}{71}{section*.85}% 
-\contentsline {section}{\numberline {XXIII}Backup}{72}{section*.86}% 
-\contentsline {subsection}{\numberline {}TO DO LIST}{72}{section*.87}% 
-\contentsline {subsection}{\numberline {A}artemide structure before v2.04}{73}{section*.88}% 
-\contentsline {subsection}{\numberline {B}artemide structure before v2.00}{74}{section*.89}% 
-\contentsline {subsection}{\numberline {C}artemide structure before v1.3}{75}{section*.90}% 
+\contentsline {section}{\numberline {XIV}\texttt {SiversTMDPDF} module}{34}{section*.49}% 
+\contentsline {section}{\numberline {XV}\texttt {TMDs} module}{35}{section*.50}% 
+\contentsline {subsection}{\numberline {A}Definition of low-scales}{35}{section*.51}% 
+\contentsline {subsection}{\numberline {B}Evaluating TMDs}{36}{section*.52}% 
+\contentsline {subsection}{\numberline {C}Products of TMDs}{36}{section*.53}% 
+\contentsline {subsection}{\numberline {D}Theoretical uncertainties}{36}{section*.54}% 
+\contentsline {section}{\numberline {XVI}\texttt {TMDF} module}{37}{section*.55}% 
+\contentsline {subsection}{\numberline {A}Initialization}{37}{section*.56}% 
+\contentsline {subsection}{\numberline {B}Evaluating Structure functions}{37}{section*.57}% 
+\contentsline {subsection}{\numberline {C}Enumeration of structure functions}{39}{section*.58}% 
+\contentsline {subsection}{\numberline {D}Tests}{43}{section*.59}% 
+\contentsline {section}{\numberline {XVII}\texttt {TMDX{\_}DY} module}{44}{section*.60}% 
+\contentsline {subsection}{\numberline {A}Initialization}{45}{section*.61}% 
+\contentsline {subsection}{\numberline {B}Setting up the parameters of cross-section}{45}{section*.62}% 
+\contentsline {subsection}{\numberline {C}Cross-section evaluation}{46}{section*.63}% 
+\contentsline {subsection}{\numberline {D}Parallel computation}{49}{section*.64}% 
+\contentsline {subsection}{\numberline {E}\texttt {LeptonCutsDY}}{49}{section*.65}% 
+\contentsline {subsection}{\numberline {F}Variation of scale}{49}{section*.66}% 
+\contentsline {subsection}{\numberline {G}Options for evaluation of DY-like cross-section}{49}{section*.67}% 
+\contentsline {subsubsection}{\numberline {1}$\pi ^2$-resummation}{49}{section*.68}% 
+\contentsline {subsubsection}{\numberline {2}Power corrections}{49}{section*.69}% 
+\contentsline {subsection}{\numberline {H}Enumeration of processes}{50}{section*.70}% 
+\contentsline {section}{\numberline {XVIII}\texttt {TMDX{\_}SIDIS} module}{52}{section*.71}% 
+\contentsline {subsection}{\numberline {A}Setting up the parameters of cross-section}{52}{section*.72}% 
+\contentsline {subsection}{\numberline {B}Cross-section evaluation}{53}{section*.73}% 
+\contentsline {subsection}{\numberline {C}Kinematic cuts}{55}{section*.74}% 
+\contentsline {subsection}{\numberline {D}Power corrections}{55}{section*.75}% 
+\contentsline {subsection}{\numberline {E}Bin-integration routines}{56}{section*.76}% 
+\contentsline {subsection}{\numberline {F}Enumeration of processes}{56}{section*.77}% 
+\contentsline {subsection}{\numberline {G}SIDIS theory}{57}{section*.78}% 
+\contentsline {subsubsection}{\numberline {1}Kinematics}{57}{section*.79}% 
+\contentsline {subsubsection}{\numberline {2}Cross-section}{57}{section*.80}% 
+\contentsline {section}{\numberline {XIX}\texttt {TMDs\_inKT} module}{59}{section*.81}% 
+\contentsline {section}{\numberline {XX}Supplementary codes}{62}{section*.82}% 
+\contentsline {section}{\numberline {XXI}Harpy}{63}{section*.83}% 
+\contentsline {section}{\numberline {}References}{66}{section*.84}% 
+\contentsline {section}{\numberline {XXII}Version history}{67}{section*.85}% 
+\contentsline {section}{\numberline {XXIII}Version of input-file}{71}{section*.86}% 
+\contentsline {section}{\numberline {XXIV}Backup}{72}{section*.87}% 
+\contentsline {subsection}{\numberline {}TO DO LIST}{72}{section*.88}% 
+\contentsline {subsection}{\numberline {A}artemide structure before v2.04}{73}{section*.89}% 
+\contentsline {subsection}{\numberline {B}artemide structure before v2.00}{74}{section*.90}% 
+\contentsline {subsection}{\numberline {C}artemide structure before v1.3}{75}{section*.91}% 

@@ -1563,6 +1563,17 @@ $$
 \text{\texttt{NNLO,NNLO+}}=a_s^2.
 $$
 
+\begin{tcolorbox}
+There is also a special option \texttt{NA}. In this case no matching to perturbation theory is done and the TMD distribution is replaced by $f_{NP}(x,1,b)$. I.e. 
+\begin{eqnarray}
+F_f(x,b)=f^f_{NP}(x,1,b,\{\lambda\}).
+\end{eqnarray}
+In this case, the griding options are ignored. The composition option works as usual.
+\\
+\textbf{\blue{Within the $\zeta$-prescription this option is theory-save. I.e. it can be used together with any-order evolution without theory tensions.}}
+\end{tcolorbox}
+
+
 \subsection{Definition of TMD model, $f_{NP}$ and parameters}
 \label{uTMDPDF:fNP}
 
@@ -1715,20 +1726,31 @@ Since the common-code calculates the integral PDF-like convolution, I divide by 
 
 The TMDFF functions structurally repeats the TMDPDF functions. Therefore, the module is practically the same as \texttt{uTMDPDF}. Command are the same as for \texttt{uTMDPDF} with replacement \texttt{uTMDPDF\_...} to \texttt{uTMDFF\_...}. The NNLO coefficient functions used in the module were evaluated in \cite{Echevarria:2016scs,Echevarria:2015usa} (please, cite it if use).
 
-The definition of TMDFF does not perfectly match the definition of collinear FF. There is a relative factor $1/z^2$. So the convolution reads
+\textbf{The definition of TMDFF does not perfectly match the definition of collinear FF. There is a relative factor $1/z^2$.} So the convolution reads
 \begin{eqnarray}
 D(z,b)=\int_z^1 \frac{dy}{y}\mathbb{C}\(\frac{z}{y},\mathbf{L}_\mu\)\frac{d(y,\mu)}{y^2}D_{NP}(z,\frac{z}{y},b)=
 \frac{1}{z^2}\int_z^1 \frac{dy}{y}C\(y,\mathbf{L}_\mu\)(y^2d(y,\mu))D_{NP}(z,y,b),
 \end{eqnarray}
 where $\mathbb{C}$ starts from $\delta(\bar y)$.
 
+In the case of \texttt{NA} the TMDFF is replaced by $D_{NP}$ entirely. I.e. $D(z,b)=D_{NP}(z,1,b)$.
+
 \section{\texttt{lpTMDPDF} module}
 \label{lpTMDPDF}
 
-The module is practically the same as \texttt{uTMDPFF}. Command are the same as for \texttt{uTMDPDF} with replacement \texttt{uTMDPDF\_...} to \texttt{lpTMDPDF\_...}. The NNLO coefficient functions used in the module were evaluated in \cite{Gutierrez-Reyes:2019rug} (please, cite it if use).
+The module is practically the same as \texttt{uTMDPDF}. Command are the same as for \texttt{uTMDPDF} with replacement \texttt{uTMDPDF\_...} to \texttt{lpTMDPDF\_...}. The NNLO coefficient functions used in the module were evaluated in \cite{Gutierrez-Reyes:2019rug} (please, cite it if use).
 
 \begin{tcolorbox}
 \textbf{NOTE:} Since linearly polarized gluon TMD PDF contains only gluon all options related to gluons are ignored (although the argument is preserved to keep common interface). E.g. \texttt{gluonRequared} (in \texttt{lpTMDPDF \_SetLambdaNP} is automatically replaced by \texttt{.true.}. Also the function \texttt{lpTMDPDF lowScale5} is absent, since it is identically equal to zero.
+\end{tcolorbox}
+
+\section{\texttt{SiversTMDPDF} module}
+\label{lpTMDPDF}
+
+The module is practically the same as \texttt{uTMDPDF}. Command are the same as for \texttt{uTMDPDF} with replacement \texttt{uTMDPDF\_...} to \texttt{SiversTMDPDF\_...}.
+
+\begin{tcolorbox}
+For the moment (v2.05) there is no perturbative matching. Therefore, the usage of \texttt{NA}-order is advisable. The main reason is absence of phenomenological Qui-Sterman function. The NLO perturbative matching is known \cite{Scimemi:2019gge}, and will be implemented in future versions.
 \end{tcolorbox}
 
 \renewcommand{\arraystretch}{1.5}
@@ -3185,6 +3207,15 @@ doi:10.1007/JHEP11(2019)121
 [arXiv:1907.03780 [hep-ph]].
 %10 citations counted in INSPIRE as of 11 May 2020
 
+%\cite{Scimemi:2019gge}
+\bibitem{Scimemi:2019gge}
+I.~Scimemi, A.~Tarasov and A.~Vladimirov,
+%``Collinear matching for Sivers function at next-to-leading order,''
+JHEP \textbf{05} (2019), 125
+doi:10.1007/JHEP05(2019)125
+[arXiv:1901.04519 [hep-ph]].
+%10 citations counted in INSPIRE as of 21 Jun 2020
+
 \end{thebibliography}
 
 \newpage
@@ -3198,6 +3229,7 @@ doi:10.1007/JHEP11(2019)121
 	\item \textbf{aTMDe\_setup} Some code refactoring + \textbf{SiversTMDPDF}
 	\item \textbf{TMDs} Some code refactoring + \textbf{SiversTMDPDF}
 	\item \textbf{SiversTMDPDF} Implemented.
+	\item \textbf{*TMD**} Added \texttt{NA}-option for the order-definition.
 	\item \textbf{*TMD**} Grid-code is moved to a separate directory.
 \end{itemize}
 
@@ -3414,15 +3446,6 @@ doi:10.1007/JHEP11(2019)121
 
 \newpage
 \section{Backup}
-
-\subsection*{TO DO LIST}
-\begin{itemize}
-\item Add $\epsilon$ or mW algorithm for Hankel integrals (see Lukas,Stone,Evaluating infinite integrals involving Bessel ...)
-\item Fix over-computation issue in bin-integration routines for extremely small bins.
-\item Fix large-$\mathcal{D}$ asymptotic for NNNLO exact $\zeta$-line.
-\end{itemize}
-
-\newpage
 
 \subsection{artemide structure before v2.04}
 
