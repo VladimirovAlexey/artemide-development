@@ -171,8 +171,8 @@ $(OBJ)/IntegrationRoutines.o: $(SOURCEDIR)/Code/IntegrationRoutines.f90 $(OBJ)/a
 	mv *.mod $(MOD)
 
 $(OBJ)/LeptonCutsDY.o: $(SOURCEDIR)/LeptonCutsDY.f90 $(aTMDeUTILITY)
-	mkdir -p obj
-	mkdir -p mod
+#	mkdir -p obj
+#	mkdir -p mod
 	$(FC) -c $(SOURCEDIR)/LeptonCutsDY.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
@@ -302,7 +302,7 @@ clean:
 	$(RM) count $(OBJ)/*.o
 	$(RM) count $(MOD)/*.mod
 	$(RM) $(HDIR)/*.pyc
-	$(RM) $(HDIR)/artemide.so
+	$(RM) $(HDIR)/artemide*.so
 	
 program: 
 	echo $(TARGET)
@@ -332,4 +332,4 @@ harpy-signature:
 
 harpy: 
 	f2py -c --f90exec=$(Fpath) --f90flags=$(Fflags) $(FOPT) -lgomp -I$(MOD) $(aTMDeFILES) $(HDIR)/harpy.f90 $(HDIR)/artemide.pyf
-	mv artemide.so $(HDIR)
+	mv artemide*.so $(HDIR)

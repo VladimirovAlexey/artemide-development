@@ -1,6 +1,6 @@
 program example
 use aTMDe_control
-use uTMDPDF
+use uTMDFF
 use TMDs_inKT
 implicit none
 
@@ -15,30 +15,21 @@ integer::numR,numB,i,j
 real*8,allocatable::central(:),mean(:),deviation(:),kT(:)
 real*8::kMax,step,mu,dd,x,TMD(-5:5)
 integer::f,k
-! real*8,parameter::xValues(1:7)=(/.99d0,10d0**(-0.5d0),10d0**(-1d0),10d0**(-1.5d0),10d0**(-2d0),10d0**(-2.5d0),10d0**(-3d0)/)
-! real*8,parameter::xValues(1:13)=(/&
-! 0.99d0,10d0**(-0.25d0),10d0**(-0.5d0),10d0**(-0.75d0),&
-! 10d0**(-1d0),10d0**(-1.25d0),10d0**(-1.5d0),10d0**(-1.75d0),&
-! 10d0**(-2d0),10d0**(-2.25d0),10d0**(-2.5d0),10d0**(-2.75d0),10d0**(-3d0)/)
-real*8,parameter::xValues(1:16)=(/0.99d0,&
-10d0**(-0.2d0),10d0**(-0.4d0),10d0**(-0.6d0),10d0**(-0.8d0),10d0**(-1d0),&
-10d0**(-1.2d0),10d0**(-1.4d0),10d0**(-1.6d0),10d0**(-1.8d0),10d0**(-2d0),&
-10d0**(-2.2d0),10d0**(-2.4d0),10d0**(-2.6d0),10d0**(-2.8d0),10d0**(-3d0)&
-/)
-! real*8,parameter::xValues(1:13)=(/&
-! 1.d0, 0.923077d0, 0.846154d0, 0.769231d0, 0.692308d0, 0.615385d0, 0.538462d0,&
-! 0.461538d0, 0.384615d0, 0.307692d0, 0.230769d0, 0.153846d0, 0.0769231d0/)
+real*8,parameter::xValues(1:15)=(/&
+0.99d0,0.9d0,&
+0.8d0,0.75d0,0.7d0,0.65d0,&
+0.6d0,0.55d0,0.5d0,0.45d0,0.4d0,0.35d0,0.3d0,0.25d0,0.2d0/)
 
 call artemide_Initialize(constFILE)
 
 numR=artemide_NumOfReplicasInFile(repFILE)
 
 call artemide_GetReplicaFromFile(repFILE,0,NParray)
-call uTMDPDF_SetLambdaNP(NParray(3:9),.true.,.false.)
+call uTMDFF_SetLambdaNP(NParray(10:13),.true.,.false.)
 
 
-numB=40
-kMax=3d0
+numB=50
+kMax=7d0
 mu=4d0
 
 allocate(kT(1:numB))
@@ -63,7 +54,7 @@ do k=1,size(xValues)
 x=xValues(k)
 
   do i=1,numB
-    TMD=uTMDPDF_kT_5(x,kT(i),1)
+    TMD=uTMDFF_kT_5(x,kT(i),1)
     central(i)=TMD(f)
     mean(i)=0d0
     deviation(i)=0d0
@@ -71,9 +62,9 @@ x=xValues(k)
 
   do j=1,numR
     call artemide_GetReplicaFromFile(repFILE,j,NParray)
-    call uTMDPDF_SetLambdaNP(NParray(3:9),.true.,.false.)
+    call uTMDFF_SetLambdaNP(NParray(10:13),.true.,.false.)
     do i=1,numB
-      TMD=uTMDPDF_kT_5(x,kT(i),1)
+      TMD=uTMDFF_kT_5(x,kT(i),1)
       mean(i)=mean(i)+TMD(f)
       deviation(i)=deviation(i)+TMD(f)**2
     end do  
@@ -105,7 +96,7 @@ do k=1,size(xValues)
 x=xValues(k)
 
   do i=1,numB
-    TMD=uTMDPDF_kT_5(x,kT(i),1)
+    TMD=uTMDFF_kT_5(x,kT(i),1)
     central(i)=TMD(f)
     mean(i)=0d0
     deviation(i)=0d0
@@ -113,9 +104,9 @@ x=xValues(k)
 
   do j=1,numR
     call artemide_GetReplicaFromFile(repFILE,j,NParray)
-    call uTMDPDF_SetLambdaNP(NParray(3:9),.true.,.false.)
+    call uTMDFF_SetLambdaNP(NParray(10:13),.true.,.false.)
     do i=1,numB
-      TMD=uTMDPDF_kT_5(x,kT(i),1)
+      TMD=uTMDFF_kT_5(x,kT(i),1)
       mean(i)=mean(i)+TMD(f)
       deviation(i)=deviation(i)+TMD(f)**2
     end do  
@@ -141,12 +132,11 @@ write(*,*) ' '
 
 f=3
 
-
 do k=1,size(xValues)
 x=xValues(k)
 
   do i=1,numB
-    TMD=uTMDPDF_kT_5(x,kT(i),1)
+    TMD=uTMDFF_kT_5(x,kT(i),1)
     central(i)=TMD(f)
     mean(i)=0d0
     deviation(i)=0d0
@@ -154,9 +144,9 @@ x=xValues(k)
 
   do j=1,numR
     call artemide_GetReplicaFromFile(repFILE,j,NParray)
-    call uTMDPDF_SetLambdaNP(NParray(3:9),.true.,.false.)
+    call uTMDFF_SetLambdaNP(NParray(10:13),.true.,.false.)
     do i=1,numB
-      TMD=uTMDPDF_kT_5(x,kT(i),1)
+      TMD=uTMDFF_kT_5(x,kT(i),1)
       mean(i)=mean(i)+TMD(f)
       deviation(i)=deviation(i)+TMD(f)**2
     end do  
@@ -186,7 +176,7 @@ do k=1,size(xValues)
 x=xValues(k)
 
   do i=1,numB
-    TMD=uTMDPDF_kT_5(x,kT(i),1)
+    TMD=uTMDFF_kT_5(x,kT(i),1)
     central(i)=TMD(f)
     mean(i)=0d0
     deviation(i)=0d0
@@ -194,9 +184,9 @@ x=xValues(k)
 
   do j=1,numR
     call artemide_GetReplicaFromFile(repFILE,j,NParray)
-    call uTMDPDF_SetLambdaNP(NParray(3:9),.true.,.false.)
+    call uTMDFF_SetLambdaNP(NParray(10:13),.true.,.false.)
     do i=1,numB
-      TMD=uTMDPDF_kT_5(x,kT(i),1)
+      TMD=uTMDFF_kT_5(x,kT(i),1)
       mean(i)=mean(i)+TMD(f)
       deviation(i)=deviation(i)+TMD(f)**2
     end do  
@@ -215,6 +205,5 @@ x=xValues(k)
   end do
 
 end do
-
 
 end program example
