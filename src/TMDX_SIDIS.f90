@@ -464,6 +464,9 @@ contains
     else
       z1=var(5)*fac1*(1d0+sqrt(1d0-var(9)))*0.5d0
     end if
+    
+    !if(x1<0.0001d0) write(*,*) '>>>>>>>>>>>>>>>',x1,z1,qT,var
+    
   end subroutine CalculateX1Z1qT
   
   !!!! update a given kinematic array with new value of x.
@@ -1845,7 +1848,8 @@ contains
     end if
    
    !$OMP PARALLEL DO DEFAULT(SHARED)
-    do i=1,length
+    do i=1,length    
+    
     xx(i)=xSecFULL(process(i,1:3),s(i),pt(i,1),pt(i,2),z(i,1),z(i,2),x(i,1),x(i,2),Q(i,1),Q(i,2),doCut(i),Cuts(i,1:4),&
 		    masses(i,1)**2,masses(i,2)**2)
     end do
