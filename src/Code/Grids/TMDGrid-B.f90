@@ -48,9 +48,9 @@ subroutine MakeGrid()
     call cpu_time(time1)
     if(outputlevel>1) then
         if(numberOfHadrons>1) then
-            write(*,*) 'arTeMiDe.',moduleName,' starts to build grid. At ',time1
+            write(*,*) 'arTeMiDe.',moduleName,' starts to build grids for',numToStr(numberOfHadrons), ' hadrons. At ',time1
         else
-            write(*,*) 'arTeMiDe.',moduleName,' starts to build grids for',numToStr(numberOfHadrons), 'hadrons. At ',time1
+            write(*,*) 'arTeMiDe.',moduleName,' starts to build grid. At ',time1            
         end if
     end if
     
