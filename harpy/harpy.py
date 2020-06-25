@@ -22,11 +22,17 @@ def initialize(fileName):
     None.
 
     """
-    artemide.harpy.initialize(fileName)
-    if artemide.harpy.started:
-        pass
+    
+    import os.path
+    if os.path.exists(fileName):
+    
+        artemide.harpy.initialize(fileName)
+        if artemide.harpy.started:
+            pass
+        else:
+            print("Welcome to harpy -- the python interface for artemide")
     else:
-        print("Welcome to harpy -- the python interface for artemide")
+        raise FileNotFoundError('consts-file '+fileName+'NOT FOUND')
 
 def ShowStatistics():
     """

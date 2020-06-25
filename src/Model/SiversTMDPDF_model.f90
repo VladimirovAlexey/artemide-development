@@ -77,15 +77,19 @@ function FNP(x,bT,hadron,lambdaNP)
     integer,intent(in)::hadron
     real(dp),intent(in)::lambdaNP(:)
 
-    real(dp)::bb,FNP0
+    real(dp)::bProfile,FNPu,FNPd,FNPsea
 
-    bb=bT**2
+    !!! profile in b is common for all (2 parameters)
+    bProfile=cosh(lambdaNP(1)*bT**2)
     
-    FNP0=lambdaNP(1)*exp(-lambdaNP(2)*bb/sqrt(1+lambdaNP(3)*bb))*(1-x)**lambdaNP(4)*x**lambdaNP(5)
+    !!! u-quark(3 parameters)
+    FNPu=lambdaNP(3)*(1-x)**lambdaNP(4)*x**lambdaNP(5)
+    !!! d-quark(3 parameters)
+    FNPd=lambdaNP(6)*(1-x)**lambdaNP(7)*x**lambdaNP(8)
+    !!! sea-quark(4 parameters)
+    FNPsea=lambdaNP(9)*(1-x)**lambdaNP(10)*x**lambdaNP(11)
 
-    !    FNP0=Exp(-lambdaNP(1)*bb)
-
-    FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
+    FNP=bProfile*(/FNPsea,FNPsea,FNPsea,FNPsea,FNPsea,0d0,FNPd,FNPu,FNPsea,FNPsea,FNPsea/)
 
 end function FNP
   
