@@ -30,172 +30,186 @@
 
 !!! this subroutine create grid. It is called only from the uTMDPDF_SetLambdaNP function.
 subroutine MakeGrid()
-  real(dp):: x_local,b_local
-  
-  !!!size of grid is power of 2, to make it testable and reusable. order is the current power.
-  integer:: iX,iB,j,h
-  
-  real(dp),dimension(-5:5)::checkValue,dummyfNP
-  real(dp)::maxValue,eps,epsB,epsX,B_BAD,x_BAD,eps_av,time1,time2
-  integer::grid_size
-  real(dp),dimension(0:GridSizeX,1:2,-5:5,1:numberOfHadrons)::smallGrid
-  real(dp)::v1_BAD,v2_BAD
-  
-  if(numberOfHadrons==1 .and. hadronsInGRID(1)==0) return
-  
-  call cpu_time(time1)
-  if(outputlevel>2) write(*,*) 'arTeMiDe.',moduleName,' starts to build grid. At ',time1
-  
-  !!!save the parameters on which the grid is build
-  lambdaNP_grid=lambdaNP
+    real(dp):: x_local,b_local
 
-  bFactor=bGrid_Max/(EXP(slope)-1d0) !!! often used combination
-  slopeFactor=slope/REAL(GridSizeB)
-!  goto 111 
-  !!!We use the following grid
-  !! b=(e^{a i/imax}-1)/(e^a-1)*b_Max 
-  !! where a=slope. If slope higher more points concentrated at b->0
-  !! For x we use the grid
-  !! x=(xMin)^(i/imax)
-  do h=1,numberOfHadrons
-   do iX=0,GridSizeX
-    do iB=0,GridSizeB
-     x_local=xGrid_Min**(REAL(iX)/REAL(GridSizeX))
-     b_local=(EXP(slopeFactor*REAL(iB))-1d0)*bFactor
-     
-     if(x_local==1d0) then
-      gridMain(iX,iB,-5:5,h)=0d0
-     else
-      if(withGluon) then
-       gridMain(iX,iB,-5:5,h)=x_local*Common_lowScale50(x_local,b_local,hadronsInGRID(h))
-      else
-       gridMain(iX,iB,-5:5,h)=x_local*Common_lowScale5(x_local,b_local,hadronsInGRID(h))
-      end if
-     end if
-    end do    
-    end do
-    if(outputLevel>1 .and. numberOfHadrons>1) write(*,'(" ",A,": Grid for hadron ",I3," is done")') moduleName,hadronsInGRID(h)
-   end do
-  !!!!!!!!!!!!!**************************************************************************************************************
-  !!!!!!!!!!!!!**************************************************************************************************************
-  !!!!!!!!!!!!!*****************************TALE PART************************************************************************
-  !!!!!!!!!!!!!**************************************************************************************************************
-  
-  !!!The high B (b>bGrid_Max) tales are approximated as value(bGrid_Max)/fNP(x,x,bGrid_Max) * fNP(x,x,b)
-  !!! this approximation is exact if coeff-function freeze at large b.
-111 do h=1,numberOfHadrons
-    do iX=1,GridSizeX
-     x_local=xGrid_Min**(REAL(iX)/REAL(GridSizeX))
-     b_local=bGrid_Max
-     
-      if(withGluon) then
-        boundaryValues(iX,-5:5,h)=x_local*Common_lowScale50(x_local,b_local,hadronsInGRID(h))
-      else
-        boundaryValues(iX,-5:5,h)=x_local*Common_lowScale5(x_local,b_local,hadronsInGRID(h))
-        boundaryValues(iX,0,h)=0d0
-      end if
-      
-    dummyfNP=FNP(x_local,x_local,b_local,hadronsInGRID(h),lambdaNP_grid)
-      
-      !!!! if fNP=0, here, we check is C x f fNP=0, if so, we save 1, otherwise exception
-      do j=-5,5
-	if(dummyfNP(j)==0d0) then
-	  if(boundaryValues(iX,j,h)/=0d0 .and. outputLevel>0) then  
-            call Warning_Raise('error in evaluation of boundary for grid',messageCounter,messageTrigger,moduleName)
-            if(messageCounter<messageTrigger) then
-              write(*,*) '----- information on last call -----'
-              write(*,*) 'fNP=',dummyfNP(j),'boundary=',boundaryValues(iX,j,h), 'for (h,f)=(',hadronsInGRID(h),j,')'
-	      write(*,*) 'Continue with value=1'
-            end if
-	  end if
-	  boundaryValues(iX,j,h)=1d0
-	  
-	 else
-	  !!!normal case
-	  boundaryValues(iX,j,h)=boundaryValues(iX,j,h)/dummyfNP(j)
-	 end if
-      end do
-      
-    end do
-    end do
-    
-    call cpu_time(time2)
-    
+    !!!size of grid is power of 2, to make it testable and reusable. order is the current power.
+    integer:: iX,iB,j,h
+
+    real(dp),dimension(-5:5)::checkValue,dummyfNP
+    real(dp)::maxValue,eps,epsB,epsX,B_BAD,x_BAD,eps_av,time1,time2
+    integer::grid_size
+    real(dp),dimension(0:GridSizeX,1:2,-5:5,1:numberOfHadrons)::smallGrid
+    real(dp)::v1_BAD,v2_BAD
+
+    if(numberOfHadrons==1 .and. hadronsInGRID(1)==0) return
+
+    !!!!!!!!!!!!!**************************************************************************************************************
+    !!initial message
+    call cpu_time(time1)
     if(outputlevel>1) then
-      if(numberOfHadrons>1) then
-	write(*,'(" ",A,": Grids are built  (",I5," x",I5,")  calc.time=",F6.2,"s. ")')&
-	  moduleName, GridSizeX,GridSizeB, time2-time1
-      else
-	write(*,'(" ",A,": Grid is built  (",I5," x",I5,")  calc.time=",F6.2,"s. ")')&
-	  moduleName, GridSizeX,GridSizeB, time2-time1
-      end if
+        if(numberOfHadrons>1) then
+            write(*,*) 'arTeMiDe.',moduleName,' starts to build grid. At ',time1
+        else
+            write(*,*) 'arTeMiDe.',moduleName,' starts to build grids for',numToStr(numberOfHadrons), 'hadrons. At ',time1
+        end if
     end if
     
-  !!check the grid
-  !! we pass though grid restoring a point from near-by points
-  !! in this way we estimate error
-    if(outputLevel>2) then
+    !!!!!!!!!!!!!**************************************************************************************************************
+    !!main part
+    
+    !!!save the parameters on which the grid is build
+    lambdaNP_grid=lambdaNP
+
+    bFactor=bGrid_Max/(EXP(slope)-1d0) !!! often used combination
+    slopeFactor=slope/REAL(GridSizeB)
+    !  goto 111 
+    !!!We use the following grid
+    !! b=(e^{a i/imax}-1)/(e^a-1)*b_Max 
+    !! where a=slope. If slope higher more points concentrated at b->0
+    !! For x we use the grid
+    !! x=(xMin)^(i/imax)
     do h=1,numberOfHadrons
-    epsB=0d0
-    epsX=0d0
-    eps_av=0d0
-    grid_size=0
-    !check b-grid
-    do iX=0,GridSizeX
-    maxValue=MAXVAL(ABS(gridMain(iX,2:GridSizeB,1:3,h)))
-    if(maxValue>0d0) then
-    do iB=2,GridSizeB-4
-      checkValue=((-gridMain(iX,iB,-5:5,h)+4d0*gridMain(iX,iB+1,-5:5,h)+4d0*gridMain(iX,iB+3,-5:5,h)&
-        -gridMain(iX,iB+4,-5:5,h))/6d0-gridMain(iX,iB+2,-5:5,h))
-        
-      if(.not.withGluon) checkValue(0)=0
-      
-      eps=MAXVAL(ABS(checkValue))/maxValue
-      eps_av=eps_av+checkValue(MAXLOC(ABS(checkValue),1)-6)/maxValue      
-      grid_size=grid_size+1
-      
-      if(eps>epsB) then
-       epsB=eps
-       B_BAD=(EXP(slopeFactor*REAL(iB+2))-1d0)*bFactor
-       x_BAD=xGrid_Min**(REAL(iX)/REAL(GridSizeX))
-       end if
-    end do    
-    end if
+        do iX=0,GridSizeX
+            do iB=0,GridSizeB
+                x_local=xGrid_Min**(REAL(iX)/REAL(GridSizeX))
+                b_local=(EXP(slopeFactor*REAL(iB))-1d0)*bFactor
+
+                if(x_local==1d0) then
+                    gridMain(iX,iB,-5:5,h)=0d0
+                else
+                    if(withGluon) then
+                        gridMain(iX,iB,-5:5,h)=x_local*Common_lowScale50(x_local,b_local,hadronsInGRID(h))
+                    else
+                        gridMain(iX,iB,-5:5,h)=x_local*Common_lowScale5(x_local,b_local,hadronsInGRID(h))
+                    end if
+                end if
+            end do    
+        end do
+        if(outputLevel>1 .and. numberOfHadrons>1) write(*,'(" ",A,": Grid for hadron ",I3," is done")') moduleName,hadronsInGRID(h)
     end do
-!     write(*,*) 'The worst B reconstraction with ',epsB, 'at (x,b)=',x_BAD,B_BAD
-    
-!   check x-grid
-    do iB=0,GridSizeB
-    if(withGluon) then 
-      maxValue=MAXVAL(ABS(gridMain(0:GridSizeX,iB,0:3,h)))
-    else
-      maxValue=MAXVAL(ABS(gridMain(0:GridSizeX,iB,1:3,h)))
-    end if
-    if(maxValue>0d0) then
-    do iX=0,GridSizeX-4
-      checkValue=((-gridMain(iX,iB,-5:5,h)+4d0*gridMain(iX+1,iB,-5:5,h)+4d0*gridMain(iX+3,iB,-5:5,h)&
-      -gridMain(iX+4,iB,-5:5,h))/6d0-gridMain(iX+2,iB,-5:5,h))
-      
-      if(.not.withGluon) checkValue(0)=0
-      
-      eps=MAXVAL(ABS(checkValue))/maxValue
-      eps_av=eps_av+eps
-      grid_size=grid_size+1
-      if(eps>epsX) then
-       epsX=eps
-       B_BAD=(EXP(slopeFactor*REAL(iB))-1d0)*bFactor
-       x_BAD=xGrid_Min**(REAL(iX+2)/REAL(GridSizeX))
-       end if
-    end do    
-    end if
+    !!!!!!!!!!!!!**************************************************************************************************************
+    !!!!!!!!!!!!!**************************************************************************************************************
+    !!!!!!!!!!!!!*****************************TALE PART************************************************************************
+    !!!!!!!!!!!!!**************************************************************************************************************
+
+    !!!The high B (b>bGrid_Max) tales are approximated as value(bGrid_Max)/fNP(x,x,bGrid_Max) * fNP(x,x,b)
+    !!! this approximation is exact if coeff-function freeze at large b.
+111 do h=1,numberOfHadrons
+        do iX=1,GridSizeX
+            x_local=xGrid_Min**(REAL(iX)/REAL(GridSizeX))
+            b_local=bGrid_Max
+
+            if(withGluon) then
+                boundaryValues(iX,-5:5,h)=x_local*Common_lowScale50(x_local,b_local,hadronsInGRID(h))
+            else
+                boundaryValues(iX,-5:5,h)=x_local*Common_lowScale5(x_local,b_local,hadronsInGRID(h))
+                boundaryValues(iX,0,h)=0d0
+            end if
+
+            dummyfNP=FNP(x_local,x_local,b_local,hadronsInGRID(h),lambdaNP_grid)
+
+            !!!! if fNP=0, here, we check is C x f fNP=0, if so, we save 1, otherwise exception
+            do j=-5,5
+                if(dummyfNP(j)==0d0) then
+                if(boundaryValues(iX,j,h)/=0d0 .and. outputLevel>0) then  
+                    call Warning_Raise('error in evaluation of boundary for grid',messageCounter,messageTrigger,moduleName)
+                    if(messageCounter<messageTrigger) then
+                        write(*,*) '----- information on last call -----'
+                        write(*,*) 'fNP=',dummyfNP(j),'boundary=',boundaryValues(iX,j,h), 'for (h,f)=(',hadronsInGRID(h),j,')'
+                    write(*,*) 'Continue with value=1'
+                    end if
+                end if
+                boundaryValues(iX,j,h)=1d0
+
+                else
+                    !!!normal case
+                    boundaryValues(iX,j,h)=boundaryValues(iX,j,h)/dummyfNP(j)
+                end if
+            end do
+
+        end do
     end do
-!     write(*,*) 'The worst X reconstraction with ',epsX, 'at (x,b)=',x_BAD,B_BAD
     
-    write(*,'(" ",A,": Grid (for hadron ",I3,") av.badness =",ES12.3)')&
-    moduleName,hadronsInGRID(h),eps_av/REAL(grid_size)
-    
-    end do
+    !!!!!!!!!!!!!**************************************************************************************************************
+    !!check the grid
+    !! we pass though grid restoring a point from near-by points
+    !! in this way we estimate error
+    if(outputLevel>2) then
+        do h=1,numberOfHadrons
+            epsB=0d0
+            epsX=0d0
+            eps_av=0d0
+            grid_size=0
+            !check b-grid
+            do iX=0,GridSizeX
+                maxValue=MAXVAL(ABS(gridMain(iX,2:GridSizeB,1:3,h)))
+                if(maxValue>0d0) then
+                    do iB=2,GridSizeB-4
+                        checkValue=((-gridMain(iX,iB,-5:5,h)+4d0*gridMain(iX,iB+1,-5:5,h)+4d0*gridMain(iX,iB+3,-5:5,h)&
+                        -gridMain(iX,iB+4,-5:5,h))/6d0-gridMain(iX,iB+2,-5:5,h))
+
+                        if(.not.withGluon) checkValue(0)=0
+
+                        eps=MAXVAL(ABS(checkValue))/maxValue
+                        eps_av=eps_av+checkValue(MAXLOC(ABS(checkValue),1)-6)/maxValue      
+                        grid_size=grid_size+1
+
+                        if(eps>epsB) then
+                            epsB=eps
+                            B_BAD=(EXP(slopeFactor*REAL(iB+2))-1d0)*bFactor
+                            x_BAD=xGrid_Min**(REAL(iX)/REAL(GridSizeX))
+                        end if
+                    end do    
+                end if
+            end do
+            !     write(*,*) 'The worst B reconstraction with ',epsB, 'at (x,b)=',x_BAD,B_BAD
+
+            !   check x-grid
+            do iB=0,GridSizeB
+                if(withGluon) then 
+                    maxValue=MAXVAL(ABS(gridMain(0:GridSizeX,iB,0:3,h)))
+                else
+                    maxValue=MAXVAL(ABS(gridMain(0:GridSizeX,iB,1:3,h)))
+                end if
+                if(maxValue>0d0) then
+                    do iX=0,GridSizeX-4
+                        checkValue=((-gridMain(iX,iB,-5:5,h)+4d0*gridMain(iX+1,iB,-5:5,h)+4d0*gridMain(iX+3,iB,-5:5,h)&
+                        -gridMain(iX+4,iB,-5:5,h))/6d0-gridMain(iX+2,iB,-5:5,h))
+
+                        if(.not.withGluon) checkValue(0)=0
+
+                        eps=MAXVAL(ABS(checkValue))/maxValue
+                        eps_av=eps_av+eps
+                        grid_size=grid_size+1
+                        if(eps>epsX) then
+                            epsX=eps
+                            B_BAD=(EXP(slopeFactor*REAL(iB))-1d0)*bFactor
+                            x_BAD=xGrid_Min**(REAL(iX+2)/REAL(GridSizeX))
+                        end if
+                    end do    
+                end if
+            end do
+            !     write(*,*) 'The worst X reconstraction with ',epsX, 'at (x,b)=',x_BAD,B_BAD
+
+            write(*,'(" ",A,": Grid (for hadron ",I3,") av.badness =",ES12.3)')&
+            moduleName,hadronsInGRID(h),eps_av/REAL(grid_size)
+
+        end do
     end if
+    
+    !!!!!!!!!!!!!**************************************************************************************************************
+    !!final message
+    call cpu_time(time2)
+    if(outputlevel>1) then
+        if(numberOfHadrons>1) then
+            write(*,'(" ",A,": Grids are built  (",I5," x",I5,")  calc.time=",F6.2,"s. ")')&
+            moduleName, GridSizeX,GridSizeB, time2-time1
+        else
+            write(*,'(" ",A,": Grid is built  (",I5," x",I5,")  calc.time=",F6.2,"s. ")')&
+            moduleName, GridSizeX,GridSizeB, time2-time1
+        end if
+    end if
+
 end subroutine MakeGrid
   
 function ExtractFromGrid(x,bT,hadron)
