@@ -811,6 +811,58 @@ end subroutine TMDF_ResetCounters
 !----------------------------------------------------------------------------------------------------------------------------------  
 !-----------------------------------------------------Sivers asymetries------------------------------------------------------------
 !----------------------------------------------------------------------------------------------------------------------------------
+!--------------------------------------------------------------------------------
+    CASE (10001) !pp->gamma
+        ! e_q^2 *F_q(A)*F_qbar(B)
+        FA=-1d0*SiversTMDPDF_5(x1,b,mu,zeta1,1)  !!!! -1 is due to definition of Sivers function + for SIDIS -for DY
+        FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+        FAB=FA*(FB(5:-5:-1))
+        
+        Integrand=FAB(1)/9.d0&
+        +FAB(2)*4.d0/9.d0&
+        +FAB(3)/9.d0&
+        +FAB(4)*4d0/9.d0&
+        +FAB(5)/9d0&
+        +FAB(-1)/9.d0&
+        +FAB(-2)*4.d0/9.d0&
+        +FAB(-3)/9.d0&
+        +FAB(-4)*4d0/9.d0&
+        +FAB(-5)/9d0
+    !--------------------------------------------------------------------------------  
+    CASE (10005) !pp->Z+gamma        
+        FA=-1d0*SiversTMDPDF_5(x1,b,mu,zeta1,1)  !!!! -1 is due to definition of Sivers function + for SIDIS -for DY
+        FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+        FAB=FA*(FB(5:-5:-1))
+            
+        Integrand=XIntegrandForDYwithZgamma(FAB,Q2)
+    !--------------------------------------------------------------------------------  
+    CASE (10007) !pp-> W+
+        FA=-1d0*SiversTMDPDF_5(x1,b,mu,zeta1,1)  !!!! -1 is due to definition of Sivers function + for SIDIS -for DY
+        FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+        
+        Integrand=paramW_L*(&
+        paramW_UD*(FA(2)*FB(-1)+FA(-1)*FB(2))&		!u*dbar+dbar*u
+        +paramW_US*(FA(2)*FB(-3)+FA(-3)*FB(2))&		!u*sbar+sbar*u
+        +paramW_UB*(FA(2)*FB(-5)+FA(-5)*FB(2))&		!u*bbar+bbar*u
+        +paramW_CD*(FA(4)*FB(-1)+FA(-1)*FB(4))&		!c*dbar+dbar*c
+        +paramW_CS*(FA(4)*FB(-3)+FA(-3)*FB(4))&		!c*sbar+sbar*c
+        +paramW_CB*(FA(4)*FB(-5)+FA(-5)*FB(4))&		!c*bbar+bbar*c
+        )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
+    !--------------------------------------------------------------------------------  
+    CASE (10008) !pp-> W-
+        FA=-1d0*SiversTMDPDF_5(x1,b,mu,zeta1,1)  !!!! -1 is due to definition of Sivers function + for SIDIS -for DY
+        FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+        
+        Integrand=paramW_L*(&
+        paramW_UD*(FA(1)*FB(-2)+FA(-2)*FB(1))&		!d*ubar+ubar*d
+        +paramW_US*(FA(3)*FB(-2)+FA(-2)*FB(3))&		!s*ubar+ubar*s
+        +paramW_UB*(FA(5)*FB(-2)+FA(-2)*FB(5))&		!b*ubar+ubar*b
+        +paramW_CD*(FA(1)*FB(-4)+FA(-4)*FB(1))&		!d*cbar+cbar*d
+        +paramW_CS*(FA(3)*FB(-4)+FA(-4)*FB(3))&		!s*cbar+cbar*s
+        +paramW_CB*(FA(5)*FB(-4)+FA(-4)*FB(5))&		!b*cbar+cbar*b
+        )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
+  
+	
     CASE (12001:12009) !Sivers asymmetry p->hN where n=last number
 	! e_q^2 *F_q(A)*F_q(B)
 	h=process-12000

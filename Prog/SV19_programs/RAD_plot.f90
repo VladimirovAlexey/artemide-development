@@ -24,6 +24,7 @@ bMax=5d0
 !mu=91d0
 mu=4d0!.39d0
 
+
 allocate(b(1:numB))
 do i=1,20
   b(i)=0.005d0+i/20d0
