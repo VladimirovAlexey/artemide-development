@@ -80,7 +80,7 @@ function FNP(x,bT,hadron,lambdaNP)
     real(dp)::bProfile,FNPu,FNPd,FNPsea
 
     !!! profile in b is common for all (2 parameters)
-    bProfile=(1+lambdaNP(2)*bT**2)/cosh(lambdaNP(1)*bT)
+    bProfile=Exp(-(lambdaNP(1)+lambdaNP(2)*x**2)*bT**2)
     
     !!! u-quark(3 parameters)
     FNPu=lambdaNP(3)*(1-x)**lambdaNP(4)*x**lambdaNP(5)

@@ -97,7 +97,7 @@ function FNP(x,z,bT,hadron,lambdaNP)
     else
     FNP0=Exp(-w1*bb/sqrt(1+w2*bb))
     end if
-    
+    !FNP0=1d0
   else 
       bb=bT**2
       w1=(lambdaNP(7)+(1-x)**2*lambdaNP(8))
