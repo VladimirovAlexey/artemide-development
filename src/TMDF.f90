@@ -751,6 +751,36 @@ end subroutine TMDF_ResetCounters
 	  +FA(-3)*FB(-3)/9.d0&
 	  +FA(-4)*FB(-4)*4d0/9.d0&
 	  +FA(-5)*FB(-5)/9d0
+!--------------------------------------------------------------------------------  
+   CASE (2105) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_q(B)
+	FA=uTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+	Integrand=FA(2)*FB(1)/9.d0&
+	  +FA(1)*FB(2)*4.d0/9.d0&
+	  +FA(3)*FB(3)/9.d0&
+	  +FA(4)*FB(4)*4d0/9.d0&
+	  +FA(5)*FB(5)/9d0&
+	  +FA(-2)*FB(-1)/9.d0&
+	  +FA(-1)*FB(-2)*4.d0/9.d0&
+	  +FA(-3)*FB(-3)/9.d0&
+	  +FA(-4)*FB(-4)*4d0/9.d0&
+	  +FA(-5)*FB(-5)/9d0
+!--------------------------------------------------------------------------------  
+    CASE (2106) !n->h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_q(B)
+	FA=uTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+	Integrand=FA(2)*FB(1)/9.d0&
+	  +FA(1)*FB(2)*4.d0/9.d0&
+	  +FA(3)*FB(3)/9.d0&
+	  +FA(4)*FB(4)*4d0/9.d0&
+	  +FA(5)*FB(5)/9d0&
+	  +FA(-2)*FB(-1)/9.d0&
+	  +FA(-1)*FB(-2)*4.d0/9.d0&
+	  +FA(-3)*FB(-3)/9.d0&
+	  +FA(-4)*FB(-4)*4d0/9.d0&
+	  +FA(-5)*FB(-5)/9d0
 !------------------------------------------------------------------------------------
   CASE (2111) !p->bar h? where h?=h1+h2
 	! e_q^2 *F_q(A)*F_bq(B)
@@ -804,6 +834,36 @@ end subroutine TMDF_ResetCounters
 	  +FA(4)*FB(-4)*4d0/9.d0&
 	  +FA(5)*FB(-5)/9d0&
 	  +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
+	  +FA(-3)*FB(3)/9.d0&
+	  +FA(-4)*FB(4)*4d0/9.d0&
+	  +FA(-5)*FB(5)/9d0
+!------------------------------------------------------------------------------------
+  CASE (2115) !n->bar h? where h?=h1+h2 (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_bq(B)
+	FA=uTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+	Integrand=FA(2)*FB(-1)/9.d0&
+	  +FA(1)*FB(-2)*4.d0/9.d0&
+	  +FA(3)*FB(-3)/9.d0&
+	  +FA(4)*FB(-4)*4d0/9.d0&
+	  +FA(5)*FB(-5)/9d0&
+	  +FA(-2)*FB(1)/9.d0&
+	  +FA(-1)*FB(2)*4.d0/9.d0&
+	  +FA(-3)*FB(3)/9.d0&
+	  +FA(-4)*FB(4)*4d0/9.d0&
+	  +FA(-5)*FB(5)/9d0
+!--------------------------------------------------------------------------------  
+    CASE (2116) !n->bar h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_bq(B)
+	FA=uTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+	Integrand=FA(2)*FB(-1)/9.d0&
+	  +FA(1)*FB(-2)*4.d0/9.d0&
+	  +FA(3)*FB(-3)/9.d0&
+	  +FA(4)*FB(-4)*4d0/9.d0&
+	  +FA(5)*FB(-5)/9d0&
+	  +FA(-2)*FB(1)/9.d0&
+	  +FA(-1)*FB(2)*4.d0/9.d0&
 	  +FA(-3)*FB(3)/9.d0&
 	  +FA(-4)*FB(4)*4d0/9.d0&
 	  +FA(-5)*FB(5)/9d0
@@ -861,8 +921,75 @@ end subroutine TMDF_ResetCounters
         +paramW_CS*(FA(3)*FB(-4)+FA(-4)*FB(3))&		!s*cbar+cbar*s
         +paramW_CB*(FA(5)*FB(-4)+FA(-4)*FB(5))&		!b*cbar+cbar*b
         )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
-  
+    !--------------------------------------------------------------------------------  
+    CASE (10101) !p h->gamma
+	! e_q^2 *F_q(A)*F_qbar(B)
+	FA=-1d0*SiversTMDPDF_5(x1,b,mu,zeta1,1)
+    FB=uTMDPDF_5(x2,b,mu,zeta2,2)
+	FAB=FA*(FB(5:-5:-1))
 	
+	Integrand=FAB(1)/9.d0&
+	  +FAB(2)*4.d0/9.d0&
+	  +FAB(3)/9.d0&
+	  +FAB(4)*4d0/9.d0&
+	  +FAB(5)/9d0&
+	  +FAB(-1)/9.d0&
+	  +FAB(-2)*4.d0/9.d0&
+	  +FAB(-3)/9.d0&
+	  +FAB(-4)*4d0/9.d0&
+	  +FAB(-5)/9d0
+    !--------------------------------------------------------------------------------  
+    CASE (10102) !pbar h->gamma
+    ! e_q^2 *F_q(A)*F_q(B)
+    FA=-1d0*SiversTMDPDF_5(x1,b,mu,zeta1,1)
+    FB=uTMDPDF_5(x2,b,mu,zeta2,2)
+    FAB=FA*FB
+    !! in fact, we must revert this array, but the coefficients are symmetric
+    Integrand=FAB(1)/9.d0&
+        +FAB(2)*4.d0/9.d0&
+        +FAB(3)/9.d0&
+        +FAB(4)*4d0/9.d0&
+        +FAB(5)/9d0&
+        +FAB(-1)/9.d0&
+        +FAB(-2)*4.d0/9.d0&
+        +FAB(-3)/9.d0&
+        +FAB(-4)*4d0/9.d0&
+        +FAB(-5)/9d0
+    !--------------------------------------------------------------------------------
+    CASE (10103) !p hbar->gamma
+    ! e_q^2 *F_qbar(A)*F_qbar(B)
+    FA=-1d0*SiversTMDPDF_5(x1,b,mu,zeta1,1)
+    FB=uTMDPDF_5(x2,b,mu,zeta2,2)
+    FAB=FA*FB    
+
+    Integrand=FAB(1)/9.d0&
+        +FAB(2)*4.d0/9.d0&
+        +FAB(3)/9.d0&
+        +FAB(4)*4d0/9.d0&
+        +FAB(5)/9d0&
+        +FAB(-1)/9.d0&
+        +FAB(-2)*4.d0/9.d0&
+        +FAB(-3)/9.d0&
+        +FAB(-4)*4d0/9.d0&
+        +FAB(-5)/9d0
+    !--------------------------------------------------------------------------------  
+    CASE (10104) !pbar hbar->gamma
+    ! e_q^2 *F_qbar(A)*F_q(B)
+    FA=-1d0*SiversTMDPDF_5(x1,b,mu,zeta1,1)
+    FB=uTMDPDF_5(x2,b,mu,zeta2,2)
+    FAB=(FA(5:-5:-1))*FB
+
+    Integrand=FAB(1)/9.d0&
+        +FAB(2)*4.d0/9.d0&
+        +FAB(3)/9.d0&
+        +FAB(4)*4d0/9.d0&
+        +FAB(5)/9d0&
+        +FAB(-1)/9.d0&
+        +FAB(-2)*4.d0/9.d0&
+        +FAB(-3)/9.d0&
+        +FAB(-4)*4d0/9.d0&
+        +FAB(-5)/9d0
+	!--------------------------------------------------------------------------------  
     CASE (12001:12009) !Sivers asymmetry p->hN where n=last number
 	! e_q^2 *F_q(A)*F_q(B)
 	h=process-12000
@@ -878,6 +1005,7 @@ end subroutine TMDF_ResetCounters
 	  +FA(-3)*FB(-3)/9.d0&
 	  +FA(-4)*FB(-4)*4d0/9.d0&
 	  +FA(-5)*FB(-5)/9d0
+    !--------------------------------------------------------------------------------  
     CASE (12011:12019) !Sivers asymmetry d->hN where n=last number (d=deutron=(p+n)/2)
 	! e_q^2 *F_q(A)*F_q(B)
 	h=process-12010
@@ -891,7 +1019,7 @@ end subroutine TMDF_ResetCounters
 	  +FA(-3)*FB(-3)/9.d0&
 	  +FA(-4)*FB(-4)*4d0/9.d0&
 	  +FA(-5)*FB(-5)/9d0
-  !--------------------------------------------------------------------------------  
+    !--------------------------------------------------------------------------------  
     CASE (12021:12029) !Sivers asymmetry p->bar-hN where n=last number
 	! e_q^2 *F_q(A)*F_bar-q(B)
 	h=process-12020
@@ -907,7 +1035,7 @@ end subroutine TMDF_ResetCounters
 	  +FA(-3)*FB(3)/9.d0&
 	  +FA(-4)*FB(4)*4d0/9.d0&
 	  +FA(-5)*FB(5)/9d0
-!--------------------------------------------------------------------------------  
+    !--------------------------------------------------------------------------------  
     CASE (12031:12039) !Sivers asymmetry d->bar-hN where n=last number (d=deutron=(p+n)/2)
 	! e_q^2 *F_q(A)*F_bar-q(B)
 	h=process-12030
@@ -920,8 +1048,181 @@ end subroutine TMDF_ResetCounters
 	  +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
 	  +FA(-3)*FB(3)/9.d0&
 	  +FA(-4)*FB(4)*4d0/9.d0&
-	  +FA(-5)*FB(5)/9d0	  
-  CASE DEFAULT
+	  +FA(-5)*FB(5)/9d0
+    !--------------------------------------------------------------------------------  
+    !--------------------------------------------------------------------------------  
+    CASE (12101) !p->h? where h?=h1+h2
+	! e_q^2 *F_q(A)*F_q(B)
+	FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+	Integrand=FA(1)*FB(1)/9.d0&
+	  +FA(2)*FB(2)*4.d0/9.d0&
+	  +FA(3)*FB(3)/9.d0&
+	  +FA(4)*FB(4)*4d0/9.d0&
+	  +FA(5)*FB(5)/9d0&
+	  +FA(-1)*FB(-1)/9.d0&
+	  +FA(-2)*FB(-2)*4.d0/9.d0&
+	  +FA(-3)*FB(-3)/9.d0&
+	  +FA(-4)*FB(-4)*4d0/9.d0&
+	  +FA(-5)*FB(-5)/9d0
+    !--------------------------------------------------------------------------------  
+    CASE (12102) !p->h? where h?=h1+h2+h3
+	! e_q^2 *F_q(A)*F_q(B)
+	FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+	Integrand=FA(1)*FB(1)/9.d0&
+	  +FA(2)*FB(2)*4.d0/9.d0&
+	  +FA(3)*FB(3)/9.d0&
+	  +FA(4)*FB(4)*4d0/9.d0&
+	  +FA(5)*FB(5)/9d0&
+	  +FA(-1)*FB(-1)/9.d0&
+	  +FA(-2)*FB(-2)*4.d0/9.d0&
+	  +FA(-3)*FB(-3)/9.d0&
+	  +FA(-4)*FB(-4)*4d0/9.d0&
+	  +FA(-5)*FB(-5)/9d0
+    !--------------------------------------------------------------------------------  
+    CASE (12103) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2)
+	! e_q^2 *F_q(A)*F_q(B)
+	FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+	Integrand=(FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
+	  +FA(3)*FB(3)/9.d0&
+	  +FA(4)*FB(4)*4d0/9.d0&
+	  +FA(5)*FB(5)/9d0&
+	  +(FA(-1)+FA(-2))*(FB(-1)+4d0*FB(-2))/18d0&
+	  +FA(-3)*FB(-3)/9.d0&
+	  +FA(-4)*FB(-4)*4d0/9.d0&
+	  +FA(-5)*FB(-5)/9d0
+    !--------------------------------------------------------------------------------  
+    CASE (12104) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
+	! e_q^2 *F_q(A)*F_q(B)
+	FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+	Integrand=(FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
+	  +FA(3)*FB(3)/9.d0&
+	  +FA(4)*FB(4)*4d0/9.d0&
+	  +FA(5)*FB(5)/9d0&
+	  +(FA(-1)+FA(-2))*(FB(-1)+4d0*FB(-2))/18d0&
+	  +FA(-3)*FB(-3)/9.d0&
+	  +FA(-4)*FB(-4)*4d0/9.d0&
+	  +FA(-5)*FB(-5)/9d0
+    !--------------------------------------------------------------------------------  
+    CASE (12105) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_q(B)
+	FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+	Integrand=FA(2)*FB(1)/9.d0&
+	  +FA(1)*FB(2)*4.d0/9.d0&
+	  +FA(3)*FB(3)/9.d0&
+	  +FA(4)*FB(4)*4d0/9.d0&
+	  +FA(5)*FB(5)/9d0&
+	  +FA(-2)*FB(-1)/9.d0&
+	  +FA(-1)*FB(-2)*4.d0/9.d0&
+	  +FA(-3)*FB(-3)/9.d0&
+	  +FA(-4)*FB(-4)*4d0/9.d0&
+	  +FA(-5)*FB(-5)/9d0
+    !--------------------------------------------------------------------------------  
+    CASE (12106) !n->h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_q(B)
+	FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+	Integrand=FA(2)*FB(1)/9.d0&
+	  +FA(1)*FB(2)*4.d0/9.d0&
+	  +FA(3)*FB(3)/9.d0&
+	  +FA(4)*FB(4)*4d0/9.d0&
+	  +FA(5)*FB(5)/9d0&
+	  +FA(-2)*FB(-1)/9.d0&
+	  +FA(-1)*FB(-2)*4.d0/9.d0&
+	  +FA(-3)*FB(-3)/9.d0&
+	  +FA(-4)*FB(-4)*4d0/9.d0&
+	  +FA(-5)*FB(-5)/9d0
+    !------------------------------------------------------------------------------------
+    CASE (12111) !p->bar h? where h?=h1+h2
+	! e_q^2 *F_q(A)*F_bq(B)
+	FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+	Integrand=FA(1)*FB(-1)/9.d0&
+	  +FA(2)*FB(-2)*4.d0/9.d0&
+	  +FA(3)*FB(-3)/9.d0&
+	  +FA(4)*FB(-4)*4d0/9.d0&
+	  +FA(5)*FB(-5)/9d0&
+	  +FA(-1)*FB(1)/9.d0&
+	  +FA(-2)*FB(2)*4.d0/9.d0&
+	  +FA(-3)*FB(3)/9.d0&
+	  +FA(-4)*FB(4)*4d0/9.d0&
+	  +FA(-5)*FB(5)/9d0
+    !--------------------------------------------------------------------------------  
+    CASE (12112) !p->bar h? where h?=h1+h2+h3
+	! e_q^2 *F_q(A)*F_bq(B)
+	FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+	Integrand=FA(1)*FB(-1)/9.d0&
+	  +FA(2)*FB(-2)*4.d0/9.d0&
+	  +FA(3)*FB(-3)/9.d0&
+	  +FA(4)*FB(-4)*4d0/9.d0&
+	  +FA(5)*FB(-5)/9d0&
+	  +FA(-1)*FB(1)/9.d0&
+	  +FA(-2)*FB(2)*4.d0/9.d0&
+	  +FA(-3)*FB(3)/9.d0&
+	  +FA(-4)*FB(4)*4d0/9.d0&
+	  +FA(-5)*FB(5)/9d0
+    !--------------------------------------------------------------------------------  
+    CASE (12113) !d->bar h? where h?=h1+h2 (d=deutron=(p+n)/2)
+	! e_q^2 *F_q(A)*F_bq(B)
+	FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+	Integrand=(FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
+	  +FA(3)*FB(-3)/9.d0&
+	  +FA(4)*FB(-4)*4d0/9.d0&
+	  +FA(5)*FB(-5)/9d0&
+	  +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
+	  +FA(-3)*FB(3)/9.d0&
+	  +FA(-4)*FB(4)*4d0/9.d0&
+	  +FA(-5)*FB(5)/9d0
+    !--------------------------------------------------------------------------------  
+    CASE (12114) !d->bar h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
+	! e_q^2 *F_q(A)*F_bq(B)
+	FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+	Integrand=(FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
+	  +FA(3)*FB(-3)/9.d0&
+	  +FA(4)*FB(-4)*4d0/9.d0&
+	  +FA(5)*FB(-5)/9d0&
+	  +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
+	  +FA(-3)*FB(3)/9.d0&
+	  +FA(-4)*FB(4)*4d0/9.d0&
+	  +FA(-5)*FB(5)/9d0
+    !------------------------------------------------------------------------------------
+    CASE (12115) !n->bar h? where h?=h1+h2 (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_bq(B)
+	FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+	Integrand=FA(2)*FB(-1)/9.d0&
+	  +FA(1)*FB(-2)*4.d0/9.d0&
+	  +FA(3)*FB(-3)/9.d0&
+	  +FA(4)*FB(-4)*4d0/9.d0&
+	  +FA(5)*FB(-5)/9d0&
+	  +FA(-2)*FB(1)/9.d0&
+	  +FA(-1)*FB(2)*4.d0/9.d0&
+	  +FA(-3)*FB(3)/9.d0&
+	  +FA(-4)*FB(4)*4d0/9.d0&
+	  +FA(-5)*FB(5)/9d0
+    !--------------------------------------------------------------------------------  
+    CASE (12116) !n->bar h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_bq(B)
+	FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+	Integrand=FA(2)*FB(-1)/9.d0&
+	  +FA(1)*FB(-2)*4.d0/9.d0&
+	  +FA(3)*FB(-3)/9.d0&
+	  +FA(4)*FB(-4)*4d0/9.d0&
+	  +FA(5)*FB(-5)/9d0&
+	  +FA(-2)*FB(1)/9.d0&
+	  +FA(-1)*FB(2)*4.d0/9.d0&
+	  +FA(-3)*FB(3)/9.d0&
+	  +FA(-4)*FB(4)*4d0/9.d0&
+	  +FA(-5)*FB(5)/9d0
+    CASE DEFAULT
     write(*,*) ErrorString('undefined process: ',moduleName),process
     write(*,*) color('Evaluation stop',c_red_bold)
     stop

@@ -58,7 +58,7 @@
 \contentsline {subsection}{\numberline {A}Initialization}{37}{section*.56}% 
 \contentsline {subsection}{\numberline {B}Evaluating Structure functions}{37}{section*.57}% 
 \contentsline {subsection}{\numberline {C}Enumeration of structure functions}{39}{section*.58}% 
-\contentsline {subsection}{\numberline {D}Tests}{43}{section*.59}% 
+\contentsline {subsection}{\numberline {D}Tests}{44}{section*.59}% 
 \contentsline {section}{\numberline {XVII}\texttt {TMDX{\_}DY} module}{45}{section*.60}% 
 \contentsline {subsection}{\numberline {A}Initialization}{46}{section*.61}% 
 \contentsline {subsection}{\numberline {B}Setting up the parameters of cross-section}{46}{section*.62}% 
