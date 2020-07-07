@@ -22,7 +22,7 @@ call artemide_SetNPparameters_TMDR(NParray(1:2))
 numB=80
 bMax=5d0
 !mu=91d0
-mu=4d0!.39d0
+mu=2d0!.39d0
 
 
 allocate(b(1:numB))
@@ -47,10 +47,10 @@ end do
 
 do i=1,numB
 !!!! D vs. b[GeV]
-  !write(*,"('{',F10.7,',',F10.7,'},')") &
-   !    b(i),central(i)
-    write(*,"('{',F10.7,',',F10.7,',',F10.7,',',F10.7,'},')") &
-       b(i),central(i),central(i),central(i)
+  write(*,"('{',F10.7,',',F12.7,'},')") &
+      b(i),-2d0*central(i)
+!     write(*,"('{',F10.7,',',F10.7,',',F10.7,',',F10.7,'},')") &
+!        b(i),central(i),central(i),central(i)
 end do
 stop
 

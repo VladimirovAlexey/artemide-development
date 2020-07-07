@@ -32,7 +32,7 @@ def initialize(fileName):
         else:
             print("Welcome to harpy -- the python interface for artemide")
     else:
-        raise FileNotFoundError('consts-file '+fileName+'NOT FOUND')
+        raise FileNotFoundError('consts-file '+fileName+' NOT FOUND')
 
 def ShowStatistics():
     """
