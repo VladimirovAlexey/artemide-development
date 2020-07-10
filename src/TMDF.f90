@@ -651,7 +651,7 @@ end subroutine TMDF_ResetCounters
 	  +FA(-4)*FB(-4)*4d0/9.d0&
 	  +FA(-5)*FB(-5)/9d0
   !--------------------------------------------------------------------------------  
-  CASE (2011:2019) !d->hN where n=last number (d=deutron=(p+n)/2)
+    CASE (2011:2019) !d->hN where n=last number (d=deutron=(p+n)/2)
 	! e_q^2 *F_q(A)*F_q(B)
 	h=process-2010
 	FA=uTMDPDF_5(x1,b,mu,zeta1,1)
@@ -665,7 +665,7 @@ end subroutine TMDF_ResetCounters
 	  +FA(-4)*FB(-4)*4d0/9.d0&
 	  +FA(-5)*FB(-5)/9d0
   !--------------------------------------------------------------------------------  
-  CASE (2021:2029) !p->bar-hN where n=last number
+    CASE (2021:2029) !p->bar-hN where n=last number
 	! e_q^2 *F_q(A)*F_bar-q(B)
 	h=process-2020
 	FA=uTMDPDF_5(x1,b,mu,zeta1,1)
@@ -681,7 +681,7 @@ end subroutine TMDF_ResetCounters
 	  +FA(-4)*FB(4)*4d0/9.d0&
 	  +FA(-5)*FB(5)/9d0
 !--------------------------------------------------------------------------------  
-  CASE (2031:2039) !d->bar-hN where n=last number (d=deutron=(p+n)/2)
+    CASE (2031:2039) !d->bar-hN where n=last number (d=deutron=(p+n)/2)
 	! e_q^2 *F_q(A)*F_bar-q(B)
 	h=process-2030
 	FA=uTMDPDF_5(x1,b,mu,zeta1,1)
@@ -691,6 +691,38 @@ end subroutine TMDF_ResetCounters
 	  +FA(4)*FB(-4)*4d0/9.d0&
 	  +FA(5)*FB(-5)/9d0&
 	  +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
+	  +FA(-3)*FB(3)/9.d0&
+	  +FA(-4)*FB(4)*4d0/9.d0&
+	  +FA(-5)*FB(5)/9d0
+!--------------------------------------------------------------------------------  
+    CASE (2041:2049) !n->hN where n=last number (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_q(B)
+	h=process-2040
+	FA=uTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,h)
+	Integrand=FA(2)*FB(1)/9.d0&
+	  +FA(1)*FB(2)*4.d0/9.d0&
+	  +FA(3)*FB(3)/9.d0&
+	  +FA(4)*FB(4)*4d0/9.d0&
+	  +FA(5)*FB(5)/9d0&
+	  +FA(-2)*FB(-1)/9.d0&
+	  +FA(-1)*FB(-2)*4.d0/9.d0&
+	  +FA(-3)*FB(-3)/9.d0&
+	  +FA(-4)*FB(-4)*4d0/9.d0&
+	  +FA(-5)*FB(-5)/9d0
+!--------------------------------------------------------------------------------  
+    CASE (2051:2059) !n->bar-hN where n=last number (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_bar-q(B)
+	h=process-2050
+	FA=uTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,h)
+	Integrand=FA(2)*FB(-1)/9.d0&
+	  +FA(1)*FB(-2)*4.d0/9.d0&
+	  +FA(3)*FB(-3)/9.d0&
+	  +FA(4)*FB(-4)*4d0/9.d0&
+	  +FA(5)*FB(-5)/9d0&
+	  +FA(-2)*FB(1)/9.d0&
+	  +FA(-1)*FB(2)*4.d0/9.d0&
 	  +FA(-3)*FB(3)/9.d0&
 	  +FA(-4)*FB(4)*4d0/9.d0&
 	  +FA(-5)*FB(5)/9d0
@@ -1046,6 +1078,38 @@ end subroutine TMDF_ResetCounters
 	  +FA(4)*FB(-4)*4d0/9.d0&
 	  +FA(5)*FB(-5)/9d0&
 	  +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
+	  +FA(-3)*FB(3)/9.d0&
+	  +FA(-4)*FB(4)*4d0/9.d0&
+	  +FA(-5)*FB(5)/9d0
+	!--------------------------------------------------------------------------------  
+    CASE (12041:12049) !Sivers asymmetry p->hN where n=last number  (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_q(B)
+	h=process-12040
+	FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,h)
+	Integrand=FA(2)*FB(1)/9.d0&
+	  +FA(1)*FB(2)*4.d0/9.d0&
+	  +FA(3)*FB(3)/9.d0&
+	  +FA(4)*FB(4)*4d0/9.d0&
+	  +FA(5)*FB(5)/9d0&
+	  +FA(-2)*FB(-1)/9.d0&
+	  +FA(-1)*FB(-2)*4.d0/9.d0&
+	  +FA(-3)*FB(-3)/9.d0&
+	  +FA(-4)*FB(-4)*4d0/9.d0&
+	  +FA(-5)*FB(-5)/9d0
+    !--------------------------------------------------------------------------------  
+    CASE (12051:12059) !Sivers asymmetry p->bar-hN where n=last number (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_bar-q(B)
+	h=process-12050
+	FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,h)
+	Integrand=FA(2)*FB(-1)/9.d0&
+	  +FA(1)*FB(-2)*4.d0/9.d0&
+	  +FA(3)*FB(-3)/9.d0&
+	  +FA(4)*FB(-4)*4d0/9.d0&
+	  +FA(5)*FB(-5)/9d0&
+	  +FA(-2)*FB(1)/9.d0&
+	  +FA(-1)*FB(2)*4.d0/9.d0&
 	  +FA(-3)*FB(3)/9.d0&
 	  +FA(-4)*FB(4)*4d0/9.d0&
 	  +FA(-5)*FB(5)/9d0
