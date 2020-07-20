@@ -797,7 +797,7 @@ contains
     FF=TMDF_F(var(3),qT,x1,z1,var(2)*c2_global,var(3),var(3),process(3))
     xSec=PreFactor2(var,process,x1,z1,qT)*FF  
     
-    !write(7,*) var(3),x1,z1
+    !write(*,*) "{",var(3),",",x1,"},"!,z1
   end function xSec
   
     

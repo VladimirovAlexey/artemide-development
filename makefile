@@ -302,7 +302,7 @@ clean:
 	$(RM) count $(OBJ)/*.o
 	$(RM) count $(MOD)/*.mod
 	$(RM) $(HDIR)/*.pyc
-	$(RM) $(HDIR)/artemide*.so
+	$(RM) $(HDIR)/*.so
 	
 program: 
 	echo $(TARGET)

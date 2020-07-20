@@ -81,13 +81,25 @@ function FNP(x,z,bT,hadron,lambdaNP)
     real(dp),intent(in)::lambdaNP(:)
 
     real(dp)::FNP0  
-    real(dp)::bb,w1,w2
+    real(dp)::bb,w1,w2,M
 
     bb=bT**2/x**2
+    
+!     if(hadron==1) then
+        w1=lambdaNP(1)*x+lambdaNP(2)*(1d0-x)
+        
+!         M=(w1*bb+x**lambdaNP(3)*bb**2)/(1d0+x**lambdaNP(4)*bb)**lambdaNP(5)
+!         
+!         FNP0=Exp(-lambdaNP(6)*M)
+        w2=lambdaNP(3)
+        FNP0=Exp(-bb*w1/sqrt(1d0+w2*bb))*(1+lambdaNP(4)*bb)
+        
+!     else
+!         w1=lambdaNP(5)*x+lambdaNP(6)*(1d0-x)
+!         w2=lambdaNP(7)
+!         FNP0=Exp(-bb*w1/sqrt(1d0+w2*bb))*(1+lambdaNP(8)*bb)
+!     end if
 
-    w1=lambdaNP(1)*x+lambdaNP(2)*(1d0-x)
-    w2=lambdaNP(3)
-    FNP0=Exp(-bb*w1/sqrt(1d0+w2*bb))*(1+lambdaNP(4)*bb)
     FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
 
 end function FNP

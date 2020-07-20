@@ -79,15 +79,16 @@ function FNP(x,bT,hadron,lambdaNP)
 
     real(dp)::bProfile,FNPu,FNPd,FNPsea
 
-    !!! profile in b is common for all (2 parameters)
-    bProfile=Exp(-(lambdaNP(1)+lambdaNP(2)*x**2)*bT**2)
+    !!! profile in b is common for all (5 parameters)
+    !bProfile=Exp(-((lambdaNP(1)*(1d0-x)+lambdaNP(2)*x)*bT**2+lambdaNP(3)*bT**4))
+    bProfile=1d0/Cosh((lambdaNP(1)*(1d0-x)+lambdaNP(2)*x)*bT)
     
     !!! u-quark(3 parameters)
-    FNPu=lambdaNP(3)*(1-x)**lambdaNP(4)*x**lambdaNP(5)
+    FNPu=lambdaNP(6)*(1-x)**lambdaNP(7)*x**lambdaNP(8)
     !!! d-quark(3 parameters)
-    FNPd=lambdaNP(6)*(1-x)**lambdaNP(7)*x**lambdaNP(8)
-    !!! sea-quark(4 parameters)
-    FNPsea=lambdaNP(9)*(1-x)**lambdaNP(10)*x**lambdaNP(11)
+    FNPd=lambdaNP(9)*(1-x)**lambdaNP(10)*x**lambdaNP(11)
+    !!! sea-quark(3 parameters)
+    FNPsea=lambdaNP(12)*(1-x)**lambdaNP(13)*x**lambdaNP(14)
 
     FNP=bProfile*(/FNPsea,FNPsea,FNPsea,FNPsea,FNPsea,0d0,FNPd,FNPu,FNPsea,FNPsea,FNPsea/)
 

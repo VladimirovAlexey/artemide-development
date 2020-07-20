@@ -297,7 +297,287 @@ def setPDFreplica(n):
     if not isinstance(n,int):
         raise TypeError()
     artemide.harpy.setpdfreplica(n)
-   
+
+def get_DNP(b,mu,f=1):
+    
+    if not isinstance(b,float):
+        raise ValueError("parameter b must be float")
+    elif (b<0.):
+        b_internal=-b
+    else:
+        b_internal=b
+    if not isinstance(mu,float):
+        raise ValueError("parameter mu must be float")
+    elif (mu<1.):
+        raise ValueError("parameter mu must be > 1 GeV")
+    if not isinstance(f, int):
+        raise ValueError("parameter h must be integer")
+        
+    if(f==0):
+        return artemide.harpy.getdnp(b_internal,mu,0)
+    else:
+        return artemide.harpy.getdnp(b_internal,mu,1)
+
+def get_uTMDPDF(x,b,h,mu=-1.,zeta=-1.,includeGluon=False):
+    """
+    Return the string of unpolarized TMDPDF 
+    (bbar,cbar,sbar,ubar,dbar,gluon,d,u,s,c,b)
+    If both mu and zeta are not specified (or negative) return optimal
+    if mu is positive returns evolved to mu,mu^2
+    
+     
+
+    Parameters
+    ----------
+    x : float in [0,1]
+        Bjorken x
+    b : float >0
+        patial parameter
+    h : integer 1,2,3,...
+        Hadron number
+    mu : float, optional
+        Scale of TMD mu [GeV]. The default is -1.
+    zeta : float, optional
+        Scale of TMD zeta [GeV]. The default is -1.
+    includeGluon : bool, optional
+        Include gluons or not. The default is False.
+
+    Returns
+    -------
+    [list of float]
+       (bbar,cbar,sbar,ubar,dbar,gluon,d,u,s,c,b)
+
+    """
+    
+    if not isinstance(x, float):
+        raise ValueError("parameter x must be float")
+    elif (x<0.) or (x>1.):
+        raise ValueError("parameter x must be in [0,1]")
+    if not isinstance(b, float):
+        raise ValueError("parameter b must be float")
+    elif (b<0.):
+        b_internal=-b
+    else:
+        b_internal=b
+    if not isinstance(h, int):
+        raise ValueError("parameter h must be integer")
+    elif h<1:
+        raise ValueError("parameter h expected to be positive integer")
+        
+    if not isinstance(mu, float):
+        raise ValueError("parameter mu must be float")
+    if not isinstance(zeta, float):
+        raise ValueError("parameter zeta must be float")
+    
+    if mu<0.:
+        if includeGluon:
+            return artemide.harpy.utmdpdf_50_optimal(x,b_internal,h)
+        else:
+            return artemide.harpy.utmdpdf_5_optimal(x,b_internal,h)
+    elif zeta<0:
+        if includeGluon:
+            return artemide.harpy.utmdpdf_50_evolved(x,b_internal,mu,mu**2,h)
+        else:
+            return artemide.harpy.utmdpdf_5_evolved(x,b_internal,mu,mu**2,h)
+    else:
+        if includeGluon:
+            return artemide.harpy.utmdpdf_50_evolved(x,b_internal,mu,zeta,h)
+        else:
+            return artemide.harpy.utmdpdf_5_evolved(x,b_internal,mu,zeta,h)
+        
+def get_uTMDFF(x,b,h,mu=-1.,zeta=-1.,includeGluon=False):
+    """
+    Return the string of unpolarized TMDFF 
+    (bbar,cbar,sbar,ubar,dbar,gluon,d,u,s,c,b)
+    If both mu and zeta are not specified (or negative) return optimal
+    if mu is positive returns evolved to mu,mu^2
+    
+     
+
+    Parameters
+    ----------
+    x : float in [0,1]
+        Bjorken x
+    b : float >0
+        patial parameter
+    h : integer 1,2,3,...
+        Hadron number
+    mu : float, optional
+        Scale of TMD mu [GeV]. The default is -1.
+    zeta : float, optional
+        Scale of TMD zeta [GeV]. The default is -1.
+    includeGluon : bool, optional
+        Include gluons or not. The default is False.
+
+    Returns
+    -------
+    [list of float]
+       (bbar,cbar,sbar,ubar,dbar,gluon,d,u,s,c,b)
+
+    """
+    
+    if not isinstance(x, float):
+        raise ValueError("parameter x must be float")
+    elif (x<0.) or (x>1.):
+        raise ValueError("parameter x must be in [0,1]")
+    if not isinstance(b, float):
+        raise ValueError("parameter b must be float")
+    elif (b<0.):
+        b_internal=-b
+    else:
+        b_internal=b
+    if not isinstance(h, int):
+        raise ValueError("parameter x must be float")
+    elif h<1:
+        raise ValueError("parameter h expected to be positive integer")
+        
+    if not isinstance(mu, float):
+        raise ValueError("parameter mu must be float")
+    if not isinstance(zeta, float):
+        raise ValueError("parameter zeta must be float")
+    
+    if mu<0.:
+        if includeGluon:
+            return artemide.harpy.utmdff_50_optimal(x,b_internal,h)
+        else:
+            return artemide.harpy.utmdff_5_optimal(x,b_internal,h)
+    elif zeta<0:
+        if includeGluon:
+            return artemide.harpy.utmdff_50_evolved(x,b_internal,mu,mu**2,h)
+        else:
+            return artemide.harpy.utmdff_5_evolved(x,b_internal,mu,mu**2,h)
+    else:
+        if includeGluon:
+            return artemide.harpy.utmdff_50_evolved(x,b_internal,mu,zeta,h)
+        else:
+            return artemide.harpy.utmdff_5_evolved(x,b_internal,mu,zeta,h)
+        
+def get_lpTMDPDF(x,b,h,mu=-1.,zeta=-1.,includeGluon=False):
+    """
+    Return the string of linearly polarized gluon TMDFF 
+    (bbar,cbar,sbar,ubar,dbar,gluon,d,u,s,c,b)
+    If both mu and zeta are not specified (or negative) return optimal
+    if mu is positive returns evolved to mu,mu^2
+    
+     
+
+    Parameters
+    ----------
+    x : float in [0,1]
+        Bjorken x
+    b : float >0
+        patial parameter
+    h : integer 1,2,3,...
+        Hadron number
+    mu : float, optional
+        Scale of TMD mu [GeV]. The default is -1.
+    zeta : float, optional
+        Scale of TMD zeta [GeV]. The default is -1.
+    includeGluon : bool, optional
+        IGNORED
+
+    Returns
+    -------
+    [list of float]
+       (bbar,cbar,sbar,ubar,dbar,gluon,d,u,s,c,b)
+
+    """
+    
+    if not isinstance(x, float):
+        raise ValueError("parameter x must be float")
+    elif (x<0.) or (x>1.):
+        raise ValueError("parameter x must be in [0,1]")
+    if not isinstance(b, float):
+        raise ValueError("parameter b must be float")
+    elif (b<0.):
+        b_internal=-b
+    else:
+        b_internal=b
+    if not isinstance(h, int):
+        raise ValueError("parameter x must be float")
+    elif h<1:
+        raise ValueError("parameter h expected to be positive integer")
+        
+    if not isinstance(mu, float):
+        raise ValueError("parameter mu must be float")
+    if not isinstance(zeta, float):
+        raise ValueError("parameter zeta must be float")
+    
+    if mu<0.:
+        return artemide.harpy.utmdff_50_optimal(x,b_internal,h)
+    elif zeta<0:
+        return artemide.harpy.utmdff_50_evolved(x,b_internal,mu,mu**2,h)        
+    else:
+        return artemide.harpy.utmdff_50_evolved(x,b_internal,mu,zeta,h)
+    
+def get_SiversTMDPDF(x,b,h,mu=-1.,zeta=-1.,includeGluon=False):
+    """
+    Return the string of Sivers TMDPDF 
+    (bbar,cbar,sbar,ubar,dbar,gluon,d,u,s,c,b)
+    If both mu and zeta are not specified (or negative) return optimal
+    if mu is positive returns evolved to mu,mu^2
+    
+     
+
+    Parameters
+    ----------
+    x : float in [0,1]
+        Bjorken x
+    b : float >0
+        patial parameter
+    h : integer 1,2,3,...
+        Hadron number
+    mu : float, optional
+        Scale of TMD mu [GeV]. The default is -1.
+    zeta : float, optional
+        Scale of TMD zeta [GeV]. The default is -1.
+    includeGluon : bool, optional
+        Include gluons or not. The default is False.
+
+    Returns
+    -------
+    [list of float]
+       (bbar,cbar,sbar,ubar,dbar,gluon,d,u,s,c,b)
+
+    """
+    
+    if not isinstance(x, float):
+        raise ValueError("parameter x must be float")
+    elif (x<0.) or (x>1.):
+        raise ValueError("parameter x must be in [0,1]")
+    if not isinstance(b, float):
+        raise ValueError("parameter b must be float")
+    elif (b<0.):
+        b_internal=-b
+    else:
+        b_internal=b
+    if not isinstance(h, int):
+        raise ValueError("parameter x must be float")
+    elif h<1:
+        raise ValueError("parameter h expected to be positive integer")
+        
+    if not isinstance(mu, float):
+        raise ValueError("parameter mu must be float")
+    if not isinstance(zeta, float):
+        raise ValueError("parameter zeta must be float")
+    
+    if mu<0.:
+        if includeGluon:
+            return artemide.harpy.siverstmdpdf_50_optimal(x,b_internal,h)
+        else:
+            return artemide.harpy.siverstmdpdf_5_optimal(x,b_internal,h)
+    elif zeta<0:
+        if includeGluon:
+            return artemide.harpy.siverstmdpdf_50_evolved(x,b_internal,mu,mu**2,h)
+        else:
+            return artemide.harpy.siverstmdpdf_5_evolved(x,b_internal,mu,mu**2,h)
+    else:
+        if includeGluon:
+            return artemide.harpy.siverstmdpdf_50_evolved(x,b_internal,mu,zeta,h)
+        else:
+            return artemide.harpy.siverstmdpdf_5_evolved(x,b_internal,mu,zeta,h)
+
+
 ###############################################################################
 class DY:
         """Static class for evaluation of DY cross-section

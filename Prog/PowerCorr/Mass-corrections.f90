@@ -1,6 +1,7 @@
 program example
 use aTMDe_control
 use uTMDPDF
+use uTMDFF
 implicit none
 
 character(*),parameter::prefix='/home/vla18041/LinkData2/arTeMiDe_Repository/artemide/Models/SV19/'
@@ -19,7 +20,7 @@ numR=artemide_NumOfReplicasInFile(repFILE)
 
 call artemide_GetReplicaFromFile(repFILE,0,NParray)
 call uTMDPDF_SetLambdaNP(NParray(3:9),.false.,.false.)
-
+call uTMDFF_SetLambdaNP(NParray(10:13),.false.,.false.)
 
 
 
@@ -40,29 +41,35 @@ x=1d0-j/20d0
 
 do i=1,numB
     TMD=uTMDPDF_lowScale5(x,b(i),1)
+    !TMD=uTMDFF_lowScale5(x,b(i),1)
     if(x>=0.99) then 
-        write(*,"('{',F10.7,',',F10.7,',',F10.7,'},')") x,b(i),0d0
+        write(*,"('{',F10.7,',',F10.7,',',F14.7,'},')") x,b(i),0d0
     else
-        write(*,"('{',F10.7,',',F10.7,',',F10.7,'},')") x,b(i),TMD(f)
+        write(*,"('{',F10.7,',',F10.7,',',F14.7,'},')") x,b(i),TMD(f)
     end if
 end do
 
 end do
-do j=1,18
 
-x=0.1d0*(1d0-j/20d0)
-
-do i=1,numB
-    TMD=uTMDPDF_lowScale5(x,b(i),1)
-    if(x>=0.99) then 
-        write(*,"('{',F10.7,',',F10.7,',',F10.7,'},')") x,b(i),0d0
-    else
-        write(*,"('{',F10.7,',',F10.7,',',F10.7,'},')") x,b(i),TMD(f)
-    end if
-end do
-
-end do
 stop
+! do j=1,18
+! 
+! x=0.1d0*(1d0-j/20d0)
+! 
+! do i=1,numB
+!     TMD=uTMDPDF_lowScale5(x,b(i),1)
+!     if(x>=0.99) then 
+!         write(*,"('{',F10.7,',',F10.7,',',F14.7,'},')") x,b(i),0d0
+!     else
+!         write(*,"('{',F10.7,',',F10.7,',',F14.7,'},')") x,b(i),TMD(f)
+!     end if
+! end do
+! 
+! end do
+! stop
+
+
+x=0.75d0
 
 allocate(central(1:numB))
 allocate(mean(1:numB))
@@ -70,6 +77,7 @@ allocate(deviation(1:numB))
 
 do i=1,numB
     TMD=uTMDPDF_lowScale5(x,b(i),1)
+    !TMD=uTMDFF_lowScale5(x,b(i),1)
     central(i)=TMD(f)
     mean(i)=0d0
     deviation=0d0
@@ -78,8 +86,10 @@ end do
 do j=1,numR
     call artemide_GetReplicaFromFile(repFILE,j,NParray)
     call uTMDPDF_SetLambdaNP(NParray(3:9),.false.,.false.)
+    call uTMDFF_SetLambdaNP(NParray(10:13),.false.,.false.)
     do i=1,numB
         TMD=uTMDPDF_lowScale5(x,b(i),1)
+        !TMD=uTMDFF_lowScale5(x,b(i),1)
         mean(i)=mean(i)+TMD(f)
         deviation(i)=deviation(i)+TMD(f)**2
     end do  
@@ -93,7 +103,7 @@ end do
 
 
 do i=1,numB
-write(*,"('{',F10.7,',',F10.7,',',F10.7,',',F10.7,'},')") b(i),mean(i),(mean(i)-deviation(i)),(mean(i)+deviation(i))
+write(*,"('{',F10.7,',',F14.7,',',F14.7,',',F14.7,'},')") b(i),mean(i),(mean(i)-deviation(i)),(mean(i)+deviation(i))
 end do
 
 end program example
