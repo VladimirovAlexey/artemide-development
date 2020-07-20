@@ -11,3 +11,6 @@ aTMDe-temporary
 
 # result of python compilation
 *.so
+
+#linux trash
+.nfs*
