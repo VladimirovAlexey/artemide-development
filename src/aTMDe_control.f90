@@ -857,7 +857,7 @@ end function BaseNPString
 !!!! this search for the string of NP parameters in the file "file" and returns rep=n
 subroutine artemide_GetReplicaFromFile(file,rep,repString)
     character(len=*)::file
-    integer::rep,i,k1,k2,numR,lenArray
+    integer::rep,i,k1,k2,numR,lenArray,ver
     real(dp),allocatable,intent(out)::repString(:)
     real(dp),allocatable::ParametersTOread(:)
 
@@ -873,6 +873,10 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
     write(*,*) WarningString(' is not initialized. Continue to read replicas without checks.',moduleName)
 
     OPEN(UNIT=51, FILE=trim(FILE), ACTION="read", STATUS="old")
+    !!! the version
+    call MoveTO(51,'*V   ')
+    read(51,*) ver
+    
     call MoveTO(51,'*B   ')
     !!!! check total length
     call MoveTO(51,'*0   ')
@@ -910,8 +914,8 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
                 stop
             end if
         end if 
-
-        if(include_lpTMDPDF) then
+        
+        if(ver>=3 .and. include_lpTMDPDF) then
             call MoveTO(51,'*11   ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_lpTMDPDF) then
@@ -920,7 +924,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
             end if
         end if
         
-        if(include_SiversTMDPDF) then
+        if(ver>=15 .and. include_SiversTMDPDF) then
             call MoveTO(51,'*12   ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_SiversTMDPDF) then

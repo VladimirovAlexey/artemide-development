@@ -81,14 +81,17 @@ function FNP(x,bT,hadron,lambdaNP)
 
     !!! profile in b is common for all (5 parameters)
     !bProfile=Exp(-((lambdaNP(1)*(1d0-x)+lambdaNP(2)*x)*bT**2+lambdaNP(3)*bT**4))
-    bProfile=1d0/Cosh((lambdaNP(1)*(1d0-x)+lambdaNP(2)*x)*bT)
+    bProfile=1d0/Cosh((lambdaNP(1)*(1d0-x)+lambdaNP(2)*x+lambdaNP(3)*x**2)*bT)
     
     !!! u-quark(3 parameters)
-    FNPu=lambdaNP(6)*(1-x)**lambdaNP(7)*x**lambdaNP(8)
+    !FNPu=lambdaNP(6)*(1-x)**lambdaNP(7)*x**lambdaNP(8)
+    FNPu=lambdaNP(6)*(1-x)*x**lambdaNP(8)*(1d0+lambdaNP(7)*x)
     !!! d-quark(3 parameters)
-    FNPd=lambdaNP(9)*(1-x)**lambdaNP(10)*x**lambdaNP(11)
+    !FNPd=lambdaNP(9)*(1-x)**lambdaNP(10)*x**lambdaNP(11)
+    FNPd=lambdaNP(9)*(1-x)*x**lambdaNP(11)*(1d0+lambdaNP(10)*x)
     !!! sea-quark(3 parameters)
-    FNPsea=lambdaNP(12)*(1-x)**lambdaNP(13)*x**lambdaNP(14)
+    !FNPsea=lambdaNP(12)*(1-x)**lambdaNP(13)*x**lambdaNP(14)
+    FNPsea=lambdaNP(12)*(1-x)*x**lambdaNP(14)*(1d0+lambdaNP(13)*x)
 
     FNP=bProfile*(/FNPsea,FNPsea,FNPsea,FNPsea,FNPsea,0d0,FNPd,FNPu,FNPsea,FNPsea,FNPsea/)
 

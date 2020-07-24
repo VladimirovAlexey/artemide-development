@@ -78,9 +78,17 @@ function DNP(mu,b,f)
     real(dp),intent(in)::mu,b
     integer,intent(in)::f
     real(dp)::bSTAR
-
-    bSTAR=b/SQRT(1_dp+b**2/NPparam(1)**2)
-    DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b  !!!! D*+gK b b*, it smoother turns perturbative to b^2 assimptotic
+    
+    bSTAR=b/SQRT(1_dp+b**2/NPparam(1)**2)    
+    DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b
+    
+!     bSTAR=b/SQRT(1_dp+b**2/4d0)    
+!     if(b>2d0) then
+!         DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b+Abs(NPparam(1))*0.01d0*(b-2d0)**2d0
+!     else
+!         DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b
+!     end if
+    
     
 end function DNP
   
@@ -95,6 +103,7 @@ function zetaNP(mu,b,f)
     
     rad=DNP(mu,b,f)
     zz=Exp(-b**2/NPparam(1)**2)
+!     zz=Exp(-b**2/4d0)
     zetaNP=zetaMUpert(mu,b,f)*zz+zetaSL(mu,rad,f)*(1d0-zz)
 end function zetaNP
  
