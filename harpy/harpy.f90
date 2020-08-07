@@ -154,7 +154,7 @@ contains
     
   end function uTMDPDF_50_Evolved
 
-    !!!!!!!! upolarized TMDPDF
+  !!!!!!!! upolarized TMDPDF
   ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
   function uTMDPDF_5_Optimal(x,bt,hadron)
     real*8:: uTMDPDF_5_Optimal(-5:5)
@@ -287,9 +287,11 @@ contains
     
   end function lpTMDPDF_50_Optimal
   
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! UTMD IN KT
-    !!!!!!!! upolarized TMDPDF
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! TMDs IN KT
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!! upolarized TMDPDF
   ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
   function uTMDPDF_kT_5_Evolved(x,bt,muf,zetaf,hadron)
     real*8:: uTMDPDF_kT_5_Evolved(-5:5)
@@ -310,7 +312,6 @@ contains
     
   end function uTMDPDF_kT_50_Evolved
 
-    !!!!!!!! upolarized TMDPDF
   ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
   function uTMDPDF_kT_5_Optimal(x,bt,hadron)
     real*8:: uTMDPDF_kT_5_Optimal(-5:5)
@@ -331,7 +332,116 @@ contains
     
   end function uTMDPDF_kT_50_Optimal
   
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!! upolarized TMDFF
+  ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+  function uTMDFF_kT_5_Evolved(x,bt,muf,zetaf,hadron)
+    real*8:: uTMDFF_kT_5_Evolved(-5:5)
+    real*8:: x,bt,muf,zetaf
+    integer::hadron
   
+  uTMDFF_kT_5_Evolved=uTMDFF_kT_5(x,bt,muf,zetaf,hadron)
+    
+  end function uTMDFF_kT_5_Evolved
+  
+    ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function uTMDFF_kT_50_Evolved(x,bt,muf,zetaf,hadron)
+    real*8:: uTMDFF_kT_50_Evolved(-5:5)
+    real*8:: x,bt,muf,zetaf
+    integer::hadron
+  
+  uTMDFF_kT_50_Evolved=uTMDFF_kT_5(x,bt,muf,zetaf,hadron)
+    
+  end function uTMDFF_kT_50_Evolved
+
+  ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+  function uTMDFF_kT_5_Optimal(x,bt,hadron)
+    real*8:: uTMDFF_kT_5_Optimal(-5:5)
+    real*8:: x,bt
+    integer::hadron
+  
+  uTMDFF_kT_5_Optimal=uTMDFF_kT_5(x,bt,hadron)
+    
+  end function uTMDFF_kT_5_Optimal
+  
+    ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function uTMDFF_kT_50_Optimal(x,bt,hadron)
+    real*8:: uTMDFF_kT_50_Optimal(-5:5)
+    real*8:: x,bt
+    integer::hadron
+  
+  uTMDFF_kT_50_Optimal=uTMDFF_kT_5(x,bt,hadron)
+    
+  end function uTMDFF_kT_50_Optimal
+  
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!! linearly polarized gluon TMDPDF
+
+  ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function lpTMDPDF_kT_50_Evolved(x,bt,muf,zetaf,hadron)
+    real*8:: lpTMDPDF_kT_50_Evolved(-5:5)
+    real*8:: x,bt,muf,zetaf
+    integer::hadron
+  
+  lpTMDPDF_kT_50_Evolved=lpTMDPDF_kT_50(x,bt,muf,zetaf,hadron)
+    
+  end function lpTMDPDF_kT_50_Evolved
+  
+  ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function lpTMDPDF_kT_50_Optimal(x,bt,hadron)
+    real*8:: lpTMDPDF_kT_50_Optimal(-5:5)
+    real*8:: x,bt
+    integer::hadron
+  
+  lpTMDPDF_kT_50_Optimal=lpTMDPDF_kT_50(x,bt,hadron)
+    
+  end function lpTMDPDF_kT_50_Optimal
+  
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!! Sivers TMDPDF
+  ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+  function SiversTMDPDF_kT_5_Evolved(x,bt,muf,zetaf,hadron)
+    real*8:: SiversTMDPDF_kT_5_Evolved(-5:5)
+    real*8:: x,bt,muf,zetaf
+    integer::hadron
+  
+  SiversTMDPDF_kT_5_Evolved=SiversTMDPDF_kT_5(x,bt,muf,zetaf,hadron)
+    
+  end function SiversTMDPDF_kT_5_Evolved
+  
+    ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function SiversTMDPDF_kT_50_Evolved(x,bt,muf,zetaf,hadron)
+    real*8:: SiversTMDPDF_kT_50_Evolved(-5:5)
+    real*8:: x,bt,muf,zetaf
+    integer::hadron
+  
+  SiversTMDPDF_kT_50_Evolved=SiversTMDPDF_kT_5(x,bt,muf,zetaf,hadron)
+    
+  end function SiversTMDPDF_kT_50_Evolved
+
+  ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+  function SiversTMDPDF_kT_5_Optimal(x,bt,hadron)
+    real*8:: SiversTMDPDF_kT_5_Optimal(-5:5)
+    real*8:: x,bt
+    integer::hadron
+  
+  SiversTMDPDF_kT_5_Optimal=SiversTMDPDF_kT_5(x,bt,hadron)
+    
+  end function SiversTMDPDF_kT_5_Optimal
+  
+    ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function SiversTMDPDF_kT_50_Optimal(x,bt,hadron)
+    real*8:: SiversTMDPDF_kT_50_Optimal(-5:5)
+    real*8:: x,bt
+    integer::hadron
+  
+  SiversTMDPDF_kT_50_Optimal=SiversTMDPDF_kT_5(x,bt,hadron)
+    
+  end function SiversTMDPDF_kT_50_Optimal
+  
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DY CROSS-SECTION
   
     function DY_xSec_SingleN(process,s,qT,Q,y,includeCuts,CutParameters,Num)
@@ -397,6 +507,9 @@ contains
   
   end function DY_xSec_BINLESS_List
   
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!SIDIS CROSS-SECTION
   
   function SIDIS_xSec_Single(process,s,pT,z,x,Q,doCut,Cuts)

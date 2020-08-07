@@ -3032,8 +3032,9 @@ Ugly, but it works.
 Note, that not all functions of \texttt{artemide} are available in \texttt{harpy}. I have added only the most useful, however, you can add them by our-self, or write me an e-mail. Here, list the functions from \texttt{artemide} and their synonym in \texttt{harpy}
 
 \begin{center}
+
 \small
-\begin{tabular}{|l|l||l|}
+\begin{longtable}{|l|l||p{6cm}|}
 \multicolumn{2}{|c||}{\texttt{artemide}} & \texttt{harpy.f90} 
 \\
 module & function & \\
@@ -3075,8 +3076,8 @@ module & function & \\
 \\\cline{2-3}
 & \texttt{TMDs\_SetPDFreplica(n)} & \texttt{SetPDFreplica(n)} 
 \\\cline{2-3} & \textbf{\blue{Same with \texttt{uTMDFF}}} &
-\\\cline{2-3} & \textbf{\blue{Same with \texttt{lpTMDPDF}}} &
-\\\cline{2-3} & \textbf{\blue{Same with \texttt{SiverTMDPDF}}} &
+\\\cline{2-3} & \textbf{\blue{Same with \texttt{lpTMDPDF}}} & (only \texttt{\_50} version)
+\\\cline{2-3} & \textbf{\blue{Same with \texttt{SiversTMDPDF}}} &
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \\\hline
 \texttt{TMDs\_inKT} & \texttt{uTMDPDF\_kT\_5(x,kt,muf,zetaf,h)} & \texttt{uTMDPDF\_kT\_5\_Evolved(x,kt,muf,zetaf,h)} 
@@ -3086,13 +3087,10 @@ module & function & \\
 & \texttt{uTMDPDF\_kT\_5(x,kt,h)} & \texttt{uTMDPDF\_kT\_5\_Optimal(x,kt,h)} 
 \\\cline{2-3}
 & \texttt{uTMDPDF\_kT\_50(x,kt,h)} & \texttt{uTMDPDF\_kT\_50\_Optimal(x,kt,h)} 
+\\\cline{2-3} & \textbf{\blue{Same with \texttt{uTMDFF}}} &
+\\\cline{2-3} & \textbf{\blue{Same with \texttt{lpTMDPDF}}} & (only \texttt{\_50} version)
+\\\cline{2-3} & \textbf{\blue{Same with \texttt{SiversTMDPDF}}} &
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\end{tabular}
-
-\textbf{(continuation of table)}
-
-\begin{tabular}{|l|l||l|}
-\multicolumn{2}{|c||}{\texttt{artemide}} & \texttt{harpy.f90} 
 \\\hline
 \texttt{TMDX\_DY} & \texttt{xSec\_DY(X,proc,s,qT,Q,y,iC,cuts)} & X=\texttt{DY\_xSec\_Single(proc,s,qT,Q,y,iC,cuts)}
 \\\cline{2-3}
@@ -3107,7 +3105,7 @@ module & function & \\
  & \texttt{xSec\_SIDIS\_List(X,proc,s,pT,z,x,Q,iC,cuts)} & X=\texttt{SIDIS\_xSec\_List(proc,s,qT,z,x,Q,iC,cuts,L)}
 \\\cline{2-3}
  & \texttt{xSec\_SIDIS\_List(X,proc,s,pT,z,x,Q,iC,cuts,masses)} & X=\texttt{SIDIS\_xSec\_List\_withMasses(proc,s,qT,z,x,Q,iC,cuts,masses,L)}
-\end{tabular}
+\end{longtable}
 \end{center}
 \texttt{L} is the length of the input/output lists.
 
@@ -3285,7 +3283,7 @@ doi:10.1007/JHEP05(2019)125
 	\item \textbf{TMDF} Added processes for Sivers 10001,10005,10007,10008,10101-10104,12001--12059,12105,12106,12115,12116,
 	\item \textbf{TMDF} Added processes for unpolarized SIDIS 2105,2106,2115,2116,2041-2049.
 	\item \textbf{harpy} Update to python3.
-	\item \textbf{harpy} Added functions for values of uTMDFF, lpTMDPDF, SiverTMDPDF, and DNP.
+	\item \textbf{harpy} Added functions for values of uTMDFF, lpTMDPDF, SiversTMDPDF, and DNP, and for TMD in kT space.
 	\item \textbf{harpy} Added functions \texttt{Set\_NPparameters} for \textbf{lpTMDPDF} and \textbf{SiversTMDPDF}.
 	\item \textbf{aTMDe\_control} Added version check for replica files
 	\item \textbf{aTMDe\_control} Some code refactoring + \textbf{SiversTMDPDF} (fixed couple of bugs in lpTMD-part)

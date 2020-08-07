@@ -303,6 +303,7 @@ clean:
 	$(RM) count $(MOD)/*.mod
 	$(RM) $(HDIR)/*.pyc
 	$(RM) $(HDIR)/*.so
+	$(RM) $(HDIR)/__pycache__/*.*
 	
 program: 
 	echo $(TARGET)

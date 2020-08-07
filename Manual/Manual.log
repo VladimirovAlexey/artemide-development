@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2019/dev/Debian) (preloaded format=pdflatex 2020.2.3)  24 JUL 2020 13:11
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2019/dev/Debian) (preloaded format=pdflatex 2020.2.3)  7 AUG 2020 14:51
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1386,37 +1386,37 @@ Overfull \hbox (5.00003pt too wide) detected at line 85
 
 
 Overfull \hbox (5.00003pt too wide) detected at line 86
- \OT1/cmr/m/n/10 68
+ \OT1/cmr/m/n/10 67
  []
 
 
 Overfull \hbox (5.00003pt too wide) detected at line 87
- \OT1/cmr/m/n/10 69
+ \OT1/cmr/m/n/10 68
  []
 
 
 Overfull \hbox (5.00003pt too wide) detected at line 88
- \OT1/cmr/m/n/10 73
+ \OT1/cmr/m/n/10 72
  []
 
 
 Overfull \hbox (5.00003pt too wide) detected at line 89
- \OT1/cmr/m/n/10 74
+ \OT1/cmr/m/n/10 73
  []
 
 
 Overfull \hbox (5.00003pt too wide) detected at line 90
- \OT1/cmr/m/n/10 74
+ \OT1/cmr/m/n/10 73
  []
 
 
 Overfull \hbox (5.00003pt too wide) detected at line 91
- \OT1/cmr/m/n/10 75
+ \OT1/cmr/m/n/10 74
  []
 
 
 Overfull \hbox (5.00003pt too wide) detected at line 92
- \OT1/cmr/m/n/10 76
+ \OT1/cmr/m/n/10 75
  []
 
 )
@@ -2605,236 +2605,280 @@ ier (name{equation.18.4}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.2848 \begin{eqnarray}
-                        [59] [60] [61] [62] [63] [64] [65] [66]
-Overfull \hbox (72.46097pt too wide) in paragraph at lines 3094--3111
- []$[]$ 
+                        [59] [60] [61] [62] [63] [64]
+Overfull \hbox (4.8624pt too wide) in paragraph at lines 3083--3084
+[]|\OT1/cmtt/m/n/9 uTMDPDF[]kT[]5[]Evolved(x,kt,muf,zetaf,h)| 
  []
 
-[67]
-Underfull \hbox (badness 1102) in paragraph at lines 3143--3150
+
+Overfull \hbox (9.58734pt too wide) in paragraph at lines 3085--3086
+[]|\OT1/cmtt/m/n/9 uTMDPDF[]kT[]50[]Evolved(x,kt,muf,zetaf,h)| 
+ []
+
+
+Overfull \hbox (15.5909pt too wide) in paragraph at lines 3095--3096
+[]|\OT1/cmr/m/n/9 X=\OT1/cmtt/m/n/9 DY[]xSec[]Single(proc,s,qT,Q,y,iC,cuts)| 
+ []
+
+
+Overfull \hbox (15.5909pt too wide) in paragraph at lines 3097--3099
+[]|\OT1/cmr/m/n/9 X=\OT1/cmtt/m/n/9 DY[]xSec[]List(proc,s,qT,Q,y,iC,cuts,L)| 
+ []
+
+
+Overfull \hbox (39.21562pt too wide) in paragraph at lines 3100--3102
+[]|\OT1/cmr/m/n/9 X=\OT1/cmtt/m/n/9 SIDIS[]xSec[]Single(proc,s,pT,z,x,Q,iC,cuts
+)| 
+ []
+
+
+Overfull \hbox (122.94164pt too wide) in paragraph at lines 3103--3104
+[]|\OT1/cmr/m/n/9 X=\OT1/cmtt/m/n/9 SIDIS[]xSec[]Single[]withMasses(proc,s,pT,z
+,x,Q,iC,cuts,masses)| 
+ []
+
+
+Overfull \hbox (39.21562pt too wide) in paragraph at lines 3105--3106
+[]|\OT1/cmr/m/n/9 X=\OT1/cmtt/m/n/9 SIDIS[]xSec[]List(proc,s,qT,z,x,Q,iC,cuts,L
+)| 
+ []
+
+
+Overfull \hbox (122.94164pt too wide) in paragraph at lines 3107--3108
+[]|\OT1/cmr/m/n/9 X=\OT1/cmtt/m/n/9 SIDIS[]xSec[]List[]withMasses(proc,s,qT,z,x
+,Q,iC,cuts,masses,L)| 
+ []
+
+[65]
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table V on input line 3108.
+
+[66]
+Underfull \hbox (badness 1102) in paragraph at lines 3141--3148
 []\OT1/cmr/m/n/9 L. A. Harland-Lang, A. D. Mar-tin, P. Motylin-ski and R. S. Th
 orne, Eur. Phys. J. C \OT1/cmr/bx/n/9 75 \OT1/cmr/m/n/9 (2015) no.5, 204
  []
 
 
-Underfull \hbox (badness 5519) in paragraph at lines 3223--3229
+Underfull \hbox (badness 5519) in paragraph at lines 3221--3227
 []\OT1/cmr/m/n/9 T. Gehrmann, E. W. N. Glover, T. Hu-ber, N. Ik-i-zlerli and C.
  Studerus, JHEP \OT1/cmr/bx/n/9 1006\OT1/cmr/m/n/9 , 094 (2010)
  []
 
-[68]
-Underfull \hbox (badness 10000) in paragraph at lines 3285--3286
+[67]
+Underfull \hbox (badness 10000) in paragraph at lines 3283--3284
 []\OT1/cmr/bx/n/10 TMDF \OT1/cmr/m/n/10 Added pro-cesses for Sivers 10001,10005
 ,10007,10008,10101-10104,12001--
  []
 
-[69]
-Underfull \hbox (badness 10000) in paragraph at lines 3346--3347
+[68]
+Underfull \hbox (badness 10000) in paragraph at lines 3344--3345
 []\OT1/cmr/bx/n/10 aTMDe[]control\OT1/cmr/m/n/10 : Added com-mands \OT1/cmtt/m/
 n/10 artemide[]GetReplicaFromFile \OT1/cmr/m/n/10 and
  []
 
-[70] [71]
+[69] [70]
 
-LaTeX Warning: Reference `sec:uTMDPDF_grid' on page 72 undefined on input line 
-3480.
+LaTeX Warning: Reference `sec:uTMDPDF_grid' on page 71 undefined on input line 
+3478.
 
 
-Underfull \hbox (badness 3989) in paragraph at lines 3484--3485
+Underfull \hbox (badness 3989) in paragraph at lines 3482--3483
 []\OT1/cmtt/m/n/10 TMDX\OT1/cmr/m/n/10 : added func-tions \OT1/cmtt/m/n/10 Calc
 ulateXsec[]PTint[]Qint[]YintComplete(X,qtMin,qtMax,QMin,QMax) \OT1/cmr/m/n/10 a
 nd
  []
 
-[72] [73]
-Underfull \hbox (badness 10000) in paragraph at lines 3680--3680
+[71] [72]
+Underfull \hbox (badness 10000) in paragraph at lines 3678--3678
 []\OT1/cmr/m/n/10 Text file that con-tains physics con-stants, TMD
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3680--3680
+Underfull \hbox (badness 10000) in paragraph at lines 3678--3678
 []\OT1/cmr/m/n/10 Generates and mod-i-fies
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3680--3680
+Underfull \hbox (badness 10000) in paragraph at lines 3678--3678
 []\OT1/cmr/m/n/10 Interface mod-ule that passes
  []
 
 
-Overfull \hbox (3.98103pt too wide) in paragraph at lines 3680--3680
+Overfull \hbox (3.98103pt too wide) in paragraph at lines 3678--3678
 []\OT1/cmr/bx/n/10 uTMDPDF 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3680--3680
+Underfull \hbox (badness 10000) in paragraph at lines 3678--3678
 \OT1/cmr/m/n/10 unpolarized
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3680--3680
+Underfull \hbox (badness 10000) in paragraph at lines 3678--3678
 \OT1/cmr/m/n/10 unpolarized
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3680--3680
+Underfull \hbox (badness 10000) in paragraph at lines 3678--3678
 []\OT1/cmr/m/n/10 Combines TMD dis-tri-bu-tions, and in-ter-faces to
  []
 
 
-Overfull \hbox (8.94876pt too wide) in paragraph at lines 3680--3680
+Overfull \hbox (8.94876pt too wide) in paragraph at lines 3678--3678
 []\OT1/cmr/bx/n/10 TMDs[]inKT 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3680--3680
+Underfull \hbox (badness 10000) in paragraph at lines 3678--3678
 []\OT1/cmr/m/n/10 TMDs in
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3680--3680
+Underfull \hbox (badness 10000) in paragraph at lines 3678--3678
 []\OT1/cmr/m/n/10 DY-like cross-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3680--3680
+Underfull \hbox (badness 10000) in paragraph at lines 3678--3678
 []\OT1/cmr/m/n/10 SIDIS-like cross-
  []
 
-[74]
-Underfull \hbox (badness 10000) in paragraph at lines 3706--3709
+[73]
+Underfull \hbox (badness 10000) in paragraph at lines 3704--3707
 []\OT1/cmr/m/n/10 Text file that con-tains def-i-ni-tions and in-puts
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3706--3709
+Underfull \hbox (badness 10000) in paragraph at lines 3704--3707
 \OT1/cmr/m/n/10 nec-es-sary to de-fine the TMD scheme to works,
  []
 
 
-Overfull \hbox (3.98103pt too wide) in paragraph at lines 3727--3727
+Overfull \hbox (3.98103pt too wide) in paragraph at lines 3725--3725
 []\OT1/cmr/bx/n/10 uTMDPDF 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3728--3731
+Underfull \hbox (badness 10000) in paragraph at lines 3726--3729
 \OT1/cmr/m/n/10 unpolarized
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3743--3746
+Underfull \hbox (badness 10000) in paragraph at lines 3741--3744
 \OT1/cmr/m/n/10 unpolarized
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3778--3779
+Underfull \hbox (badness 10000) in paragraph at lines 3776--3777
 []\OT1/cmr/m/n/10 Combines TMD dis-tri-bu-tions, and in-ter-faces to
  []
 
 
-Overfull \hbox (8.94876pt too wide) in paragraph at lines 3784--3784
+Overfull \hbox (8.94876pt too wide) in paragraph at lines 3782--3782
 []\OT1/cmr/bx/n/10 TMDs[]inKT 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3785--3786
+Underfull \hbox (badness 10000) in paragraph at lines 3783--3784
 []\OT1/cmr/m/n/10 TMDs in
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3811--3812
+Underfull \hbox (badness 10000) in paragraph at lines 3809--3810
 []\OT1/cmr/m/n/10 DY-like cross-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3817--3818
+Underfull \hbox (badness 10000) in paragraph at lines 3815--3816
 []\OT1/cmr/m/n/10 SIDIS-like cross-
  []
 
-[75]
+[74]
 
-LaTeX Warning: Reference `sec:grids_TMDR' on page 76 undefined on input line 38
-40.
+LaTeX Warning: Reference `sec:grids_TMDR' on page 75 undefined on input line 38
+38.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3840--3845
+Underfull \hbox (badness 10000) in paragraph at lines 3838--3843
 []\OT1/cmr/m/n/10 Precalculated grids for var-i-ous RGE, see
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3848--3849
+Underfull \hbox (badness 10000) in paragraph at lines 3846--3847
 []\OT1/cmr/m/n/10 User de-fined
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3883--3890
+Underfull \hbox (badness 10000) in paragraph at lines 3881--3888
 []\OT1/cmr/m/n/10 Evaluates un-po-lar-ized TMD PDF at low-scale
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3895--3897
+Underfull \hbox (badness 10000) in paragraph at lines 3893--3895
 []\OT1/cmr/m/n/10 Evaluates TMD evo-lu-tion
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3901--3902
+Underfull \hbox (badness 10000) in paragraph at lines 3899--3900
 []\OT1/cmr/m/n/10 User de-fined
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3901--3902
+Underfull \hbox (badness 10000) in paragraph at lines 3899--3900
 \OT1/cmr/m/n/10 un-po-lar-ized
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3908--3909
+Underfull \hbox (badness 10000) in paragraph at lines 3906--3907
 []\OT1/cmr/m/n/10 User de-fined
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3917--3920
+Underfull \hbox (badness 10000) in paragraph at lines 3915--3918
 []\OT1/cmr/m/n/10 Evaluates un-po-lar-ized TMD FF at low-scale
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3932--3936
+Underfull \hbox (badness 10000) in paragraph at lines 3930--3934
 []\OT1/cmr/m/n/10 Evaluates of TMD dis-tri-bu-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3944--3945
+Underfull \hbox (badness 10000) in paragraph at lines 3942--3943
 []\OT1/cmr/m/n/10 User de-fined low-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3952--3958
+Underfull \hbox (badness 10000) in paragraph at lines 3950--3956
 []\OT1/cmr/m/n/10 Evaluates cross-section of
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3952--3958
+Underfull \hbox (badness 10000) in paragraph at lines 3950--3956
 \OT1/cmr/m/n/10 DY-type with TMD dis-tri-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3985--3990
+Underfull \hbox (badness 10000) in paragraph at lines 3983--3988
 []\OT1/cmr/m/n/10 Evaluates cross-section of
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3985--3990
+Underfull \hbox (badness 10000) in paragraph at lines 3983--3988
 \OT1/cmr/m/n/10 SIDIS-type with TMD dis-
  []
 
-[76]
+[75]
 
 Package longtable Warning: Table widths have changed. Rerun LaTeX.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 3996.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 3996.
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 3996.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 3994.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 3994.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 3994.
 (./Manual.aux)
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 3996.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 3994.
 
 Package rerunfilecheck Info: File `Manual.out' has not changed.
 (rerunfilecheck)             Checksum: 747F58778707D4DB015267D185A1F4B3;6019.
@@ -2847,10 +2891,10 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 34551 strings out of 492615
- 674222 string characters out of 6131391
- 852876 words of memory out of 5000000
- 37709 multiletter control sequences out of 15000+600000
+ 34552 strings out of 492615
+ 674226 string characters out of 6131391
+ 852927 words of memory out of 5000000
+ 37710 multiletter control sequences out of 15000+600000
  544866 words of font info for 71 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  63i,15n,101p,979b,1568s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -2885,10 +2929,10 @@ dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/share/texlive/texmf-dist/fo
 nts/type1/public/amsfonts/cm/cmtt9.pfb></usr/share/texlive/texmf-dist/fonts/typ
 e1/public/amsfonts/symbols/msam10.pfb></usr/share/texlive/texmf-dist/fonts/type
 1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Manual.pdf (76 pages, 704218 bytes).
+Output written on Manual.pdf (75 pages, 703943 bytes).
 PDF statistics:
- 1352 PDF objects out of 1440 (max. 8388607)
- 1203 compressed objects within 13 object streams
+ 1349 PDF objects out of 1440 (max. 8388607)
+ 1201 compressed objects within 13 object streams
  310 named destinations out of 1000 (max. 500000)
  877 words of extra memory for PDF output out of 10000 (max. 10000000)
 
