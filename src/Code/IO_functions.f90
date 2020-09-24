@@ -49,9 +49,18 @@ contains
     integer,intent(in)::streem
     character(len=5)::pos
     character(len=300)::line
+    integer::IOstatus
     do
-      read(streem,'(A)') line    
-      if(line(1:5)==pos) exit
+        read(streem,'(A)',IOSTAT=IOstatus) line    
+        if(IOstatus>0) then 
+            write(*,*) ErrorString("Error in attemt to read the line ("//pos//")", "aTMDe_IO_system")
+            stop
+        else if(IOstatus<0) then
+            write(*,*) ErrorString("EndOfFile during search of the line ("//pos//")", "aTMDe_IO_system")
+            stop
+        else
+            if(line(1:5)==pos) exit
+        end if
     end do
  end subroutine MoveTO
  

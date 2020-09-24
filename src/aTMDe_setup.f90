@@ -17,7 +17,7 @@ private
 character (len=5),parameter :: version="v2.05"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=15
+integer,parameter::inputVer=16
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -114,6 +114,7 @@ logical::include_TMDs
 !-------------------- TMDF parameters
 logical::include_TMDF
 real(dp)::TMDF_OGATAh,TMDF_tolerance
+real(dp)::TMDF_mass
 
 !-------------------- TMDs-inKT parameters
 logical::include_TMDs_inKT
@@ -356,6 +357,7 @@ subroutine SetupDefault(order)
     include_TMDF=.true.
     TMDF_tolerance=0.0001d0	!tolerance (i.e. relative integration tolerance)
     TMDF_OGATAh=0.001d0		!Ogata quadrature integration step 
+    TMDF_mass=0.938272      !mass parameter that is used as reference dimension
 
     !------------------ parameters for TMDs-inKT
     include_TMDs_inKT=.false.
@@ -714,6 +716,9 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDF_tolerance
     write(51,"('*p2  : Ogata quadrature integration step')")
     write(51,*) TMDF_OGATAh
+    write(51,"('*B   : ---- Global garameters of structure functions----')")
+    write(51,"('*p1  : Mass parameter used in the structure function (mass of hadron)')")
+    write(51,*) TMDF_mass
 
 
     write(51,"(' ')")
@@ -1231,6 +1236,11 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) TMDF_tolerance
     call MoveTO(51,'*p2  ')
     read(51,*) TMDF_OGATAh
+    if(FILEversion>=16) then
+        call MoveTO(51,'*B   ')
+        call MoveTO(51,'*p1  ')
+        read(51,*) TMDF_mass
+    end if
 
 
     !# ----                          PARAMETERS OF TMDs-inKT                 -----

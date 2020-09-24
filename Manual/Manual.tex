@@ -1898,7 +1898,8 @@ where
 \item $n$ The order of Bessel transformation is defined by structure function. E.g. for unpolarized DY $n=1$. For SSA's $n=1$. In general for angular modulation $\sim \cos (n\theta)$.
 \item $F_{1,2}^f$ TMD distribution (PDF or FF) of necessary polarization and flavor.
 \end{itemize}
-The module has simple structure since it evaluates only this integral and does not require any exra input.
+Some structure functions are multiplied by a constant with mass dimension (e.g. Sivers asymmetry). This constant (called global mass scale = $M$) is defined globally in the constants file.
+
 
 \begin{center}
 List of available commands
@@ -2128,65 +2129,65 @@ List of enumeration of structures functions
 \\
 19998 &  &  &  &  & 
 \\\hline\hline
-10001 & $\delta_{\bar f f'}|e_f|^2$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$p^{\uparrow}+p\to\gamma$ & no
+10001 & $-M\delta_{\bar f f'}|e_f|^2$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$p^{\uparrow}+p\to\gamma$ & no
 \\\hline
-10005 & $\Ds\delta_{\bar f f'}\frac{z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$p^{\uparrow}+p\to Z+\gamma$ & no
+10005 & $-M\Ds\delta_{\bar f f'}\frac{z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$p^{\uparrow}+p\to Z+\gamma$ & no
 \\\hline
-10007 & $\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$p^{\uparrow}+p\to W^+$ & no
+10007 & $-M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$p^{\uparrow}+p\to W^+$ & no
 \\\hline
-10008 & $\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$p^{\uparrow}+p\to W^-$ & no
+10008 & $-M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$p^{\uparrow}+p\to W^-$ & no
 \\\hline
-10101 & $\delta_{\bar f f'}|e_f|^2$ & $-(f_{1T}^\perp)^{p}$ & $f_1$ & (Sivers)$p+h\to\gamma$ (with $h=2$) & no
+10101 & $-M\delta_{\bar f f'}|e_f|^2$ & $-(f_{1T}^\perp)^{p}$ & $f_1$ & (Sivers)$p+h\to\gamma$ (with $h=2$) & no
 \\\hline
-10102 & $\delta_{f f'}|e_f|^2$ & $-(f_{1T}^\perp)^{\bar p}$ & $f_1$ & (Sivers)$\bar p+h\to\gamma$(with $h=2$) & no
+10102 & $-M\delta_{f f'}|e_f|^2$ & $-(f_{1T}^\perp)^{\bar p}$ & $f_1$ & (Sivers)$\bar p+h\to\gamma$(with $h=2$) & no
 \\\hline
-10103 & $\delta_{f f'}|e_f|^2$ & $-(f_{1T}^\perp)^{p}$ & $f_1$ & (Sivers)$p+\bar h\to\gamma$(with $h=2$). Note, that it is equal 10102 & no
+10103 & $-M\delta_{f f'}|e_f|^2$ & $-(f_{1T}^\perp)^{p}$ & $f_1$ & (Sivers)$p+\bar h\to\gamma$(with $h=2$). Note, that it is equal 10102 & no
 \\\hline
-10104 & $\delta_{\bar f f'}|e_f|^2$ & $-(f_{1T}^\perp)^{\bar p}$ & $f_1$ & (Sivers)$\bar p+\bar h\to\gamma$ (with $h=2$). Note, that it is equal 10101 & no
+10104 & $-M\delta_{\bar f f'}|e_f|^2$ & $-(f_{1T}^\perp)^{\bar p}$ & $f_1$ & (Sivers)$\bar p+\bar h\to\gamma$ (with $h=2$). Note, that it is equal 10101 & no
 \\\hline \hline
-12001 & $\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^p$ & $d^{h_1}_1$ & (Sivers)$p^{\uparrow}+\gamma\to h_1$ & no
+12001 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^p$ & $d^{h_1}_1$ & (Sivers)$p^{\uparrow}+\gamma\to h_1$ & no
 \\\hline
-1200N & $\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^p$ & $d^{h_N}_1$ & (Sivers)$p^{\uparrow}+\gamma\to h_N$, for $N=\{1,...,9\}$ (including case 12001) & no
+1200N & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^p$ & $d^{h_N}_1$ & (Sivers)$p^{\uparrow}+\gamma\to h_N$, for $N=\{1,...,9\}$ (including case 12001) & no
 \\\hline \hline
-12011 & $\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_1}_1$ & (Sivers)$d^{\uparrow}+\gamma\to h_1$. Here, d is isoscalar target $(p+n)/2$. & no
+12011 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_1}_1$ & (Sivers)$d^{\uparrow}+\gamma\to h_1$. Here, d is isoscalar target $(p+n)/2$. & no
 \\\hline
-1201N & $\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_N}_1$ & (Sivers)$d^{\uparrow}+\gamma\to h_N$, for $N=\{1,...,9\}$ (including case 12011). Here, d is isoscalar target $(p+n)/2$. & no
+1201N & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_N}_1$ & (Sivers)$d^{\uparrow}+\gamma\to h_N$, for $N=\{1,...,9\}$ (including case 12011). Here, d is isoscalar target $(p+n)/2$. & no
 \\\hline \hline
-12021 & $\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^p$ & $d^{\bar h_1}_1$ & (Sivers)$p^{\uparrow}+\gamma\to \bar h_1$ & no
+12021 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^p$ & $d^{\bar h_1}_1$ & (Sivers)$p^{\uparrow}+\gamma\to \bar h_1$ & no
 \\\hline
-1202N & $\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^p$ & $d^{\bar h_N}_1$ & (Sivers)$p^{\uparrow}+\gamma\to \bar h_N$, for $N=\{1,...,9\}$ (including case 12021) & no
+1202N & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^p$ & $d^{\bar h_N}_1$ & (Sivers)$p^{\uparrow}+\gamma\to \bar h_N$, for $N=\{1,...,9\}$ (including case 12021) & no
 \\\hline \hline
-12031 & $\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{\bar h_1}_1$ & (Sivers)$d^{\uparrow}+\gamma\to \bar h_1$. Here, d is isoscalar target $(p+n)/2$. & no
+12031 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{\bar h_1}_1$ & (Sivers)$d^{\uparrow}+\gamma\to \bar h_1$. Here, d is isoscalar target $(p+n)/2$. & no
 \\\hline
-1203N & $\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{\bar h_N}_1$ & (Sivers)$d^{\uparrow}+\gamma\to \bar h_N$, for $N=\{1,...,9\}$ (including case 12031). Here, d is isoscalar target $(p+n)/2$. & no
+1203N & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{\bar h_N}_1$ & (Sivers)$d^{\uparrow}+\gamma\to \bar h_N$, for $N=\{1,...,9\}$ (including case 12031). Here, d is isoscalar target $(p+n)/2$. & no
 \\\hline\hline
-1204N & $\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^d$ & $d^{h_N}_1$ & (Sivers)$d^{\uparrow}+\gamma\to h_N$, for $N=\{1,...,9\}$, n is neutron target $n=p(u\leftrightarrow d)$. & no
+1204N & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^d$ & $d^{h_N}_1$ & (Sivers)$d^{\uparrow}+\gamma\to h_N$, for $N=\{1,...,9\}$, n is neutron target $n=p(u\leftrightarrow d)$. & no
 \\\hline
-1205N & $\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^d$ & $d^{\bar h_N}_1$ & (Sivers)$d^{\uparrow}+\gamma\to \bar h_N$, for $N=\{1,...,9\}$, n is neutron target $n=p(u\leftrightarrow d)$. & no
+1205N & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^d$ & $d^{\bar h_N}_1$ & (Sivers)$d^{\uparrow}+\gamma\to \bar h_N$, for $N=\{1,...,9\}$, n is neutron target $n=p(u\leftrightarrow d)$. & no
 \\\hline \hline
-12101 & $\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{p}$ & $d^{h_{1+2}}_1$ & (Sivers)$p+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ & no
+12101 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{p}$ & $d^{h_{1+2}}_1$ & (Sivers)$p+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ & no
 \\\hline
-12102 & $\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{p}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$p+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ & no
+12102 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{p}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$p+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ & no
 \\\hline
-12103 & $\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_{1+2}}_1$ & (Sivers)$d+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ and d is isoscalar target $(p+n)/2$. & no
+12103 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_{1+2}}_1$ & (Sivers)$d+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ and d is isoscalar target $(p+n)/2$. & no
 \\\hline
-12104 & $\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$d+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and d is isoscalar target $(p+n)/2$. & no
+12104 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$d+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and d is isoscalar target $(p+n)/2$. & no
 \\\hline
-12105 & $\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2}}_1$ & (Sivers)$n+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
+12105 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2}}_1$ & (Sivers)$n+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
 \\\hline
-12106 & $\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$n+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
+12106 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$n+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
 \\\hline
-12111 & $\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{p}$ & $d^{h_{1+2}}_1$ & (Sivers)$p+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ & no
+12111 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{p}$ & $d^{h_{1+2}}_1$ & (Sivers)$p+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ & no
 \\\hline
-12112 & $\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{p}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$p+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ & no
+12112 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{p}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$p+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ & no
 \\\hline
-12113 & $\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_{1+2}}_1$ & (Sivers)$d+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ and d is isoscalar target $(p+n)/2$. & no
+12113 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_{1+2}}_1$ & (Sivers)$d+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ and d is isoscalar target $(p+n)/2$. & no
 \\\hline
-12114 & $\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_{1+2+3}}_1$ & (Sivers))$d+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and d is isoscalar target $(p+n)/2$. & no
+12114 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_{1+2+3}}_1$ & (Sivers))$d+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and d is isoscalar target $(p+n)/2$. & no
 \\\hline
-12115 & $\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2}}_1$ & (Sivers)$n+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
+12115 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2}}_1$ & (Sivers)$n+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
 \\\hline
-12116 & $\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$n+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
+12116 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$n+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
 \\\hline\hline
 \end{longtable}
 
@@ -3280,11 +3281,13 @@ doi:10.1007/JHEP05(2019)125
 \begin{itemize}
 \item[\textbf{Ver.2.05}]
 \begin{itemize}
+	\item \textbf{TMDF} Added the global mass scale used for normalization of TMD strcture functions.
 	\item \textbf{TMDF} Added processes for Sivers 10001,10005,10007,10008,10101-10104,12001--12059,12105,12106,12115,12116,
 	\item \textbf{TMDF} Added processes for unpolarized SIDIS 2105,2106,2115,2116,2041-2049.
 	\item \textbf{harpy} Update to python3.
 	\item \textbf{harpy} Added functions for values of uTMDFF, lpTMDPDF, SiversTMDPDF, and DNP, and for TMD in kT space.
 	\item \textbf{harpy} Added functions \texttt{Set\_NPparameters} for \textbf{lpTMDPDF} and \textbf{SiversTMDPDF}.
+	\item \textbf{IO\_functions} Added a check for errors in file reading.
 	\item \textbf{aTMDe\_control} Added version check for replica files
 	\item \textbf{aTMDe\_control} Some code refactoring + \textbf{SiversTMDPDF} (fixed couple of bugs in lpTMD-part)
 	\item \textbf{aTMDe\_setup} Some code refactoring + \textbf{SiversTMDPDF}
@@ -3503,6 +3506,7 @@ doi:10.1007/JHEP05(2019)125
 \item +masses of leptons $e,\mu,\tau$ (secs. 2.E.p1, 2.E.p2, 2.E.p3)
 \item +value of $\alpha_{QED}$ at mass of tau-leptons (secs. 2.A.p4)
 \item +Sivers function (sections 12)
+\item +global mass scale value used in TMDF (sections 7.p2)
 \end{enumerate}
 
 \newpage
