@@ -524,10 +524,10 @@ end subroutine TMDF_ResetCounters
   CASE (101) !p h->gamma
 	! e_q^2 *F_q(A)*F_qbar(B)
 	if(zeta1==zeta2) then
-	 FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,1,2)
+	 FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,2,1)
 	else
-	 FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-	 FB=uTMDPDF_5(x2,b,mu,zeta2,2)
+	 FA=uTMDPDF_5(x1,b,mu,zeta1,2)
+	 FB=uTMDPDF_5(x2,b,mu,zeta2,1)
 	 FAB=FA*(FB(5:-5:-1))
 	end if
 	
@@ -545,10 +545,10 @@ end subroutine TMDF_ResetCounters
   CASE (102) !pbar h->gamma
 	! e_q^2 *F_q(A)*F_q(B)
 	if(zeta1==zeta2) then
-	 FAB=uPDF_anti_uPDF(x1,x2,b,mu,zeta1,1,2)
+	 FAB=uPDF_anti_uPDF(x1,x2,b,mu,zeta1,2,1)
 	else
-	 FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-	 FB=uTMDPDF_5(x2,b,mu,zeta2,2)
+	 FA=uTMDPDF_5(x1,b,mu,zeta1,2)
+	 FB=uTMDPDF_5(x2,b,mu,zeta2,1)
 	 FAB=FA*FB
 	end if
 	!! in fact, we must revert this array, but the coefficients are symmetric
@@ -566,10 +566,10 @@ end subroutine TMDF_ResetCounters
   CASE (103) !p hbar->gamma
 	! e_q^2 *F_q(A)*F_qbar(B)
 	if(zeta1==zeta2) then
-	 FAB=uPDF_anti_uPDF(x1,x2,b,mu,zeta1,1,2)
+	 FAB=uPDF_anti_uPDF(x1,x2,b,mu,zeta1,2,1)
 	else
-	 FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-	 FB=uTMDPDF_5(x2,b,mu,zeta2,2)
+	 FA=uTMDPDF_5(x1,b,mu,zeta1,2)
+	 FB=uTMDPDF_5(x2,b,mu,zeta2,1)
 	 FAB=FA*FB
 	end if
 	!! in fact, we must revert this array, but the coefficients are symmetric
@@ -589,7 +589,7 @@ end subroutine TMDF_ResetCounters
 	! e_q^2 *F_q(A)*F_q(B)
 	! e_q^2 *F_q(A)*F_qbar(B)
 	if(zeta1==zeta2) then
-	 FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,1,2)
+	 FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,2,1)
 	else
 	 FA=uTMDPDF_5(x1,b,mu,zeta1,1)
 	 FB=uTMDPDF_5(x2,b,mu,zeta2,2)
@@ -960,13 +960,14 @@ end subroutine TMDF_ResetCounters
         +paramW_CB*(FA(5)*FB(-4)+FA(-4)*FB(5))&		!b*cbar+cbar*b
         )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
     !--------------------------------------------------------------------------------  
-    CASE (10101) !p h->gamma
+    CASE (10101) !h+p(s)->gamma
 	! e_q^2 *F_q(A)*F_qbar(B)
-	FA=-SiversTMDPDF_5(x1,b,mu,zeta1,1)    !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-    FB=uTMDPDF_5(x2,b,mu,zeta2,2)
+	FA=uTMDPDF_5(x1,b,mu,zeta2,2)
+	FB=-SiversTMDPDF_5(x2,b,mu,zeta1,1)    !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY    
 	FAB=FA*(FB(5:-5:-1))
 	
-	Integrand=-global_mass_scale*(&
+	!!!! extra factor -1 (total +1) is due to definition of Sivers, h1+h2(s)=-h1(s)+h2
+	Integrand=+global_mass_scale*(&
         FAB(1)/9.d0&
         +FAB(2)*4.d0/9.d0&
         +FAB(3)/9.d0&
@@ -978,13 +979,14 @@ end subroutine TMDF_ResetCounters
         +FAB(-4)*4d0/9.d0&
         +FAB(-5)/9d0)
     !--------------------------------------------------------------------------------  
-    CASE (10102) !pbar h->gamma
+    CASE (10102) !h + pbar(s)-> gamma
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=-SiversTMDPDF_5(x1,b,mu,zeta1,1) !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-    FB=uTMDPDF_5(x2,b,mu,zeta2,2)
+    FA=uTMDPDF_5(x1,b,mu,zeta2,2)
+    FB=-SiversTMDPDF_5(x2,b,mu,zeta1,1) !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY    
     FAB=FA*FB
-    !! in fact, we must revert this array, but the coefficients are symmetric
-    Integrand=-global_mass_scale*(&
+    
+    !!!! extra factor -1 (total +1) is due to definition of Sivers, h1+h2(s)=-h1(s)+h2
+    Integrand=+global_mass_scale*(&
         FAB(1)/9.d0&
         +FAB(2)*4.d0/9.d0&
         +FAB(3)/9.d0&
@@ -996,13 +998,14 @@ end subroutine TMDF_ResetCounters
         +FAB(-4)*4d0/9.d0&
         +FAB(-5)/9d0)
     !--------------------------------------------------------------------------------
-    CASE (10103) !p hbar->gamma
+    CASE (10103) !hbar + p(s) -> gamma
     ! e_q^2 *F_qbar(A)*F_qbar(B)
-    FA=-SiversTMDPDF_5(x1,b,mu,zeta1,1) !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-    FB=uTMDPDF_5(x2,b,mu,zeta2,2)
+    FA=uTMDPDF_5(x1,b,mu,zeta2,2)
+    FB=-SiversTMDPDF_5(x2,b,mu,zeta1,1) !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
     FAB=FA*FB    
-
-    Integrand=-global_mass_scale*(&
+    
+    !!!! extra factor -1 (total +1) is due to definition of Sivers, h1+h2(s)=-h1(s)+h2
+    Integrand=+global_mass_scale*(&
         FAB(1)/9.d0&
         +FAB(2)*4.d0/9.d0&
         +FAB(3)/9.d0&
@@ -1014,13 +1017,14 @@ end subroutine TMDF_ResetCounters
         +FAB(-4)*4d0/9.d0&
         +FAB(-5)/9d0)
     !--------------------------------------------------------------------------------  
-    CASE (10104) !pbar hbar->gamma
+    CASE (10104) !hbar + pbar(s) ->gamma
     ! e_q^2 *F_qbar(A)*F_q(B)
-    FA=-SiversTMDPDF_5(x1,b,mu,zeta1,1) !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-    FB=uTMDPDF_5(x2,b,mu,zeta2,2)
+    FA=uTMDPDF_5(x1,b,mu,zeta2,2)
+    FA=-SiversTMDPDF_5(x2,b,mu,zeta1,1) !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY   
     FAB=(FA(5:-5:-1))*FB
 
-    Integrand=-global_mass_scale*(&
+    !!!! extra factor -1 (total +1) is due to definition of Sivers, h1+h2(s)=-h1(s)+h2
+    Integrand=+global_mass_scale*(&
         FAB(1)/9.d0&
         +FAB(2)*4.d0/9.d0&
         +FAB(3)/9.d0&
