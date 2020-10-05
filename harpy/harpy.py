@@ -515,7 +515,8 @@ def get_SiversTMDPDF(x,b,h,mu=-1.,zeta=-1.,includeGluon=False):
     Return the string of Sivers TMDPDF 
     (bbar,cbar,sbar,ubar,dbar,gluon,d,u,s,c,b)
     If both mu and zeta are not specified (or negative) return optimal
-    if mu is positive returns evolved to mu,mu^2
+    if only mu is positive returns evolved to mu,mu^2
+    if mu and zeta are positive returns evolved to mu,zeta
     
      
 

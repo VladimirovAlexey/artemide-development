@@ -34,7 +34,7 @@
  
  !!!This is the defining module function
  !!! It evaluates the integral 
- !!!  int_0^infty   b db/2  Jn(b qT) zff F1 F2
+ !!!  int_0^infty   b^(n+1) db/2  Jn(b qT) zff F1 F2
  !!!
  function TMDF_F(Q2,qT,x1,x2,mu,zeta1,zeta2,process)
   real(dp)::TMDF_F

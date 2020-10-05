@@ -195,10 +195,11 @@ function TMDs_inKT_IsconvergenceLost()
   TMDs_inKT_IsconvergenceLost=convergenceLost
 end function TMDs_inKT_IsconvergenceLost
   
-  subroutine TMDs_inKT_convergenceISlost()  
+subroutine TMDs_inKT_convergenceISlost()  
   convergenceLost=.true.
-  if(outputLevel>1) write(*,*) 'arTeMiDe.TMDs-in-kT: convergence triger set to be lost.'
-  end subroutine TMDs_inKT_convergenceISlost
+  if(outputLevel>1) write(*,*) WarningString('convergence is lost. Counters reset.',moduleName)
+  call TMDs_inKT_ResetCounters()
+end subroutine TMDs_inKT_convergenceISlost
   
 subroutine TMDs_inKT_ShowStatistic()
     if(convergenceLost) then
@@ -410,8 +411,7 @@ function Fourier(x,qT_in,mu,zeta,num,hadron)
         CASE(9,10)
             n=2
         CASE(11,12,13,14)
-            n=1
-            write (*,*) WarningString('SIVERS IS NOT YET DEFINED IN TMDs in KT',moduleName)
+            n=1            
         CASE DEFAULT
             n=0
     END SELECT
