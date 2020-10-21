@@ -26,10 +26,10 @@ mu=2d0!.39d0
 
 
 allocate(b(1:numB))
-do i=1,20
-  b(i)=0.005d0+i/20d0
+do i=1,40
+  b(i)=0.005d0+i/40d0
 end do
-do i=21,numB
+do i=41,numB
   b(i)=bMax+(bMax-1d0)*(i-numB)/(numB-20)
 end do
 
@@ -37,7 +37,23 @@ allocate(central(1:numB))
 allocate(mean(1:numB))
 allocate(deviation(1:numB))
 
-call artemide_SetNPparameters_TMDR((/500d0,0d0/))
+
+!!!!! RAD with HESSE determination
+do i=1,numB
+  call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0/))
+  central(i)=DNP(mu, b(i),1)
+  !!call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0+0.0032d0/))!! sv19
+  call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0+0.00027d0/))!! sv19+EIC
+  deviation(i)=DNP(mu, b(i),1)-central(i)
+end do
+
+
+do i=1,numB
+  write(*,"('{',F10.7,',',F10.7,',',F10.7,',',F10.7,'},')") &
+       b(i),central(i),(central(i)-deviation(i)),(central(i)+deviation(i))
+end do
+stop
+
 
 do i=1,numB
   central(i)=DNP(mu, b(i),1)
@@ -45,14 +61,7 @@ do i=1,numB
   deviation=0d0
 end do
 
-do i=1,numB
-!!!! D vs. b[GeV]
-  write(*,"('{',F10.7,',',F12.7,'},')") &
-      b(i),-2d0*central(i)
-!     write(*,"('{',F10.7,',',F10.7,',',F10.7,',',F10.7,'},')") &
-!        b(i),central(i),central(i),central(i)
-end do
-stop
+
 
 do j=1,numR
   call artemide_GetReplicaFromFile(repFILE,j,NParray)

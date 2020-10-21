@@ -583,7 +583,7 @@ contains
         NumPT_auto=NumPTdefault
         return
     else
-        do i=1,5
+        do i=1,25
             if(rat>(40d0/2d0/i)) then
                 NumPT_auto=NumPTdefault+2*i
                 return

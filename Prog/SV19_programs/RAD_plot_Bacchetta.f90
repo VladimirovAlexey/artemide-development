@@ -21,6 +21,7 @@ implicit none
 
 character(*),parameter::prefix='/home/vla18041/LinkData2/arTeMiDe_Repository/Constants-files/'
 character(*),parameter::constFILE=prefix//'const-DY_LO'
+!character(*),parameter::constFILE=prefix//'const-DY_NNLO'
 
 real*8,allocatable::NParray(:)
 integer::numR,numB,i,j
@@ -48,15 +49,17 @@ allocate(central(1:numB))
 allocate(centralUP(1:numB))
 allocate(centralDOWN(1:numB))
 
-!!!! Bacchetta,et al
-do i=1,numB
-  call artemide_SetNPparameters_TMDR((/2d0,0.13d0/))
-  central(i)=DNP(mu, b(i),1)
-  call artemide_SetNPparameters_TMDR((/2d0,0.13d0+0.01d0/))
-  centralUP(i)=DNP(mu, b(i),1)
-  call artemide_SetNPparameters_TMDR((/2d0,0.13d0-0.01d0/))
-  centralDOWN(i)=DNP(mu, b(i),1)
-end do
+! !!!! Bacchetta,et al
+! do i=1,numB
+!   call artemide_SetNPparameters_TMDR((/2d0,0.13d0/))
+!   central(i)=DNP(mu, b(i),1)
+!   call artemide_SetNPparameters_TMDR((/2d0,0.13d0+0.01d0/))
+!   centralUP(i)=DNP(mu, b(i),1)
+!   call artemide_SetNPparameters_TMDR((/2d0,0.13d0-0.01d0/))
+!   centralDOWN(i)=DNP(mu, b(i),1)
+! end do
+
+
 
 !!!! 1706.01473 (model 1)
 ! do i=1,numB
@@ -67,6 +70,15 @@ end do
 !   call artemide_SetNPparameters_TMDR((/2d0,0.0073d0-0.0023d0/))
 !   centralDOWN(i)=DNP(mu, b(i),1)
 ! end do
+
+do i=1,numB
+  call artemide_SetNPparameters_TMDR((/2d0,0.396753d0/))
+  central(i)=DNP(mu, b(i),1)
+  call artemide_SetNPparameters_TMDR((/2d0,0.396753d0+0.003178d0/))
+  centralUP(i)=DNP(mu, b(i),1)
+  call artemide_SetNPparameters_TMDR((/2d0,0.396753d0-0.003178d0/))
+  centralDOWN(i)=DNP(mu, b(i),1)
+end do
 
 
 do i=1,numB
