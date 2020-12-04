@@ -20,7 +20,7 @@
   
   real*8, parameter :: C0_const=1.1229189671337703d0  
   
-    mu_LOW=C0_const/bt*Sqrt(1+bT**2/(C0_const)**2)
+    mu_LOW=10d0!C0_const*1d0/bT+2d0
     
     if(mu_LOW>1000d0) then
       mu_LOW=1000d0

@@ -1,10 +1,10 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			Model for unpolarized TMD FF  SV19  [1912.06532]
+!			Model for Sivers TMD PDF [20??.????]
 !
-!				A.Vladimirov (11.07.2019)
+!				A.Vladimirov (21.05.2020)
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-module uTMDFF_model
+module SiversTMDPDF_model
 use aTMDe_Numerics
 use IO_functions
 implicit none
@@ -21,7 +21,7 @@ public:: ModelInitialization
 !!!!!    arg=array of new NP-parameters
 public:: ModelUpdate
 !!!!! 3) Function which returns FNP function
-!!!!!    arg=(x,z,b,hadron,lambdaNP) with x=x_Bj for TMD (real_dp), z=convolution variable(real_dp), 
+!!!!!    arg=(x,b,hadron,lambdaNP) with x=x_Bj for TMD (real_dp), 
 !!!!!    b=transverse distance(real_dp), hadron=number of the hadron in grid(integer)
 !!!!!    lambdaNP = array of NP parameters (real_dp(:))
 real(dp),public,dimension(-5:5):: FNP
@@ -29,7 +29,7 @@ real(dp),public,dimension(-5:5):: FNP
 !!!!!    arg=(b,lambdaNP) with b=transverse distance(real_dp), lambdaNP = array of NP parameters (real_dp(:))
 real(dp),public:: bSTAR
 !!!!! 5) Function which returns the scale of matching (OPE scale)
-!!!!!    arg=(z,bt) with z=convolution variable(real_dp), b=transverse distance(real_dp)
+!!!!!    arg=(bt) with b=transverse distance(real_dp)
 real(dp),public:: mu_OPE
 !!!!! 6) Subroutine which returns the array of parameters CA which compose the TMDs into a single one
 !!!!!    i.e. the TMD for hardon=h is build as TMD(h)=Sum_c CA(h,c) TMD(c)
@@ -46,19 +46,17 @@ public:: GetReplicaParameters
 real(dp),allocatable::NPparam(:)
 
 contains  
-
-  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! USER DEFINED FUNCTIONS   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  
+
 !!!!!! Write nessecery model intitialization.
 subroutine ModelInitialization(NPstart)
     real(dp),intent(in)::NPstart(:)
     allocate(NPparam(1:size(NPstart)))
     NPparam=NPstart
     
-    write(*,*) color(">>>  The model for uTMDFF is SV19. Please, cite [1912.06532]   <<<",c_cyan)
+    write(*,*) color(">>>  The model for Sivers function is BPV20. Please, cite [20??.????]   <<<",c_cyan)
     
 end subroutine ModelInitialization
 
@@ -74,31 +72,31 @@ end subroutine ModelUpdate
 !!! This is  non-pertrubative function
 !!! non=pertrubative parameters are lambdaNP()
 !!! x-- is the bjorken variable of TMD
-!!! z-- is convolution variable
-function FNP(x,z,bT,hadron,lambdaNP)
-    real(dp),intent(in)::x,z,bT    
+function FNP(x,bT,hadron,lambdaNP)
+    real(dp),intent(in)::x,bT    
     integer,intent(in)::hadron
     real(dp),intent(in)::lambdaNP(:)
 
-    real(dp)::FNP0  
-    real(dp)::bb,w1,w2
+    real(dp)::bProfile
+    real(dp)::FNPu,FNPd,FNPs,FNPsea,Normu,Normd,Normsea,YY
 
-    bb=bT**2/x**2
-
-    w1=lambdaNP(1)*x+lambdaNP(2)*(1d0-x)+lambdaNP(3)*x**2
-    w2=Abs(lambdaNP(4))
+    !!! profile in b is common for all (5 parameters)    
+    YY=(lambdaNP(1)+x*lambdaNP(2))*(bT**2)/sqrt(1d0+Abs(lambdaNP(3))*x**2*bT**2)
+    bProfile=exp(-YY)
+    !bProfile=1d0/cosh((lambdaNP(1)+x**2*lambdaNP(2))*bT)
     
-    if(w2<0d0 .or. w1<0d0) then !!! case of negative power, we return absolutely incorrect expression.
-        if(bT<1d0) then
-    FNP0=-1d0
-        else
-    FNP0=0d0
-        end if
-    else
-    FNP0=Exp(-bb*w1/sqrt(1d0+w2*bT**2))*(1+(lambdaNP(5)+x*lambdaNP(6)+x**2*lambdaNP(7))*bb)
-    end if
+    !!! u-quark(3 parameters)
+    Normu=(3d0+lambdaNP(7)+lambdaNP(8)*(1+lambdaNP(7)))/((lambdaNP(7)+1d0)*(lambdaNP(7)+2d0)*(lambdaNP(7)+3d0))    
+    FNPu=lambdaNP(6)*(1-x)*x**lambdaNP(7)*(1+lambdaNP(8)*x)/Normu
+    !!! d-quark(3 parameters)
+    Normd=(3d0+lambdaNP(10)+lambdaNP(11)*(1+lambdaNP(10)))/((lambdaNP(10)+1d0)*(lambdaNP(10)+2d0)*(lambdaNP(10)+3d0))    
+    FNPd=lambdaNP(9)*(1-x)*x**lambdaNP(10)*(1+lambdaNP(11)*x)/Normd
+    !!! sea-quark(3 parameters)
+    Normsea=1d0/((lambdaNP(13)+1d0)*(lambdaNP(13)+2d0))    
+    FNPs=lambdaNP(12)*(1-x)*x**lambdaNP(13)/Normsea
+    FNPsea=lambdaNP(14)*(1-x)*x**lambdaNP(13)/Normsea
     
-    FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
+    FNP=bProfile*(/0d0,0d0,FNPsea,FNPsea,FNPsea,0d0,FNPd,FNPu,FNPs,0d0,0d0/)
 
 end function FNP
   
@@ -115,10 +113,10 @@ pure function bSTAR(bT,lambdaNP)
 end function bSTAR
   
 !!!!This function is the mu(x,b), which is used inside the OPE
-pure function mu_OPE(z,bt)
-    real(dp),intent(in)::z,bt
+pure function mu_OPE(bt)
+    real(dp),intent(in)::bt
 
-    mu_OPE=C0_const*z/bT+2d0
+    mu_OPE=C0_const*1d0/bT+2d0
 
     if(mu_OPE>1000d0) then
         mu_OPE=1000d0
@@ -141,6 +139,7 @@ subroutine GetCompositionArray(hadron,lambdaNP,includeArray,coefficientArray)
     allocate(coefficientArray(1:1))
 end subroutine GetCompositionArray
   
+  
 !!! In SV19 model the replica parameters are stored in separate file.
 subroutine GetReplicaParameters(rep,NParray)
     integer,intent(in)::rep
@@ -149,8 +148,8 @@ subroutine GetReplicaParameters(rep,NParray)
     
     allocate(NParray(1:size(NPparam)))
 
-    write(*,*) warningstring("set model replica via artemide-control module","SV19")
-    write(*,*) warningstring("some generic NP values returned","SV19")
+    write(*,*) warningstring("set model replica via artemide-control module","Sivers")
+    write(*,*) warningstring("some generic NP values returned","Sivers")
     NParray(1)=1d0
     do i=2,size(NPparam)
         NParray(1)=0.001d0
@@ -158,4 +157,4 @@ subroutine GetReplicaParameters(rep,NParray)
 
 end subroutine GetReplicaParameters
   
-end module uTMDFF_model
+end module SiversTMDPDF_model

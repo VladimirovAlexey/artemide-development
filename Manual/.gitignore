@@ -1,0 +1,7 @@
+#tex trash
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.bak
+*.toc

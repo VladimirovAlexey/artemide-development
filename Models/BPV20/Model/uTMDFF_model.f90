@@ -1,10 +1,10 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			Model for unpolarized TMD PDF  BSV19  [1902.08474]
+!			Model for unpolarized TMD FF  SV19  [1912.06532]
 !
 !				A.Vladimirov (11.07.2019)
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-module uTMDPDF_model
+module uTMDFF_model
 use aTMDe_Numerics
 use IO_functions
 implicit none
@@ -46,17 +46,19 @@ public:: GetReplicaParameters
 real(dp),allocatable::NPparam(:)
 
 contains  
+
+  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! USER DEFINED FUNCTIONS   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+  
 !!!!!! Write nessecery model intitialization.
 subroutine ModelInitialization(NPstart)
     real(dp),intent(in)::NPstart(:)
     allocate(NPparam(1:size(NPstart)))
     NPparam=NPstart
     
-    write(*,*) color(">>>  The model for uTMDPDF is SV19. Please, cite [1912.06532]   <<<",c_cyan)
+    write(*,*) color(">>>  The model for uTMDFF is SV19. Please, cite [1912.06532]   <<<",c_cyan)
     
 end subroutine ModelInitialization
 
@@ -78,28 +80,23 @@ function FNP(x,z,bT,hadron,lambdaNP)
     integer,intent(in)::hadron
     real(dp),intent(in)::lambdaNP(:)
 
-    real(dp)::bb,w1,w2,w3,FNP0
+    real(dp)::FNP0  
+    real(dp)::bb,w1,w2,M
 
-    bb=bT**2
-    !w1=lambdaNP(1)*(1-x)+x*lambdaNP(2)+x*(1-x)*lambdaNP(5)
-    !w2=lambdaNP(3)*x**lambdaNP(4)+lambdaNP(6)
+    bb=bT**2/x**2
     
-    w1=lambdaNP(1)*(1-x)+x*lambdaNP(2)+log(1/x)*x*(1-x)*lambdaNP(3)+log(1/x)*lambdaNP(4)
-    w2=Abs(lambdaNP(5))+Abs(lambdaNP(6))*x**2
+!     if(hadron==1) then
+        w1=lambdaNP(1)*x+lambdaNP(2)*(1d0-x)
+        w2=lambdaNP(3)
+        FNP0=Exp(-bb*w1/sqrt(1d0+w2*bb))*(1+lambdaNP(4)*bb)
+        
+!     else
+!         w1=lambdaNP(5)*x+lambdaNP(6)*(1d0-x)
+!         w2=lambdaNP(7)
+!         FNP0=Exp(-bb*w1/sqrt(1d0+w2*bb))*(1+lambdaNP(8)*bb)
+!     end if
 
-    if(w2<0d0 .or. w1<0d0) then !!! case of negative power, we return absolutely incorrect expression.
-        if(bT<1d0) then
-    FNP0=-1d0
-        else
-    FNP0=0d0
-        end if
-    else
-    FNP0=Exp(-w1*bb/sqrt(1+w2*bb))
-    end if
-
-    !    FNP0=Exp(-lambdaNP(1)*bb)
-
-    FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
+    FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/) 
 
 end function FNP
   
@@ -119,7 +116,7 @@ end function bSTAR
 pure function mu_OPE(z,bt)
     real(dp),intent(in)::z,bt
 
-    mu_OPE=C0_const*1d0/bT+2d0
+    mu_OPE=C0_const*z/bT+2d0
 
     if(mu_OPE>1000d0) then
         mu_OPE=1000d0
@@ -142,7 +139,6 @@ subroutine GetCompositionArray(hadron,lambdaNP,includeArray,coefficientArray)
     allocate(coefficientArray(1:1))
 end subroutine GetCompositionArray
   
-  
 !!! In SV19 model the replica parameters are stored in separate file.
 subroutine GetReplicaParameters(rep,NParray)
     integer,intent(in)::rep
@@ -160,4 +156,4 @@ subroutine GetReplicaParameters(rep,NParray)
 
 end subroutine GetReplicaParameters
   
-end module uTMDPDF_model
+end module uTMDFF_model

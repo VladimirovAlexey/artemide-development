@@ -13,7 +13,7 @@
 module TMDR_model
 use aTMDe_Numerics
 use IO_functions
-use TMD_AD, only : Dresum,zetaMUpert,zetaSL
+use TMD_AD, only : Dresum,Dpert,zetaMUpert,zetaSL
 implicit none
 
 private
@@ -39,9 +39,7 @@ public:: GetReplicaParameters
 !!!!!------------------------------------------------------------------------------------
 
 real(dp),allocatable::NPparam(:)
-
-real(dp),parameter::BNP2=4_dp!!!! fixed BNP^2
-
+  
 contains
   
 !!!!!! Write nessecery model intitialization.
@@ -58,7 +56,8 @@ subroutine ModelInitialization(InitialNPParams)
     allocate(NPparam(1:size(InitialNPParams)))
     NPparam=InitialNPParams
     
-    write(*,*) color(">>>  The model for TMD evolution is SV19. Please, cite [1912.06532]   <<<",c_cyan)
+    write(*,*) &
+    color(">>>  The model for TMD evolution is Vpion19=BSV19.NNPDF31. Please, cite [1902.08474]&[1907.10356]   <<<",c_cyan)
 
 end subroutine ModelInitialization 
 
@@ -74,18 +73,22 @@ end subroutine ModelUpdate
  
 !!! This is the rapidity anomalous dimension non-pertrubative model
 !!! In your evaluation take care that the saddle point is inside the pertrubative regeme
-!!! Use function Dpert(mu,b,f) for D pertrubative, use Dresum for D resum
+!!! Use function Dpert(mu,b,f) for D perturbative, use Dresum for D resum
 function DNP(mu,b,f)
     real(dp),intent(in)::mu,b
     integer,intent(in)::f
-    real(dp)::bSTAR,bSTAR2
-
-    !bSTAR=b/SQRT(1_dp+b**2/NPparam(1)**2)
-    !DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b  !!!! D*+gK b b*, it smoother turns perturbative to b^2 assimptotic
+    real(dp)::bSTAR
     
-    bSTAR=b/SQRT(1_dp+b**2/BNP2)
-    DNP=Dresum(mu,bSTAR,1)+(NPparam(1)*bSTAR*b+abs(NPparam(2))*b**4/(1_dp+b**2/BNP2/4_dp))*&
-                            ((1_dp-NPparam(3))*Exp(-NPparam(4)*b**2/BNP2)+NPparam(3))
+    bSTAR=b/SQRT(1_dp+b**2/NPparam(1)**2)    
+    DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b
+    
+!     bSTAR=b/SQRT(1_dp+b**2/4d0)    
+!     if(b>2d0) then
+!         DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b+Abs(NPparam(1))*0.01d0*(b-2d0)**2d0
+!     else
+!         DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b
+!     end if
+    
     
 end function DNP
   
@@ -99,8 +102,8 @@ function zetaNP(mu,b,f)
     real(dp)::zz,rad
     
     rad=DNP(mu,b,f)
-    !zz=Exp(-b**2/NPparam(1)**2)
-    zz=Exp(-b**2/BNP2)
+    zz=Exp(-b**2/NPparam(1)**2)
+!     zz=Exp(-b**2/4d0)
     zetaNP=zetaMUpert(mu,b,f)*zz+zetaSL(mu,rad,f)*(1d0-zz)
 end function zetaNP
  
@@ -108,16 +111,11 @@ end function zetaNP
 subroutine GetReplicaParameters(rep,NParray)
     integer,intent(in)::rep
     real(dp),allocatable,intent(out)::NParray(:)
-    integer::i
+    real(dp),parameter,dimension(1:2)::replica=(/2.2824d0, 0.025d0/)
     
-    allocate(NParray(1:size(NPparam)))
+    allocate(NParray(1:2))
 
-    write(*,*) warningstring("set model replica via artemide-control module","SV19")
-    write(*,*) warningstring("some generic NP values returned","SV19")
-    NParray(1)=1d0
-    do i=2,size(NPparam)
-        NParray(1)=0.001d0
-    end do
+    NParray=replica
 
 end subroutine GetReplicaParameters
 
