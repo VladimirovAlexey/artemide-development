@@ -14,10 +14,10 @@ implicit none
 
 private
 
-character (len=5),parameter :: version="v2.05"
+character (len=5),parameter :: version="v2.06"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=16
+integer,parameter::inputVer=17
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -125,7 +125,7 @@ logical::include_TMDX_DY
 character*8::TMDX_DY_order
 real(dp)::TMDX_DY_tolerance
 integer::TMDX_DY_ptSECTION
-logical::TMDX_DY_exactX1X2,TMDX_DY_piResum
+logical::TMDX_DY_exactX1X2,TMDX_DY_piResum,TMDX_DY_exactScale
 integer::TMDX_DY_numProc
 
 !-------------------- TMDX-SIDIS parameters
@@ -371,6 +371,7 @@ subroutine SetupDefault(order)
     TMDX_DY_order=trim(order)
     TMDX_DY_exactX1X2=.true.
     TMDX_DY_piResum=.false.
+    TMDX_DY_exactScale=.false.
     TMDX_DY_numProc=8
 
     !------------------ parameters for TMDX-SIDIS
@@ -751,6 +752,8 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDX_DY_exactX1X2
     write(51,"('*p3  : Use resummation of pi^2-corrections in hard coefficient')")
     write(51,*) TMDX_DY_piResum
+    write(51,"('*p4  : Use the exact values for factorization scales (include qT/Q correction)')")
+    write(51,*) TMDX_DY_exactScale
     write(51,"('*B   : ---- Numerical evaluation parameters ----')")
     write(51,"('*p1  : Tolerance (relative tolerance for bin-integration routines, except pt-integration)')")
     write(51,*) TMDX_DY_tolerance
@@ -1266,6 +1269,10 @@ subroutine ReadConstantsFile(file,prefix)
     if(FILEversion>=6) then
         call MoveTO(51,'*p3  ')
         read(51,*) TMDX_DY_piResum
+    end if
+    if(FILEversion>=17) then
+        call MoveTO(51,'*p4  ')
+        read(51,*) TMDX_DY_exactScale
     end if
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')

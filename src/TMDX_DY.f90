@@ -54,6 +54,7 @@ implicit none
   logical:: includeCuts_global
   logical::usePIresum
   integer:: exactX1X2    !!!=1 if exact x's=true, =0 otherwise
+  integer:: exactScales  !!!=1 if exact hard scales = true, =0 otherwise
   
   !!! number of sections for PT-integral by default
   integer::NumPTdefault=4
@@ -205,10 +206,20 @@ contains
      else
       exactX1X2=0
      end if
-     if(outputLevel>2 .and. dummyLogical) write(*,*) '	artemide.TMDX_DY: qT/Q correction for x1 and x2 variables are included.'
+     if(outputLevel>2 .and. dummyLogical) write(*,*) '	artemide.TMDX_DY: qT/Q corrections for x1 and x2 variables are included.'
+     !! pi2 resummation
      call MoveTO(51,'*p3   ')
      read(51,*) usePIresum
      if(outputLevel>2 .and. usePIresum) write(*,*) '	artemide.TMDX_DY: pi-resummation in coef.function included.'
+     !!exact values for scales
+     call MoveTO(51,'*p4   ')
+     read(51,*) dummyLogical
+     if(dummyLogical) then 
+      exactScales=1
+     else
+      exactScales=0
+     end if
+     if(outputLevel>2 .and. dummyLogical) write(*,*) '	artemide.TMDX_DY: qT/Q correction for scales variables are included.'
      
      call MoveTO(51,'*B   ')
      call MoveTO(51,'*p1  ')
@@ -547,7 +558,7 @@ contains
   !!!! this is extended (and default) version of xSec, which include all parameters
   function xSec(var,process,incCut,CutParam)
     real(dp):: xSec,FF
-    real(dp)::x1,x2
+    real(dp)::x1,x2,scaleMu,scaleZeta
     real(dp),dimension(1:7),intent(in)::var
     logical,intent(in)::incCut
     real(dp),dimension(1:4),intent(in)::CutParam
@@ -559,10 +570,15 @@ contains
       return
     end if
     
+    !!! setting values of X
     x1=var(5)*var(7)
     x2=var(5)/var(7)
+    
+    !!! setting values of scales
+    scaleZeta=var(4)+exactScales*var(1)**2  !! zeta=Q2+qT^2
+    scaleMu=sqrt(scaleZeta)    
   
-    FF=TMDF_F(var(4),var(1),x1,x2,var(3)*c2_global,var(4),var(4),process(3))
+    FF=TMDF_F(var(4),var(1),x1,x2,scaleMu*c2_global,scaleZeta,scaleZeta,process(3))
     
     xSec=PreFactor2(var,process,incCut,CutParam)*FF    
     

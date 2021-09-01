@@ -109,7 +109,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\title{artemide ver.2.05}
+\title{artemide ver.2.06}
 \author{Alexey A. Vladimirov \\ \today}
 \noaffiliation
 \begin{abstract}
@@ -133,7 +133,9 @@ Alexey Vladimirov: \textit{Alexey.Vladimirov@physik.uni-regensburg.de} or \texti
 \end{tcolorbox}
 
 \begin{center}
-\textbf{\blue{Repository:~}}\href{https://github.com/VladimirovAlexey/artemide-public}{https://github.com/VladimirovAlexey/artemide-public}
+\textbf{\blue{Stable Repository:~}}\href{https://github.com/VladimirovAlexey/artemide-public}{https://github.com/VladimirovAlexey/artemide-public}
+\\
+\textbf{\blue{Dev Repository:~}}\href{https://github.com/VladimirovAlexey/artemide-development}{https://github.com/VladimirovAlexey/artemide-development}
 \end{center}
 
 
@@ -1892,7 +1894,7 @@ where
 \item $q_T$ is transverse momentum in the factorization frame. It coincides with measured $q_T$ in center-mass frame for DY, but $q_T\sim p_T/z$ for SIDIS.
 \item $x_1$ and $x_2$ are parts of collinear parton momenta. I.e. for DY $x_{1,2}\simeq Qe^{\pm y}/\sqrt{s}$, while for SIDIS $x_2\sim z$. It can also obtain power correction, ala Nachmann variables.
 \item $\mu$ is the hard factorization scale $\mu \sim Q$
-\item $\zeta_{1,2}$ are rapidity factorization scales. In the standard factorization scheme $\zeta_1\zeta_2=Q^4$.
+\item $\zeta_{1,2}$ are rapidity factorization scales. In the standard factorization scheme $\zeta_1\zeta_2=Q^4$. It can also be modified by power corrections.
 \item $f,f'$ are parton flavors.
 \item $z_{ff'}$ is the process related function. E.g. for photon DY on $p+\bar p$, $z_{ff'}=\delta_{ff'}|e_f|^2.$
 \item $n$ The order of Bessel transformation is defined by structure function. E.g. for unpolarized DY $n=1$. For SSA's $n=1$. In general for angular modulation $\sim \cos (n\theta)$.
@@ -2508,7 +2510,7 @@ where $U_\pi$ is the resummation exponent for $\pi a_s$-correction. At LO it rea
 \begin{eqnarray}
 U_\pi=\exp\(\frac{\Gamma_0}{2a_s\beta_0^2}[2 a \arctan a-\ln(1+a^2)]\),\qquad a=\pi a_s.
 \end{eqnarray}
-To use the $\pi$-resummed coefficient function switch the corresponded option in \texttt{constants-file}.
+To use the $\pi$-resummed coefficient function switch the corresponded option in \texttt{constants-file} (Option 9.A.p3).
 
 \subsubsection{Power corrections}
 
@@ -2520,7 +2522,14 @@ x_1&=&\frac{q^+}{p_1^+}=\frac{Q}{\sqrt{s}}e^y\sqrt{1+\frac{\vec q_T^2}{Q^2}}\sim
 \\\nn
 x_1&=&\frac{q^+}{p_1^+}=\frac{Q}{\sqrt{s}}e^{-y}\sqrt{1+\frac{\vec q_T^2}{Q^2}} \simeq \frac{Q}{\sqrt{s}}e^{-y}.
 \end{eqnarray}
-Traditionally, the corrections $\sim q_T/Q$ are dropped, since they are power corrections. Nonetheless, they could be included since they have different sources in comparison to power corrections to the factorized cross-section. Usage of one or another version of $x_{1,2}$ is switched in \texttt{constants-file}.
+Traditionally, the corrections $\sim q_T/Q$ are dropped, since they are power corrections. Nonetheless, they could be included since they have different sources in comparison to power corrections to the factorized cross-section. Usage of one or another version of $x_{1,2}$ is switched in \texttt{constants-file} (Option 9.A.p2).
+
+\textbf{Exact values for hard scale for DY:} The TMD hard coefficient function contains $\ln(|2q^+q^-|/\mu^2)$ which is usually approximated by $\ln(Q^2)$. Similarly, the $zeta$-scales are normalized as $\zeta \bar \zeta=(2q^+q^-)^2$, which is usually approximated by $Q^4$. So, the exact values of scales are
+\begin{eqnarray}
+\mu=\sqrt{Q^2+\vec q_T^2},\qquad \zeta_1=\zeta_2=Q^2+\vec q_T^2.
+\end{eqnarray}
+Traditionally, the corrections $\sim q_T/Q$ are dropped, since they are power corrections. Nonetheless, they could be included since they have different sources in comparison to power corrections to the factorized cross-section. Usage of one or another version of $scales$ is switched in \texttt{constants-file} (Option 9.A.p4).
+
 
 \subsection{Enumeration of processes}
 
@@ -3294,6 +3303,11 @@ doi:10.1007/JHEP05(2019)125
 \newpage
 \section{Version history}
 \begin{itemize}
+\item[\textbf{Ver.2.06}]
+\begin{itemize}
+	\item \textbf{TMDX\_DY}: Added option for exact factorization scales.
+\end{itemize}
+
 \item[\textbf{Ver.2.05}]
 \begin{itemize}
 	\item \textbf{TMDX\_SIDIS}: Minor optimization.
@@ -3524,6 +3538,7 @@ doi:10.1007/JHEP05(2019)125
 \item +value of $\alpha_{QED}$ at mass of tau-leptons (secs. 2.A.p4)
 \item +Sivers function (sections 12)
 \item +global mass scale value used in TMDF (sections 7.p2)
+\item +option for accounting of exact values of factorization scales in DY (sections 9.A.p4)
 \end{enumerate}
 
 \newpage
