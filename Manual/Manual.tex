@@ -2053,7 +2053,7 @@ List of enumeration of structures functions
 \\\hline
 21 & $\Ds f_g(x_1)f_g(x_2)$ & $f_1$ & $f_{1}$ & (unpol.)$h+h\to H$ Elementary Higgs production. Only unpol.TMDPDF term & yes
 \\\hline
-21 & $\Ds h^\perp_{1g}(x_1)h^\perp_{1g}(x_2)$ & $h^\perp_{1}$ & $h^\perp_{1}$ & (unpol.)$h+h\to H$ Elementary Higgs production. Only linearly pol.TMDPDF term & yes
+22 & $\Ds h^\perp_{1g}(x_1)h^\perp_{1g}(x_2)$ & $h^\perp_{1}$ & $h^\perp_{1}$ & (unpol.)$h+h\to H$ Elementary Higgs production. Only linearly pol.TMDPDF term & yes
 \\\hline
 101 & $\delta_{\bar f f'}|e_f|^2$ & $f^h_1$ & $f_1$ & (unpol.)$h+p\to\gamma$ (with $h=2$) & no
 \\\hline
@@ -2274,10 +2274,13 @@ This module evaluates cross-sections with the Drell-Yan-like kinematics. I.e. it
 
 The general structure of the cross-section is
 \begin{eqnarray}
-\frac{d\sigma}{dX}=
-d\sigma(q_T)=prefactor1~\int [bin] ~prefactor2~\times F,
+\Delta\sigma(q_T)=prefactor1~\int_{bin} dX ~prefactor2~\times F,
 \end{eqnarray}
-where $$dX=dQ^2 dy d q^2_T.$$ \textit{Prefactor1} is related to the definition of the phase-space, while \textit{prefactor2} is about process and cross-section. Generally, the \textit{prefactor2} $\times F$ is
+where $$dX=dQ^2 dy d q^2_T.$$ So, for a small bin
+\begin{eqnarray}
+\Delta\sigma(q_T)\approx\Delta X \frac{d\sigma}{dX},\qquad \Delta X=(Q_{\text{max}}^2-Q_{\text{min}}^2)(y_{\text{max}}-y_{\text{min}})(q_{T\text{max}}^2-q_{T\text{min}}^2).
+\end{eqnarray}
+\textit{Prefactor1} is related to the definition of the phase-space, while \textit{prefactor2} is about process and cross-section. Generally, the \textit{prefactor2} $\times F$ is
 \begin{eqnarray}
 prefactor2 \times F=(\text{cuts for lepton pair})\times H(Q,\mu_H)F(Q,q_T,x_1,x_2,\mu,\zeta_1,\zeta_),
 \end{eqnarray}
@@ -2913,18 +2916,22 @@ The module \texttt{TMDs\_inKT} is derivative of the module \texttt{TMDs} that pr
 \begin{eqnarray}
 F(x,\vec k_T;\mu,\zeta)=\int \frac{d^2\vec b}{(2\pi)^2}F(x,\vec b;\mu,\zeta)e^{-i(\vec k_T \vec b)}.
 \end{eqnarray}
-Since all evaluated TMDs depends only on the modulus of $\vec b$, within the module we evaluate
+Since all evaluated TMDs depends only on the modulus of $\vec b$, within the module we evaluate Hankel transformations. These transformations depends on the kind of TMD. Generally the integrals are
 \begin{eqnarray}\label{kT-J0}
-n=0:\qquad
-F(x,|\vec k_T|;\mu,\zeta)=\int \frac{d|\vec b|}{2\pi}|\vec  b| J_0(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta).
+F(x,|\vec k_T|;\mu,\zeta)=\int \frac{d|\vec b|}{2\pi}|\vec  b|^{n+1} J_n(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta).
 \end{eqnarray}
-In polarized case, we need Hankel transforms of different kind. In particular,
-\begin{eqnarray}\label{kT-J2}
-n=2:\qquad
-F(x,|\vec k_T|;\mu,\zeta)=-\int \frac{d|\vec b|}{2\pi}|\vec  b| J_2(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta).
+On top of it there is could be extra prefactors specified in the table. For simplicity these cases indecated by numbers
+\begin{eqnarray}
+n=0,&\qquad &F(x,|\vec k_T|;\mu,\zeta)=\int \frac{d|\vec b|}{2\pi}|\vec  b| J_0(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta),
+\\
+n=1,&\qquad &F(x,|\vec k_T|;\mu,\zeta)=\int \frac{d|\vec b|}{2\pi}|\vec  b|^2 J_1(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta),
+\\
+n=2,&\qquad &F(x,|\vec k_T|;\mu,\zeta)=-\int \frac{d|\vec b|}{2\pi}|\vec  b|^3 J_2(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta).
 \end{eqnarray}
 
 The module \texttt{TMDs\_inKT} uses all functions from the module \texttt{TMDs}. In fact, all technical commands (like \texttt{Initialize}) just transfer the request to \texttt{TMDs}. Thus, the information on these commands can be found in the section \ref{TMDs}. For the evaluation of Hankel integral we use the Ogata quadrature see \ref{TMDF:TMDF} (the parameters for it are set in corresponding section of \texttt{constants}.
+
+
 \begin{center}
 List of available commands
 \\
@@ -2959,6 +2966,14 @@ Command & ~~Type~~& ~~Sec.~~ & Short description
 \texttt{lpTMDPDF{\_}kT{\_}50(x,kT,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Linearly polarized gluon TMD PDF at the optimal line (quark terms undefined). $n=2$
 \\\hline
 \texttt{lpTMDPDF{\_}kT{\_}50(x,kT,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Linearly polarized gluon TMD PDF (quark terms undefined). $n=2$
+\\\hline
+\texttt{SiversTMDPDF{\_}kT{\_}5(x,kT,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF at the optimal line (gluon term undefined). $n=1$
+\\\hline
+\texttt{SiversTMDPDF{\_}kT{\_}50(x,kT,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF at the optimal line (gluon term defined). $n=1$
+\\\hline
+\texttt{SiversTMDPDF{\_}kT{\_}5(x,kT,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF (gluon term undefined). $n=1$
+\\\hline
+\texttt{SiversTMDPDF{\_}kT{\_}50(x,kT,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF (gluon term defined). $n=1$
 \\
 \hline\hline
 \end{tabular}

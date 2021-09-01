@@ -23,7 +23,7 @@ call artemide_Initialize('Prog/const-file_higgs')
 call artemide_SetNPparameters_TMDR((/1.86041d0, 0.029551d0/))
 call artemide_SetNPparameters_uTMDPDF((/0.253434d0, 9.04351d0, 346.999d0, 2.47992d0, -5.69988d0, 0.d0, 0.d0/))
 
-proc=(/1,5,21/) !!!! pp -> Higgs (unpol.part)
+proc=(/1,5,22/) !!!! pp -> Higgs (unpol.part)
 s=7000d0**2
 Q=125d0
 y=0d0

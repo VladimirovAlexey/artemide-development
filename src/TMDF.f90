@@ -62,7 +62,9 @@ integer::messageCounter
 public::TMDF_Initialize,TMDF_ShowStatistic,TMDF_ResetCounters
 public:: TMDF_F
 public::TMDF_convergenceISlost,TMDF_IsconvergenceLost,TMDF_IsInitialized
-  
+
+public::Integrand
+
 contains
 
 INCLUDE 'Code/TMDF/Ogata.f90'

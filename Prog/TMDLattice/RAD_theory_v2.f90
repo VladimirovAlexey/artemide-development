@@ -14,7 +14,7 @@ integer::numR,numB,i,j
 real*8,allocatable::central(:),mean(:),deviation(:),b(:)
 real*8::bMax,rr,bb,xCUT
 
-real*8::Pp1,Pp2,mu0,vminus
+real*8::Pp1,Pp2,mu0,vminus,F
 
 integer:: lMoment!!! derivative with respect to ell
 !!!! consdered u-d combination
@@ -41,11 +41,15 @@ xCUT=1.01d-5
 
 mu0=2d0*Abs(vminus)*Sqrt(Pp1*Pp2)
 
-! write(*,*) '--------------M-----------------------------------------------'
-! do i=1,25
-!   bb=0.2d0*i
-!   write(*,*) '{',bb,',', M(bb,mu0,1d-3),',', M(bb,mu0,1d-4),',', M(bb,mu0,1d-5),'},'
-! end do
+write(*,*) '--------------M-----------------------------------------------'
+do i=1,25
+  bb=0.2d0*i
+  F=M(bb,mu0,1d-4)
+  write(*,*) '{',bb,',', F,'},'
+  !write(*,*) '{',bb,',', M(bb,mu0,1d-3),',', M(bb,mu0,1d-4),',', M(bb,mu0,1d-5),'},'
+end do
+
+stop
 ! 
 ! 
 ! write(*,*) '----------------RC--------------------------------------------'
@@ -197,10 +201,15 @@ end function RC
 
 !!!! function is the ration of \int dx f(x)|x|^{-2D} TMD /\int dx |x|^{-2D} TMD (for flavour f)
 function M(b,mu,xMax)
- real*8::M,b,mu,xMax,L
+ real*8::M,b,mu,xMax,L,q1,q2
   
- L=-Log(xMax)
- M=T2(b,mu,L)/T1(b,mu,L)
+  
+ L=-Log(xMax) 
+ 
+ q1=T1(b,mu,L)
+ q2=T2(b,mu,L)
+ 
+ M=q2/q1
 end function M
 
 !!!! integral of I1 from 0 to L
@@ -221,6 +230,8 @@ function T1(b,mu,L)
     T1=T1+4d0*I1(step*(i+1),b,mu)
   end do
   T1=T1+I1(step*nMax,b,mu)
+  
+  !write(*,*) "T1---->",i,"    ",T2
   
   T1=step/3d0*T1
   
@@ -243,6 +254,9 @@ function T2(b,mu,L)
   do i=2,nMax-2,2
     T2=T2+2d0*I2(step*i,b,mu)
     T2=T2+4d0*I2(step*(i+1),b,mu)
+    
+    !write(*,*) "T2---->",i,"    ",T2
+    
   end do
   T2=T2+I2(step*nMax,b,mu)
   

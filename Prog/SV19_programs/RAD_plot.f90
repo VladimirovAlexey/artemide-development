@@ -43,7 +43,7 @@ do i=1,numB
   call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0/))
   central(i)=DNP(mu, b(i),1)
   !!call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0+0.0032d0/))!! sv19
-  call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0+0.00027d0/))!! sv19+EIC
+  call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0+0.0007027d0/))!! sv19+EIC
   deviation(i)=DNP(mu, b(i),1)-central(i)
 end do
 

@@ -90,7 +90,7 @@ function FNP(x,z,bT,hadron,lambdaNP)
    
     bb=bT**2
     w1=lambdaNP(1)*(1-x)+x*lambdaNP(2)+x*(1-x)*lambdaNP(5)
-    w2=lambdaNP(3)*x**lambdaNP(4)+lambdaNP(6)
+    w2=lambdaNP(3)*x**lambdaNP(4)+0d0*lambdaNP(6)
    
     if(w2<0d0 .or. w1<0d0) then
     FNP0=-1d0

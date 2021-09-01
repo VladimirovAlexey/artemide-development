@@ -61,10 +61,11 @@
     0
 *D   : ----lpPDF sets----
 *p1  : total number of PDFs to initialize (0= initialization is skipped)
-           0
+           1
 *p2  : reference number for hadrons
-    0
+    1
 *p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
+NNPDF31_nnlo_as_0118
 *p4  : list of initialization replicas
     0
  
@@ -328,11 +329,11 @@
 # ---------------------------------------------------------------------------
 *11  :
 *p1  : initialize lpTMDPDF module
- F
+ T
  
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
- LO
+ NLO
 *p2  : Use composite TMD-function definition
  F
 *B   : ---- Parameters of NP model ----
