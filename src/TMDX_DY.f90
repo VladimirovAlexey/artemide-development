@@ -453,7 +453,7 @@ contains
   function PreFactor2(kin,process, includeCuts_in,CutParam)
     real(dp),dimension(1:7),intent(in)::kin
     logical,intent(in)::includeCuts_in
-    real(dp)::PreFactor2,cutPrefactor,uniPart
+    real(dp)::PreFactor2,cutPrefactor,uniPart,scaleMu
     real(dp),dimension(1:4),intent(in)::CutParam
     integer,dimension(1:3),intent(in)::process
   
@@ -468,40 +468,41 @@ contains
   
     
    !!!! universal part
-
+    scaleMu=sqrt(kin(4)+exactScales*kin(1)**2)
+    
   SELECT CASE(process(2))
     case(-10221191)
 	uniPart=1d0
 	cutPrefactor=1d0
     CASE(1)
 	!4 pi aEm^2/3 /Nc/Q^2/s
-	uniPart=pix4/9d0*(alphaEM(kin(3))**2)/(kin(2)*kin(4))*&
-	    HardCoefficientDY(kin(3))*&
+	uniPart=pix4/9d0*(alphaEM(scaleMu)**2)/(kin(2)*kin(4))*&
+	    HardCoefficientDY(scaleMu)*&
 	    hc2*1d9!from GeV to pb
 	!!! IsySymmetric=.true.  !!! state is IsySymmetric-function
     CASE(2)
 	!4 pi aEm^2/3 /Nc/Q^2/s
-	uniPart=pix4/9d0*(alphaEM(kin(3))**2)/(kin(2)*kin(4))*&
-	    HardCoefficientDY(kin(3))*&
+	uniPart=pix4/9d0*(alphaEM(scaleMu)**2)/(kin(2)*kin(4))*&
+	    HardCoefficientDY(scaleMu)*&
 	    hc2*1d9!from GeV to pb
 	!!!IsySymmetric=.false.	!!! state is IsySymmetric-function
     CASE (3) !Zboson in the narrow-width approximation
 	!4 pi^2 aem/Nc/s Br(z->ee+mumu)
-	uniPart=pi2x4/3d0*alphaEM(kin(3))/kin(2)*&
-	    HardCoefficientDY(kin(3))*&
+	uniPart=pi2x4/3d0*alphaEM(scaleMu)/kin(2)*&
+	    HardCoefficientDY(scaleMu)*&
 	    hc2*1d9*&!from GeV to pb
 	    0.03645d0!Br from PDG, ee+mumu
     CASE (4) !Wboson in the narrow-width approximation
 	!4 pi^2 aem/Nc/s Br(z->ee+mumu)
-	uniPart=pi2x4/3d0**alphaEM(kin(3))/kin(2)*&
-	    HardCoefficientDY(kin(3))*&
+	uniPart=pi2x4/3d0**alphaEM(scaleMu)/kin(2)*&
+	    HardCoefficientDY(scaleMu)*&
 	    hc2*1d9*&!from GeV to pb
 	    0.1086d0!Br from PDG, ee+mumu
     CASE (5) !exclusive HIGGSboson production
 	! (2\pi) *pi Mh^2 as(mu)/36/s/vev^2 * H*cT^2
 	! (1.033)^2 is correction for mT mass in Ct at LO.
-	uniPart=(1d0/18d0)*MH2*(As(c2_global*kin(3))/VEVH)**2/kin(2)*&
-	   HardCoefficientHIGGS(kin(3))*(EffCouplingHFF(kin(3))**2)*1.0677023627519822d0*&
+	uniPart=(1d0/18d0)*MH2*(As(c2_global*scaleMu)/VEVH)**2/kin(2)*&
+	   HardCoefficientHIGGS(scaleMu)*(EffCouplingHFF(scaleMu)**2)*1.0677023627519822d0*&
 	    hc2*1d9!from GeV to pb
 	    
 	cutPrefactor=1d0 !!! cut-prefactor is different in this case! 
