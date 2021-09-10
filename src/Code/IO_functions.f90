@@ -63,37 +63,7 @@ contains
         end if
     end do
  end subroutine MoveTO
- 
-  !!! attempts to move the CURRET in streem to the next line that starts from posTO (5 char)
-  !!! the stops the search once the line starting with posTILL is found
-  !!! If posTO found returns True, else returns False
-  !!! this function is used in some reading routings to guaranty consistency
-  function MoveTOwithCHECK(streem,posTO,posTILL)
-    logical::MoveTOwithCHECK
-    integer,intent(in)::streem
-    character(len=5)::posTO, posTILL
-    character(len=300)::line
-    integer::IOstatus
-    do
-        read(streem,'(A)',IOSTAT=IOstatus) line    
-        if(IOstatus>0) then 
-            write(*,*) ErrorString("Error in attemt to read the line ("//posTO//"->"//posTILL//")", "aTMDe_IO_system")
-            stop
-        else if(IOstatus<0) then
-            write(*,*) ErrorString("EndOfFile during search of the line ("//posTO//"->"//posTILL//")", "aTMDe_IO_system")
-            stop
-        else
-            if(line(1:5)==posTO) then
-                MoveTOwithCHECK=.true.
-                exit
-            else if(line(1:5)==posTILL) then
-                MoveTOwithCHECK=.false.
-                exit
-            end if
-        end if
-    end do
- end function MoveTOwithCHECK
- 
+  
  !!! write list of short integers (I5) to streem spliting by commas
  !!! used to fill constants-file
  subroutine writeShortIntegerList(streem, list)

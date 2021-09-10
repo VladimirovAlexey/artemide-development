@@ -28,7 +28,7 @@ implicit none
 
 private
 character (len=14),parameter :: moduleName="aTMDe-control"
-character (len=5),parameter :: version="v2.05"
+character (len=5),parameter :: version="v2.06"
 !Last appropriate verion of constants-file
 integer,parameter::inputver=11
 character (len=15),parameter :: constNAME="aTMDe-temporary"
@@ -897,7 +897,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
             end if
         end if
 
-        if(include_uTMDPDF) then            
+        if(include_uTMDPDF) then                    
             call MoveTO(51,'*4   ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_uTMDPDF) then
