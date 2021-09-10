@@ -897,7 +897,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
             end if
         end if
 
-        if(include_uTMDPDF) then
+        if(include_uTMDPDF) then            
             call MoveTO(51,'*4   ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_uTMDPDF) then
