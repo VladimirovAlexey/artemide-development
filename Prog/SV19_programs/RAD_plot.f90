@@ -9,7 +9,7 @@ character(*),parameter::constFILE=prefix//'constants-files/DY+SIDIS_nnlo/const-D
 
 real*8,allocatable::NParray(:)
 integer::numR,numB,i,j
-real*8,allocatable::central(:),mean(:),deviation(:),b(:)
+real*8,allocatable::central(:),mean(:),deviation(:),deviation1(:),deviation2(:),b(:)
 real*8::bMax,step,mu,dd
 
 call artemide_Initialize(constFILE)
@@ -37,20 +37,31 @@ allocate(central(1:numB))
 allocate(mean(1:numB))
 allocate(deviation(1:numB))
 
+allocate(deviation1(1:numB))
+allocate(deviation2(1:numB))
+
 
 !!!!! RAD with HESSE determination
 do i=1,numB
-  call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0/))
+  !!call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0/))!sv19
+  call artemide_SetNPparameters_TMDR((/2d0,0.0439d0/))
   central(i)=DNP(mu, b(i),1)
   !!call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0+0.0032d0/))!! sv19
-  call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0+0.0007027d0/))!! sv19+EIC
-  deviation(i)=DNP(mu, b(i),1)-central(i)
+  !!call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0+0.0007027d0/))!! sv19+EIC
+  !!deviation(i)=DNP(mu, b(i),1)-central(i)
+  
+  call artemide_SetNPparameters_TMDR((/2d0,0.0439d0+0.0041d0/))
+  deviation1(i)=DNP(mu,b(i),1)
+  call artemide_SetNPparameters_TMDR((/2d0,0.0439d0-0.0044d0/))
+  deviation2(i)=DNP(mu,b(i),1)
+  
 end do
 
 
 do i=1,numB
   write(*,"('{',F10.7,',',F10.7,',',F10.7,',',F10.7,'},')") &
-       b(i),central(i),(central(i)-deviation(i)),(central(i)+deviation(i))
+       !b(i),central(i),(central(i)-deviation(i)),(central(i)+deviation(i))
+       b(i),central(i),deviation1(i),deviation2(i)
 end do
 stop
 
