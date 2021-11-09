@@ -71,10 +71,11 @@
  
 *E   : ----hPDF sets----
 *p1  : total number of PDFs to initialize (0= initialization is skipped)
-           0
+           1
 *p2  : reference number for hadrons
-    0
+    1
 *p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
+ NNPDF31_nnlo_as_0118
 *p4  : list of initialization replicas
     0
  
@@ -151,7 +152,7 @@
 # ---------------------------------------------------------------------------
 *4   :
 *p1  : initialize uTMDPDF module
- T
+ F
  
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
@@ -430,18 +431,20 @@
 # ---------------------------------------------------------------------------
 *13  :
 *p1  : initialize wgtTMDPDF module
- F
+ T
  
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function (for tw-2 part only)
- LO
+ NA
 *p2  : Use composite TMD-function definition
  F
 *B   : ---- Parameters of NP model ----
 *p1  : Length of lambdaNP (used in fNP and tw-3 part)
-           1
+           3
 *p2  : Initialization parameters (in column)
    2.0000000000000000     
+   0.0000000000000000
+   1.0000000000000000     
 *C   : ---- Numerical evaluation parameters ----
 *p1  : Tolerance (relative tolerance of convolution integral)
    1.0000000000000000E-004
@@ -449,7 +452,7 @@
        10000
 *D   : ---- Grid preparation options ----
 *p1  : Prepare grid
- T
+ F
 *p2  : Include gluon TMDs into the grid
  F
 *p3  : total number of PDFs added to the grid

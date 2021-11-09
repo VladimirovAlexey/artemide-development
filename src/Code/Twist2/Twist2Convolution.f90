@@ -93,7 +93,7 @@ function Common_lowScale5(x,bT,hadron)
    Fcurrent=FNP(xCurrent,1d0,bTcurrent,hadron,lambdaNP)
    PDFcurrent=xf(x,muCurrent,hadron)
    FPDFcurrent=Fcurrent*PDFcurrent  
-  end if
+  end if  
   
  !------------DELTA PART-------------------
  !Leading order is always here!! 
@@ -102,7 +102,7 @@ function Common_lowScale5(x,bT,hadron)
   else
     deltaPart=FPDFcurrent*C_q_q_delta(alpha,Nf,Lmu)
   end if
-
+  
    !!!!evaluate coefficients
   if(order_global>=1) then
     call Set_CoeffSing1_q_q(alpha,Nf,Lmu)

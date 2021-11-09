@@ -4,7 +4,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 program example
 use aTMDe_control
-use uTMDPDF
+use wgtTMDPDF
 implicit none
 
 integer::i,iMax
@@ -12,9 +12,9 @@ real*8::bMax,bStep,x
 real*8,allocatable::b(:)
 real*8::TT(-5:5)
 
-call artemide_Initialize('const-uTMDPDF',prefix='Prog/Tests/const-files/')
+call artemide_Initialize('const-test-wgt',prefix='Prog/Tests/const-files/')
 ! call artemide_Initialize('const-DY_LO',prefix='/home/alexey/artemide_Repository/Constants-files/')!
-call artemide_SetNPparameters_uTMDPDF((/0.253434d0, 9.04351d0, 346.999d0, 2.47992d0, -5.69988d0, 0.d0, 0.d0/))
+call artemide_SetNPparameters_wgtTMDPDF((/0.2d0, 1d0,0.01d0/))
 
 x=0.1
 
@@ -30,9 +30,14 @@ end do
 
 do i=1,iMax
 
-    TT=uTMDPDF_lowScale5(x,b(i),1)
+    TT=wgtTMDPDF_lowScale5(x,b(i),1)
     write(*,*) "{",b(i),",", TT(1),"},"
 end do
 
+! do i=1,iMax
+! 
+!     TT=wgtTMDPDF_lowScale5(10**(-b(i)),0.2d0,1)
+!     write(*,*) "{",-b(i),",", TT(1),"},"
+! end do
 
 end program example
