@@ -6,6 +6,7 @@
 !
 !	ver.2.0: 28.03.2019 AV
 !	ver.2.01: 14.06.2019 AV (+lpPDF)
+!	ver.2.07: 09.11.2021 AV (+g1T)
 !				A.Vladimirov
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -21,14 +22,14 @@ private
 
 public::QCDinput_Initialize,QCDinput_IsInitialized
 public::As,activeNf
-public::xPDF,xFF,x_lp_PDF
+public::xPDF,xFF,x_lp_PDF,x_hPDF
 public:: QCDinput_SetPDFreplica
 
 character (len=8),parameter :: moduleName="QCDinput"
 !Current version of module
-character (len=5),parameter :: version="v2.03"
+character (len=5),parameter :: version="v2.06"
 !Last appropriate verion of constants-file
-integer,parameter::inputver=4
+integer,parameter::inputver=18
 !--- general
 logical:: started=.false.
 integer::outputLevel
@@ -46,6 +47,10 @@ integer,allocatable::enumeration_of_uFFs(:)
 !---lpPDFs
 integer::num_of_lpPDFs,startlpPDFindex
 integer,allocatable::enumeration_of_lpPDFs(:)
+
+!---hPDFs
+integer::num_of_hPDFs,start_hPDFindex
+integer,allocatable::enumeration_of_hPDFs(:)
 
  contains 
  
@@ -159,10 +164,10 @@ integer,allocatable::enumeration_of_lpPDFs(:)
       !!! actually initialization
       startFFindex=num_of_uPDFs+startPDFindex
       do i=1,num_of_uFFs
-	call InitPDFsetByNameM(startFFindex+i,names(i))
-	call InitPDFM(startFFindex+i,replicas(i))
-	if(outputLevel>2) write(*,"('      uFF(hadron=',I3,') initialized by : ',A,' (replica= ',I5,')')") &
-		    enumeration_of_uFFs(i),trim(names(i)),replicas(i)
+        call InitPDFsetByNameM(startFFindex+i,names(i))
+        call InitPDFM(startFFindex+i,replicas(i))
+        if(outputLevel>2) write(*,"('      uFF(hadron=',I3,') initialized by : ',A,' (replica= ',I5,')')") &
+                enumeration_of_uFFs(i),trim(names(i)),replicas(i)
       end do
       
       deallocate(names,replicas)
@@ -191,18 +196,51 @@ integer,allocatable::enumeration_of_lpPDFs(:)
       read(51,*) replicas
       
       !!! actually initialization
-      startlpPDFindex=0
+      startlpPDFindex=num_of_uFFs+num_of_uPDFs+startPDFindex
       do i=1,num_of_lpPDFs
-	call InitPDFsetByNameM(i+startlpPDFindex,names(i))
-	call InitPDFM(i+startlpPDFindex,replicas(i))
-	if(outputLevel>2) write(*,"('     lpPDF(hadron=',I3,') initialized by : ',A,' (replica= ',I5,')')") &
-		    enumeration_of_lpPDFs(i),trim(names(i)),replicas(i)
+        call InitPDFsetByNameM(i+startlpPDFindex,names(i))
+        call InitPDFM(i+startlpPDFindex,replicas(i))
+        if(outputLevel>2) write(*,"('     lpPDF(hadron=',I3,') initialized by : ',A,' (replica= ',I5,')')") &
+                enumeration_of_lpPDFs(i),trim(names(i)),replicas(i)
       end do
       
       deallocate(names,replicas)
     else
       !!! initialization is not needed
       if(outputLevel>2)	write(*,*)'    no lpPDFs to initialize...'
+    end if
+    
+    !!!---------------------------------------- Search for hPDF initialization options
+    call MoveTO(51,'*E   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) num_of_hPDFs
+    if(num_of_hPDFs>0) then
+      !! initialization of LHAPDF grids
+      allocate(enumeration_of_hPDFs(1:num_of_hPDFs))
+      allocate(names(1:num_of_hPDFs))
+      allocate(replicas(1:num_of_hPDFs))
+      call MoveTO(51,'*p2  ')
+      read(51,*) enumeration_of_hPDFs
+      call MoveTO(51,'*p3  ')
+      do i=1,num_of_hPDFs
+       read(51,*) names(i)
+      end do
+      call MoveTO(51,'*p4  ')
+      read(51,*) replicas
+      
+      !!! actually initialization
+      start_hPDFindex=num_of_lpPDFs+num_of_uFFs+num_of_uPDFs+startPDFindex
+      do i=1,num_of_hPDFs
+        call InitPDFsetByNameM(i+start_hPDFindex,names(i))
+        call InitPDFM(i+start_hPDFindex,replicas(i))
+        if(outputLevel>2) write(*,"('     hPDF(hadron=',I3,') initialized by : ',A,' (replica= ',I5,')')") &
+		    enumeration_of_hPDFs(i),trim(names(i)),replicas(i)
+      end do
+      
+      deallocate(names,replicas)
+    else
+      !!! initialization is not needed
+      if(outputLevel>2)	write(*,*)'    no hPDFs to initialize...'
     end if
  
   CLOSE (51, STATUS='KEEP') 
@@ -284,6 +322,32 @@ integer,allocatable::enumeration_of_lpPDFs(:)
   end if
  end function index_of_lpPDF
  
+ 
+ !!! provide the index of grid associated with hPDF(hadron)
+ function index_of_hPDF(hadron)
+  integer,intent(in)::hadron
+  integer::index_of_hPDF
+  integer::i
+  
+  if(num_of_hPDFs==0) then
+    write(*,*) ErrorString('no hPDFs are initialized',moduleName)
+    stop
+  else
+    do i=1,num_of_hPDFs
+      if(enumeration_of_hPDFs(i)==hadron) then
+        index_of_hPDF=i+start_hPDFindex
+        return
+      end if
+    end do
+    !!! if we exit from the loop it means index is not found
+      write(*,*) ErrorString('hPDF is not found',moduleName)
+      write(*,"('no hPDF for hadron ',I3,' is initialized. Set PDF for hadron (',I3,')')") &
+		  hadron,enumeration_of_hPDFs(1)
+      index_of_hPDF=1+start_hPDFindex
+  end if
+ end function index_of_hPDF
+ 
+ 
  !!! set a different replica number for PDF.
  subroutine QCDinput_SetPDFreplica(rep)
  integer:: rep
@@ -362,5 +426,20 @@ end function activeNf
       x_lp_PDF=inputPDF(-5:5)
       
   end function x_lp_PDF
+  
+    !!!!array of x times PDF(x,Q) for hadron 'hadron'
+  !!! helicity PDF
+ !!!! array is (-5:5) (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+ function x_hPDF(x,Q,hadron)
+      real(dp),intent(in) :: x,Q
+      integer,intent(in):: hadron
+      real(dp), dimension(-5:5):: x_hPDF
+      real(dp), dimension (-6:6)::inputPDF
+      
+      call evolvePDFM(index_of_hPDF(hadron),x,Q,inputPDF)
+      
+      x_hPDF=inputPDF(-5:5)
+      
+  end function x_hPDF
  
 end module QCDinput

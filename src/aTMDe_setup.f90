@@ -17,7 +17,7 @@ private
 character (len=5),parameter :: version="v2.06"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=17
+integer,parameter::inputVer=18
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -50,6 +50,11 @@ character(len=100),allocatable::sets_of_uFFs(:)
 integer::number_of_lpPDFs
 integer,allocatable::enumeration_of_lpPDFs(:),replicas_of_lpPDFs(:)
 character(len=100),allocatable::sets_of_lpPDFs(:)
+
+!--------------------- hPDF parameters
+integer::number_of_hPDFs
+integer,allocatable::enumeration_of_hPDFs(:),replicas_of_hPDFs(:)
+character(len=100),allocatable::sets_of_hPDFs(:)
 
 !-------------------- TMDR options
 logical::include_TMDR
@@ -145,6 +150,7 @@ public::Set_TMDR_order,Set_TMDR_evolutionType,Set_TMDR_lengthNParray
 public::Set_uTMDPDF,Set_uTMDPDF_order,Set_uTMDPDF_gridEvaluation,Set_uTMDPDF_lengthNParray
 public::Set_uTMDFF,Set_uTMDFF_order,Set_uTMDFF_gridEvaluation,Set_uTMDFF_lengthNParray
 public::Set_lpTMDPDF,Set_lpTMDPDF_order,Set_lpTMDPDF_gridEvaluation,Set_lpTMDPDF_lengthNParray
+!public::Set_hTMDPDF,Set_hTMDPDF_order,Set_hTMDPDF_gridEvaluation,Set_hTMDPDF_lengthNParray
 contains
 
 INCLUDE 'Code/aTMDe_setup/const-modification.f90'
@@ -271,6 +277,19 @@ subroutine SetupDefault(order)
     enumeration_of_lpPDFs=(/-1/)
     replicas_of_lpPDFs=(/0/)
     sets_of_lpPDFs=(/trim('ABSENT')/)
+    
+    !-------------------Parameters for hPDFs evaluation
+    ! by definition we do not initiate any hPDF
+    number_of_hPDFs=0
+    if(allocated(enumeration_of_hPDFs)) deallocate(enumeration_of_hPDFs)
+    if(allocated(replicas_of_hPDFs)) deallocate(replicas_of_hPDFs)
+    if(allocated(sets_of_hPDFs)) deallocate(sets_of_hPDFs)
+    allocate(enumeration_of_hPDFs(1:1))
+    allocate(replicas_of_hPDFs(1:1))
+    allocate(sets_of_hPDFs(1:1))
+    enumeration_of_hPDFs=(/-1/)
+    replicas_of_hPDFs=(/0/)
+    sets_of_hPDFs=(/trim('ABSENT')/)
 
     !-------------------- parameters for TMDR
     include_TMDR=.true.
@@ -526,6 +545,19 @@ subroutine CreateConstantsFile(file,prefix)
     end do
     write(51,"('*p4  : list of initialization replicas')")
     call writeShortIntegerList(51,replicas_of_lpPDFs)
+    
+    write(51,"(' ')")
+    write(51,"('*E   : ----hPDF sets----')")
+    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped)')")
+    write(51,*) number_of_hPDFs
+    write(51,"('*p2  : reference number for hadrons')")
+    call writeShortIntegerList(51,enumeration_of_hPDFs)
+    write(51,"('*p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
+    do i=1,number_of_hPDFs
+        write(51,*) trim(sets_of_hPDFs(i))
+    end do
+    write(51,"('*p4  : list of initialization replicas')")
+    call writeShortIntegerList(51,replicas_of_hPDFs)
 
 
     write(51,"(' ')")
@@ -1023,7 +1055,7 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) replicas_of_uFFs
 
     if(FILEversion>=3) then
-        !-------PDF for uTMDPDF
+        !-------PDF for lpTMDPDF
         call MoveTO(51,'*D   ')
         call MoveTO(51,'*p1  ')
 
@@ -1043,6 +1075,29 @@ subroutine ReadConstantsFile(file,prefix)
         end do
         call MoveTO(51,'*p4  ')
         read(51,*) replicas_of_lpPDFs
+    end if
+    
+    if(FILEversion>=18) then
+        !-------helicity PDF
+        call MoveTO(51,'*E   ')
+        call MoveTO(51,'*p1  ')
+
+        read(51,*) number_of_hPDFs
+        if(allocated(enumeration_of_hPDFs)) deallocate(enumeration_of_hPDFs)
+        if(allocated(replicas_of_hPDFs)) deallocate(replicas_of_hPDFs)
+        if(allocated(sets_of_hPDFs)) deallocate(sets_of_hPDFs)
+        allocate(enumeration_of_hPDFs(1:number_of_hPDFs))
+        allocate(sets_of_hPDFs(1:number_of_hPDFs))
+        allocate(replicas_of_hPDFs(1:number_of_hPDFs))    
+
+        call MoveTO(51,'*p2  ')
+        read(51,*) enumeration_of_hPDFs
+        call MoveTO(51,'*p3  ')
+        do i=1,number_of_hPDFs
+            read(51,*) sets_of_hPDFs(i)
+        end do
+        call MoveTO(51,'*p4  ')
+        read(51,*) replicas_of_hPDFs
     end if
 
     !# ----                           PARAMETERS OF EWinput                  -----
