@@ -20,7 +20,7 @@ implicit none
 private
 
 character (len=10),parameter :: moduleName="TMDs-inKT"
-character (len=5),parameter :: version="v2.04"
+character (len=5),parameter :: version="v2.06"
 !Last appropriate verion of constants-file
 integer,parameter::inputver=1
 

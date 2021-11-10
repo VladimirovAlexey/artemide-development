@@ -66,6 +66,11 @@ contains
   call artemide_SetReplica_SiversTMDPDF(num)
   end subroutine SetReplica_SiversTMDPDF
   
+    !!
+  subroutine SetReplica_wgtTMDPDF(num)
+  integer:: num
+  call artemide_SetReplica_wgtTMDPDF(num)
+  end subroutine SetReplica_wgtTMDPDF
   
   
   !!!Sets the non-pertrubative parameters lambda
@@ -103,6 +108,12 @@ contains
     real*8,intent(in)::lambdaIN(:)
     call artemide_SetNPparameters_SiversTMDPDF(lambdaIN)
   end subroutine SetLambda_SiversTMDPDF
+  
+    !!!Sets the non-pertrubative parameters lambda
+  subroutine SetLambda_wgtTMDPDF(lambdaIN)
+    real*8,intent(in)::lambdaIN(:)
+    call artemide_SetNPparameters_wgtTMDPDF(lambdaIN)
+  end subroutine SetLambda_wgtTMDPDF
   
   
   !!!! this routine set the variations of scales
@@ -287,6 +298,50 @@ contains
     
   end function lpTMDPDF_50_Optimal
   
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!wgtTMDPDF
+  !!!!!!!! wgt TMDFF
+  ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+  function wgtTMDPDF_5_Evolved(x,bt,muf,zetaf,hadron)
+    real*8:: wgtTMDPDF_5_Evolved(-5:5)
+    real*8:: x,bt,muf,zetaf
+    integer::hadron
+  
+  wgtTMDPDF_5_Evolved=wgtTMDPDF_5(x,bt,muf,zetaf,hadron)
+    
+  end function wgtTMDPDF_5_Evolved
+  
+    ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function wgtTMDPDF_50_Evolved(x,bt,muf,zetaf,hadron)
+    real*8:: wgtTMDPDF_50_Evolved(-5:5)
+    real*8:: x,bt,muf,zetaf
+    integer::hadron
+  
+  wgtTMDPDF_50_Evolved=wgtTMDPDF_50(x,bt,muf,zetaf,hadron)
+    
+  end function wgtTMDPDF_50_Evolved
+
+    !!!!!!!! wgt TMDPDF
+  ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+  function wgtTMDPDF_5_Optimal(x,bt,hadron)
+    real*8:: wgtTMDPDF_5_Optimal(-5:5)
+    real*8:: x,bt
+    integer::hadron
+  
+  wgtTMDPDF_5_Optimal=wgtTMDPDF_5(x,bt,hadron)
+    
+  end function wgtTMDPDF_5_Optimal
+  
+    ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function wgtTMDPDF_50_Optimal(x,bt,hadron)
+    real*8:: wgtTMDPDF_50_Optimal(-5:5)
+    real*8:: x,bt
+    integer::hadron
+  
+  wgtTMDPDF_50_Optimal=wgtTMDPDF_50(x,bt,hadron)
+    
+  end function wgtTMDPDF_50_Optimal
+  
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! TMDs IN KT
@@ -438,6 +493,48 @@ contains
   SiversTMDPDF_kT_50_Optimal=SiversTMDPDF_kT_5(x,bt,hadron)
     
   end function SiversTMDPDF_kT_50_Optimal
+  
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!! wgt TMDPDF
+  ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+  function wgtTMDPDF_kT_5_Evolved(x,bt,muf,zetaf,hadron)
+    real*8:: wgtTMDPDF_kT_5_Evolved(-5:5)
+    real*8:: x,bt,muf,zetaf
+    integer::hadron
+  
+  wgtTMDPDF_kT_5_Evolved=wgtTMDPDF_kT_5(x,bt,muf,zetaf,hadron)
+    
+  end function wgtTMDPDF_kT_5_Evolved
+  
+    ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function wgtTMDPDF_kT_50_Evolved(x,bt,muf,zetaf,hadron)
+    real*8:: wgtTMDPDF_kT_50_Evolved(-5:5)
+    real*8:: x,bt,muf,zetaf
+    integer::hadron
+  
+  wgtTMDPDF_kT_50_Evolved=wgtTMDPDF_kT_5(x,bt,muf,zetaf,hadron)
+    
+  end function wgtTMDPDF_kT_50_Evolved
+
+  ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+  function wgtTMDPDF_kT_5_Optimal(x,bt,hadron)
+    real*8:: wgtTMDPDF_kT_5_Optimal(-5:5)
+    real*8:: x,bt
+    integer::hadron
+  
+  wgtTMDPDF_kT_5_Optimal=wgtTMDPDF_kT_5(x,bt,hadron)
+    
+  end function wgtTMDPDF_kT_5_Optimal
+  
+    ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function wgtTMDPDF_kT_50_Optimal(x,bt,hadron)
+    real*8:: wgtTMDPDF_kT_50_Optimal(-5:5)
+    real*8:: x,bt
+    integer::hadron
+  
+  wgtTMDPDF_kT_50_Optimal=wgtTMDPDF_kT_5(x,bt,hadron)
+    
+  end function wgtTMDPDF_kT_50_Optimal
   
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

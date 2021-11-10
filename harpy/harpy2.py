@@ -94,6 +94,18 @@ def setNPparameters_SiversTMDPDF(l):
         artemide.harpy.setlambda_siverstmdpdf(numpy.asfortranarray(l))
     else:
         artemide.harpy.setreplica_siverstmdpdf(int(l))
+        
+def setNPparameters_wgtTMDPDF(l):
+    """Setting NP parameters for the model of wgtTMDPDF
+                Arguments: (l)
+                Argument overloading:
+                (integer)        = loads replica
+                (array)          = set array on NP parameters
+    """
+    if isinstance(l,list) or isinstance(l,numpy.ndarray):
+        artemide.harpy.setlambda_wgttmdpdf(numpy.asfortranarray(l))
+    else:
+        artemide.harpy.setreplica_wgttmdpdf(int(l))
 
 
 def varyScales(c1,c2,c3,c4):
