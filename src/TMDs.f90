@@ -24,15 +24,16 @@ use uTMDPDF
 use uTMDFF
 use lpTMDPDF
 use SiversTMDPDF
+use wgtTMDPDF
 implicit none
 
 private
 !   public
 
 character (len=7),parameter :: moduleName="TMDs"
-character (len=5),parameter :: version="v2.05"
+character (len=5),parameter :: version="v2.06"
 !Last appropriate verion of constants-file
-integer,parameter::inputver=15
+integer,parameter::inputver=19
 
 !------------------------------------------Physical and mathematical constants------------------------------------------
 !------------------------------------------Working variables------------------------------------------------------------
@@ -47,6 +48,7 @@ logical::include_uTMDPDF
 logical::include_uTMDFF
 logical::include_lpTMDPDF
 logical::include_SiversTMDPDF
+logical::include_wgtTMDPDF
 
 
 !!!parameters for the uncertanty estimation
@@ -58,6 +60,7 @@ real(dp),dimension(-5:5),public:: uTMDPDF_5,uTMDPDF_50
 real(dp),dimension(-5:5),public:: uTMDFF_5,uTMDFF_50
 real(dp),dimension(-5:5),public:: lpTMDPDF_50
 real(dp),dimension(-5:5),public:: SiversTMDPDF_5,SiversTMDPDF_50
+real(dp),dimension(-5:5),public:: wgtTMDPDF_5,wgtTMDPDF_50
 
 public::uPDF_uPDF,uPDF_anti_uPDF
 
@@ -87,6 +90,14 @@ end interface
 
 interface SiversTMDPDF_50
     module procedure SiversTMDPDF_50_Ev,SiversTMDPDF_50_optimal
+end interface
+
+interface wgtTMDPDF_5
+    module procedure wgtTMDPDF_5_Ev,wgtTMDPDF_5_optimal
+end interface
+
+interface wgtTMDPDF_50
+    module procedure wgtTMDPDF_50_Ev,wgtTMDPDF_50_optimal
 end interface
 
 contains 
@@ -169,14 +180,19 @@ subroutine TMDs_Initialize(file,prefix)
     read(51,*) include_uTMDFF
 
     !! lpTMDPDF
-    call MoveTO(51,'*11   ')
+    call MoveTO(51,'*11  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_lpTMDPDF
     
     !! SiversTMDPDF
-    call MoveTO(51,'*12   ')
+    call MoveTO(51,'*12  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_SiversTMDPDF
+    
+    !! wgtTMDPDF
+    call MoveTO(51,'*13  ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_wgtTMDPDF
 
     CLOSE (51, STATUS='KEEP')
 
@@ -231,6 +247,15 @@ subroutine TMDs_Initialize(file,prefix)
             call SiversTMDPDF_Initialize(file,prefix)
         else
             call SiversTMDPDF_Initialize(file)
+        end if
+    end if
+    
+    if(include_wgtTMDPDF .and. (.not.wgtTMDPDF_IsInitialized())) then
+        if(outputLevel>1) write(*,*) '.. initializing wgtTMDPDF (from ',moduleName,')'
+        if(present(prefix)) then
+            call wgtTMDPDF_Initialize(file,prefix)
+        else
+            call wgtTMDPDF_Initialize(file)
         end if
     end if
 

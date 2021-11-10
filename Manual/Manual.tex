@@ -1127,6 +1127,8 @@ Command~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ & Description
 \\\hline
 \texttt{xFF(x,Q,hadron)} &  Returns the (real*8(-5:5)) value of $xd(x,Q)$ for given hadron. \texttt{x, Q} are (real*8), \texttt{hadron} is (integer).
 \\\hline
+\texttt{x\_hPDF(x,Q,hadron)} &  Returns the (real*8(-5:5)) value of $xg_1(x,Q)$ for given hadron ($g_1$=helicity distribution). \texttt{x, Q} are (real*8), \texttt{hadron} is (integer).
+\\\hline
 \texttt{mCHARM} &  (real*8)Constant for mass of charm quark.
 \\\hline
 \texttt{mBOTTOM} &  (real*8)Constant for mass of bottom quark.
@@ -1749,11 +1751,46 @@ The module is practically the same as \texttt{uTMDPDF}. Command are the same as 
 \section{\texttt{SiversTMDPDF} module}
 \label{lpTMDPDF}
 
-The module is practically the same as \texttt{uTMDPDF}. Command are the same as for \texttt{uTMDPDF} with replacement \texttt{uTMDPDF\_...} to \texttt{SiversTMDPDF\_...}.
+The module implements the Sivers function $f_{1T}^\perp(x,b)$ defined as
+\begin{eqnarray}
+\Phi^{[\gamma^+]}(x,b)=f_1(x,b)+i\epsilon^{\mu\nu}_T b_\mu s_\nu M f_{1T}^\perp(x,b),
+\end{eqnarray}
+where $\Phi^{[\gamma^+]}(x,b)$ is ordinary TMD operators with coordinates $\bar q(b)...q(0)$, and $f_1$ is unpolarized distribution. The Wilson line in this operator is taken pointing to $+\infty$. \textbf{This definition corresponds to SIDIS definition of $f_{1T}^\perp$.} For DY definition one should multiply it by (-1). This sign is explictely carried out in definitions of structure functions for DY processes. The variable $M$ is uniformly taken as mass of proton.
 
+The function is computed by the form
+\begin{eqnarray}
+f_{1T}^\perp(x,b)=C\otimes T(x,\ln(b)) f_{\text{NP}}(x,b),
+\end{eqnarray}
+where $T$ are twist-3 distributions.  The function $f_{\text{NP}}$ is defined in the \texttt{SiverTMDPDF\_model} module.
 \begin{tcolorbox}
 For the moment (v2.05) there is no perturbative matching. Therefore, the usage of \texttt{NA}-order is advisable. The main reason is absence of phenomenological Qui-Sterman function. The NLO perturbative matching is known \cite{Scimemi:2019gge}, and will be implemented in future versions.
 \end{tcolorbox}
+
+The module is practically the same as \texttt{uTMDPDF}. Command are the same as for \texttt{uTMDPDF} with replacement \texttt{uTMDPDF\_...} to \texttt{SiversTMDPDF\_...}.
+
+
+\section{\texttt{wgtTMDPDF} module}
+\label{lpTMDPDF}
+
+The module implements the worm-gear T (it explains the name \texttt{wgt}) function $g_{1T}(x,b)$ defined as
+\begin{eqnarray}
+\Phi^{[\gamma^+\gamma^5]}(x,b)=\lambda g_{1L}(x,b)+ib_\mu s^\mu M g_{1T}(x,b),
+\end{eqnarray}
+where $\Phi^{[\gamma^+]}(x,b)$ is ordinary TMD operators with coordinates $\bar q(b)...q(0)$, and $g_{1L}$ is the helicity TMDPDF. The variable $M$ is uniformly taken as mass of proton.
+
+The function is computed by the form
+\begin{eqnarray}
+g_{1T}(x,b)=\(C_{\text{tw2}}\otimes g_1(x,\ln(b))+C_{\text{tw3}}\otimes T\) f_{\text{NP}}(x,b),
+\end{eqnarray}
+where $g_1$ is the helicity PDF, $T$ are twist-3 distributions and coefficients $C$ are small-b matching coefficients. The leading term for twsit-t part is
+\begin{eqnarray}
+C_{\text{tw2}}\otimes g_1=x\int_x^1 \frac{du}{u}g_1(u)+\mathcal{O}(\alpha_s).
+\end{eqnarray}
+Since the functions $T$ are not known the twist-3 convolution term is replaced by a single NP function. It is defined in \texttt{wgtTMDPDF\_model} with \texttt{g1T\_tw3NP(x,hadron,lambdaNP)} function (depending only on x). The function $f_{\text{NP}}$ is defined in addition. Note, that both functions use the same NP-input vector.
+
+The order =\texttt{NA} corresponds to $g_{1T}(x,b)=f_{\text{NP}}(x,b)$ (without NP-tw3 contribution).
+
+The module is practically the same as \texttt{uTMDPDF}. Command are the same as for \texttt{uTMDPDF} with replacement \texttt{uTMDPDF\_...} to \texttt{wgtTMDPDF\_...}.
 
 \renewcommand{\arraystretch}{1.5}
 \newpage
@@ -3305,8 +3342,11 @@ doi:10.1007/JHEP05(2019)125
 \begin{itemize}
 \item[\textbf{Ver.2.06}]
 \begin{itemize}
+	\item \textbf{aTMDe\_control} Added \textbf{wgtTMDPDF} routines
+	\item \textbf{aTMDe\_setup} Modifications due to \textbf{QCDinput} and \textbf{wgtTMDPDF} updates.
 	\item \textbf{wgtTMDPDF} Implemented.
 	\item \textbf{QCDinput}: Helicity PDF input is added.
+	\item \textbf{QCDinput}: Bug in the enumeration of hadrons fixed.
 	\item \textbf{TMDX\_DY}: Added option for exact factorization scales.
 \end{itemize}
 
