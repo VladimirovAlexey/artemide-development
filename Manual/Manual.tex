@@ -1825,6 +1825,14 @@ Command & ~~Type~~& ~~Sec.~~ & Short description
 \texttt{uTMDFF{\_}50(x,b,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Unpolarized TMD FF (gluon term defined)
 \\\hline
 \texttt{lpTMDPDF{\_}50(x,b,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Linearly polarized gluon TMD PDF (quarks are zero)
+\\\hline
+\texttt{SiversTMDPDF{\_}5(x,b,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF (gluon term undefined)
+\\\hline
+\texttt{SiversTMDPDF{\_}50(x,b,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF (gluon term defined)
+\\\hline
+\texttt{wgtTMDPDF{\_}5(x,b,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & worm-gear T TMD PDF (gluon term undefined)
+\\\hline
+\texttt{wgtTMDPDF{\_}50(x,b,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & worm-gear T TMD PDF (gluon term defined)
 \\\hline\hline
 \texttt{uTMDPDF{\_}5(x,b,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Unpolarized TMD PDF at optimal line (gluon term undefined)
 \\\hline
@@ -1835,6 +1843,14 @@ Command & ~~Type~~& ~~Sec.~~ & Short description
 \texttt{uTMDFF{\_}50(x,b,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Unpolarized TMD FF at optimal line (gluon term defined)
 \\\hline
 \texttt{lpTMDPDF{\_}50(x,b,,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Linearly polarized gluon TMD PDF at optimal line (quarks are zero)
+\\\hline
+\texttt{SiversTMDPDF{\_}5(x,b,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF at optimal line (gluon term undefined)
+\\\hline
+\texttt{SiversTMDPDF{\_}50(x,b,,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF at optimal line (gluon term defined)
+\\\hline
+\texttt{wgtTMDPDF{\_}5(x,b,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Worm gear T TMD PDF at optimal line (gluon term undefined)
+\\\hline
+\texttt{wgtTMDPDF{\_}50(x,b,,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Worm gear T TMD PDF at optimal line (gluon term defined)
 \\\hline\hline
 \texttt{uPDF{\_}uPDF(x1,x2,b,mu,zeta,h1,h2)} & (real*8(-5:5)) &\ref{TMDs:products} &  Product of Unpolarized TMD PDF $f_{q\ot h_1}(x_1)f_{\bar q\ot h_1}$ at the same scale (gluon term undefined)
 \\\hline
@@ -3342,7 +3358,8 @@ doi:10.1007/JHEP05(2019)125
 \begin{itemize}
 \item[\textbf{Ver.2.06}]
 \begin{itemize}
-	\item \textbf{aTMDe\_control} Added \textbf{wgtTMDPDF} routines
+	\item \textbf{TMDs} Added \textbf{wgtTMDPDF} routines.
+	\item \textbf{aTMDe\_control} Added \textbf{wgtTMDPDF} routines.
 	\item \textbf{aTMDe\_setup} Modifications due to \textbf{QCDinput} and \textbf{wgtTMDPDF} updates.
 	\item \textbf{wgtTMDPDF} Implemented.
 	\item \textbf{QCDinput}: Helicity PDF input is added.
