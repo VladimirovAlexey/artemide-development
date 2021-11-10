@@ -1,5 +1,6 @@
-# artemide-public
-The public repository of artemide package for TMD-physics (transverse momentum dependent)
+# artemide-development
+The public repository of artemide package for TMD-physics (transverse momentum dependent).
+Here you can find the current unstable version of artemide. The stable version is in artemide-public repository
 
 ------------------------------------------------------------------------------------------------------
 	CHECK:
