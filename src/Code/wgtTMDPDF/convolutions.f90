@@ -23,6 +23,7 @@
       
       !!! helicity times x
       xf=x_hPDF(x,Q,hadron)
+      !xf=(/x,x,x,x,x,x,x**2,x,x,x,x/)
       
   end function xf
 
@@ -52,7 +53,7 @@ function wgtTMDPDF_base5(x,bT,hadron)
     !!! in the case the greed has been calculated AND the hadron is in the grid
     else if(gridReady .and. ANY(hadronsInGRID.eq.hadron)) then 
 
-        wgtTMDPDF_base5=ExtractFromGrid(x,bT,hadron)
+        wgtTMDPDF_base5=x*ExtractFromGrid(x,bT,hadron)
 
         !!!!!!!!!!This is procedure of restoration of function from the initial grid
         !!! if fNP is x-independent then the value can be obtained by TMDPDF(initial) fNP(current)/fNP(initial)
@@ -84,7 +85,7 @@ function wgtTMDPDF_base5(x,bT,hadron)
     !!!! finally just calculation
     else  
         !!!! only (tw-2 part)*fNP is computed by convolution. Therefore, we add tw3*fNP
-        wgtTMDPDF_base5=Common_lowScale5(x,bT,hadron)+g1T_tw3NP(x,hadron,lambdaNP)*FNP(x,0d0,bT,hadron,lambdaNP)
+        wgtTMDPDF_base5=x*Common_lowScale5(x,bT,hadron)+g1T_tw3NP(x,hadron,lambdaNP)*FNP(x,0d0,bT,hadron,lambdaNP)
     end if
 
 end function wgtTMDPDF_base5
@@ -112,7 +113,7 @@ function wgtTMDPDF_base50(x,bT,hadron)
 
     !!! in the case the greed has been calculated FOR THIS HADRON
     else if(gridReady .and. ANY(hadronsInGRID.eq.hadron)) then 
-        wgtTMDPDF_base50=ExtractFromGrid(x,bT,hadron)
+        wgtTMDPDF_base50=x*ExtractFromGrid(x,bT,hadron)
 
         !!!!!!!!!!This is procedure of restoration of function from the initial grid
         !!! if fNP is x-independent then the value can be obtained by TMDPDF(initial) fNP(current)/fNP(initial)
@@ -140,7 +141,7 @@ function wgtTMDPDF_base50(x,bT,hadron)
     !!!! finally just calculation
     else    
         !!!! only (tw-2 part)*fNP is computed by convolution. Therefore, we add tw3*fNP
-        wgtTMDPDF_base50=Common_lowScale50(x,bT,hadron)+g1T_tw3NP(x,hadron,lambdaNP)*FNP(x,0d0,bT,hadron,lambdaNP)
+        wgtTMDPDF_base50=x*Common_lowScale50(x,bT,hadron)+g1T_tw3NP(x,hadron,lambdaNP)*FNP(x,0d0,bT,hadron,lambdaNP)
     end if
 end function wgtTMDPDF_base50
 

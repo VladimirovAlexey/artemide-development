@@ -152,7 +152,7 @@
 # ---------------------------------------------------------------------------
 *4   :
 *p1  : initialize uTMDPDF module
- F
+ T
  
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
@@ -435,7 +435,7 @@
  
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function (for tw-2 part only)
- NA
+ LO
 *p2  : Use composite TMD-function definition
  F
 *B   : ---- Parameters of NP model ----

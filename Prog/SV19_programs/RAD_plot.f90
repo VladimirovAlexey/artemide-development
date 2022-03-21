@@ -19,11 +19,19 @@ numR=artemide_NumOfReplicasInFile(repFILE)
 call artemide_GetReplicaFromFile(repFILE,0,NParray)
 call artemide_SetNPparameters_TMDR(NParray(1:2))
 
+!write(*,*) NParray(1:2)
+
+! call artemide_SetNPparameters_TMDR([2.35d0,0.027d0])
+
 numB=80
 bMax=5d0
 !mu=91d0
 mu=2d0!.39d0
 
+! bMax= TMDR_Rzeta(0.1d0,2d0,4d0,1)
+! write(*,*) bMax
+! 
+! stop
 
 allocate(b(1:numB))
 do i=1,40

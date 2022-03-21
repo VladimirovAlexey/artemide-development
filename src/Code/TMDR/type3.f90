@@ -19,7 +19,7 @@
   zetaP=zetaNP(muf,b,f)
   
   TMDR_Rzeta_type3=EXP(-DNP(muf,b,f)*Log(zetaf/zetaP))
-  
+ 
   !write(*,*) 'HERE'
   
   if(TMDR_Rzeta_type3>1d6) then

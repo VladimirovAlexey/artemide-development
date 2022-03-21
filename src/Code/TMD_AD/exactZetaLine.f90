@@ -32,7 +32,7 @@ function zetaSL(mu,rad,f)
   
   !write(*,*) '..........',b,rad,alpha,GD
   
-  zetaSL=(mu**2)*exp(-GD/rad)
+  zetaSL=(mu**2)*exp(-GD/rad)  
  
 end function zetaSL
  
