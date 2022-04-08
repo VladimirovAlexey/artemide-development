@@ -17,7 +17,7 @@ private
 character (len=5),parameter :: version="v2.06"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=19
+integer,parameter::inputVer=20
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -152,7 +152,7 @@ logical::include_TMDX_SIDIS
 character*8::TMDX_SIDIS_order
 real(dp)::TMDX_SIDIS_tolerance
 integer::TMDX_SIDIS_ptSECTION
-logical::TMDX_SIDIS_qTcorr,TMDX_SIDIS_M1corr,TMDX_SIDIS_M2corr,TMDX_SIDIS_qTinX1Z1corr
+logical::TMDX_SIDIS_qTcorr,TMDX_SIDIS_M1corr,TMDX_SIDIS_M2corr,TMDX_SIDIS_qTinX1Z1corr,TMDX_SIDIS_exactScale
 integer::TMDX_SIDIS_numProc
 real(dp)::TMDX_SIDIS_toleranceZ,TMDX_SIDIS_toleranceX
 character(len=4)::TMDX_SIDIS_methodZ,TMDX_SIDIS_methodX
@@ -432,6 +432,7 @@ subroutine SetupDefault(order)
     TMDX_SIDIS_M1corr=.true.
     TMDX_SIDIS_M2corr=.true.
     TMDX_SIDIS_qTinX1Z1corr=.true.
+    TMDX_SIDIS_exactScale=.false.
     TMDX_SIDIS_numProc=8
     TMDX_SIDIS_toleranceZ=TMDX_SIDIS_tolerance
     TMDX_SIDIS_methodZ='SA'		!SA=Simpson adaptive, S5=Simpson 5-point
@@ -845,6 +846,8 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDX_SIDIS_M2corr
     write(51,"('*p5  : Use transverse momentum corrections in x1 and z1')")
     write(51,*) TMDX_SIDIS_qTinX1Z1corr
+    write(51,"('*p6  : Use the exact values for factorization scales (include qT/Q correction)')")
+    write(51,*) TMDX_SIDIS_exactScale
     write(51,"('*B   : ---- Numerical evaluation parameters ----')")
     write(51,"('*p1  : Tolerance (relative tolerance for bin-integration routines, except pt-integration)')")
     write(51,*) TMDX_SIDIS_tolerance
@@ -1432,6 +1435,10 @@ subroutine ReadConstantsFile(file,prefix)
     if(FILEversion>=9) then
         call MoveTO(51,'*p5  ')
         read(51,*) TMDX_SIDIS_qTinX1Z1corr
+    end if
+    if(FILEversion>=20) then
+        call MoveTO(51,'*p6  ')
+        read(51,*) TMDX_SIDIS_exactScale
     end if
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')

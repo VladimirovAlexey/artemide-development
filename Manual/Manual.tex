@@ -2847,6 +2847,12 @@ There are many sources of power corrections. For a moment there is no systematic
 \end{eqnarray}
 where $M$ is the target mass, $m$ is the mass of the fragmented hadron. These terms appear in many places of the SIDIS expression (see sec.\ref{sec:SIDIS:theory}, for some minimal details), even without accounting for power-suppressed terms in the factorization formula. The nice feature of these correction is that they could be accounted exactly. The majority of these terms appears during of the Lorentz transformation of factorization frame (where the factorization is performed) to the laboratory frame (where the measurement is made).
 
+\textbf{Exact values for hard scale for SIDIS:} The TMD hard coefficient function contains $\ln(|2q^+q^-|/\mu^2)$ which is usually approximated by $\ln(Q^2)$. Similarly, the $zeta$-scales are normalized as $\zeta \bar \zeta=(2q^+q^-)^2$, which is usually approximated by $Q^4$. So, the exact values of scales are
+\begin{eqnarray}
+\mu=\sqrt{Q^2-\vec q_T^2},\qquad \zeta_1=\zeta_2=Q^2-\vec q_T^2.
+\end{eqnarray}
+Traditionally, the corrections $\sim q_T/Q$ are dropped, since they are power corrections. Nonetheless, they could be included since they have different sources in comparison to power corrections to the factorized cross-section. Usage of one or another version of $scales$ is switched in \texttt{constants-file} (Option 10.A.p6).
+
 The accounting of these corrections is switched on/off in \texttt{constants}. 
 
 \subsection{Bin-integration routines}
@@ -3364,6 +3370,7 @@ doi:10.1007/JHEP05(2019)125
 	\item \textbf{wgtTMDPDF} Implemented.
 	\item \textbf{QCDinput}: Helicity PDF input is added.
 	\item \textbf{QCDinput}: Bug in the enumeration of hadrons fixed.
+	\item \textbf{TMDX\_SIDIS}: Added option for exact factorization scales.
 	\item \textbf{TMDX\_DY}: Added option for exact factorization scales.
 \end{itemize}
 
@@ -3600,6 +3607,7 @@ doi:10.1007/JHEP05(2019)125
 \item +option for accounting of exact values of factorization scales in DY (sections 9.A.p4)
 \item + helicity PDF in QCDinput (section 1.E)
 \item + worm gear T function (section 13)
+\item +option for accounting of exact values of factorization scales in SIDIS (sections 10.A.p6)
 \end{enumerate}
 
 \newpage

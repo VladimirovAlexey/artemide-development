@@ -55,7 +55,7 @@ integer:: orderH_global
 !! corrM2 ~ M2/Q
 !! corrQTinX1Z1 ~ qT/Q in x1,z1
 logical:: corrQT,corrM1,corrM2,corrQTinX1Z1 !!!if true include
-
+integer:: exactScales  !!!=1 if exact hard scales = true, =0 otherwise
 
 
 real(dp) :: tolerance=0.0005d0
@@ -199,6 +199,15 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
     call MoveTO(51,'*p5   ')
     read(51,*) corrQTinX1Z1
     if(outputLevel>2 .and. corrQTinX1Z1) write(*,*) '	artemide.TMDX_SIDIS: qT/Q corrections in x1,z1 are included.'
+    !!exact values for scales
+    call MoveTO(51,'*p6   ')
+    read(51,*) dummyLogical
+    if(dummyLogical) then 
+        exactScales=1
+    else
+        exactScales=0
+    end if
+    if(outputLevel>2 .and. dummyLogical) write(*,*) '	artemide.TMDX_SIDIS: qT/Q correction for scales variables are included.'
     
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
@@ -430,7 +439,17 @@ pure function QfromSXY(sM2,x,y)
     real(dp)::QfromSXY
     QfromSXY=Sqrt(sM2*x*y)
 end function QfromSXY
-  
+
+!!!!!Evaluate the parameters of the TMD factorized Fourier-integral
+!!qT 	=pT/z sqrt( ( 1+gamma2) / (1-gamma2 rho2))
+pure subroutine CalculateqT(qT,var)
+    real(dp),intent(out)::qT
+    real(dp),dimension(1:13),intent(inout)::var
+
+    qT=var(1)/var(5)*Sqrt((1d0+var(8))/(1d0-var(9)))
+
+end subroutine CalculateqT
+
 !!!!!Evaluate the parameters of the TMD factorized Fourier-integral
 !!qT 	=pT/z sqrt( ( 1+gamma2) / (1-gamma2 rho2))
 !!fac1	= -2/gamma2*(1-sqrt(1+gamma2*(1-qT^2/Q^2)))
@@ -604,9 +623,12 @@ end function PreFactor1
 function PreFactor2(var,process,x1,z1,qT)
     real(dp),dimension(1:13),intent(in)::var
     integer,dimension(1:3),intent(in)::process
-    real(dp)::PreFactor2,uniPart,phasePart,x1,z1,qT,fac1
+    real(dp)::PreFactor2,uniPart,phasePart,x1,z1,qT,fac1,scaleMu
 
     !!!! universal part
+    
+    !!!! If exact scales, zeta*zeta=Q^2-qT^2.
+    scaleMu=sqrt(var(3)-exactScales*qT**2)
 
     SELECT CASE(process(2))
         case(-10221191)
@@ -621,9 +643,9 @@ function PreFactor2(var,process,x1,z1,qT)
             else
                 fac1=1d0
             end if
-            uniPart=pix2*alphaEM(var(2))**2/(var(3)**2)*(var(6)**2/(1d0-var(7)))*(z1/var(5))*&
+            uniPart=pix2*alphaEM(scaleMu)**2/(var(3)**2)*(var(6)**2/(1d0-var(7)))*(z1/var(5))*&
             fac1*&
-            HardCoefficientSIDIS(var(2))*&
+            HardCoefficientSIDIS(scaleMu)*&
             hc2*1d9!from GeV to pbarn
 
         CASE(2)
@@ -636,7 +658,7 @@ function PreFactor2(var,process,x1,z1,qT)
             end if
             uniPart=var(4)/pi/(1d0+0.5d0*var(8)/var(4))*&
             fac1*&
-            HardCoefficientSIDIS(var(2))
+            HardCoefficientSIDIS(scaleMu)
         CASE DEFAULT 
             write(*,*) ErrorString(' unknown process p2=',moduleName),&
                 process(2),color(' .Evaluation stop.',c_red_bold)
@@ -789,14 +811,18 @@ end function QMaxWithCuts
 !!! note that it is calculated with respect to qT
 function xSec(var,process)
     real(dp):: xSec,FF
-    real(dp)::x1,z1,qT
+    real(dp)::x1,z1,qT,scaleMu,scaleZeta
     real(dp),dimension(1:13)::var
     integer,dimension(1:3),intent(in)::process
     integer::OMP_get_thread_num
     GlobalCounter=GlobalCounter+1
     call CalculateX1Z1qT(x1,z1,qT,var)
+    
+    !!! setting values of scales
+    scaleZeta=var(3)-exactScales*qT**2  !! zeta=Q2+qT^2
+    scaleMu=sqrt(scaleZeta) 
 
-    FF=TMDF_F(var(3),qT,x1,z1,var(2)*c2_global,var(3),var(3),process(3))
+    FF=TMDF_F(var(3),qT,x1,z1,scaleMu*c2_global,scaleZeta,scaleZeta,process(3))
     xSec=PreFactor2(var,process,x1,z1,qT)*FF  
 
     !write(*,*) "{",var(3),",",x1,"},"!,z1
