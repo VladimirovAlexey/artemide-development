@@ -19,8 +19,8 @@ implicit none
 !! with NNLO order of evolution.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-character(*),parameter::prefix='/home/vla18041/LinkData2/arTeMiDe_Repository/Constants-files/'
-character(*),parameter::constFILE=prefix//'const-DY_LO'
+!character(*),parameter::prefix='/home/vla18041/LinkData2/arTeMiDe_Repository/Constants-files/'
+character(*),parameter::constFILE='/home/alexey/artemide_Repository/artemide/Prog/SV19_programs/const-Pavia19'
 !character(*),parameter::constFILE=prefix//'const-DY_NNLO'
 
 real*8,allocatable::NParray(:)
@@ -49,15 +49,15 @@ allocate(central(1:numB))
 allocate(centralUP(1:numB))
 allocate(centralDOWN(1:numB))
 
-! !!!! Bacchetta,et al
-! do i=1,numB
-!   call artemide_SetNPparameters_TMDR((/2d0,0.13d0/))
-!   central(i)=DNP(mu, b(i),1)
-!   call artemide_SetNPparameters_TMDR((/2d0,0.13d0+0.01d0/))
-!   centralUP(i)=DNP(mu, b(i),1)
-!   call artemide_SetNPparameters_TMDR((/2d0,0.13d0-0.01d0/))
-!   centralDOWN(i)=DNP(mu, b(i),1)
-! end do
+!!!! Bacchetta,et al
+do i=1,numB
+  call artemide_SetNPparameters_TMDR((/2d0,0.13d0/))
+  central(i)=DNP(mu, b(i),1)
+  call artemide_SetNPparameters_TMDR((/2d0,0.13d0+0.01d0/))
+  centralUP(i)=DNP(mu, b(i),1)
+  call artemide_SetNPparameters_TMDR((/2d0,0.13d0-0.01d0/))
+  centralDOWN(i)=DNP(mu, b(i),1)
+end do
 
 
 
@@ -71,14 +71,14 @@ allocate(centralDOWN(1:numB))
 !   centralDOWN(i)=DNP(mu, b(i),1)
 ! end do
 
-do i=1,numB
-  call artemide_SetNPparameters_TMDR((/2d0,0.396753d0/))
-  central(i)=DNP(mu, b(i),1)
-  call artemide_SetNPparameters_TMDR((/2d0,0.396753d0+0.003178d0/))
-  centralUP(i)=DNP(mu, b(i),1)
-  call artemide_SetNPparameters_TMDR((/2d0,0.396753d0-0.003178d0/))
-  centralDOWN(i)=DNP(mu, b(i),1)
-end do
+! do i=1,numB
+!   call artemide_SetNPparameters_TMDR((/2d0,0.396753d0/))
+!   central(i)=DNP(mu, b(i),1)
+!   call artemide_SetNPparameters_TMDR((/2d0,0.396753d0+0.003178d0/))
+!   centralUP(i)=DNP(mu, b(i),1)
+!   call artemide_SetNPparameters_TMDR((/2d0,0.396753d0-0.003178d0/))
+!   centralDOWN(i)=DNP(mu, b(i),1)
+! end do
 
 
 do i=1,numB
