@@ -19,7 +19,7 @@ implicit none
 private
 
  !Current version of module
- character (len=5),parameter :: version="v2.04"
+ character (len=5),parameter :: version="v2.06"
  character (len=7),parameter :: moduleName="TMD_AD"
  
  logical::started=.false.
@@ -50,19 +50,19 @@ real(dp),parameter::dFF=5d0/96d0      !d_F^{abcd}d_F^{abcd}/(N^2-1)
 !!! beta function (up to 5 loops) (numeration starts from 0)
 real(dp),dimension(0:4,NfMIN:NfMAX)::beta_internal
 
-!!! gamma cusp for quark/gluon (up to 4 loops) (numeration starts from 0)
-real(dp),dimension(0:3,NfMIN:NfMAX)::GammaCuspQ_internal
-real(dp),dimension(0:3,NfMIN:NfMAX)::GammaCuspG_internal
+!!! gamma cusp for quark/gluon (up to 5 loops) (numeration starts from 0)
+real(dp),dimension(0:4,NfMIN:NfMAX)::GammaCuspQ_internal
+real(dp),dimension(0:4,NfMIN:NfMAX)::GammaCuspG_internal
 
 
-!!! gammaV for quark/gluon (up to 3 loops) (numeration starts from 1)
-real(dp),dimension(1:3,NfMIN:NfMAX)::GammaVQ_internal
-real(dp),dimension(1:3,NfMIN:NfMAX)::GammaVG_internal
+!!! gammaV for quark/gluon (up to 4 loops) (numeration starts from 1)
+real(dp),dimension(1:4,NfMIN:NfMAX)::GammaVQ_internal
+real(dp),dimension(1:4,NfMIN:NfMAX)::GammaVG_internal
 
 
-!!! d^{(n,k)} for quark/gluon (up to 3 loops) (numeration starts from 1)
-real(dp),dimension(1:3,0:3,NfMIN:NfMAX)::d_nk_Q_internal
-real(dp),dimension(1:3,0:3,NfMIN:NfMAX)::d_nk_G_internal
+!!! d^{(n,k)} for quark/gluon (up to 4 loops) (numeration starts from 1)
+real(dp),dimension(1:4,0:4,NfMIN:NfMAX)::d_nk_Q_internal
+real(dp),dimension(1:4,0:4,NfMIN:NfMAX)::d_nk_G_internal
 
 
 !!! d^{(n,k,l)} (resummed coefficients) for quark/Gluon (up to 3 loops/no tree)(numeration starts from 0/)
