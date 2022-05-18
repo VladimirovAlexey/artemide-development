@@ -13,25 +13,43 @@
 subroutine SetDnkQuark()
     integer::n
     
-    !! 1-loop
+    !! 1-loop 
+    !! *[checked 18.05.22]
     do n=NfMIN,NfMAX
+        d_nk_Q_internal(1,4,n)=0d0
         d_nk_Q_internal(1,3,n)=0d0
         d_nk_Q_internal(1,2,n)=0d0
         d_nk_Q_internal(1,1,n)=GammaCusp_q(0,n)/2d0
     end do
     
     !! 2-loop
+    !! *[checked 18.05.22]
     do n=NfMIN,NfMAX
+        d_nk_Q_internal(2,4,n)=0d0
         d_nk_Q_internal(2,3,n)=0d0
         d_nk_Q_internal(2,2,n)=GammaCusp_q(0,n)*betaQCD(0,n)/4d0
         d_nk_Q_internal(2,1,n)=GammaCusp_q(1,n)/2d0
     end do
     
     !! 3-loop
+    !! *[checked 18.05.22]
     do n=NfMIN,NfMAX
+        d_nk_Q_internal(3,4,n)=0
         d_nk_Q_internal(3,3,n)=GammaCusp_q(0,n)*(betaQCD(0,n)**2)/6d0
         d_nk_Q_internal(3,2,n)=(GammaCusp_q(0,n)*betaQCD(1,n)+2d0*GammaCusp_q(1,n)*betaQCD(0,n))/4d0
         d_nk_Q_internal(3,1,n)=(GammaCusp_q(2,n)+4d0*dnk_q(2,0,n)*betaQCD(0,n))/2d0
+    end do
+    
+    !! 4-loop
+    do n=NfMIN,NfMAX
+        d_nk_Q_internal(4,4,n)=GammaCusp_q(0,n)*(betaQCD(0,n)**3)/8d0
+        d_nk_Q_internal(4,3,n)=5d0/12d0*GammaCusp_q(0,n)*betaQCD(0,n)*betaQCD(1,n)&
+                                +GammaCusp_q(1,n)*(betaQCD(0,n)**2)/2d0
+        d_nk_Q_internal(4,2,n)=GammaCusp_q(0,n)*betaQCD(2,n)/4d0+GammaCusp_q(1,n)*betaQCD(1,n)/2d0&
+                                +3d0/4d0*GammaCusp_q(2,n)*betaQCD(0,n)&
+                                +3d0*dnk_q(2,0,n)*(betaQCD(0,n)**2)
+        d_nk_Q_internal(4,1,n)=GammaCusp_q(3,n)/2d0+2d0*dnk_q(2,0,n)*betaQCD(1,n)&
+                                +3d0*dnk_q(3,0,n)*betaQCD(0,n)
     end do
     
 end subroutine SetDnkQuark
@@ -43,6 +61,7 @@ subroutine SetDnkGluon()
     
     !! 1-loop
     do n=NfMIN,NfMAX
+        d_nk_G_internal(1,4,n)=0d0
         d_nk_G_internal(1,3,n)=0d0
         d_nk_G_internal(1,2,n)=0d0
         d_nk_G_internal(1,1,n)=GammaCusp_g(0,n)/2d0
@@ -50,6 +69,7 @@ subroutine SetDnkGluon()
     
     !! 2-loop
     do n=NfMIN,NfMAX
+        d_nk_G_internal(2,4,n)=0d0
         d_nk_G_internal(2,3,n)=0d0
         d_nk_G_internal(2,2,n)=GammaCusp_g(0,n)*betaQCD(0,n)/4d0
         d_nk_G_internal(2,1,n)=GammaCusp_g(1,n)/2d0
@@ -57,9 +77,22 @@ subroutine SetDnkGluon()
     
     !! 3-loop
     do n=NfMIN,NfMAX
+        d_nk_G_internal(3,4,n)=0d0
         d_nk_G_internal(3,3,n)=GammaCusp_g(0,n)*(betaQCD(0,n)**2)/6d0
         d_nk_G_internal(3,2,n)=(GammaCusp_g(0,n)*betaQCD(1,n)+2d0*GammaCusp_g(1,n)*betaQCD(0,n))/4d0
         d_nk_G_internal(3,1,n)=(GammaCusp_g(2,n)+4d0*dnk_g(2,0,n)*betaQCD(0,n))/2d0
+    end do
+    
+    !! 4-loop
+    do n=NfMIN,NfMAX
+        d_nk_G_internal(4,4,n)=GammaCusp_g(0,n)*(betaQCD(0,n)**3)/8d0
+        d_nk_G_internal(4,3,n)=5d0/12d0*GammaCusp_q(0,n)*betaQCD(0,n)*betaQCD(1,n)&
+                                +GammaCusp_g(1,n)*(betaQCD(0,n)**2)/2d0
+        d_nk_G_internal(4,2,n)=GammaCusp_g(0,n)*betaQCD(2,n)/4d0+GammaCusp_g(1,n)*betaQCD(1,n)/2d0&
+                                +3d0/4d0*GammaCusp_g(2,n)*betaQCD(0,n)&
+                                +3d0*dnk_g(2,0,n)*(betaQCD(0,n)**2)
+        d_nk_G_internal(4,1,n)=GammaCusp_g(3,n)/2d0+2d0*dnk_g(2,0,n)*betaQCD(1,n)&
+                                +3d0*dnk_g(3,0,n)*betaQCD(0,n)
     end do
     
 end subroutine SetDnkGluon
