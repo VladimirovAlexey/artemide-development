@@ -66,8 +66,8 @@ real(dp),dimension(1:4,0:4,NfMIN:NfMAX)::d_nk_G_internal
 
 
 !!! d^{(n,k,l)} (resummed coefficients) for quark/Gluon (up to 3 loops/no tree)(numeration starts from 0/)
-real(dp),dimension(1:3,0:3,0:3,NfMIN:NfMAX)::d_nkl_Q_internal
-real(dp),dimension(1:3,0:3,0:3,NfMIN:NfMAX)::d_nkl_G_internal
+real(dp),dimension(1:4,0:4,0:4,NfMIN:NfMAX)::d_nkl_Q_internal
+real(dp),dimension(1:4,0:4,0:4,NfMIN:NfMAX)::d_nkl_G_internal
 
 !!! v^{(n,k)} for quark/Gluon (up to 3 loops )(numeration starts from 0)
 real(dp),dimension(0:3,0:4,NfMIN:NfMAX)::v_nk_Q_internal

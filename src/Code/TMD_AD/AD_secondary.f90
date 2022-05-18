@@ -100,41 +100,49 @@ end subroutine SetDnkGluon
 !!!! sets the values of RAD-resummed coefficients for  QUARK
 !!!! D=-GAMMA0/2BETA0(LOG(1-X)+as^n/(1-X)^n dnkl X^k Log(1-X)^l
 subroutine SetDnklQuark()
-    integer::n
-    real(dp)::B1,B2,B3,G1,G2,G3
+    integer::n,i,j
+    real(dp)::B1,B2,B3,B4,G1,G2,G3,G4,DD2,DD3,DD4
         
     do n=NfMIN,NfMAX
         B1=betaQCD(1,n)/betaQCD(0,n)
         B2=betaQCD(2,n)/betaQCD(0,n)
         B3=betaQCD(3,n)/betaQCD(0,n)
+        B4=betaQCD(4,n)/betaQCD(0,n)
         
         G1=GammaCusp_q(1,n)/GammaCusp_q(0,n)
         G2=GammaCusp_q(2,n)/GammaCusp_q(0,n)
         G3=GammaCusp_q(3,n)/GammaCusp_q(0,n)
+        G4=GammaCusp_q(4,n)/GammaCusp_q(0,n)
         
-        !! 1-loop        
+        DD2=-2d0*dnk_q(2,0,n)*betaQCD(0,n)/GammaCusp_q(0,n)
+        DD3=-2d0*dnk_q(3,0,n)*betaQCD(0,n)/GammaCusp_q(0,n)
+        DD4=-2d0*dnk_q(4,0,n)*betaQCD(0,n)/GammaCusp_q(0,n) 
+        
+        !! 1-loop
+        !! *checked [18.05.22]
         d_nkl_Q_internal(1,0,1,n)=B1
         d_nkl_Q_internal(1,1,0,n)=B1-G1
         d_nkl_Q_internal(1,0,0,n)=0d0
     
-        !! 2-loop    
+        !! 2-loop 
+        !! *checked [18.05.22]
         d_nkl_Q_internal(2,0,2,n)=-(B1**2)/2d0
         d_nkl_Q_internal(2,0,1,n)=B1*G1
         d_nkl_Q_internal(2,2,0,n)=(G2-B1*G1-B2+B1**2)/2d0
         d_nkl_Q_internal(2,1,0,n)=B1*G1-G2
-        d_nkl_Q_internal(2,0,0,n)=-2d0*dnk_q(2,0,n)*betaQCD(0,n)/GammaCusp_q(0,n)        
+        d_nkl_Q_internal(2,0,0,n)=DD2        
         d_nkl_Q_internal(2,2,2,n)=0d0
         d_nkl_Q_internal(2,1,1,n)=0d0
         
         !! 3-loop    
         d_nkl_Q_internal(3,0,3,n)=(B1**3)/3d0
         d_nkl_Q_internal(3,0,2,n)=-(B1**3)/2d0-(B1**2)*G1
-        d_nkl_Q_internal(3,0,1,n)=B1*G2+4d0*dnk_q(2,0,n)*betaQCD(1,n)/GammaCusp_q(0,n)
+        d_nkl_Q_internal(3,0,1,n)=B1*G2-2d0*B1*DD2
         d_nkl_Q_internal(3,1,1,n)=B1*B2-B1**3
         d_nkl_Q_internal(3,3,0,n)=1d0/3d0*(B1**3-2d0*B1*B2+B3-(B1**2)*G1+B2*G1+B1*G2-G3)
         d_nkl_Q_internal(3,2,0,n)=-0.5d0*(B1**3)+B1*B2-0.5d0*B3+(B1**2)*G1-B2*G1-B1*G2+G3
         d_nkl_Q_internal(3,1,0,n)=B1*G2-G3
-        d_nkl_Q_internal(3,0,0,n)=-2d0*dnk_q(3,0,n)*betaQCD(0,n)/GammaCusp_q(0,n)
+        d_nkl_Q_internal(3,0,0,n)=DD3
         d_nkl_Q_internal(3,1,2,n)=0d0
         d_nkl_Q_internal(3,1,3,n)=0d0
         d_nkl_Q_internal(3,2,1,n)=0d0
@@ -144,6 +152,28 @@ subroutine SetDnklQuark()
         d_nkl_Q_internal(3,3,2,n)=0d0
         d_nkl_Q_internal(3,3,3,n)=0d0
         
+        !! 4-loop    
+        do i=0,4
+        do j=0,4
+            d_nkl_Q_internal(4,i,j,n)=0d0
+        end do
+        end do
+        
+        d_nkl_Q_internal(4,0,4,n)=-(B1**4)/4d0
+        d_nkl_Q_internal(4,0,3,n)=5d0/6d0*(B1**4)+(B1**3)*G1
+        d_nkl_Q_internal(4,0,2,n)=-(B1**2*B2)/2d0 + 3d0*B1**2*DD2 - B1**3*G1 - 3d0*B1**2*G2/2d0
+        d_nkl_Q_internal(4,1,2,n)=B1**4 - B1**2*B2
+        d_nkl_Q_internal(4,0,1,n)=-2d0*B1**2*DD2 - 3d0*B1*DD3 + B1*G3
+        d_nkl_Q_internal(4,1,1,n)=-(B1**2*B2) + B1*B3 - 2d0*B1**3*G1 + 2d0*B1*B2*G1
+        d_nkl_Q_internal(4,2,1,n)=-B1**4/2d0 + B1**2*B2 - (B1*B3)/2d0
+        d_nkl_Q_internal(4,4,0,n)=(B1**4 - 3d0*B1**2*B2 + B2**2 + 2d0*B1*B3 - B4 &
+                - B1**3*G1 + 2d0*B1*B2*G1 - B3*G1 + B1**2*G2 - B2*G2 - B1*G3 + G4)/4d0
+        d_nkl_Q_internal(4,3,0,n)=(-2*B1**4 + 6*B1**2*B2 - 2*B2**2 - 4*B1*B3 + 2*B4 + 3*B1**3*G1 &
+                - 6*B1*B2*G1 + 3*B3*G1 - 3*B1**2*G2 + 3*B2*G2 + 3*B1*G3 - 3*G4)/3d0
+        d_nkl_Q_internal(4,2,0,n)=(-(B1**2*B2) + 2*B1*B3 - B4 - 2*B1**3*G1 + 4*B1*B2*G1 - 2*B3*G1 &
+                + 3*B1**2*G2 - 3*B2*G2 - 3*B1*G3 + 3*G4)/2d0
+        d_nkl_Q_internal(4,1,0,n)=-2*B1**2*DD2 + 2*B2*DD2 + B1*G3 - G4
+        d_nkl_Q_internal(4,0,0,n)=DD4
     end do
     
 end subroutine SetDnklQuark
@@ -152,17 +182,23 @@ end subroutine SetDnklQuark
 !!!! sets the values of RAD-resummed coefficients for  QUARK
 !!!! D=-GAMMA0/2BETA0(LOG(1-X)+as^n/(1-X)^n dnkl X^k Log(1-X)^l
 subroutine SetDnklGluon()
-    integer::n
-    real(dp)::B1,B2,B3,G1,G2,G3
+    integer::n, i,j
+    real(dp)::B1,B2,B3,B4,G1,G2,G3,G4,DD2,DD3,DD4
         
     do n=NfMIN,NfMAX
         B1=betaQCD(1,n)/betaQCD(0,n)
         B2=betaQCD(2,n)/betaQCD(0,n)
         B3=betaQCD(3,n)/betaQCD(0,n)
+        B4=betaQCD(4,n)/betaQCD(0,n)
         
         G1=GammaCusp_g(1,n)/GammaCusp_g(0,n)
         G2=GammaCusp_g(2,n)/GammaCusp_g(0,n)
         G3=GammaCusp_g(3,n)/GammaCusp_g(0,n)
+        G4=GammaCusp_g(4,n)/GammaCusp_g(0,n)
+        
+        DD2=-2d0*dnk_g(2,0,n)*betaQCD(0,n)/GammaCusp_g(0,n)
+        DD3=-2d0*dnk_g(3,0,n)*betaQCD(0,n)/GammaCusp_g(0,n)
+        DD4=-2d0*dnk_g(4,0,n)*betaQCD(0,n)/GammaCusp_g(0,n)
         
         !! 1-loop        
         d_nkl_G_internal(1,0,1,n)=B1
@@ -195,6 +231,29 @@ subroutine SetDnklGluon()
         d_nkl_G_internal(3,3,1,n)=0d0
         d_nkl_G_internal(3,3,2,n)=0d0
         d_nkl_G_internal(3,3,3,n)=0d0
+        
+        !! 4-loop    
+        do i=0,4
+        do j=0,4
+            d_nkl_G_internal(4,i,j,n)=0d0
+        end do
+        end do
+        
+        d_nkl_G_internal(4,0,4,n)=-(B1**4)/4d0
+        d_nkl_G_internal(4,0,3,n)=5d0/6d0*(B1**4)+(B1**3)*G1
+        d_nkl_G_internal(4,0,2,n)=-(B1**2*B2)/2d0 + 3d0*B1**2*DD2 - B1**3*G1 - 3d0*B1**2*G2/2d0
+        d_nkl_G_internal(4,1,2,n)=B1**4 - B1**2*B2
+        d_nkl_G_internal(4,0,1,n)=-2d0*B1**2*DD2 - 3d0*B1*DD3 + B1*G3
+        d_nkl_G_internal(4,1,1,n)=-(B1**2*B2) + B1*B3 - 2d0*B1**3*G1 + 2d0*B1*B2*G1
+        d_nkl_G_internal(4,2,1,n)=-B1**4/2d0 + B1**2*B2 - (B1*B3)/2d0
+        d_nkl_G_internal(4,4,0,n)=(B1**4 - 3d0*B1**2*B2 + B2**2 + 2d0*B1*B3 - B4 &
+                - B1**3*G1 + 2d0*B1*B2*G1 - B3*G1 + B1**2*G2 - B2*G2 - B1*G3 + G4)/4d0
+        d_nkl_G_internal(4,3,0,n)=(-2*B1**4 + 6*B1**2*B2 - 2*B2**2 - 4*B1*B3 + 2*B4 + 3*B1**3*G1 &
+                - 6*B1*B2*G1 + 3*B3*G1 - 3*B1**2*G2 + 3*B2*G2 + 3*B1*G3 - 3*G4)/3d0
+        d_nkl_G_internal(4,2,0,n)=(-(B1**2*B2) + 2*B1*B3 - B4 - 2*B1**3*G1 + 4*B1*B2*G1 - 2*B3*G1 &
+                + 3*B1**2*G2 - 3*B2*G2 - 3*B1*G3 + 3*G4)/2d0
+        d_nkl_G_internal(4,1,0,n)=-2*B1**2*DD2 + 2*B2*DD2 + B1*G3 - G4
+        d_nkl_G_internal(4,0,0,n)=DD4
         
     end do
     
