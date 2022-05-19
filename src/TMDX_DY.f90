@@ -25,7 +25,7 @@ implicit none
   
    !Current version of module
  character (len=7),parameter :: moduleName="TMDX-DY"
- character (len=5),parameter :: version="v2.02"
+ character (len=5),parameter :: version="v2.06"
  !Last appropriate verion of constants-file
   integer,parameter::inputver=6
   
@@ -192,6 +192,12 @@ contains
 	orderH_global=2
       CASE ("NNNLO")
 	orderH_global=3
+      CASE ("N3LO") !!! same as NNNLO
+	orderH_global=3
+      CASE ("N3LO+")
+	orderH_global=3
+      CASE ("N4LO")
+	orderH_global=4
       CASE DEFAULT
 	if(outputLevel>0) write(*,*)  WarningString('try to set unknown order. Switch to NLO.',moduleName)
 	orderH_global=1
