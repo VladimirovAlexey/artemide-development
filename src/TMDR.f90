@@ -224,7 +224,7 @@ subroutine TMDR_Initialize(file,prefix)
 	orderDresum=3
 	orderZETA=3
       CASE ("N4LO")
-	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N3LO+'
+	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N4LO'
 	orderCusp=5
 	orderV=4
 	orderD=4
