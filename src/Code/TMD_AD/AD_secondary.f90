@@ -368,7 +368,7 @@ end subroutine SetVnkGluon
 !!!! ... in each term different.
 subroutine SetOMEGAnkQuark()
     integer::n
-    real(dp)::B1,B2,B3,G1,G2,G3,gg1,gg2,gg3,commonF
+    real(dp)::B1,B2,B3,B4,G1,G2,G3,G4,gg1,gg2,gg3,gg4,commonF
     
     OMEGA_nk_Q_internal=0d0*OMEGA_nk_Q_internal
         
@@ -376,14 +376,17 @@ subroutine SetOMEGAnkQuark()
         B1=betaQCD(1,n)/betaQCD(0,n)
         B2=betaQCD(2,n)/betaQCD(0,n)
         B3=betaQCD(3,n)/betaQCD(0,n)
+        B4=betaQCD(4,n)/betaQCD(0,n)
         
         G1=GammaCusp_q(1,n)/GammaCusp_q(0,n)
         G2=GammaCusp_q(2,n)/GammaCusp_q(0,n)
         G3=GammaCusp_q(3,n)/GammaCusp_q(0,n)
+        G4=GammaCusp_q(4,n)/GammaCusp_q(0,n)
         
         gg1=gammaV_q(1,n)*betaQCD(0,n)/GammaCusp_q(0,n)
         gg2=gammaV_q(2,n)*betaQCD(0,n)/GammaCusp_q(0,n)
         gg3=gammaV_q(3,n)*betaQCD(0,n)/GammaCusp_q(0,n)
+        gg4=gammaV_q(4,n)*betaQCD(0,n)/GammaCusp_q(0,n)
         
         pFACTOR_Q_internal(n)=2d0*betaQCD(0,n)/GammaCusp_q(0,n)
         commonF=1d0/betaQCD(0,n)
@@ -391,7 +394,7 @@ subroutine SetOMEGAnkQuark()
         !! 0-loop
         !! * z_1
         OMEGA_nk_Q_internal(0,1,n)=1d0*commonF
-    
+         
         !! 1-loop
         !! * z_1
         OMEGA_nk_Q_internal(1,1,n)=(B1-G1)*commonF
@@ -418,7 +421,58 @@ subroutine SetOMEGAnkQuark()
                 +(2d0*G1-B1)*(G1*gg1-gg2)/2d0-(G2*gg1-gg3)/2d0)*commonF
         !! * 1
         OMEGA_nk_Q_internal(3,4,n)=((G1**2)*gg1-G2*gg1-G1*gg2+gg3)*commonF
+        !! * p (leading term of expansion z[-1]+z[-2] parts.)
+        !! this is used to cure the groving tail
+        OMEGA_nk_Q_internal(3,5,n)=(B1*B2 - 2*B3 - B1**2*G1 + B2*G1 - 5*G1**3 + B1*G2 + 9*G1*G2 - 4*G3 &
+        - 6*B1*G1*gg1 + 18*G1**2*gg1 - 12*G2*gg1 + 6*B1*gg2 - 18*G1*gg2 + 12*gg3)/12d0*commonF
+        
+        !! 4-loop
+        !! * z_1
+        OMEGA_nk_Q_internal(4,1,n)=(2d0*B1**2*B2 - 3d0*B2**2 - 4d0*B1*B3 + 6d0*B4 - 2d0*B1**3*G1 &
+                    + 6d0*B1*B2*G1 - 2d0*B3*G1 - B1**2*G1**2 - 2d0*B2*G1**2 + 2d0*B1*G1**3 &
+                    + G1**4 + 2d0*B1**2*G2 - 2d0*B1*G1*G2 - 6d0*G1**2*G2 + 3d0*G2**2 - 2d0*B1*G3 &
+                    + 8d0*G1*G3 - 6d0*G4)/24d0*commonF
+        !! * z_{-1}
+        OMEGA_nk_Q_internal(4,2,n)=(2d0*B1**2 - B2 - 3d0*B1*G1 + G1**2 + G2)*(-B2 + B1*G1 &
+                + G1**2 - G2 - 2d0*G1*gg1 + 2d0*gg2)/4d0*commonF
+        !! * z_{-2}
+        OMEGA_nk_Q_internal(4,3,n)=(B1*B2 + B3 - B1**2*G1 - 2d0*B2*G1 + 4d0*G1**3 + B1*G2 - 6d0*G1*G2 &
+                + 2d0*G3 + 6d0*B1*G1*gg1 - 12d0*G1**2*gg1 + 6d0*G2*gg1 - 6d0*B1*gg2 &
+                + 12d0*G1*gg2 - 6d0*gg3)*(B1-G1)/6d0*commonF
+        !! * z_{-3}
+        OMEGA_nk_Q_internal(4,4,n)=(-2*B1**2*B2 - B2**2 - 4*B1*B3 - 2*B4 + 2*B1**3*G1 + 10*B1*B2*G1 &
+                + 6*B3*G1 - 3*B1**2*G1**2 - 6*B2*G1**2 - 18*B1*G1**3 + 27*G1**4 - 2*B1**2*G2 + 30*B1*G1*G2 &
+                - 54*G1**2*G2 + 9*G2**2 - 10*B1*G3 + 24*G1*G3 - 6*G4 - 24*B1**2*G1*gg1 - 12*B2*G1*gg1 &
+                + 108*B1*G1**2*gg1 - 108*G1**3*gg1 - 48*B1*G2*gg1 + 108*G1*G2*gg1 - 24*G3*gg1 &
+                + 24*B1**2*gg2 + 12*B2*gg2 - 108*B1*G1*gg2 + 108*G1**2*gg2 - 36*G2*gg2 + 48*B1*gg3 &
+                - 72*G1*gg3 + 24*gg4)/72d0*commonF
+        !! * 1
+        OMEGA_nk_Q_internal(4,5,n)=(-(G1**3*gg1) + 2*G1*G2*gg1 - G3*gg1 + G1**2*gg2 &
+                - G2*gg2 - G1*gg3 + gg4)*commonF
     end do
+    
+!     write(*,*) "w0"
+!     write(*,*) OMEGA_nk_Q_internal(0,1,3),OMEGA_nk_Q_internal(0,1,4),OMEGA_nk_Q_internal(0,1,5)
+!     write(*,*) "w1"
+!     write(*,*) OMEGA_nk_Q_internal(1,1,3),OMEGA_nk_Q_internal(1,1,4),OMEGA_nk_Q_internal(1,1,5)
+!     write(*,*) OMEGA_nk_Q_internal(1,2,3),OMEGA_nk_Q_internal(1,2,4),OMEGA_nk_Q_internal(1,2,5)
+!     write(*,*) OMEGA_nk_Q_internal(1,3,3),OMEGA_nk_Q_internal(1,3,4),OMEGA_nk_Q_internal(1,3,5)
+!     write(*,*) "w2"
+!     write(*,*) OMEGA_nk_Q_internal(2,1,3),OMEGA_nk_Q_internal(2,1,4),OMEGA_nk_Q_internal(2,1,5)
+!     write(*,*) OMEGA_nk_Q_internal(2,2,3),OMEGA_nk_Q_internal(2,2,4),OMEGA_nk_Q_internal(2,2,5)
+!     write(*,*) OMEGA_nk_Q_internal(2,3,3),OMEGA_nk_Q_internal(2,3,4),OMEGA_nk_Q_internal(2,3,5)
+!     write(*,*) "w3"
+!     write(*,*) OMEGA_nk_Q_internal(3,1,3),OMEGA_nk_Q_internal(3,1,4),OMEGA_nk_Q_internal(3,1,5)
+!     write(*,*) OMEGA_nk_Q_internal(3,2,3),OMEGA_nk_Q_internal(3,2,4),OMEGA_nk_Q_internal(3,2,5)
+!     write(*,*) OMEGA_nk_Q_internal(3,3,3),OMEGA_nk_Q_internal(3,3,4),OMEGA_nk_Q_internal(3,3,5)
+!     write(*,*) OMEGA_nk_Q_internal(3,4,3),OMEGA_nk_Q_internal(3,4,4),OMEGA_nk_Q_internal(3,4,5)
+!     write(*,*) OMEGA_nk_Q_internal(3,5,3),OMEGA_nk_Q_internal(3,5,4),OMEGA_nk_Q_internal(3,5,5)
+!     write(*,*) "w4"
+!     write(*,*) OMEGA_nk_Q_internal(4,1,3),OMEGA_nk_Q_internal(4,1,4),OMEGA_nk_Q_internal(4,1,5)
+!     write(*,*) OMEGA_nk_Q_internal(4,2,3),OMEGA_nk_Q_internal(4,2,4),OMEGA_nk_Q_internal(4,2,5)
+!     write(*,*) OMEGA_nk_Q_internal(4,3,3),OMEGA_nk_Q_internal(4,3,4),OMEGA_nk_Q_internal(4,3,5)
+!     write(*,*) OMEGA_nk_Q_internal(4,4,3),OMEGA_nk_Q_internal(4,4,4),OMEGA_nk_Q_internal(4,4,5)
+!     write(*,*) OMEGA_nk_Q_internal(4,5,3),OMEGA_nk_Q_internal(4,5,4),OMEGA_nk_Q_internal(4,5,5)
     
 end subroutine SetOMEGAnkQuark
 
@@ -427,7 +481,7 @@ end subroutine SetOMEGAnkQuark
 !!!! ... in each term different.
 subroutine SetOMEGAnkGluon()
     integer::n
-    real(dp)::B1,B2,B3,G1,G2,G3,gg1,gg2,gg3,commonF
+    real(dp)::B1,B2,B3,B4,G1,G2,G3,G4,gg1,gg2,gg3,gg4,commonF
     
     OMEGA_nk_G_internal=0d0*OMEGA_nk_G_internal
         
@@ -435,14 +489,17 @@ subroutine SetOMEGAnkGluon()
         B1=betaQCD(1,n)/betaQCD(0,n)
         B2=betaQCD(2,n)/betaQCD(0,n)
         B3=betaQCD(3,n)/betaQCD(0,n)
+        B4=betaQCD(4,n)/betaQCD(0,n)
         
         G1=GammaCusp_g(1,n)/GammaCusp_g(0,n)
         G2=GammaCusp_g(2,n)/GammaCusp_g(0,n)
         G3=GammaCusp_g(3,n)/GammaCusp_g(0,n)
+        G4=GammaCusp_g(4,n)/GammaCusp_g(0,n)
         
         gg1=gammaV_g(1,n)*betaQCD(0,n)/GammaCusp_g(0,n)
         gg2=gammaV_g(2,n)*betaQCD(0,n)/GammaCusp_g(0,n)
         gg3=gammaV_g(3,n)*betaQCD(0,n)/GammaCusp_g(0,n)
+        gg4=gammaV_g(4,n)*betaQCD(0,n)/GammaCusp_g(0,n)
         
         pFACTOR_G_internal(n)=2d0*betaQCD(0,n)/GammaCusp_g(0,n)
         commonF=1d0/betaQCD(0,n)
@@ -477,6 +534,34 @@ subroutine SetOMEGAnkGluon()
                 +(2d0*G1-B1)*(G1*gg1-gg2)/2d0-(G2*gg1-gg3)/2d0)*commonF
         !! * 1
         OMEGA_nk_G_internal(3,4,n)=((G1**2)*gg1-G2*gg1-G1*gg2+gg3)*commonF
+        !! * p (leading term of expansion z[-1]+z[-2] parts.)
+        !! this is used to cure the groving tail
+        OMEGA_nk_G_internal(3,5,n)=(B1*B2 - 2*B3 - B1**2*G1 + B2*G1 - 5*G1**3 + B1*G2 + 9*G1*G2 - 4*G3 &
+                - 6*B1*G1*gg1 + 18*G1**2*gg1 - 12*G2*gg1 + 6*B1*gg2 - 18*G1*gg2 + 12*gg3)/12d0*commonF
+        
+        !! 4-loop
+        !! * z_1
+        OMEGA_nk_G_internal(4,1,n)=(2d0*B1**2*B2 - 3d0*B2**2 - 4d0*B1*B3 + 6d0*B4 - 2d0*B1**3*G1 &
+                    + 6d0*B1*B2*G1 - 2d0*B3*G1 - B1**2*G1**2 - 2d0*B2*G1**2 + 2d0*B1*G1**3 &
+                    + G1**4 + 2d0*B1**2*G2 - 2d0*B1*G1*G2 - 6d0*G1**2*G2 + 3d0*G2**2 - 2d0*B1*G3 &
+                    + 8d0*G1*G3 - 6d0*G4)/24d0*commonF
+        !! * z_{-1}
+        OMEGA_nk_G_internal(4,2,n)=(2d0*B1**2 - B2 - 3d0*B1*G1 + G1**2 + G2)*(-B2 + B1*G1 &
+                + G1**2 - G2 - 2d0*G1*gg1 + 2d0*gg2)/4d0*commonF
+        !! * z_{-2}
+        OMEGA_nk_G_internal(4,3,n)=(B1*B2 + B3 - B1**2*G1 - 2d0*B2*G1 + 4d0*G1**3 + B1*G2 - 6d0*G1*G2 &
+                + 2d0*G3 + 6d0*B1*G1*gg1 - 12d0*G1**2*gg1 + 6d0*G2*gg1 - 6d0*B1*gg2 &
+                + 12d0*G1*gg2 - 6d0*gg3)*(B1-G1)/6d0*commonF
+        !! * z_{-3}
+        OMEGA_nk_G_internal(4,4,n)=(-2*B1**2*B2 - B2**2 - 4*B1*B3 - 2*B4 + 2*B1**3*G1 + 10*B1*B2*G1 &
+                + 6*B3*G1 - 3*B1**2*G1**2 - 6*B2*G1**2 - 18*B1*G1**3 + 27*G1**4 - 2*B1**2*G2 + 30*B1*G1*G2 &
+                - 54*G1**2*G2 + 9*G2**2 - 10*B1*G3 + 24*G1*G3 - 6*G4 - 24*B1**2*G1*gg1 - 12*B2*G1*gg1 &
+                + 108*B1*G1**2*gg1 - 108*G1**3*gg1 - 48*B1*G2*gg1 + 108*G1*G2*gg1 - 24*G3*gg1 &
+                + 24*B1**2*gg2 + 12*B2*gg2 - 108*B1*G1*gg2 + 108*G1**2*gg2 - 36*G2*gg2 + 48*B1*gg3 &
+                - 72*G1*gg3 + 24*gg4)/72d0*commonF
+        !! * 1
+        OMEGA_nk_G_internal(4,5,n)=(-(G1**3*gg1) + 2*G1*G2*gg1 - G3*gg1 + G1**2*gg2 &
+                - G2*gg2 - G1*gg3 + gg4)*commonF
     end do
     
 end subroutine SetOMEGAnkGluon

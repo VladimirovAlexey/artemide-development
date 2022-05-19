@@ -65,10 +65,24 @@ end function zetaSL
         if(orderZETA>=2) then
             zm1=zFUNC(p,-1)
             val=val+(alpha**2)*(z1*OMEGA_q(2,1,Nf)+zm1*OMEGA_q(2,2,Nf)+OMEGA_q(2,3,Nf))
-!             if(orderZETA>=3) then
+            if(orderZETA>=3) then
 !                 zm2=zFUNC(p,-2)
-!                 val=val+(alpha**3)*(z1*OMEGA_q(3,1,Nf)+zm1*OMEGA_q(3,2,Nf)+zm2*OMEGA_q(3,3,Nf)+OMEGA_q(3,4,Nf))
-!             end if
+            !!! the problem is that the coefficients of z[-1], z[-2], are negative
+            !!! therefore at large D the expression for R, diverges exponentially.
+            !!! however, z[] \sim as, therefore, these terms contribute to as^4.
+            !!! here I kill them. Istead I add their expansion up to p
+                val=val+(alpha**3)*(z1*OMEGA_q(3,1,Nf)+OMEGA_q(3,4,Nf)+p*OMEGA_q(3,5,Nf))
+                    !!! killed part
+                    !!!++zm1*OMEGA_q(3,2,Nf)+zm2*OMEGA_q(3,3,Nf)
+            if(orderZETA>=4) then
+            !!! here is the same problem. So I just kill z[-1],z[-2],z[-3]
+            !!! since they formally gives as^5
+            !!! I do not add anything -- no need
+                val=val+(alpha**4)*(z1*OMEGA_q(4,1,Nf)+OMEGA_q(4,5,Nf))
+                    !!! killed part
+                    !!!++zm1*OMEGA_q(4,2,Nf)+zm2*OMEGA_q(4,3,Nf)+zm3*OMEGA_q(4,4,Nf)
+            end if
+            end if
         end if
     end if
     
@@ -105,10 +119,24 @@ end function valueOfGD_type4_Q
         if(orderZETA>=2) then
             zm1=zFUNC(p,-1)
             val=val+(alpha**2)*(z1*OMEGA_g(2,1,Nf)+zm1*OMEGA_g(2,2,Nf)+OMEGA_g(2,3,Nf))
-!             if(orderZETA>=3) then
+            if(orderZETA>=3) then
 !                 zm2=zFUNC(p,-2)
-!                 val=val+(alpha**3)*(z1*OMEGA_g(3,1,Nf)+zm1*OMEGA_g(3,2,Nf)+zm2*OMEGA_g(3,3,Nf)+OMEGA_g(3,4,Nf))
-!             end if
+            !!! the problem is that the coefficients of z[-1], z[-2], are negative
+            !!! therefore at large D the expression for R, diverges exponentially.
+            !!! however, z[] \sim as, therefore, these terms contribute to as^4.
+            !!! here I kill them. Istead I add their expansion up to p
+                val=val+(alpha**3)*(z1*OMEGA_g(3,1,Nf)+OMEGA_g(3,4,Nf)+p*OMEGA_g(3,5,Nf))
+                    !!! killed part
+                    !!!++zm1*OMEGA_g(3,2,Nf)+zm2*OMEGA_g(3,3,Nf)
+            if(orderZETA>=4) then
+            !!! here is the same problem. So I just kill z[-1],z[-2],z[-3]
+            !!! since they formally gives as^5
+            !!! I do not add anything -- no need
+                val=val+(alpha**4)*(z1*OMEGA_g(4,1,Nf)+OMEGA_g(4,5,Nf))
+                    !!! killed part
+                    !!!++zm1*OMEGA_g(4,2,Nf)+zm2*OMEGA_g(4,3,Nf)+zm3*OMEGA_g(4,4,Nf)
+            end if
+            end if
         end if
     end if
     
