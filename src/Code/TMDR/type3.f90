@@ -20,7 +20,8 @@
   
   TMDR_Rzeta_type3=EXP(-DNP(muf,b,f)*Log(zetaf/zetaP))
  
-  !write(*,*) 'HERE'
+!   write(*,*) 'HERE'
+!   write(*,*) DNP(muf,b,f),zetaf,zetaP
   
   if(TMDR_Rzeta_type3>1d6) then
     write(*,*) ErrorString('Evolution factor(type3) is TOO HUGE check the formula',moduleName)

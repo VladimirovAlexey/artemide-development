@@ -32,16 +32,12 @@ function zetaSL(mu,rad,f)
   
   !write(*,*) '..........',b,rad,alpha,GD
   
-  zetaSL=(mu**2)*exp(-GD/rad)  
+  zetaSL=(mu**2)*exp(-GD)  
  
 end function zetaSL
  
-!!! expression for G*D, at given D,alpha, and mu
+!!! expression for G, at given D,alpha, and mu
 !!! evaluated for type4 evolution for Quark
-!!!!
-!!!! At NNNLO I use NNLO solution. The reason is the negative values of constants at large-d. It is unphysical
-!!!! To be solved...
-!!!!
  function valueOfGD_type4_Q(dd,alpha,mu)
     real(dp)::valueOfGD_type4_Q,dd,alpha,mu
     integer::Nf
@@ -71,31 +67,27 @@ end function zetaSL
             !!! therefore at large D the expression for R, diverges exponentially.
             !!! however, z[] \sim as, therefore, these terms contribute to as^4.
             !!! here I kill them. Istead I add their expansion up to p
-                val=val+(alpha**3)*(z1*OMEGA_q(3,1,Nf)+OMEGA_q(3,4,Nf)+p*OMEGA_q(3,5,Nf))
+                val=val+(alpha**3)*(OMEGA_q(3,4,Nf)+p*OMEGA_q(3,5,Nf))
                     !!! killed part
-                    !!!++zm1*OMEGA_q(3,2,Nf)+zm2*OMEGA_q(3,3,Nf)
+                    !!!+z1*OMEGA_q(3,1,Nf)+zm1*OMEGA_q(3,2,Nf)+zm2*OMEGA_q(3,3,Nf)
             if(orderZETA>=4) then
             !!! here is the same problem. So I just kill z[-1],z[-2],z[-3]
             !!! since they formally gives as^5
             !!! I do not add anything -- no need
-                val=val+(alpha**4)*(z1*OMEGA_q(4,1,Nf)+OMEGA_q(4,5,Nf))
+                val=val+(alpha**4)*(OMEGA_q(4,5,Nf))
                     !!! killed part
-                    !!!++zm1*OMEGA_q(4,2,Nf)+zm2*OMEGA_q(4,3,Nf)+zm3*OMEGA_q(4,4,Nf)
+                    !!!+z1*OMEGA_q(4,1,Nf)+zm1*OMEGA_q(4,2,Nf)+zm2*OMEGA_q(4,3,Nf)+zm3*OMEGA_q(4,4,Nf)
             end if
             end if
         end if
     end if
     
-    valueOfGD_type4_Q=dd/alpha*val
+    valueOfGD_type4_Q=val/alpha
         
 end function valueOfGD_type4_Q
 
 !!! expression for G*D, at given D,alpha, and mu
 !!! evaluated for type4 evolution for Quark
-!!!!
-!!!! At NNNLO I use NNLO solution. The reason is the negative values of constants at large-d. It is unphysical
-!!!! To be solved...
-!!!!
  function valueOfGD_type4_G(dd,alpha,mu)
     real(dp)::valueOfGD_type4_G,dd,alpha,mu
     integer::Nf
@@ -125,22 +117,22 @@ end function valueOfGD_type4_Q
             !!! therefore at large D the expression for R, diverges exponentially.
             !!! however, z[] \sim as, therefore, these terms contribute to as^4.
             !!! here I kill them. Istead I add their expansion up to p
-                val=val+(alpha**3)*(z1*OMEGA_g(3,1,Nf)+OMEGA_g(3,4,Nf)+p*OMEGA_g(3,5,Nf))
+                val=val+(alpha**3)*(OMEGA_g(3,4,Nf)+p*OMEGA_g(3,5,Nf))
                     !!! killed part
-                    !!!++zm1*OMEGA_g(3,2,Nf)+zm2*OMEGA_g(3,3,Nf)
+                    !!!+z1*OMEGA_g(3,1,Nf)+zm1*OMEGA_g(3,2,Nf)+zm2*OMEGA_g(3,3,Nf)
             if(orderZETA>=4) then
             !!! here is the same problem. So I just kill z[-1],z[-2],z[-3]
             !!! since they formally gives as^5
             !!! I do not add anything -- no need
-                val=val+(alpha**4)*(z1*OMEGA_g(4,1,Nf)+OMEGA_g(4,5,Nf))
+                val=val+(alpha**4)*(OMEGA_g(4,5,Nf))
                     !!! killed part
-                    !!!++zm1*OMEGA_g(4,2,Nf)+zm2*OMEGA_g(4,3,Nf)+zm3*OMEGA_g(4,4,Nf)
+                    !!!+z1*OMEGA_g(4,1,Nf)+zm1*OMEGA_g(4,2,Nf)+zm2*OMEGA_g(4,3,Nf)+zm3*OMEGA_g(4,4,Nf)
             end if
             end if
         end if
     end if
     
-    valueOfGD_type4_G=dd/alpha*val
+    valueOfGD_type4_G=val/alpha
         
 end function valueOfGD_type4_G
 

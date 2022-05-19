@@ -102,7 +102,7 @@ end function DNP
 function zetaNP(mu,b,f)
     real(dp),intent(in)::mu,b
     integer,intent(in)::f
-    real(dp)::zz,rad
+    real(dp)::zz,rad,w1,w2
     
     rad=DNP(mu,b,f)
     zz=Exp(-b**2/NPparam(1)**2)

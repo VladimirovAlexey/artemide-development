@@ -26,7 +26,7 @@ implicit none
 private
 
 !Current version of module
-character (len=5),parameter :: version="v2.04"
+character (len=5),parameter :: version="v2.06"
 character (len=7),parameter :: moduleName="TMDR"
 !Last appropriate verion of constants-file
 integer,parameter::inputver=10
@@ -209,6 +209,27 @@ subroutine TMDR_Initialize(file,prefix)
 	orderD=3
 	orderDresum=3
 	orderZETA=3
+      CASE ("N3LO") !!! same as NNNLO
+	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N3LO'
+	orderCusp=4
+	orderV=3
+	orderD=3
+	orderDresum=3
+	orderZETA=3
+      CASE ("N3LO+")
+	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N3LO+'
+	orderCusp=4
+	orderV=4
+	orderD=4
+	orderDresum=3
+	orderZETA=3
+      CASE ("N4LO")
+	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N3LO+'
+	orderCusp=5
+	orderV=4
+	orderD=4
+	orderDresum=4
+	orderZETA=4
       CASE DEFAULT
 	if(outputLevel>0) write(*,*) &
                 WarningString(' Initialize:try to set unknown ADs orders. Switch to NLO.',modulename)

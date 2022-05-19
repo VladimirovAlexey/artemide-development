@@ -265,6 +265,8 @@ subroutine SetVnkQuark()
     integer::n
     real(dp)::B1,B2,G1,G2,G3,gg1,gg2,gg3,gg4,dd2,dd3
         
+    v_nk_Q_internal=0d0*v_nk_Q_internal
+        
     do n=NfMIN,NfMAX
         B1=betaQCD(1,n)/betaQCD(0,n)
         B2=betaQCD(2,n)/betaQCD(0,n)
@@ -305,7 +307,7 @@ subroutine SetVnkQuark()
                 - 3d0*B1*G1*gg1 + 6d0*G1**2*gg1 - 6d0*G2*gg1 + 3d0*B1*gg2 &
                 - 6d0*G1*gg2 + 6d0*gg3)
         v_nk_Q_internal(3,0,n)=-(G1**3*gg1) + 2d0*G1*G2*gg1 - G3*gg1 + G1**2*gg2 &
-                - G2*gg2 - G1*gg3 + gg4 + ((-5d0*dd2**2)/3d0 - dd2*G1*gg1 + dd2*gg2)*betaQCD(0,n)
+                - G2*gg2 - G1*gg3 + gg4 + ((-5d0*dd2**2)/3d0 - dd2*G1*gg1 + dd2*gg2)*betaQCD(0,n)        
         
     end do
     
@@ -421,10 +423,10 @@ subroutine SetOMEGAnkQuark()
                 +(2d0*G1-B1)*(G1*gg1-gg2)/2d0-(G2*gg1-gg3)/2d0)*commonF
         !! * 1
         OMEGA_nk_Q_internal(3,4,n)=((G1**2)*gg1-G2*gg1-G1*gg2+gg3)*commonF
-        !! * p (leading term of expansion z[-1]+z[-2] parts.)
+        !! * p (leading term of expansion z[1]+z[-1]+z[-2] parts.)
         !! this is used to cure the groving tail
-        OMEGA_nk_Q_internal(3,5,n)=(B1*B2 - 2*B3 - B1**2*G1 + B2*G1 - 5*G1**3 + B1*G2 + 9*G1*G2 - 4*G3 &
-        - 6*B1*G1*gg1 + 18*G1**2*gg1 - 12*G2*gg1 + 6*B1*gg2 - 18*G1*gg2 + 12*gg3)/12d0*commonF
+        OMEGA_nk_Q_internal(3,5,n)=(-G1**3 + 2*G1*G2 - G3 - B1*G1*gg1 + 3*G1**2*gg1 &
+                        - 2*G2*gg1 + B1*gg2 - 3*G1*gg2 + 2*gg3)/2d0*commonF
         
         !! 4-loop
         !! * z_1

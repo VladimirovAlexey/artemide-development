@@ -1326,6 +1326,7 @@ R[b,(\mu,\zeta)\to(\mu,\zeta_{\mu})]&=&\exp\(-\mathcal{D}(\mu,b)\ln\(\frac{\zeta
 \begin{itemize}
 \item The small values of $b$ are frizzed, at $10^{-6}$.
 \item \texttt{TMDR{\_}Rzeta}, for the evolution of type 4. For $b>20$GeV$^{-1}$ the check of $g\mathcal{D}(\zeta_\mu)>g\mathcal{D}(\zeta_\mu^{\text{NP}})$ is performed. If it fails then $g\mathcal{D}(\zeta_\mu)=g\mathcal{D}(\zeta_\mu^{\text{NP}})$. It is done is order to avoid possible ambiguities $0/0$, since at very large $b$ evolution factor is very small, and change of sign in $g\mathcal{D}(\zeta_\mu)-g\mathcal{D}(\zeta_\mu^{\text{NP}})$ could lead to infinite values of the function.
+\item For very large positive values of $\mathcal{D}$ (i.e. for $b>25$GeV$^{-1}$ or so), the exact solution for $\zeta$-line diverges exponentially at 3- and 4- loops. It is because the coefficient infront of rising terms is negative. To prevent the divergence, the corresponding terms are expanded in $a_s$ up to needed power ($\alpha_s^6$).
 \end{itemize}
 
 \subsection{Initialization}
@@ -3364,6 +3365,7 @@ doi:10.1007/JHEP05(2019)125
 \begin{itemize}
 \item[\textbf{Ver.2.06}]
 \begin{itemize}
+	\item \textbf{TMD\_AD:AD\_secondary}, added 4-loop expressions for RAD, and zeta-lines.
 	\item \textbf{TMD\_AD:AD\_primary}, added 4-loop expressions for RAD, and anomalous dimensions, 5-loop $\Gamma_{\text{cusp}}$. The values are taken from [2202.04660, 2205.02249, 1812.11818]
 	\item \textbf{TMDs}, \textbf{TMDs\_inKT}, \textbf{harpy} Added \textbf{wgtTMDPDF} routines.
 	\item \textbf{aTMDe\_control} Added \textbf{wgtTMDPDF} routines.

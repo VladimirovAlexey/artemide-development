@@ -112,14 +112,14 @@ subroutine SetGammaCuspQuark()
     !! 5-loop
     do n=NfMIN,NfMAX
         if(n<=3) then
-            GammaCuspQ_internal(4,n)=4d0*CF*407373d0
+            GammaCuspQ_internal(4,n)=4d0*CF*32417.5d0
         else if(n==4) then
-            GammaCuspQ_internal(4,n)=4d0*CF*250691d0
+            GammaCuspQ_internal(4,n)=4d0*CF*19949.2d0
         else
-            GammaCuspQ_internal(4,n)=4d0*CF*156682d0
+            GammaCuspQ_internal(4,n)=4d0*CF*12468.3d0
         end if
     end do    
-    
+        
 end subroutine SetGammaCuspQuark
 
 !!!! sets the values of cusp anomalous dimension
@@ -157,11 +157,11 @@ subroutine SetGammaCuspGluon()
     !! 5-loop
     do n=NfMIN,NfMAX
         if(n<=3) then
-            GammaCuspG_internal(4,n)=4d0*CA*407373d0
+            GammaCuspG_internal(4,n)=4d0*CA*32417.5d0
         else if(n==4) then
-            GammaCuspG_internal(4,n)=4d0*CA*250691d0
+            GammaCuspG_internal(4,n)=4d0*CA*19949.2d0
         else
-            GammaCuspG_internal(4,n)=4d0*CA*156682d0
+            GammaCuspG_internal(4,n)=4d0*CA*12468.3d0
         end if
     end do
     
@@ -267,7 +267,7 @@ subroutine SetDn0Quark()
     
     !! 4-loop
     do n=NfMIN,NfMAX
-        d_nk_Q_internal(4,0,n)=350.834d0 - 2428.14d0*n + 378.306d0*n**2 - 8.07192d0**n**3
+        d_nk_Q_internal(4,0,n)=350.834d0 - 2428.14d0*n + 378.306d0*n**2 - 8.07192d0*n**3
     end do  
     
 end subroutine SetDn0Quark
