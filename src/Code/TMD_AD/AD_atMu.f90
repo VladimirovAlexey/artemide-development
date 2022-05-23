@@ -160,8 +160,12 @@ function zetaMUpert(mu,bt,f)
   
     LL=2_dp*LOG(bt*mu*C0_inv_const)
     alpha=As(mu)
-    Nf=ActiveNf(mu)
-  
+    Nf=ActiveNf(mu)    
+    
+    !!!!! Important!!!!
+    !! the perturbative value for zeta, must be taken 1-order higher
+    !! because there doulbe logarithms ~~beta0 L
+    !! For 4-loop it requires 5-loop rad... The value which contains it is set to zero v(4,0)=0.
     if(f==0) then !!! gluon
         val=vnk_g(0,0,Nf)
         
@@ -176,11 +180,11 @@ function zetaMUpert(mu,bt,f)
     else !!!! quark
         val=vnk_q(0,0,Nf)
         
-        do n=1,orderZETA-1
+        do n=1,orderZETA
             iter = 0_dp
             do k=0,n+1
                 iter=iter+(LL**k)*vnk_q(n,k,Nf)
-            end do
+            end do            
             val=val+(alpha**n)*iter
         end do
     end if

@@ -263,13 +263,14 @@ end subroutine SetDnklGluon
 !!!! zeta=C0 mu/b*exp(-v), v=a^n L^k v^{(nk)}
 subroutine SetVnkQuark()
     integer::n
-    real(dp)::B1,B2,G1,G2,G3,gg1,gg2,gg3,gg4,dd2,dd3
+    real(dp)::B1,B2,B3,G1,G2,G3,gg1,gg2,gg3,gg4,dd2,dd3,dd4
         
     v_nk_Q_internal=0d0*v_nk_Q_internal
         
     do n=NfMIN,NfMAX
         B1=betaQCD(1,n)/betaQCD(0,n)
         B2=betaQCD(2,n)/betaQCD(0,n)
+        B3=betaQCD(3,n)/betaQCD(0,n)
         
         G1=GammaCusp_q(1,n)/GammaCusp_q(0,n)
         G2=GammaCusp_q(2,n)/GammaCusp_q(0,n)
@@ -282,6 +283,7 @@ subroutine SetVnkQuark()
         
         dd2=dnk_q(2,0,n)/GammaCusp_q(0,n)
         dd3=dnk_q(3,0,n)/GammaCusp_q(0,n)
+        dd4=dnk_q(4,0,n)/GammaCusp_q(0,n)
         
         !! 1-loop        
         v_nk_Q_internal(0,1,n)=0d0
@@ -307,7 +309,21 @@ subroutine SetVnkQuark()
                 - 3d0*B1*G1*gg1 + 6d0*G1**2*gg1 - 6d0*G2*gg1 + 3d0*B1*gg2 &
                 - 6d0*G1*gg2 + 6d0*gg3)
         v_nk_Q_internal(3,0,n)=-(G1**3*gg1) + 2d0*G1*G2*gg1 - G3*gg1 + G1**2*gg2 &
-                - G2*gg2 - G1*gg3 + gg4 + ((-5d0*dd2**2)/3d0 - dd2*G1*gg1 + dd2*gg2)*betaQCD(0,n)        
+                - G2*gg2 - G1*gg3 + gg4 + ((-5d0*dd2**2)/3d0 - dd2*G1*gg1 + dd2*gg2)*betaQCD(0,n)     
+                
+        !! 5-loop partially
+        v_nk_Q_internal(4,5,n)=3d0*(betaQCD(0,n)**4)/160d0
+        v_nk_Q_internal(4,4,n)=(betaQCD(0,n)**3)/720d0*(104*B1 + 57*G1)
+        v_nk_Q_internal(4,3,n)=betaQCD(0,n)**2/24d0*(2d0*B1**2 + 4d0*B2 + 5d0*B1*G1 - 3d0*G1**2 + 6d0*G2 &
+                + ((511d0*dd2)/15d0 - 9d0*G1*gg1 + 9d0*gg2)*betaQCD(0,n))
+        v_nk_Q_internal(4,2,n)=betaQCD(0,n)/12d0*(B3 + B2*G1 - B1*G1**2 + G1**3 + 2d0*B1*G2 - 3d0*G1*G2 &
+                + 3*G3 + (35d0*B1*dd2 + 33d0*dd3 - 24d0*dd2*G1 - 12d0*B1*G1*gg1 + 13d0*G1**2*gg1 &
+                - 14d0*G2*gg1 + 12d0*B1*gg2 - 13d0*G1*gg2 + 14d0*gg3)*betaQCD(0,n))
+        v_nk_Q_internal(4,1,n)=betaQCD(0,n)/6d0*(5*B2*dd2 + 8*B1*dd3 + 11*dd4 - 6*B1*dd2*G1 - 9*dd3*G1 &
+                + 7*dd2*G1**2 - 7*dd2*G2 - 3*B2*G1*gg1 + 6*B1*G1**2*gg1 - 9*G1**3*gg1 - 6*B1*G2*gg1 &
+                +  18*G1*G2*gg1 - 9*G3*gg1 + 3*B2*gg2 - 6*B1*G1*gg2 + 9*G1**2*gg2 - 9*G2*gg2 + 6*B1*gg3 &
+                - 9*G1*gg3 + 9*gg4 + (-29*dd2**2 - 16*dd2*G1*gg1 + 16*dd2*gg2)*betaQCD(0,n))
+        v_nk_Q_internal(4,0,n)=0d0
         
     end do
     
@@ -317,13 +333,14 @@ end subroutine SetVnkQuark
 !!!! zeta=C0 mu/b*exp(-v), v=a^n L^k v^{(nk)}
 subroutine SetVnkGluon()
     integer::n
-    real(dp)::B1,B2,G1,G2,G3,gg1,gg2,gg3,gg4,dd2,dd3
+    real(dp)::B1,B2,B3,G1,G2,G3,gg1,gg2,gg3,gg4,dd2,dd3,dd4
     
     v_nk_G_internal=0d0*v_nk_G_internal
         
     do n=NfMIN,NfMAX
         B1=betaQCD(1,n)/betaQCD(0,n)
         B2=betaQCD(2,n)/betaQCD(0,n)
+        B2=betaQCD(3,n)/betaQCD(0,n)
         
         G1=GammaCusp_g(1,n)/GammaCusp_g(0,n)
         G2=GammaCusp_g(2,n)/GammaCusp_g(0,n)
@@ -336,6 +353,7 @@ subroutine SetVnkGluon()
         
         dd2=dnk_g(2,0,n)/GammaCusp_g(0,n)
         dd3=dnk_g(3,0,n)/GammaCusp_g(0,n)
+        dd4=dnk_g(4,0,n)/GammaCusp_g(0,n)
         
         !! 1-loop        
         v_nk_G_internal(0,1,n)=0d0
@@ -362,6 +380,20 @@ subroutine SetVnkGluon()
                 - 6d0*G1*gg2 + 6d0*gg3)
         v_nk_G_internal(3,0,n)=-(G1**3*gg1) + 2d0*G1*G2*gg1 - G3*gg1 + G1**2*gg2 &
                 - G2*gg2 - G1*gg3 + gg4 + ((-5d0*dd2**2)/3d0 - dd2*G1*gg1 + dd2*gg2)*betaQCD(0,n)
+                
+        !! 5-loop partially
+        v_nk_G_internal(4,5,n)=3d0*(betaQCD(0,n)**4)/160d0
+        v_nk_G_internal(4,4,n)=(betaQCD(0,n)**3)/720d0*(104*B1 + 57*G1)
+        v_nk_G_internal(4,3,n)=betaQCD(0,n)**2/24d0*(2d0*B1**2 + 4d0*B2 + 5d0*B1*G1 - 3d0*G1**2 + 6d0*G2 &
+                + ((511d0*dd2)/15d0 - 9d0*G1*gg1 + 9d0*gg2)*betaQCD(0,n))
+        v_nk_G_internal(4,2,n)=betaQCD(0,n)/12d0*(B3 + B2*G1 - B1*G1**2 + G1**3 + 2d0*B1*G2 - 3d0*G1*G2 &
+                + 3*G3 + (35d0*B1*dd2 + 33d0*dd3 - 24d0*dd2*G1 - 12d0*B1*G1*gg1 + 13d0*G1**2*gg1 &
+                - 14d0*G2*gg1 + 12d0*B1*gg2 - 13d0*G1*gg2 + 14d0*gg3)*betaQCD(0,n))
+        v_nk_G_internal(4,1,n)=betaQCD(0,n)/6d0*(5*B2*dd2 + 8*B1*dd3 + 11*dd4 - 6*B1*dd2*G1 - 9*dd3*G1 &
+                + 7*dd2*G1**2 - 7*dd2*G2 - 3*B2*G1*gg1 + 6*B1*G1**2*gg1 - 9*G1**3*gg1 - 6*B1*G2*gg1 &
+                +  18*G1*G2*gg1 - 9*G3*gg1 + 3*B2*gg2 - 6*B1*G1*gg2 + 9*G1**2*gg2 - 9*G2*gg2 + 6*B1*gg3 &
+                - 9*G1*gg3 + 9*gg4 + (-29*dd2**2 - 16*dd2*G1*gg1 + 16*dd2*gg2)*betaQCD(0,n))
+        v_nk_G_internal(4,0,n)=0d0
         
     end do
     
