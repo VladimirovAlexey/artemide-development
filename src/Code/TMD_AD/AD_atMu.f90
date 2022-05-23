@@ -156,37 +156,43 @@ function zetaMUpert(mu,bt,f)
   integer::Nf,n,k
   real(dp)::alpha,LL,val,iter
   
-  if(orderZETA<0) then
+  if(orderZETA>0) then !!! NLO,NNLO,...
+  
+    LL=2_dp*LOG(bt*mu*C0_inv_const)
+    alpha=As(mu)
+    Nf=ActiveNf(mu)
+  
+    if(f==0) then !!! gluon
+        val=vnk_g(0,0,Nf)
+        
+        do n=1,orderZETA-1
+            iter = 0_dp
+            do k=0,n+1           
+                iter=iter+(LL**k)*vnk_g(n,k,Nf)            
+            end do
+            val=val+(alpha**n)*iter
+        end do   
+        
+    else !!!! quark
+        val=vnk_q(0,0,Nf)
+        
+        do n=1,orderZETA-1
+            iter = 0_dp
+            do k=0,n+1
+                iter=iter+(LL**k)*vnk_q(n,k,Nf)
+            end do
+            val=val+(alpha**n)*iter
+        end do
+    end if
+  
+    zetaMUpert=mu*C0_const/bT*EXP(-val)
+  
+  else if (orderZETA==0) then   !!! LO 
+    zetaMUpert=mu*C0_const/bT
+    
+  else !!!! just in case
     zetaMUpert=1_dp
-    return
   end if
-  
-  LL=2_dp*LOG(bt*mu*C0_inv_const)
-  alpha=As(mu)
-  Nf=ActiveNf(mu)
-  
-  if(f==0) then !!! gluon
-    val=vnk_g(0,0,Nf)
-    
-    do n=1,orderZETA-1
-        iter = 0_dp
-        do k=0,orderZETA            
-            iter=iter+(LL**k)*vnk_g(n,k,Nf)            
-        end do
-        val=val+(alpha**n)*iter
-    end do   
-  else !!!! quark
-    val=vnk_q(0,0,Nf)
-    
-    do n=1,orderZETA-1
-        iter = 0_dp
-        do k=0,orderZETA
-            iter=iter+(LL**k)*vnk_q(n,k,Nf)
-        end do
-        val=val+(alpha**n)*iter
-    end do
-  end if
-  zetaMUpert=mu*C0_const/bT*EXP(-val)
   
 end function zetaMUpert
  

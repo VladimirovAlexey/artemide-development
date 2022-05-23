@@ -318,6 +318,8 @@ end subroutine SetVnkQuark
 subroutine SetVnkGluon()
     integer::n
     real(dp)::B1,B2,G1,G2,G3,gg1,gg2,gg3,gg4,dd2,dd3
+    
+    v_nk_G_internal=0d0*v_nk_G_internal
         
     do n=NfMIN,NfMAX
         B1=betaQCD(1,n)/betaQCD(0,n)

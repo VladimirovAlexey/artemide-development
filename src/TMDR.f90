@@ -166,7 +166,7 @@ subroutine TMDR_Initialize(file,prefix)
 	orderV=0
 	orderD=0
 	orderDresum=0
-	orderZETA=-1
+	orderZETA=0
       CASE ("LO+")
 	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: LO+'
 	orderCusp=1
