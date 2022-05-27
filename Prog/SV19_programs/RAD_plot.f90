@@ -38,7 +38,7 @@ do i=1,40
   b(i)=0.005d0+i/40d0
 end do
 do i=41,numB
-  b(i)=bMax+(bMax-1d0)*(i-numB)/(numB-20)
+  b(i)=bMax+(bMax-1d0)*(i-numB)/(numB-40)
 end do
 
 allocate(central(1:numB))
@@ -54,15 +54,17 @@ do i=1,numB
   !!call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0/))!sv19
   call artemide_SetNPparameters_TMDR((/2d0,0.0439d0/))
   central(i)=DNP(mu, b(i),1)
+  !central(i)=TMDR_Rzeta(b(i),mu,mu**2,1)
   !!call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0+0.0032d0/))!! sv19
   !!call artemide_SetNPparameters_TMDR((/2d0,0.0396753d0+0.0007027d0/))!! sv19+EIC
   !!deviation(i)=DNP(mu, b(i),1)-central(i)
   
   call artemide_SetNPparameters_TMDR((/2d0,0.0439d0+0.0041d0/))
   deviation1(i)=DNP(mu,b(i),1)
+  !deviation1(i)=TMDR_Rzeta(b(i),mu,mu**2,1)
   call artemide_SetNPparameters_TMDR((/2d0,0.0439d0-0.0044d0/))
   deviation2(i)=DNP(mu,b(i),1)
-  
+  !deviation2(i)=TMDR_Rzeta(b(i),mu,mu**2,1)
 end do
 
 

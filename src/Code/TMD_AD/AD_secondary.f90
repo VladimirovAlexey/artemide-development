@@ -601,3 +601,153 @@ subroutine SetOMEGAnkGluon()
     end do
     
 end subroutine SetOMEGAnkGluon
+
+subroutine SetBetaRoots()
+    integer::n,i,j
+    real(dp)::B1,B2,B3,B4
+    COMPLEX*16 :: a,answ
+    
+    !!!!! TABLES OF ROOTS ARE COMPUTED BY MATHEMATICA
+    !!!!! for pairs of complex roots the root with Im>0 is first
+    !!! 3-loop
+    COMPLEX*16,dimension(0:6),parameter:: root21=[&
+    (-0.03570178508925446272313615680784,0.080160885478465432575800740549553),&
+    (-0.038675539164595526336887677383148,0.086322238704594954924135437271609),&
+    (-0.042909558259571733587612197093758,0.094759912532946789061512692156804),&
+    (-0.049702303908879109500388299249288,0.107277462500385745931517856995518),&
+    (-0.06316365127831199015631408649683,0.12852249664419349413270267645244),&
+    (-0.106868666188965093663629849524,0.17594897561664481697781266179055),&
+    (-0.21268639236122698844346103757164,0.)]
+    COMPLEX*16,dimension(0:6),parameter:: root22=[&
+    (-0.03570178508925446272313615680784,-0.080160885478465432575800740549553),&
+    (-0.038675539164595526336887677383148,-0.086322238704594954924135437271609),&
+    (-0.042909558259571733587612197093758,-0.094759912532946789061512692156804),&
+    (-0.049702303908879109500388299249288,-0.107277462500385745931517856995518),&
+    (-0.06316365127831199015631408649683,-0.12852249664419349413270267645244),&
+    (-0.106868666188965093663629849524,-0.17594897561664481697781266179055),&
+    (1.0126863923612269884434610375716,0.)]
+    
+    !!! 4-loop
+    COMPLEX*16,dimension(0:6),parameter:: root31=[&
+    -0.07241478299428282,-0.07680070354530623,-0.08208483490867254,&
+    -0.08849217512975707,-0.09621061277365012,-0.10508908839765044,-0.11362023213019258]
+    COMPLEX*16,dimension(0:6),parameter:: root32=[&
+    (0.011782712908695248,0.07110324448715928),&
+    (0.012965518598492015,0.07588307304102093),&
+    (0.014740652117464371,0.08195773114463775),&
+    (0.01762023160041607,0.09000832305675134),&
+    (0.02281953013830925,0.10128572857488127),&
+    (0.0338021542840822,0.11821077095791804),&
+    (0.0633829862094608,0.1445765143534799)]
+    COMPLEX*16,dimension(0:6),parameter:: root33=[&
+    (0.011782712908695248,-0.07110324448715928),&
+    (0.012965518598492015,-0.07588307304102093),&
+    (0.014740652117464371,-0.08195773114463775),&
+    (0.01762023160041607,-0.09000832305675134),&
+    (0.02281953013830925,-0.10128572857488127),&
+    (0.0338021542840822,-0.11821077095791804),&
+    (0.0633829862094608,-0.1445765143534799)]
+    
+    !!! 5-loop
+    COMPLEX*16,dimension(0:6),parameter:: root41=[&
+    (-0.05591091756225722,0.04182926526696407),&
+    (-0.06136700935148767,0.044883180457591494),&
+    (-0.06931025598997154,0.0486907342529324),&
+    (-0.08235582183306786,0.05320124554862426),&
+    (-0.10910510735854696,0.05533447765266648),&
+    (-0.12511060289367348,0.),&
+    (-0.11397406563300194,0.)]
+    COMPLEX*16,dimension(0:6),parameter:: root42=[&
+    (-0.05591091756225722,-0.04182926526696407),&
+    (-0.06136700935148767,-0.044883180457591494),&
+    (-0.06931025598997154,-0.0486907342529324),&
+    (-0.08235582183306786,-0.05320124554862426),&
+    (-0.10910510735854696,-0.05533447765266648),&
+    (-0.2793998493629861,0),&
+    (-9.12266237853665,0)]
+     COMPLEX*16,dimension(0:6),parameter:: root43=[&
+    (0.028690317392283806,0.05811172924003517),&
+    (0.03054701511242339,0.06261303090284312),&
+    (0.03290023100445615,0.06851832657672867),&
+    (0.03598915425211804,0.07671897555874341),&
+    (0.040205175247139464,0.08906642425176058),&
+    (0.0462770317488488,0.10970531146206083),&
+    (0.06410815653997126,0.1438532871828738)]
+    COMPLEX*16,dimension(0:6),parameter:: root44=[&
+    (0.028690317392283806,-0.05811172924003517),&
+    (0.03054701511242339,-0.06261303090284312),&
+    (0.03290023100445615,-0.06851832657672867),&
+    (0.03598915425211804,-0.07671897555874341),&
+    (0.040205175247139464,-0.08906642425176058),&
+    (0.0462770317488488,-0.10970531146206083),&
+    (0.06410815653997126,-0.1438532871828738)]
+    
+    betaRoots_internal=0d0*betaRoots_internal
+    do n=NfMIN,NfMAX
+        B1=betaQCD(1,n)/betaQCD(0,n)        
+        !!! 2-loop
+        !!! 1 real root
+        betaRoots_internal(1,1,n)=-1d0/B1        
+    end do
+    !!! rest roots are tabulated
+    if(NfMIN>=0 .and. NfMAX<=6) then
+        !!! 3-loop
+        betaRoots_internal(2,1,NfMIN:NfMAX)=root21(NfMIN:NfMAX)
+        betaRoots_internal(2,2,NfMIN:NfMAX)=root22(NfMIN:NfMAX)
+        !!! 4-loop
+        betaRoots_internal(3,1,NfMIN:NfMAX)=root31(NfMIN:NfMAX)
+        betaRoots_internal(3,2,NfMIN:NfMAX)=root32(NfMIN:NfMAX)
+        betaRoots_internal(3,3,NfMIN:NfMAX)=root33(NfMIN:NfMAX)        
+        !!! 5-loop
+        betaRoots_internal(4,1,NfMIN:NfMAX)=root41(NfMIN:NfMAX)
+        betaRoots_internal(4,2,NfMIN:NfMAX)=root42(NfMIN:NfMAX)
+        betaRoots_internal(4,3,NfMIN:NfMAX)=root43(NfMIN:NfMAX)
+        betaRoots_internal(4,4,NfMIN:NfMAX)=root44(NfMIN:NfMAX)
+    else
+        !!! 3-loop
+        betaRoots_internal(2,1,0:6)=root21(0:6)
+        betaRoots_internal(2,2,0:6)=root22(0:6)
+        !!! 4-loop
+        betaRoots_internal(3,1,0:6)=root31(0:6)
+        betaRoots_internal(3,2,0:6)=root32(0:6)
+        betaRoots_internal(3,3,0:6)=root33(0:6)   
+        !!! 5-loop
+        betaRoots_internal(4,1,0:6)=root41(0:6)
+        betaRoots_internal(4,2,0:6)=root42(0:6)
+        betaRoots_internal(4,3,0:6)=root43(0:6)
+        betaRoots_internal(4,4,0:6)=root44(0:6)
+        write(*,*) ErrorString('Beta-roots are not defined for Nf<0, and Nf>6.',moduleName)
+        write(*,*) 'All cases beyond:  [Nf(min),Nf(max)] = [', NfMIN, ', ', NfMAX, '],  are ignored.'
+    end if
+    
+    
+    !!! checking procedure
+    do n=NfMIN,NfMAX
+        B1=betaQCD(1,n)/betaQCD(0,n)
+        B2=betaQCD(2,n)/betaQCD(0,n)
+        B3=betaQCD(3,n)/betaQCD(0,n)
+        B4=betaQCD(4,n)/betaQCD(0,n)
+        
+        
+        do i=1,4
+        do j=1,i
+            
+            a=betaRoots_internal(i,j,n)
+            answ=1d0+B1*a
+            if(i>1) answ=answ+B2*a**2
+            if(i>2) answ=answ+B3*a**3
+            if(i>3) answ=answ+B4*a**4
+            
+            !!! the test of roots must be relative. I.e. for large roots, absolute precision decreses
+            if(abs(dreal(answ)/max(1.,abs(a**i)))<0.000001 .and. abs(aimag(answ)/max(1.,abs(a**i)))<0.000001 )then
+                !write(*,'(I1,"-loop , root-", I1, " Nf=",I2, ": PASS")') i,j,n
+            else
+                write(*,*) ErrorString('The beta-root is incorrect:',moduleName)
+                write(*,'(I1,"-loop , root-", I1, " Nf=",I2, ": root incorrect")') i,j,n
+                write(*,*) "EQN yealds=", answ
+            end if
+        end do
+        end do
+    end do
+
+end subroutine SetBetaRoots

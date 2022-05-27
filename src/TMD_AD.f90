@@ -59,6 +59,12 @@ real(dp),dimension(0:4,NfMIN:NfMAX)::GammaCuspG_internal
 real(dp),dimension(1:4,NfMIN:NfMAX)::GammaVQ_internal
 real(dp),dimension(1:4,NfMIN:NfMAX)::GammaVG_internal
 
+!!!! Roots of beta-function betaRoots(n,k,Nf) \beta(a)=0
+!!!! Depending on Nf and k, these can be complex or real. Each case special
+COMPLEX*16,dimension(1:4,1:4,NfMIN:NfMAX)::betaRoots_internal
+!!!! coefficients of integral Gamma/2
+COMPLEX*16,dimension(1:4,0:4,NfMIN:NfMAX)::GammaIntegral_Q_internal
+COMPLEX*16,dimension(1:4,0:4,NfMIN:NfMAX)::GammaIntegral_G_internal
 
 !!! d^{(n,k)} for quark/gluon (up to 4 loops) (numeration starts from 1)
 real(dp),dimension(1:4,0:4,NfMIN:NfMAX)::d_nk_Q_internal
@@ -92,7 +98,7 @@ integer::orderZETA      !for zeta-line
 public:: TMD_AD_Initialize
 !public:: betaQCD,GammaCusp_q,GammaCusp_g,gammaV_q, gammaV_g,dnk_q,dnk_g,dnkl_q,dnkl_g
 !public:: vnk_q,vnk_g,OMEGA_q,OMEGA_g,pFACTOR_q,pFACTOR_g
-public:: zetaMUpert,gammaV,Dpert,Dresum,GammaCusp,zetaSL
+public:: zetaMUpert,gammaV,Dpert,Dresum,GammaCusp,zetaSL,RADEvolution
 
 contains
 
@@ -104,9 +110,13 @@ INCLUDE 'Code/TMD_AD/AD_secondary.f90'
 INCLUDE 'Code/TMD_AD/AD_atMu.f90'
 !!! Routines for the exact zeta-line
 INCLUDE 'Code/TMD_AD/exactZetaLine.f90'
+!!! Routines for the analytical evaluation of RGE-integrals
+INCLUDE 'Code/TMD_AD/AD_Integral.f90'
 
 subroutine TMD_AD_Initialize(oCusp,oV,oD,oDresum,oZETA)
     integer,intent(in)::oCusp,oV,oD,oDresum,oZETA
+    
+    real(dp)::aa
     
     if(started) return
     
@@ -135,6 +145,11 @@ subroutine TMD_AD_Initialize(oCusp,oV,oD,oDresum,oZETA)
     call SetVnkGluon()
     call SetOMEGAnkQuark()
     call SetOMEGAnkGluon()
+    
+    !---------Set values for integrals
+    call SetBetaRoots()
+    call SetIntegralCoefficeintsGAMMA_Q()
+    call SetIntegralCoefficeintsGAMMA_G()    
     
     started=.true.
 

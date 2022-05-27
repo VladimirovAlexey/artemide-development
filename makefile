@@ -70,7 +70,8 @@ TMD_ADFiles=\
 $(SOURCEDIR)/Code/TMD_AD/AD_primary.f90 \
 $(SOURCEDIR)/Code/TMD_AD/AD_secondary.f90 \
 $(SOURCEDIR)/Code/TMD_AD/AD_atMu.f90 \
-$(SOURCEDIR)/Code/TMD_AD/exactZetaLine.f90
+$(SOURCEDIR)/Code/TMD_AD/exactZetaLine.f90 \
+$(SOURCEDIR)/Code/TMD_AD/AD_Integral.f90 
 
 TMDRFiles=\
 $(SOURCEDIR)/Code/TMDR/type1.f90 \

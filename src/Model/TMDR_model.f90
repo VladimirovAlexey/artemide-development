@@ -105,8 +105,8 @@ function zetaNP(mu,b,f)
     real(dp)::zz,rad,w1,w2
     
     rad=DNP(mu,b,f)
-    zz=Exp(-b**2/NPparam(1)**2)
-    !zz=0d0*Exp(-b**2/0.5d0)
+    !zz=Exp(-b**2/NPparam(1)**2)
+    zz=0d0*Exp(-b**2/0.5d0)
     zetaNP=zetaMUpert(mu,b,f)*zz+zetaSL(mu,rad,f)*(1d0-zz)
 end function zetaNP
  
