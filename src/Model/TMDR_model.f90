@@ -13,7 +13,7 @@
 module TMDR_model
 use aTMDe_Numerics
 use IO_functions
-use TMD_AD, only : Dresum,Dpert,zetaMUpert,zetaSL
+use TMD_AD, only : Dresum,Dpert,zetaMUpert,zetaSL,RADEvolution
 implicit none
 
 private
@@ -80,17 +80,8 @@ function DNP(mu,b,f)
     real(dp)::bSTAR
     
     bSTAR=b/SQRT(1_dp+b**2/NPparam(1)**2)    
-    DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b
-    
-    !!bSTAR=1.123*(1-exp(-b**4/1.123**4))**(0.25)
-    !!DNP=Dresum(mu,bSTAR,1)+0.25*NPparam(2)*b**2
-    
-!     bSTAR=b/SQRT(1_dp+b**2/4d0)    
-!     if(b>2d0) then
-!         DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b+Abs(NPparam(1))*0.01d0*(b-2d0)**2d0
-!     else
-!         DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b
-!     end if
+    DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b   
+    !DNP=Dresum(C0_const/bSTAR,bSTAR,1)+RADEvolution(C0_const/bSTAR,mu,1)+NPparam(2)*bSTAR*b   
     
     
 end function DNP
@@ -105,8 +96,8 @@ function zetaNP(mu,b,f)
     real(dp)::zz,rad,w1,w2
     
     rad=DNP(mu,b,f)
-    !zz=Exp(-b**2/NPparam(1)**2)
-    zz=0d0*Exp(-b**2/0.5d0)
+    zz=Exp(-b**2/NPparam(1)**2)
+    !zz=Exp(-b**2/0.01d0)
     zetaNP=zetaMUpert(mu,b,f)*zz+zetaSL(mu,rad,f)*(1d0-zz)
 end function zetaNP
  

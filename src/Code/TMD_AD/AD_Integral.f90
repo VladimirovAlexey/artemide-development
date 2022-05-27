@@ -89,7 +89,7 @@ subroutine SetIntegralCoefficeintsGAMMA_G()
                 end do
                 
                 !!! numerator is Gamma at root
-                GammaIntegral_Q_internal(i,j,n)=1d0
+                GammaIntegral_G_internal(i,j,n)=1d0
                 if(i>0) GammaIntegral_G_internal(i,j,n)=GammaIntegral_G_internal(i,j,n)+G1*betaRoots_internal(i,j,n)
                 if(i>1) GammaIntegral_G_internal(i,j,n)=GammaIntegral_G_internal(i,j,n)+G2*betaRoots_internal(i,j,n)**2
                 if(i>2) GammaIntegral_G_internal(i,j,n)=GammaIntegral_G_internal(i,j,n)+G3*betaRoots_internal(i,j,n)**3
@@ -119,9 +119,8 @@ function GammaIntegral_Q(a0,a1,loop,nf)
     inter=LOG(a1/a0)
     !!! sum over roots
     do i=1,loop
-        inter=inter+GammaIntegral_Q_internal(loop,i,nf)*LOG((a1-betaRoots_internal(loop,i,nf))/(a0-betaRoots_internal(loop,i,nf)))
-    end do
-!   
+        inter=inter+GammaIntegral_Q_internal(loop,i,nf)*LOG((a1-betaRoots_internal(loop,i,nf))/(a0-betaRoots_internal(loop,i,nf)))        
+    end do    
     !!!! common factor (I use index=1, it is not defined for loop=0)
     GammaIntegral_Q=GammaIntegral_Q_internal(1,0,nf)*dreal(inter)
 end function GammaIntegral_Q
@@ -142,10 +141,9 @@ function GammaIntegral_G(a0,a1,loop,nf)
     inter=LOG(a1/a0)
     !!! sum over roots
     do i=1,loop
-        inter=inter+GammaIntegral_G_internal(loop,i,nf)*LOG((a1-betaRoots_internal(loop,i,nf))/(a0-betaRoots_internal(loop,i,nf)))
+        inter=inter+GammaIntegral_G_internal(loop,i,nf)*LOG((a1-betaRoots_internal(loop,i,nf))/(a0-betaRoots_internal(loop,i,nf)))       
     end do
-!   
-    GammaIntegral_G=GammaIntegral_G_internal(loop,0,nf)*dreal(inter)
+    GammaIntegral_G=GammaIntegral_G_internal(1,0,nf)*dreal(inter)
 end function GammaIntegral_G
 
 

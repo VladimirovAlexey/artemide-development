@@ -149,7 +149,7 @@ subroutine TMD_AD_Initialize(oCusp,oV,oD,oDresum,oZETA)
     !---------Set values for integrals
     call SetBetaRoots()
     call SetIntegralCoefficeintsGAMMA_Q()
-    call SetIntegralCoefficeintsGAMMA_G()    
+    call SetIntegralCoefficeintsGAMMA_G()   
     
     started=.true.
 

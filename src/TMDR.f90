@@ -159,73 +159,75 @@ subroutine TMDR_Initialize(file,prefix)
     call MoveTO(51,'*p1  ')
     read(51,*) orderMain
     
+    !!!!! IMPORTANT
+    !!!!! Gamma cusp start from Gamma0, i.e. orderCusp=0 = as^1    
     SELECT CASE(orderMain)
       CASE ("LO")
 	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: LO'
-	orderCusp=1
+	orderCusp=0
 	orderV=0
 	orderD=0
 	orderDresum=0
 	orderZETA=0
       CASE ("LO+")
 	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: LO+'
-	orderCusp=1
+	orderCusp=0
 	orderV=1
 	orderD=1
 	orderDresum=0
 	orderZETA=0
       CASE ("NLO")
 	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NLO'
-	orderCusp=2
+	orderCusp=1
 	orderV=1
 	orderD=1
 	orderDresum=1
 	orderZETA=1
       CASE ("NLO+")
 	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NLO+'
-	orderCusp=2
+	orderCusp=1
 	orderV=2
 	orderD=2
 	orderDresum=1
 	orderZETA=1
       CASE ("NNLO")
 	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO'
-	orderCusp=3
+	orderCusp=2
 	orderV=2
 	orderD=2
 	orderDresum=2
 	orderZETA=2
       CASE ("NNLO+")
 	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO+'
-	orderCusp=4!3
+	orderCusp=2
 	orderV=3
 	orderD=3
 	orderDresum=3!2
 	orderZETA=3!2
       CASE ("NNNLO")
 	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNNLO'
-	orderCusp=4
+	orderCusp=3
 	orderV=3
 	orderD=3
 	orderDresum=3
 	orderZETA=3
       CASE ("N3LO") !!! same as NNNLO
 	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N3LO'
-	orderCusp=4
+	orderCusp=3
 	orderV=3
 	orderD=3
 	orderDresum=3
 	orderZETA=3
       CASE ("N3LO+")
 	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N3LO+'
-	orderCusp=4
+	orderCusp=3
 	orderV=4
 	orderD=4
 	orderDresum=3
 	orderZETA=3
       CASE ("N4LO")
 	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N4LO'
-	orderCusp=5
+	orderCusp=4
 	orderV=4
 	orderD=4
 	orderDresum=4
@@ -234,15 +236,15 @@ subroutine TMDR_Initialize(file,prefix)
 	if(outputLevel>0) write(*,*) &
                 WarningString(' Initialize:try to set unknown ADs orders. Switch to NLO.',modulename)
 	if(outputLevel>1) write(*,*)  trim(moduleName)//' Order set: NLO'
-	orderCusp=2
+	orderCusp=1
 	orderV=1
 	orderD=1
 	orderDresum=1
 	orderZETA=1
-     END SELECT
+    END SELECT
       
      if(outputLevel>2) then
-      write(*,'(A,I1)') ' |  GammaCusp     =as^',orderCusp
+      write(*,'(A,I1)') ' |  GammaCusp     =as^',orderCusp+1
       write(*,'(A,I1)') ' |  gammaV        =as^',orderV
       write(*,'(A,I1)') ' |  D             =as^',orderD
       write(*,'(A,I1)') ' |  Dresum        =as^',orderDresum
