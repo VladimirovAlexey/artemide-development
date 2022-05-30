@@ -106,6 +106,24 @@ function Dresum(mu,bT,f)
     LL=2_dp*LOG(bT*mu*C0_inv_const)
     
     X=betaQCD(0,Nf)*alpha*LL
+    
+    
+    !!! in many models D evaluated at X=0, to speed up these computations I explicitely state it
+    if(abs(X)<1d-7) then
+    Dresum=0_dp
+    if(f==0) then !! gluon case
+        do n=2,orderDresum
+            Dresum=Dresum+alpha**n*dnk_G(n,0,Nf)
+        end do
+    else !! quark case
+        do n=2,orderDresum
+            Dresum=Dresum+alpha**n*dnk_Q(n,0,Nf)
+        end do
+    end if
+    
+    !!! complete case
+    else    
+    
     lX=Log(1_dp-X)
     
     if(f==0) then !! gluon case
@@ -142,6 +160,8 @@ function Dresum(mu,bT,f)
         write(*,*) 'At mu=',mu,'b=',bT,'Lmu=',2_dp*Log(mu*bT*C0_inv_const), 'X=',X,'log(1-x)=',lX
         write(*,*) 'Evaluation STOP'
         stop
+    end if
+    
     end if
 end function Dresum
 
