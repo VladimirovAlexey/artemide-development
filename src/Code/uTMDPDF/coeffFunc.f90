@@ -11,17 +11,30 @@
 
   !!! the function which contains the functions of parameterizations
   function parametrizationString(z)
-  real(dp)::z,lz,l1z
+  real(dp)::z,lz,l1z,zzz
   real(dp),dimension(1:parametrizationLength)::parametrizationString
+
+  real(dp),dimension(0:23)::t !!! chebhyshev polynomial
+  integer::i
+
+      zzz=2*z-1
+      t(0)=1_dp
+      t(1)=zzz
+      do i=2,23
+        t(i)=2*zzz*t(i-1)-t(i-2)
+      end do
+
       lz=Log(z)
       l1z=Log(1d0-z)
-      parametrizationString=(/l1z,l1z**2,l1z**3,&
-	    1d0/z,lz/z,&  
+
+      parametrizationString=(/&
+        l1z,l1z**2,l1z**3,&
+	    1d0/z,lz/z,&
 	    lz,lz**2,lz**3,&
-	    1d0,z,z**2,& 
-	    z/(1d0-z)*lz, z*lz, (z**2)*lz,& 
-	    z/(1d0-z)*lz**2,z*lz**2,& 
-	    (lz/(1d0-z)+1d0)*l1z,lz*l1z,z*lz*l1z,& 
+	    1d0,z,z**2,&
+	    z/(1d0-z)*lz, z*lz, (z**2)*lz,&
+	    z/(1d0-z)*lz**2,z*lz**2,&
+	    (lz/(1d0-z)+1d0)*l1z,lz*l1z,z*lz*l1z,&
 	    (1d0-z)/z*l1z, (1d0-z)*l1z, ((1d0-z)**2)*l1z,(1d0-z)*l1z**2/)
   
   end function parametrizationString
@@ -45,106 +58,183 @@
   !!!!Each coefficient is split to delta, sing x->1, regular
     
   !!!!!coefficient function q<-q delta-part
-  function C_q_q_delta(alpha,Nf,Lmu)
-  real(dp)::C_q_q_delta,Nf,alpha,Lmu
+pure function C_q_q_delta(alpha,Nf,Lmu)
+  real(dp),intent(in)::alpha,Nf,Lmu
+  real(dp)::C_q_q_delta
   
  C_q_q_delta=1d0
  
   if(order_global>=1) then
       !!!checked (3.12.17) AV!!!
       C_q_q_delta=C_q_q_delta+alpha*(-4d0/3d0*zeta2-4d0*Lmu)
-  end if
+
   if(order_global>=2) then
       !!!checked (3.12.17) AV!!!
      C_q_q_delta=C_q_q_delta+alpha*alpha*(&
      -2416d0/81d0-134d0/3d0*zeta2+448d0/9d0*zeta3+200d0/9d0*zeta4+&
      Nf*(352d0/243d0+20d0/9d0*zeta2+56d0/27d0*zeta3)+&
      Lmu*(-14d0-140d0/3d0*zeta2+16d0/3d0*zeta3+Nf*(4d0/9d0+40d0/9d0*zeta2))+&
-     Lmu**2*(-14d0+4d0/3d0*Nf-128d0/9d0*zeta2))     
-     !-19.413533328856175d0 + 7.5971237666274805d0*Nf&
-     !+ Lmu**2*(-37.394617839619215d0 + 1.3333333333333333d0*Nf)&
-     !+ Lmu*(-84.35261963606607d0 + 7.75526251932545d0*Nf))
-  end if  
-  end function C_q_q_delta
+     Lmu**2*(-14d0+4d0/3d0*Nf-128d0/9d0*zeta2))
+
+  if(order_global>=3) then
+    C_q_q_delta=C_q_q_delta+alpha**3*(&
+    Nf**2*(2800d0/19683d0 - (496d0*zeta2)/81d0 - (3712d0*zeta3)/729d0 - (88d0*zeta4)/81d0)&
+    +Nf*(212644d0/6561d0 + (224116d0*zeta2)/729d0 + (83452d0*zeta3)/729d0 - (5960d0*zeta2*zeta3)/81d0 &
+      - (1988d0*zeta4)/81d0 - (8144d0*zeta5)/81d0)&
+    -578966d0/2187d0 - (667234d0*zeta2)/243d0 + (13954d0*zeta3)/81d0 + (30212d0*zeta2*zeta3)/27d0 &
+    -(244d0*zeta3**2)/3d0 + (12796d0*zeta4)/9d0  - (1576d0*zeta5)/3d0 - (59468d0*zeta6)/81d0&
+    +Lmu*(&
+        Nf**2*(428d0/729d0 - (560d0*zeta2)/81d0 - (32d0*zeta3)/81d0)&
+        + Nf*(6496d0/243d0 + (80536d0*zeta2)/243d0 - (112d0*zeta3)/3d0 - (1064d0*zeta4)/9d0)&
+        -5947d0/27d0 - (232612d0*zeta2)/81d0 + (35200d0*zeta3)/27d0 + (15680d0*zeta2*zeta3)/27d0&
+        + (3364d0*zeta4)/3d0 - (4960d0*zeta5)/9d0)&
+    +Lmu**2*(-302d0 + Nf**2*(-8d0/27d0 - (80d0*zeta2)/27d0) - (26476d0*zeta2)/27d0 &
+        + Nf*(340d0/9d0 + (7744d0*zeta2)/81d0 - (32d0*zeta3)/9d0) + (112d0*zeta3)/3d0 + (12800d0*zeta4)/27d0)&
+    +Lmu**3*(-84d0 - 16d0*Nf**2/27d0 - 896d0*zeta2/9d0 + Nf*(128d0/9d0 + 256d0*zeta2/27d0) - 4096d0*zeta3/81d0)&
+    )
+
+  end if
+  end if
+  end if
+
+end function C_q_q_delta
   
   !!!!!coefficient function g<-g delta-part
-  function C_g_g_delta(alpha,Nf,Lmu)
-  real(dp)::C_g_g_delta,Nf,alpha,Lmu
+pure function C_g_g_delta(alpha,Nf,Lmu)
+  real(dp),intent(in)::alpha,Nf,Lmu
+  real(dp)::C_g_g_delta
   
   C_g_g_delta=1d0
  
   if(order_global>=1) then
   !!!checked (20.11.17) AV!!!
       C_g_g_delta=C_g_g_delta+alpha*(-3d0*zeta2-(11d0-2d0/3d0*Nf)*Lmu)
-  end if
+
   if(order_global>=2) then
+  !!!checked (23.06.22) AV!!!
      C_g_g_delta=C_g_g_delta+alpha*alpha*(&
     -112d0 - 56d0*Nf**2/81d0 - 201d0*zeta2/2d0 - 72d0*Lmu**2*zeta2 +&
     Lmu*(-96d0 + 32d0*Nf/3d0 - 108d0*zeta3) + Nf*(548d0/27 + 5d0*zeta2 - 28d0*zeta3/3d0) + 154d0*zeta3 + 225d0*zeta4/4d0)
-    
-    ! C_g_g_delta=C_g_g_delta+alpha*alpha*(&
-    !-31.318428735417683d0 - 118.4352528130723d0*Lmu**2 + 17.30176886771455d0*Nf - 0.691358024691358d0*Nf**2&
-    !+ Lmu*(-225.82214554123618d0 + 10.666666666666666d0*Nf))
+
+  if(order_global>=3) then
+  C_g_g_delta=C_g_g_delta+alpha**3*(&
+    Nf**3*(-752d0/2187d0 + (16d0*zeta3)/27d0)&
+    + Nf**2*(-73577d0/2187d0 - (200d0*zeta2)/81d0 - (368d0*zeta3)/81d0 - (20d0*zeta4)/9d0)&
+    + Nf*(1033259d0/1458d0 + (27305d0*zeta2)/81d0 - (17762d0*zeta3)/81d0 + (122d0*zeta2*zeta3)/3d0 &
+    - (2767d0*zeta4)/18d0 + (556d0*zeta5)/9d0)&
+    -698456d0/243d0 - (213865d0*zeta2)/54d0 + (1489d0*zeta3)/9d0 + 429d0*zeta2*zeta3 + 2337d0*zeta3**2&
+    + (15395d0*zeta4)/4d0 - 2046d0*zeta5  - (28783d0*zeta6)/16d0&
+    +Lmu*((112d0*Nf**3)/243d0&
+      +Nf**2*(-4471d0/162d0 - (10d0*zeta2)/3d0 + (56d0*zeta3)/9d0)&
+      +Nf*(25175d0/54d0 + (904d0*zeta2)/3d0 + (104d0*zeta3)/3d0 - (15d0*zeta4)/2d0)&
+      -4597d0/2d0 - (8855d0*zeta2)/2d0 - 3130d0*zeta3 + 3780d0*zeta2*zeta3 + (495d0*zeta4)/4d0 + 2160d0*zeta5)&
+    + Lmu**2*(-561d0 - (38d0*Nf**2)/9d0 - 3216d0*zeta2 + Nf*(311d0/3d0 + 160d0*zeta2) + 2700d0*zeta4)&
+    - Lmu**3*576d0*zeta3&
+    )
+
+  end if
+  end if
   end if
   
-  end function C_g_g_delta
+end function C_g_g_delta
   
   !!!!!coefficient function q<-q singular-part  (1/(1-x)_+,(Log(1-x)/(1-x))_+)
-  subroutine Set_CoeffSing1_q_q(alpha,Nf,Lmu)
-  real(dp)::Nf,alpha,LLambda,Lmu,s1,s2
+subroutine Set_CoeffSing1_q_q(alpha,Nf,Lmu)
+  real(dp),intent(in)::Nf,alpha,Lmu
+  real(dp)::s1,s2,s3
     
   s1=0d0!!!coeff 1/(1-x)
   s2=0d0!!!coeff log(1-x)/(1-x)
+  s3=0d0!!!coeff log(1-x)^2/(1-x)
   
 
   if(order_global>=1) then    
     !!!checked (20.11.17) AV!!!
     s1=s1+alpha*(-16d0/3d0)*Lmu
-  end if
+
   if(order_global>=2) then
     !!!checked (21.11.17) AV!!!
     s1=s1+alpha*alpha*(&
        -3232d0/27d0+112d0*zeta3+448d0/81d0*Nf+&
        Lmu*(-1072d0/9d0+352d0/9d0*zeta2+160d0/27d0*Nf)+&
        Lmu**2*(-8d0+16d0/9d0*Nf))
-       
-!      14.926669450170849d0 + 5.530864197530864d0*Nf&
-!      + Lmu**2*(-8d0 + 1.7777777777777777d0*Nf) &
-!      + Lmu*(-54.77591205215826d0 + 5.925925925925926d0*Nf))
 
      s2=s2+alpha*alpha*(256d0/9d0*(Lmu**2))
+
+  if(order_global>=3) then
+    s1=s1+alpha**3*(&
+      Nf**2*(-7424d0/2187d0 - (128d0*zeta3)/27d0)&
+      + Nf*(332632d0/729d0 - (11680d0*zeta2)/243d0 - (15712d0*zeta3)/81d0 - (16d0*zeta4)/9d0)&
+      -1188116d0/243d0 + (89632d0*zeta2)/81d0 + (49312d0*zeta3)/9d0 - (2560d0*zeta2*zeta3)/3d0&
+      + 616d0*zeta4 - 2304d0*zeta5&
+      +Lmu*(&
+        - (1600d0*Nf**2)/243d0&
+        + Nf*(321104d0/729d0 - (7360d0*zeta2)/81d0 - (5504d0*zeta3)/81d0)&
+        -961208d0/243d0  + (49312d0*zeta2)/27d0 + (37760d0*zeta3)/27d0 - (34592d0*zeta4)/27d0)&
+      +Lmu**2*(&
+        -9280d0/9d0 - (320d0*Nf**2)/81d0 + Nf*(4112d0/27d0 - (1280d0*zeta2)/27d0) + 512d0*zeta2 - (256d0*zeta3)/9d0)&
+      +Lmu**3*(&
+        -208d0/9d0 + (320d0*Nf)/27d0 - (64d0*Nf**2)/81d0 + (2048d0*zeta2)/27d0)&
+      )
+
+    s2=s2+alpha**3*(&
+      Lmu**3*(1792d0/9d0 - (512d0*Nf)/27d0) &
+      + Lmu**2*(34304d0/27d0 - (5120d0*Nf)/81d0 - (10240d0*zeta2)/27d0) &
+      + Lmu*(103424d0/81d0 - (14336d0*Nf)/243d0 - (3584d0*zeta3)/3d0)&
+      )
+
+    s3=s3+alpha**3*(-2048d0/27d0*Lmu**3)
+
   end if
+  end if
+  end if
+
+  CoeffSing1_q_q=(/s1,s2,s3/)
   
-  CoeffSing1_q_q=(/s1,s2/)
-  
-  end subroutine Set_CoeffSing1_q_q
+end subroutine Set_CoeffSing1_q_q
   
   !!!!!coefficient function g<-g singular-part  (1/(1-x)_+,(Log(1-x)/(1-x))_+)
-  subroutine Set_CoeffSing1_g_g(alpha,Nf,Lmu)
-  real(dp)::Nf,alpha,Lmu,s1,s2
+subroutine Set_CoeffSing1_g_g(alpha,Nf,Lmu)
+  real(dp),intent(in)::Nf,alpha,Lmu
+  real(dp)::s1,s2,s3
     
   s1=0d0!!!coeff 1/(1-x)
   s2=0d0!!!coeff log(1-x)/(1-x)
+  s3=0d0!!!coeff log(1-x)^2/(1-x)
  
   if(order_global>=1) then  
   !!!checked (20.11.17) AV!!!
     s1=s1+alpha*(-12d0)*Lmu
-  end if
+
   if(order_global>=2) then
+  !!!checked (23.06.22) AV!!!
     s1=s1+alpha*alpha*(&
     -808d0/3d0 + Lmu**2*(66d0 - 4d0*Nf) + 112d0*Nf/9d0 + Lmu*(-268d0 + 40d0*Nf/3d0 + 108d0*zeta2) + 252d0*zeta3)
     
-!     s1=s1+alpha*alpha*(&
-!     33.585006262884406d0 + Lmu**2*(66d0 - 4d0*Nf) + 12.444444444444445d0*Nf&
-!     + Lmu*(-90.34712078039155d0 + 13.333333333333334d0*Nf))
-    
      s2=s2+alpha*alpha*144d0*(Lmu**2)
+
+  if(order_global>=3) then
+    s1=s1+alpha**3*(&
+    Nf**2*(-1856d0/243d0 - (32d0*zeta3)/3d0) &
+    +Nf*(83158d0/81d0 - (1160d0*zeta2)/9d0 - (3928d0*zeta3)/9d0 - 4d0*zeta4) &
+    -297029d0/27d0 + (8816d0*zeta2)/3d0 + 12328d0*zeta3 - 2340d0*zeta2*zeta3 + 1386d0*zeta4 - 5184d0*zeta5 &
+    +Lmu*(-18086d0/3d0 + (16d0*Nf**2)/9d0 + 5226d0*zeta2 + 132d0*zeta3 + &
+      Nf*(4484d0/9d0 - 260d0*zeta2 + 152d0*zeta3) - 3591d0*zeta4) &
+    +Lmu**2*(540d0 + Nf*(-52d0 - 12d0*zeta2) + 198d0*zeta2 + 1296d0*zeta3) &
+    +Lmu**3*(242d0 - (88d0*Nf)/3d0 + (8d0*Nf**2)/9d0 + 864d0*zeta2) &
+    )
+
+     s2=s2+alpha**3*(&
+     Lmu**2*(6432d0 - 320d0*Nf - 2160d0*zeta2) + Lmu*(6464d0 - (896d0*Nf)/3 - 6048d0*zeta3))
+
+     s3=s3+alpha**3*(-864d0*Lmu**3)
+  end if
+  end if
   end if
   
+  CoeffSing1_g_g=(/s1,s2,s3/)
   
-  CoeffSing1_g_g=(/s1,s2/)
-  
-  end subroutine Set_CoeffSing1_g_g
+end subroutine Set_CoeffSing1_g_g
   
   !!!!!coefficient function q<-q regular-part  
   subroutine Set_Coeff_q_q(alpha,Nf,Lmu)  
@@ -464,7 +554,7 @@
  subroutine CheckCoefficient(as,Nf,Lmu,z)
  real(dp)::Lmu,as,z,Nf,lz,l1z
  real(dp), dimension(1:23)::func
- real(dp), dimension(1:2)::func1
+ real(dp), dimension(1:3)::func1
  
   lz=Log(z)
   l1z=Log(1d0-z)
@@ -477,7 +567,7 @@
 	    (lz/(1d0-z)+1d0)*l1z,lz*l1z,z*lz*l1z,& 
 	    (1d0-z)/z*l1z, (1d0-z)*l1z, ((1d0-z)**2)*l1z,(1d0-z)*l1z**2/)
      
-  func1=(/1d0/(1d0-z),Log(1d0-z)/(1d0-z)/)
+  func1=(/1d0/(1d0-z),Log(1d0-z)/(1d0-z),Log(1d0-z)**2/(1d0-z)/)
  
  !!Q->Q
 !   call Set_CoeffSing1_q_q(as,Nf,Lmu) 
