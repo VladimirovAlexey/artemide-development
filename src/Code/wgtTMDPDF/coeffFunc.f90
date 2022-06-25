@@ -60,33 +60,35 @@
   
   !!!!!coefficient function q<-q singular-part  (1/(1-x)_+,(Log(1-x)/(1-x))_+)
   subroutine Set_CoeffSing1_q_q(alpha,Nf,Lmu)
-  real(dp)::Nf,alpha,LLambda,Lmu,s1,s2
+  real(dp)::Nf,alpha,LLambda,Lmu,s1,s2,s3
     
   s1=0d0!!!coeff 1/(1-x)
   s2=0d0!!!coeff log(1-x)/(1-x)
+  s3=0d0!!!coeff log(1-x)^2/(1-x)
   
 
 !   if(order_global>=1) then    
 !     s1=s1+alpha*(-16d0/3d0)*Lmu
 !   end if
   
-  CoeffSing1_q_q=(/s1,s2/)
+  CoeffSing1_q_q=(/s1,s2,s3/)
   
   end subroutine Set_CoeffSing1_q_q
   
   !!!!!coefficient function g<-g singular-part  (1/(1-x)_+,(Log(1-x)/(1-x))_+)
   subroutine Set_CoeffSing1_g_g(alpha,Nf,Lmu)
-  real(dp)::Nf,alpha,Lmu,s1,s2
+  real(dp)::Nf,alpha,Lmu,s1,s2,s3
     
   s1=0d0!!!coeff 1/(1-x)
   s2=0d0!!!coeff log(1-x)/(1-x)
+  s3=0d0!!!coeff log(1-x)^2/(1-x)
  
 !   if(order_global>=1) then  
 !   !!!checked (20.11.17) AV!!!
 !     s1=s1+alpha*(-12d0)*Lmu
 !   end if
   
-  CoeffSing1_g_g=(/s1,s2/)
+  CoeffSing1_g_g=(/s1,s2,s3/)
   
   end subroutine Set_CoeffSing1_g_g
   

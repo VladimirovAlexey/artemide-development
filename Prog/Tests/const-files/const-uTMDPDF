@@ -137,7 +137,7 @@
  
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
- NNLO
+ N3LO
 *B   : ---- Parameters of NP model ----
 *p1  : Length of lambdaNP
            7

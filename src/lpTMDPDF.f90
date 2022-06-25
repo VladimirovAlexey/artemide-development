@@ -65,9 +65,9 @@ integer,parameter::parametrizationLength=14
 !! The Lmu and Nf parts are exact the later parts are fitted
 real(dp),dimension(1:parametrizationLength) :: Coeff_q_q, Coeff_q_g, Coeff_g_q, Coeff_g_g, Coeff_q_qb, Coeff_q_qp
 !! This is list of coefficeints for the encoding the singular at x->1
-!! { 1/(1-x), (Log[1-x]/(1-x))_+}
+!! { 1/(1-x), (Log[1-x]/(1-x))_+, (Log[1-x]^2/(1-x))_+,}
 !! they are zero!!!
-real(dp), dimension(1:2) :: CoeffSing1_q_q,CoeffSing1_g_g
+real(dp), dimension(1:3) :: CoeffSing1_q_q,CoeffSing1_g_g
 
 integer :: counter,messageCounter
 

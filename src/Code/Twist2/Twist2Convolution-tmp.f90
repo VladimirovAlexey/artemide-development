@@ -75,6 +75,7 @@ function Common_lowScale5(x,bT,hadron)
    Nf=real(activeNf(muCurrent),dp)
    Lmu=LogMuB(muCurrent,bTcurrent)
    
+   
   !! in the x-dependent mu we should additionally calculate values at x=1
   if(IsMuXdependent) then
    !!! we first calculate at z=1
@@ -111,7 +112,6 @@ function Common_lowScale5(x,bT,hadron)
     call Set_Coeff_q_qp(alpha,Nf,Lmu)
     call Set_Coeff_q_g(alpha,Nf,Lmu) 
   end if
-
 
     
   if(order_global>=1) then
@@ -201,7 +201,7 @@ function Common_lowScale50(x,bT,hadron)
    PDFcurrent=xf(x,muCurrent,hadron)
    FPDFcurrent=Fcurrent*PDFcurrent  
   end if
-
+  
  !------------DELTA PART-------------------
  !Leading order is always here!! 
   if(IsMuXdependent) then  
@@ -256,7 +256,6 @@ function Common_lowScale50(x,bT,hadron)
   else
     convolutionPart=0d0
   end if
-
   
   !write(*,*) 'gluonMIXTUREPart =', gluonMIXTURE/x  
   !write(*,*) 'TDhat', (deltaPart+singularPart+regularPart)/x
@@ -437,14 +436,10 @@ recursive function MellinConvolutionVectorPart5(x0,x1,hadron) result(res5)
 	      CqMain*PDFs(3)+CqAnti*PDFs(-3)+CqPrime*PDFsum+CqGluon*PDFs(0),&
 	      CqMain*PDFs(4)+CqAnti*PDFs(-4)+CqPrime*PDFsum+CqGluon*PDFs(0),&
 	      CqMain*PDFs(5)+CqAnti*PDFs(-5)+CqPrime*PDFsum+CqGluon*PDFs(0)/)
-	      !!! AV: 25.06.22
-	      !!! the (..)_+ part is tricky.
-	      !!! I estimate int_x0^1 (f[xc/x]-f[xc])/(1-x)g[x] as (f[xc/x0]-f[xc])/(1-x0) int_x0^1 g[x]
-	      !!! it follows from the expansion of f[xc/x] at x->1, and comparison to the expansion of f[xc/x0] at x0->1
-	      !!! it is justified if x0->1, and f[xc] is smooth
-          dummy=CoeffSing1_q_q(1)
-          if(order_global>=2) dummy=dummy+CoeffSing1_q_q(2)*(LOG(1d0-x0)-1d0)
-          if(order_global>=3) dummy=dummy+CoeffSing1_q_q(3)*(LOG(1d0-x0)**2-2d0*LOG(1d0-x0)+2d0)
+	      !!adding ()_+ part
+          dummy=CoeffSing1_q_q(1)/(1d0-z)
+          if(order_global>=2) dummy=dummy+CoeffSing1_q_q(2)*LOG(1d0-z)/(1d0-z)
+          if(order_global>=3) dummy=dummy+CoeffSing1_q_q(3)*LOG(1d0-z)**2/(1d0-z)
 
           value=value+dummy*(F0*PDFs-FPDFcurrent)
 	      res5=value
@@ -557,22 +552,22 @@ recursive function MellinConvolutionVectorPart50(x0,x1,hadron) result(res5)
     
       eps=ABS(xr*(vg7-vk15)/integralWeight)
     
-      !write(*,*) x0,x1, eps(0), xr*vk15(0)
+      !write(*,*) x0,x1, eps
     
       if(MAXVAL(eps)>tolerance) then
-        if(counter>maxIteration) then
-        if(outputLevel>0) call Warning_Raise('Mellin convolution does not converge. Integral evaluation stop after '//&
-            numToStr(maxIteration)//' iterations.',messageCounter,messageTrigger,moduleName)
-        if(outputLevel>1) then
-          write(*,*) '----- information on last call -----'
-          write(*,*) 'x=',xCurrent,'b=',bTcurrent,'mu=',muCurrent
-          write(*,*) 'iteration=',counter, 'eps=',eps
-          write(*,*) 'weight=',integralWeight
-        end if
-
-        res5=xr*vk15
-      else
-	  if((1d0-x1)<1d-12 .and. (1d0-x0)<tolerance) then
+      if(counter>maxIteration) then
+      if(outputLevel>0) call Warning_Raise('Mellin convolution does not converge. Integral evaluation stop after '//&
+          numToStr(maxIteration)//' iterations.',messageCounter,messageTrigger,moduleName)
+	  if(outputLevel>1) then
+        write(*,*) '----- information on last call -----'
+        write(*,*) 'x=',xCurrent,'b=',bTcurrent,'mu=',muCurrent
+        write(*,*) 'iteration=',counter, 'eps=',eps
+        write(*,*) 'weight=',integralWeight
+	  end if
+	  
+	res5=xr*vk15
+	else 
+	  if(x1==1d0 .and. 1d0-x0<tolerance) then
 	    !!!! in the case of the integration from x to 1, we check the convergance at 1
 	    !!!! if the change of PDF*fNP is small enough we replace hte integral, by the exact integral
 	    
@@ -587,28 +582,27 @@ recursive function MellinConvolutionVectorPart50(x0,x1,hadron) result(res5)
 	    epspdf=ABS((FNP(xCurrent,x0,bTcurrent,hadron,lambdaNP)*xf(xCurrent/x0,muCurrent,hadron)-FPDFcurrent)/integralWeight)
 	    counter=counter+1
 	    !here we will add end point integration
-	    !write(*,*) "====",x0,x1, epspdf(0)
+	    !write(*,*) x0,x1, epspdf
 	    if(MAXVAL(epspdf)<tolerance) then !!! variation is small
 	      if(IsMuXdependent) then
-            if(bTcurrent>1d-8) then
-              muCurrent=c4_global*mu_OPE(x0,bTcurrent)
-              Lmu=LogMuB(muCurrent,bTcurrent)
-            else
-              muCurrent=c4_global*mu_OPE(x0,1d-8)
-              Lmu=LogMuB(muCurrent,1d-8)
-            end if
-            alpha=As(muCurrent)
-            Nf=real(activeNf(muCurrent),dp)
-            call Set_CoeffSing1_q_q(alpha,Nf,Lmu)
-            call Set_Coeff_q_q(alpha,Nf,Lmu)
-            call Set_Coeff_q_qb(alpha,Nf,Lmu)
-            call Set_Coeff_q_qp(alpha,Nf,Lmu)
-            call Set_Coeff_q_g(alpha,Nf,Lmu)
-            call Set_Coeff_g_q(alpha,Nf,Lmu)
-            call Set_Coeff_g_g(alpha,Nf,Lmu)
-          end if
-
-          !!! I approximate function f(xC/z) by mean value f(xC/x0)-f(xC)
+		if(bTcurrent>1d-8) then
+		  muCurrent=c4_global*mu_OPE(x0,bTcurrent)
+		  Lmu=LogMuB(muCurrent,bTcurrent)
+        else
+          muCurrent=c4_global*mu_OPE(x0,1d-8)
+		  Lmu=LogMuB(muCurrent,1d-8)
+        end if
+        alpha=As(muCurrent)
+        Nf=real(activeNf(muCurrent),dp)
+		call Set_CoeffSing1_q_q(alpha,Nf,Lmu)
+		call Set_Coeff_q_q(alpha,Nf,Lmu)
+		call Set_Coeff_q_qb(alpha,Nf,Lmu)
+		call Set_Coeff_q_qp(alpha,Nf,Lmu)
+		call Set_Coeff_q_g(alpha,Nf,Lmu)  
+		call Set_Coeff_g_q(alpha,Nf,Lmu)
+		call Set_Coeff_g_g(alpha,Nf,Lmu)
+        end if
+	    
 	      PDFs=(xf(xCurrent/x0,muCurrent,hadron)+PDFcurrent)/2d0
 	      PDFsum=PDFs(-5)+PDFs(-4)+PDFs(-3)+PDFs(-2)+PDFs(-1)+PDFs(1)+PDFs(2)+PDFs(3)+PDFs(4)+PDFs(5)
 	      counter=counter+1
@@ -638,21 +632,16 @@ recursive function MellinConvolutionVectorPart50(x0,x1,hadron) result(res5)
 	      CqMain*PDFs(3)+CqAnti*PDFs(-3)+CqPrime*PDFsum+CqGluon*PDFs(0),&
 	      CqMain*PDFs(4)+CqAnti*PDFs(-4)+CqPrime*PDFsum+CqGluon*PDFs(0),&
 	      CqMain*PDFs(5)+CqAnti*PDFs(-5)+CqPrime*PDFsum+CqGluon*PDFs(0)/)
-
-	      !!! AV: 25.06.22
-	      !!! the (..)_+ part is tricky.
-	      !!! I estimate int_x0^1 (f[xc/x]-f[xc])/(1-x)g[x] as (f[xc/x0]-f[xc])/(1-x0) int_x0^1 g[x]
-	      !!! it follows from the expansion of f[xc/x] at x->1, and comparison to the expansion of f[xc/x0] at x0->1
-	      !!! it is justified if x0->1, and f[xc] is smooth
-          dummy=CoeffSing1_q_q(1)
-          if(order_global>=2) dummy=dummy+CoeffSing1_q_q(2)*(LOG(1d0-x0)-1d0)
-          if(order_global>=3) dummy=dummy+CoeffSing1_q_q(3)*(LOG(1d0-x0)**2-2d0*LOG(1d0-x0)+2d0)
+	      !!adding ()_+ part
+          dummy=CoeffSing1_q_q(1)/(1d0-z)
+          if(order_global>=2) dummy=dummy+CoeffSing1_q_q(2)*LOG(1d0-z)/(1d0-z)
+          if(order_global>=3) dummy=dummy+CoeffSing1_q_q(3)*LOG(1d0-z)**2/(1d0-z)
 
           addV=dummy*(F0*PDFs-FPDFcurrent)
 
-          dummy=CoeffSing1_g_g(1)
-          if(order_global>=2) dummy=dummy+CoeffSing1_g_g(2)*(LOG(1d0-x0)-1d0)
-          if(order_global>=3) dummy=dummy+CoeffSing1_g_g(3)*(LOG(1d0-x0)**2-2d0*LOG(1d0-x0)+2d0)
+          dummy=CoeffSing1_g_g(1)/(1d0-z)
+          if(order_global>=2) dummy=dummy+CoeffSing1_g_g(2)*LOG(1d0-z)/(1d0-z)
+          if(order_global>=3) dummy=dummy+CoeffSing1_g_g(3)*LOG(1d0-z)**2/(1d0-z)
 
           addV(0)=dummy*(F0(0)*PDFs(0)-FPDFcurrent(0))
 
@@ -669,6 +658,6 @@ recursive function MellinConvolutionVectorPart50(x0,x1,hadron) result(res5)
       else          
        res5=xr*vk15
       end if
-
+      !write(*,*) MellinConvolutionVectorPart
   end function MellinConvolutionVectorPart50
   
