@@ -1755,6 +1755,28 @@ F_g=C_{g\ot g}\otimes q_g+C_{g\ot q}\otimes \sum_{f\in q,\bar q} q_f.
 
 The kernels are split into regular, singular and $\delta$-parts, where singular contains $(\ln(1-x)/(1-x)))_+^n$ terms, $\delta$ contains only $\delta(1-x)$ terms, and regular is the rest. Singular and $\delta$-terms are present only for $C_{q\ot q}$ and $C_{g\ot g}$.
 
+The regular part is decomposed further, into singular (but integrable) terms at $x\to0 $ and $x\to 1$, and the finite part. The singular terms are computed exactly, while the finite part is fitted to linear combination of several functions. The basis of fit is such that the expressions are exact for coefficients which do not contain PolyLog functions. These are NLO, leading log [at all orders], large-Nf [at all orders], and some others. The full basis for the regular part is
+\begin{eqnarray}
+&&\Big\{\underbrace{\ln \bar x,\ln^2\bar x,\ln^3\bar x,\ln^4\bar x,\ln^5\bar x,
+\frac{1}{x},\frac{\ln x}{x},\frac{\ln^2x}{x},
+\ln x,\ln^2x,\ln^3x,\ln^4x,\ln^5x,}_{\substack{\text{singular-integrable} \\ \text{exact}}}
+\\\nn&&
+\underbrace{1,x}_{\text{exact}},x\bar x ,
+x\(\frac{\ln x}{1-x}+1\), \frac{x \ln^2x}{1-x}, \frac{x\ln^3x}{1-x},
+x\ln x,x\ln^2x,x\ln^3x,x\ln^4x,
+x\bar x\ln x,x\bar x\ln^2x,x\bar x\ln^3x,
+\\\nn &&
+\bar x\ln\bar x,\bar x\ln^2\bar x,\bar x\ln^3\bar x,
+x\bar x\ln\bar x,x\bar x\ln^2\bar x,x\bar x\ln^3\bar x,
+\ln x\ln\bar x,x\ln x\ln\bar x,x\bar x\ln x\ln\bar x,
+\frac{\ln\bar x(1-x^2+2\ln x)}{1-x},
+\frac{\bar x(\ln x+x)}{x}
+\Big\}.
+\end{eqnarray}
+Decomposed in this basis the coefficient functions are very presice. The typical relative precision is $10^{-8}-10^{-10}$ \textit{for the finite part} (other terms are exact). The worst presicion happen at small $x\sim 10^{-5}$ for $g\ot g$ channel where relative precision is $\sim 10^{-5}-10^{-6}$.
+
+Similar ansatz is used for uTMDFF, with some term removed (which are sensitive to small-x region). Precision in the case of TMDFF is slightly worse $10^{-6}-10^{-8}$. The worst precision is for N$^3$LO $q\to q'$ channel, where it is $\sim 10^{-4}-10^{-6}$. However, it is very good precision which guaranties about 10-12 presice digits for the physical convolution.
+
 \newpage
 
 \section{\texttt{uTMDFF} module}
@@ -3396,8 +3418,10 @@ doi:10.1007/JHEP05(2019)125
 \begin{itemize}
 \item[\textbf{Ver.2.06}]
 \begin{itemize}
-	\item \textbf{common:tw2Convolution} Fixed bug, with incorrect estimation of reminder at $x_0\to 1$
-	\item \textbf{uTMDPDF:coeffFunc} 3-loop coefficient function added. 
+	\item \textbf{common:tw2Convolution} Fixed bug, with incorrect estimation of the integral reminder at $x_0\to 1$
+	\item \textbf{uTMDFF:coeffFunc} 3-loop coefficient function added. 
+	\item \textbf{uTMDPDF:coeffFunc} 3-loop coefficient function added.
+	\item \textbf{uTMDFF:coeffFunc} Corrected missprint in the NNLO coeff.function ($\sim\pi^4\delta(\bar z)$ term)  
 	\item \textbf{all .TMD.} Singular list updated to include $(\ln^3\bar x/(1-x))_+$ terms [appear at $N^3$LO]
 	\item \textbf{TMD\_SIDIS} 4-loop coefficient function added. 
 	\item \textbf{TMD\_DY} 4-loop coefficient function added. Fixed a misprint in 3-loops (<0.01\% numerically)

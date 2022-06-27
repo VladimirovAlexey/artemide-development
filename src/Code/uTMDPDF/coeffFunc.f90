@@ -38,8 +38,9 @@ end function parametrizationString
   !!! the function which contains 
     !!! int_z^1 parameterization at values of z -> 1
     !!! it is used to estimate integration error at z~1
-  function parametrizationStringAt1(z)
-  real(dp)::z,lz,l1z,zz
+pure function parametrizationStringAt1(z)
+  real(dp),intent(in)::z
+  real(dp)::lz,l1z,zz
   real(dp),dimension(1:parametrizationLength)::parametrizationStringAt1
     zz=1d0-z
     l1z=Log(zz)
@@ -56,7 +57,7 @@ end function parametrizationString
 	      0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, &
 	      0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0 /) !!! rest
   
-  end function parametrizationStringAt1
+end function parametrizationStringAt1
 
   
   !!!!Each coefficient is split to delta, sing x->1, regular

@@ -57,17 +57,11 @@ real(dp) :: tolerance=0.0001d0!!! relative tolerance of the integration
 integer :: maxIteration=5000
 
 !------------------------------Variables for coefficient function etc-------------------------------
-integer,parameter::parametrizationLength=25
+integer,parameter::parametrizationLength=36
+
 !!!!!Coefficient lists
-!! { Log[1-z], log[1-z]^2, log[1-z]^3  !exact
-!!   1/z, log[z]/z, Log[z]^2/z, Log[z]^3/z  !exact
-!! Log[z], log[z]^2, Log[z]^3 !exact
-!! 1 (exact), z, z^2
-!! zLog[z]/(1-z), z Log[z], z^2 Log[z]
-!! z Log[z]^2/(1-z), z Log[z]^2,  z Log[z]^3
-!! (Log[z]/(1-z)+1)Log[1-z], Log[z]Log[1-z],  zLog[z]Log[1-z],
-!! (1-z)/z Log[1-z], (1-z)Log[1-z], (1-z) Log[1-z]^2 }
-!! The Lmu^2 part is exact the later parts are fitted, but exact if posible (e.g. Lmu and Nf parts for q->q)
+!!!!! contain exact asymptotic z->0, and z->1.
+!!!!! regular part fit by some function, such that all coefficeint without polylog [main log,large-nf] are exact
 real(dp),dimension(1:parametrizationLength) :: Coeff_q_q, Coeff_q_g, Coeff_g_q, Coeff_g_g, Coeff_q_qb, Coeff_q_qp
 
 !! This is list of coefficeints for the encoding the singular at x->1
@@ -97,6 +91,8 @@ logical::IsComposite=.false.					!!!flag to use the composite TMD
 public::uTMDFF_Initialize,uTMDFF_SetLambdaNP,uTMDFF_resetGrid,uTMDFF_SetScaleVariation,uTMDFF_CurrentNPparameters
 public::uTMDFF_IsInitialized
 public::uTMDFF_lowScale5,uTMDFF_lowScale50
+
+! public::CheckCoefficient
 
 interface uTMDFF_SetLambdaNP
     module procedure uTMDFF_SetLambdaNP_usual,uTMDFF_SetReplica_optional
@@ -205,6 +201,12 @@ subroutine uTMDFF_Initialize(file,prefix)
         CASE ("NNLO+")
             if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO+'
             order_global=2
+        CASE ("NNNLO")
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNNLO'
+            order_global=3
+        CASE ("N3LO")
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N3LO'
+            order_global=3
         CASE DEFAULT
             if(outputLevel>0) write(*,*) &
                 WarningString('Initialize: unknown order for coefficient function. Switch to NLO.',moduleName)
