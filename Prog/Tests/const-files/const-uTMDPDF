@@ -14,7 +14,7 @@
 *p1  : Input file Version (used to check version compatibility)
           11
 *p2  : Output level (0 = no output except critical, 1 = + WARNINGS, 2 = + info,  3 = + details)
-           2
+           1
 *p3  : Message trigger (the number of continious non-critical warning before stop showing them)
            6
  

@@ -22,7 +22,7 @@ pure function parametrizationString(z)
   parametrizationString=(/&
     l1z,l1z**2,l1z**3,l1z**4,l1z**5,&
     1d0/z,lz/z,lz**2/z,&
-    lz,lz**2,lz**3,lz**4,lz**5,&  !!!---- exact part
+    lz,lz**2,lz**3,lz**4,lz**5,&  !!!<--- exact part, approximate part --->
     1d0,z,z*zz,&
     z*(lz/zz+1d0),z*lz**2/zz,z*lz**3/zz,&
     z*lz,z*lz**2,z*lz**3,z*lz**4,&
@@ -1114,7 +1114,7 @@ subroutine Set_Coeff_q_qb(alpha,Nf,Lmu)
 end subroutine Set_Coeff_q_qb
   
      !!!!!coefficient function q<-qp regular-part  
-  subroutine Set_Coeff_q_qp(alpha,Nf,Lmu)  
+subroutine Set_Coeff_q_qp(alpha,Nf,Lmu)
   real(dp),intent(in)::alpha,Nf,Lmu
   real(dp),dimension(1:37)::inter
 
@@ -1127,9 +1127,9 @@ end subroutine Set_Coeff_q_qb
      inter(1:13)=(/ &!!Exact part
       0d0, 0d0, 0d0, 0d0, 0d0, & !log(1-x), log(1-x)^2, log[1-x]^3, log[1-x]^4, Log[1-x]^5
       688d0/81d0 - 208d0*Lmu/27d0 + 16d0*Lmu**2/9d0 - 32d0*zeta2/9d0, 0d0, 0d0, & ! 1/x, Log(x)/x, log[x]^2/x
-      -2d0/3d0 + 8d0*Lmu/3d0,& ! log[x]
-       4d0/9d0, & !log[x]^2
-      4d0/27d0,& !Log^3(x)
+      8d0/3d0 - 8d0*Lmu/3d0 + 8d0*Lmu**2/3d0, &! log[x]
+      -2d0/3d0 + 8d0*Lmu/3d0, & !log[x]^2
+      4d0/9d0,& !Log^3(x)
       0d0, 0d0/)  !log^4[x], Log^5[x]
 
     inter(14:37) = &!!!! approximate part computed by Mathematica
@@ -1241,7 +1241,7 @@ end subroutine Set_Coeff_q_qb
       Coeff_q_qp=Coeff_q_qp+alpha**3*inter
     end if
     end if
-  end subroutine Set_Coeff_q_qp
+end subroutine Set_Coeff_q_qp
   
   !!! This function has been used during debuging
  subroutine CheckCoefficient(as,Nf,Lmu,z)
@@ -1256,28 +1256,28 @@ end subroutine Set_Coeff_q_qb
  !!Q->Q
 !   call Set_CoeffSing1_q_q(as,Nf,Lmu)
 !   call Set_Coeff_q_q(as,Nf,Lmu)
-!   write(*,*) SUM(Coeff_q_q*func)+SUM(CoeffSing1_q_q*func1)
+!   write(*,*) SUM(Coeff_q_q*func)!+SUM(CoeffSing1_q_q*func1)
 
 
   
   !!Q->G
-!   call Set_Coeff_q_g(as,Nf,Lmu)
-!   write(*,*) SUM(Coeff_q_g*func)
+! !   call Set_Coeff_q_g(as,Nf,Lmu)
+! !   write(*,*) SUM(Coeff_q_g*func)
 
 !   !!Q->Q'
 !   call Set_Coeff_q_qp(as,Nf,Lmu)
 !   write(*,*) SUM(Coeff_q_qp*func)
 
   !!Q->Qbar
-  call Set_Coeff_q_qb(as,Nf,Lmu)
-  write(*,*) SUM(Coeff_q_qb*func)
+!   call Set_Coeff_q_qb(as,Nf,Lmu)
+!   write(*,*) SUM(Coeff_q_qb*func)
  
 !  !! G->Q
-!   call Set_Coeff_g_q(as,Nf,Lmu)  
-!   write(*,*) SUM(Coeff_g_q*func)
+!    call Set_Coeff_g_q(as,Nf,Lmu)
+!    write(*,*) SUM(Coeff_g_q*func)
 
 !	!!G->G
-!   call Set_CoeffSing1_g_g(as,Nf,Lmu)
-!   call Set_Coeff_g_g(as,Nf,Lmu)
-!   write(*,*) SUM(Coeff_g_g*func)+SUM(CoeffSing1_g_g*func1)
+  call Set_CoeffSing1_g_g(as,Nf,Lmu)
+  call Set_Coeff_g_g(as,Nf,Lmu)
+  write(*,*) SUM(Coeff_g_g*func)!+SUM(CoeffSing1_g_g*func1)
  end subroutine CheckCoefficient

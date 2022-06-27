@@ -91,7 +91,7 @@ logical::IsComposite=.false.					!!!flag to use the composite TMD
 public::uTMDPDF_Initialize,uTMDPDF_SetLambdaNP,uTMDPDF_SetScaleVariation,uTMDPDF_resetGrid,uTMDPDF_SetPDFreplica
 public::uTMDPDF_IsInitialized,uTMDPDF_CurrentNPparameters
 public::uTMDPDF_lowScale5,uTMDPDF_lowScale50
-   public::CheckCoefficient
+!   public::CheckCoefficient
 !   public::mu_OPE
 
 interface uTMDPDF_SetLambdaNP
