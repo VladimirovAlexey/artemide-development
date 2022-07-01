@@ -79,10 +79,10 @@ function DNP(mu,b,f)
     integer,intent(in)::f
     real(dp)::bSTAR
     
-    bSTAR=b/SQRT(1_dp+b**2/NPparam(1)**2)    
-    DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b   
-    !DNP=Dresum(C0_const/bSTAR,bSTAR,1)+RADEvolution(C0_const/bSTAR,mu,1)+NPparam(2)*bSTAR*b   
-    
+    !bSTAR=b/SQRT(1_dp+b**2/NPparam(1)**2)
+    bSTAR=b/SQRT(1_dp+b**2/2d0**2)
+    !DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b
+    DNP=Dresum(C0_const/bSTAR,bSTAR,1)+RADEvolution(C0_const/bSTAR,mu,1)+NPparam(1)*bSTAR*b/cosh(NPparam(2)*b)
     
 end function DNP
   
@@ -96,7 +96,7 @@ function zetaNP(mu,b,f)
     real(dp)::zz,rad,w1,w2
     
     rad=DNP(mu,b,f)
-    !zz=Exp(-b**2/NPparam(1)**2)
+    ! zz=Exp(-b**2/NPparam(1)**2)
     !!
     zz=Exp(-b**2/0.01d0)
     zetaNP=zetaMUpert(mu,b,f)*zz+zetaSL(mu,rad,f)*(1d0-zz)
