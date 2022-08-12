@@ -229,7 +229,7 @@ contains
  ef=-1d0/3d0
  t3=-0.5d0
  paramS=((1d0-2d0*Abs(ef)*sW2)**2+4d0*ef**2*sW2**2)/(8d0*sW2*cW2)
- paramMIXC=ef*(t3-2d0*ef*sW2)/(2d0*Sqrt(sw2*cw2))
+ paramMIXS=ef*(t3-2d0*ef*sW2)/(2d0*Sqrt(sw2*cw2))
  
  !---------------C-quark
  ef=2d0/3d0

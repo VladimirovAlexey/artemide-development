@@ -647,6 +647,8 @@ function PreFactor2(var,process,x1,z1,qT)
         case(-10221191)
             uniPart=1d0
         CASE(1)
+            !!!!!!!!!!!!!!!!!!!!! CHECK FACTOR 2???!
+        
             !2 pi aEm^2/Q^4 y^2/(1-epsilon)*z1/z(1+varepsilon...)
             ! prefactor for unpolarized expression
 
