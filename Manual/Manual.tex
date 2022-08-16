@@ -1693,8 +1693,12 @@ The subroutine \texttt{uTMDPDF\_resetGrid(makeGrid,includeGluons)} changes the c
 
 \texttt{uTMDPDF\_SetScaleVariation(c4)} changes the scale multiplicative factor $c_4$ (see \cite{Scimemi:2017etj}, eqn.(2.46)). 
 
-\subsection{Technical note}
+\subsection{Technical notes}
 \label{sec:technicalNote_1}
+
+\begin{center}
+\textbf{Convolution}
+\end{center}
 
 The convolution integral reads
 \begin{eqnarray}
@@ -1731,6 +1735,47 @@ The integral $I$ is calculated in the procedure \texttt{Common\_lowScale50} and 
 I(x)=\int_x^1 \frac{dz}{z}\frac{C(z)}{z^2}\frac{f\(\frac{x}{z}\)}{(x/z)^2}f_{NP}(x,z)=\frac{1}{x^3}\int_x^1 dz C(z)\hat f\(\frac{x}{z}\)f_{NP}(x,z),\qquad \hat f(z)=zf(z).
 \end{eqnarray}
 Since the common-code calculates the integral PDF-like convolution, I divide by factor $1/x^2$ all output of the common-code.
+
+\begin{center}
+\textbf{Coefficient functions}
+\end{center}
+
+The coefficient function is spit to 6 terms.
+\begin{eqnarray}
+C_{q\ot q},\quad C_{q\ot g},\quad C_{g\ot q},\quad C_{g\ot g},\quad C_{q\ot \bar q},\quad C_{q\ot \bar q},\quad C_{q\ot q'},
+\end{eqnarray}
+where $C_{q\ot q}$ and $C_{q\ot \bar q}$ contain \textit{non-singlet} part only. The singlet contribution is given in $C_{q\ot q'}$. So, the convolution for a quark (e.g. $q=u$) reads
+\begin{eqnarray}
+F_u=C_{q\ot q}\otimes q_u+C_{q\ot g}\otimes q_g+C_{q\ot \bar q}\otimes q_{\bar u}+C_{q\ot q'}\otimes \sum_{f\in q,\bar q} q_f.
+\end{eqnarray}
+For gluon
+\begin{eqnarray}
+F_g=C_{g\ot g}\otimes q_g+C_{g\ot q}\otimes \sum_{f\in q,\bar q} q_f.
+\end{eqnarray}
+
+The kernels are split into regular, singular and $\delta$-parts, where singular contains $(\ln(1-x)/(1-x)))_+^n$ terms, $\delta$ contains only $\delta(1-x)$ terms, and regular is the rest. Singular and $\delta$-terms are present only for $C_{q\ot q}$ and $C_{g\ot g}$.
+
+The regular part is decomposed further, into singular (but integrable) terms at $x\to0 $ and $x\to 1$, and the finite part. The singular terms are computed exactly, while the finite part is fitted to linear combination of several functions. The basis of fit is such that the expressions are exact for coefficients which do not contain PolyLog functions. These are NLO, leading log [at all orders], large-Nf [at all orders], and some others. The full basis for the regular part is
+\begin{eqnarray}
+&&\Big\{\underbrace{\ln \bar x,\ln^2\bar x,\ln^3\bar x,\ln^4\bar x,\ln^5\bar x,
+\frac{1}{x},\frac{\ln x}{x},\frac{\ln^2x}{x},
+\ln x,\ln^2x,\ln^3x,\ln^4x,\ln^5x,}_{\substack{\text{singular-integrable} \\ \text{exact}}}
+\\\nn&&
+\underbrace{1,x}_{\text{exact}},x\bar x ,
+x\(\frac{\ln x}{1-x}+1\), \frac{x \ln^2x}{1-x}, \frac{x\ln^3x}{1-x},
+x\ln x,x\ln^2x,x\ln^3x,x\ln^4x,
+x\bar x\ln x,x\bar x\ln^2x,x\bar x\ln^3x,
+\\\nn &&
+\bar x\ln\bar x,\bar x\ln^2\bar x,\bar x\ln^3\bar x,
+x\bar x\ln\bar x,x\bar x\ln^2\bar x,x\bar x\ln^3\bar x,
+\ln x\ln\bar x,x\ln x\ln\bar x,x\bar x\ln x\ln\bar x,
+\frac{\ln\bar x(1-x^2+2\ln x)}{1-x},
+\frac{\bar x(\ln x+x)}{x}
+\Big\}.
+\end{eqnarray}
+Decomposed in this basis the coefficient functions are very presice. The typical relative precision is $10^{-8}-10^{-10}$ \textit{for the finite part} (other terms are exact). The worst presicion happen at small $x\sim 10^{-5}$ for $g\ot g$ channel where relative precision is $\sim 10^{-5}-10^{-6}$.
+
+Similar ansatz is used for uTMDFF, with some term removed (which are sensitive to small-x region). Precision in the case of TMDFF is slightly worse $10^{-6}-10^{-8}$. The worst precision is for N$^3$LO $q\to q'$ channel, where it is $\sim 10^{-4}-10^{-6}$. However, it is very good precision which guaranties about 10-12 presice digits for the physical convolution.
 
 \newpage
 
@@ -3373,6 +3418,11 @@ doi:10.1007/JHEP05(2019)125
 \begin{itemize}
 \item[\textbf{Ver.2.06}]
 \begin{itemize}
+	\item \textbf{common:tw2Convolution} Fixed bug, with incorrect estimation of the integral reminder at $x_0\to 1$
+	\item \textbf{uTMDFF:coeffFunc} 3-loop coefficient function added. 
+	\item \textbf{uTMDPDF:coeffFunc} 3-loop coefficient function added.
+	\item \textbf{uTMDFF:coeffFunc} Corrected missprint in the NNLO coeff.function ($\sim\pi^4\delta(\bar z)$ term)  
+	\item \textbf{all .TMD.} Singular list updated to include $(\ln^3\bar x/(1-x))_+$ terms [appear at $N^3$LO]
 	\item \textbf{TMD\_SIDIS} 4-loop coefficient function added. 
 	\item \textbf{TMD\_DY} 4-loop coefficient function added. Fixed a misprint in 3-loops (<0.01\% numerically)
 	\item \textbf{TMD\_AD:AD\_Integral}, implemented \texttt{RADEvolution} function, and accompanying expressions (roots, Lagrange coefficients).

@@ -7,6 +7,7 @@
 !
 !	08.11.2018  essential error in griding with x-dependance FIXED (AV).
 !	29.03.2019  Update to version 2.00 (AV).
+!	24.06.2022  Update to version 2.06 [N3LO] (AV).
 !
 !				A.Vladimirov (19.04.2018)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -58,20 +59,16 @@ integer :: maxIteration=5000
 !------------------------------Variables for coefficient function etc-------------------------------
 
 !!!!!Coefficient lists
-integer,parameter::parametrizationLength=23
-!! { Log[1-x], log[1-x]^2, log[1-x]^3  !exact
-!!   1/x, log[x]/x  !exact
-!! Log[x], log[x]^2, Log[x]^3 !exact
-!! 1 (exact), x, x^2
-!! xLog[x]/(1-x), x Log[x], x^2 Log[x]
-!! x Log[x]^2/(1-x), x Log[x]^2
-!! (Log[x]/(1-x)+1)Log[1-x], Log[x]Log[1-x],  xLog[x]Log[1-x],
-!! (1-x)/x Log[1-x], (1-x)Log[1-x], (1-x)^2 Log[1-x], (1-x)Log^2[1-x] }
+integer,parameter::parametrizationLength=37
+!! { Log[1-x], log[1-x]^2, log[1-x]^3, log[1-x]^4, log[1-x]^5  !exact
+!!   1/x, log[x]/x, Log[x]^2/x  !exact
+!! Log[x], log[x]^2, Log[x]^3, log[x]^4, Log[x]^5 !exact
+!! T0,...,T23 (Chebyshev polynomials) }
 !! The Lmu^2 part is exact the later parts are fitted, but exact if posible (e.g. Lmu and Nf parts for q->q)
 real(dp),dimension(1:parametrizationLength) :: Coeff_q_q, Coeff_q_g, Coeff_g_q, Coeff_g_g, Coeff_q_qb, Coeff_q_qp
 !! This is list of coefficeints for the encoding the singular at x->1
-!! { 1/(1-x), (Log[1-x]/(1-x))_+}
-real(dp), dimension(1:2) :: CoeffSing1_q_q,CoeffSing1_g_g
+!! { 1/(1-x)_+, (Log[1-x]/(1-x))_+, (Log[1-x]^2/(1-x))_+}
+real(dp), dimension(1:3) :: CoeffSing1_q_q,CoeffSing1_g_g
 
 integer :: counter,messageCounter
 
@@ -94,7 +91,7 @@ logical::IsComposite=.false.					!!!flag to use the composite TMD
 public::uTMDPDF_Initialize,uTMDPDF_SetLambdaNP,uTMDPDF_SetScaleVariation,uTMDPDF_resetGrid,uTMDPDF_SetPDFreplica
 public::uTMDPDF_IsInitialized,uTMDPDF_CurrentNPparameters
 public::uTMDPDF_lowScale5,uTMDPDF_lowScale50
-!   public::CheckCoefficient  
+!   public::CheckCoefficient
 !   public::mu_OPE
 
 interface uTMDPDF_SetLambdaNP
@@ -203,6 +200,12 @@ subroutine uTMDPDF_Initialize(file,prefix)
         CASE ("NNLO+")
             if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO+'
             order_global=2
+        CASE ("NNNLO")
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N3LO'
+            order_global=3
+        CASE ("N3LO")
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N3LO'
+            order_global=3
         CASE DEFAULT
             if(outputLevel>0)write(*,*) &
                 WarningString('Initialize: unknown order for coefficient function. Switch to NLO.',moduleName)

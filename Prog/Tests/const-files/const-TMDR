@@ -109,11 +109,11 @@
 # ---------------------------------------------------------------------------
 *3   :
 *p1  : initialize TMDR module
- F
+ T
  
 *A   : ---- Main definitions ----
 *p1  : Order of evolution
- LO
+ NNLO
 *p2  : Type of evolution solution (1 = improved D solution ,2 = improved gamma solution, 3 = fixed mu)
            3
 *B   : ---- Parameters of NP model ----
@@ -133,7 +133,7 @@
 # ---------------------------------------------------------------------------
 *4   :
 *p1  : initialize uTMDPDF module
- T
+ F
  
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function

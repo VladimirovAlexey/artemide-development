@@ -53,10 +53,11 @@
  
 *C   : ---- uFF sets----
 *p1  : total number of FFs to initialize (0= initialization is skipped)
-           0
+           1
 *p2  : reference number for hadrons
-    0
+    1
 *p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
+DSS14_NLO_PionPlus
 *p4  : list of initialization replicas
     0
  
@@ -133,7 +134,7 @@
 # ---------------------------------------------------------------------------
 *4   :
 *p1  : initialize uTMDPDF module
- T
+ F
  
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
@@ -181,15 +182,19 @@
 # ---------------------------------------------------------------------------
 *5   :
 *p1  : initialize uTMDFF module
- F
+ T
  
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
  LO
 *B   : ---- Parameters of NP model ----
 *p1  : Length of lambdaNP
-           0
+           4
 *p2  : Initialization parameters (in column)
+1.
+1.
+1.
+1.
 *C   : ---- Numerical evaluation parameters ----
 *p1  : Tolerance (relative tolerance of convolution integral)
    1.0000000000000000E-004
@@ -197,13 +202,13 @@
        10000
 *D   : ---- Grid preparation options ----
 *p1  : Prepare grid
- T
+ F
 *p2  : Include gluon TMDs into the grid
  F
 *p3  : total number of FFs added to the grid (by default it coincides with number of initialized FFs)
-           0
+           1
 *p4  : reference numbers for hadrons (by default it coincides with references for FFs)
-    0
+    1
 *E   : ---- Parameters of grid ----
 *p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)
    5.0000000000000003E-002
