@@ -184,12 +184,15 @@ subroutine wgtTMDPDF_Initialize(file,prefix)
             order_global=1
         CASE ("LO+")
             if(outputLevel>1) write(*,*) trim(moduleName)//' Order for tw2-part set: LO+'
-            order_global=1        
+            order_global=1
+        CASE ("NLO")
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order for tw2-part set: NLO'
+            order_global=2
         CASE DEFAULT
             if(outputLevel>0) write(*,*) &
                 WarningString('Initialize: unknown order for tw2 coefficient function. Switch to LO.',moduleName)
             if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: LO'
-            order_global=0
+            order_global=1
     END SELECT
 
     if(outputLevel>2 .and. order_global>-1) write(*,'(A,I1)') ' |  Tw2.Coef.func. =as^',(order_global-1)

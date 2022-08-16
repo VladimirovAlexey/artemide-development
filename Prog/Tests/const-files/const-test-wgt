@@ -75,7 +75,7 @@
 *p2  : reference number for hadrons
     1
 *p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
- NNPDF31_nnlo_as_0118
+ NNPDFpol11_100
 *p4  : list of initialization replicas
     0
  
@@ -435,7 +435,7 @@
  
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function (for tw-2 part only)
- LO
+ NLO
 *p2  : Use composite TMD-function definition
  F
 *B   : ---- Parameters of NP model ----

@@ -5,6 +5,7 @@
 program example
 use aTMDe_control
 use wgtTMDPDF
+use QCDinput
 implicit none
 
 integer::i,iMax
@@ -40,10 +41,31 @@ end do
 !     write(*,*) "{",-b(i),",", TT(1),"},"
 ! end do
 
-do i=1,10
+write(*,*) '---------------------- D -----------------------'
 
-    TT=wgtTMDPDF_lowScale5(i*0.1d0,0.1d0,1)
-    write(*,*) "{",i*0.1d0,",", TT(1),"},"
+do i=1,100
+
+    TT=wgtTMDPDF_lowScale5(i*0.01d0,0.1d0,1)
+    !TT=x_hPDF(i*0.01d0,11.d0,1)
+    write(*,'(A,F12.10,A,F12.10,A)') "{",i*0.01d0,",", TT(1),"},"
+end do
+
+write(*,*) '---------------------- U -----------------------'
+
+do i=1,100
+
+    TT=wgtTMDPDF_lowScale5(i*0.01d0,0.1d0,1)
+    !TT=x_hPDF(i*0.01d0,11.d0,1)
+    write(*,'(A,F12.10,A,F12.10,A)') "{",i*0.01d0,",", TT(2),"},"
+end do
+
+write(*,*) '---------------------- S -----------------------'
+
+do i=1,100
+
+    TT=wgtTMDPDF_lowScale5(i*0.01d0,0.1d0,1)
+    !TT=x_hPDF(i*0.01d0,11.d0,1)
+    write(*,'(A,F12.10,A,F12.10,A)') "{",i*0.01d0,",", TT(3),"},"
 end do
 
 end program example
