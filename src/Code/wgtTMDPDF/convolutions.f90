@@ -85,6 +85,7 @@ function wgtTMDPDF_base5(x,bT,hadron)
     !!!! finally just calculation
     else  
         !!!! only (tw-2 part)*fNP is computed by convolution. Therefore, we add tw3*fNP
+        !!!! the factor x is the part of definition of convolution for WW
         wgtTMDPDF_base5=x*Common_lowScale5(x,bT,hadron)+g1T_tw3NP(x,hadron,lambdaNP)*FNP(x,0d0,bT,hadron,lambdaNP)
     end if
 
@@ -135,6 +136,7 @@ function wgtTMDPDF_base50(x,bT,hadron)
             end do
             
             !!!! only (tw-2 part)*fNP is saved in grid. Therefore, we add tw3*fNP
+            !!!! the factor x is the part of definition of convolution for WW
             wgtTMDPDF_base50=wgtTMDPDF_base50+g1T_tw3NP(x,hadron,lambdaNP)*FNP(x,0d0,bT,hadron,lambdaNP)
         end if
     

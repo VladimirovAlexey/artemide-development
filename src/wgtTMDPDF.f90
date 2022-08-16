@@ -57,7 +57,7 @@ integer :: maxIteration=5000
 !------------------------------Variables for coefficient function etc-------------------------------
 
 !!!!!Coefficient lists
-integer,parameter::parametrizationLength=1
+integer,parameter::parametrizationLength=4
 !! { 1 (exact)}
 !! The Lmu^2 part is exact the later parts are fitted, but exact if posible (e.g. Lmu and Nf parts for q->q)
 real(dp),dimension(1:parametrizationLength) :: Coeff_q_q, Coeff_q_g, Coeff_g_q, Coeff_g_g, Coeff_q_qb, Coeff_q_qp
