@@ -64,7 +64,7 @@ contains
   character(len=*)::file
   character(len=*),optional::prefix
   character(len=300)::path
-  logical::initRequared
+  logical::initRequired
   real(dp)::dummy
   integer::FILEver
   
@@ -96,9 +96,9 @@ contains
     !!! check do we need initialisation?
     call MoveTO(51,'*2   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) initRequared
-    if(.not.initRequared) then
-      if(outputLevel>1) write(*,*)'artemide.EWinput: initialization is not requared. '
+    read(51,*) initRequired
+    if(.not.initRequired) then
+      if(outputLevel>1) write(*,*)'artemide.EWinput: initialization is not required. '
       started=.false.
       return
     end if

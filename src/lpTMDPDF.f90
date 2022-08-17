@@ -1,4 +1,4 @@
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !			arTeMiDe 2.01
 !
 !	Evaluation of the linearly-polarized gluon TMD PDF at low normalization point in zeta-prescription.
@@ -121,7 +121,7 @@ subroutine lpTMDPDF_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
     character(len=300)::path,line
-    logical::initRequared
+    logical::initRequired
     character(len=8)::orderMain
     logical::bSTAR_lambdaDependent,dummyLogical
     integer::i,FILEver
@@ -165,9 +165,9 @@ subroutine lpTMDPDF_Initialize(file,prefix)
 
     call MoveTO(51,'*11  ')
     call MoveTO(51,'*p1  ')
-    read(51,*) initRequared
-    if(.not.initRequared) then
-        if(outputLevel>1) write(*,*)'artemide.',moduleName,': initialization is not requared. '
+    read(51,*) initRequired
+    if(.not.initRequired) then
+        if(outputLevel>1) write(*,*)'artemide.',moduleName,': initialization is not required. '
         started=.false.
         return
     end if
@@ -348,10 +348,10 @@ subroutine lpTMDPDF_Initialize(file,prefix)
 end subroutine lpTMDPDF_Initialize
 
 !! call for parameters from the model
-!! gluonRequared option is ignored
-subroutine lpTMDPDF_SetReplica_optional(num,buildGrid, gluonRequared)
+!! gluonRequired option is ignored
+subroutine lpTMDPDF_SetReplica_optional(num,buildGrid, gluonRequired)
     integer:: num
-    logical,optional:: buildGrid,gluonRequared
+    logical,optional:: buildGrid,gluonRequired
     real(dp),allocatable::NParray(:)
 
     call GetReplicaParameters(num,NParray)
@@ -376,11 +376,11 @@ end subroutine lpTMDPDF_SetPDFreplica
   
 !!!Sets the non-pertrubative parameters lambda
 !!! carries additionl option to build the grid
-!!! if need to build grid, specify the gluon requared directive.
-!!! gluon gluonRequared option is ignored
-subroutine lpTMDPDF_SetLambdaNP_usual(lambdaIN,buildGrid, gluonRequared)
+!!! if need to build grid, specify the gluon required directive.
+!!! gluon gluonRequired option is ignored
+subroutine lpTMDPDF_SetLambdaNP_usual(lambdaIN,buildGrid, gluonRequired)
     real(dp),intent(in)::lambdaIN(:)
-    logical,optional :: buildGrid,gluonRequared
+    logical,optional :: buildGrid,gluonRequired
     real(dp),dimension(1:lambdaNPlength)::lambdaOLD
     logical::IsNewValues
     integer::i,ll
@@ -470,9 +470,9 @@ subroutine lpTMDPDF_CurrentNPparameters(var)
 end subroutine lpTMDPDF_CurrentNPparameters
   
 !!! This subroutine ask for the grid reconstruction (or destruction)
-!!! gluon gluonRequared option is ignored
-subroutine lpTMDPDF_resetGrid(buildGrid,gluonRequared)
-    logical,optional::buildGrid,gluonRequared
+!!! gluon gluonRequired option is ignored
+subroutine lpTMDPDF_resetGrid(buildGrid,gluonRequired)
+    logical,optional::buildGrid,gluonRequired
     logical::previousState
     
     if(present(buildGrid)) prepareGrid=buildGrid

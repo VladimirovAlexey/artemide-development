@@ -128,7 +128,7 @@ contains
     character(len=*)::file
     character(len=*),optional::prefix
     character(len=300)::path,line
-    logical::initRequared,dummyLogical,TMDPDFgrid
+    logical::initRequired,dummyLogical,TMDPDFgrid
     character(len=8)::orderMain
     integer::i,FILEver
     !$ integer:: omp_get_thread_num
@@ -167,9 +167,9 @@ contains
     !!! go to section TMD-DY
     call MoveTO(51,'*9   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) initRequared
-    if(.not.initRequared) then
-      if(outputLevel>2) write(*,*)'artemide.',moduleName,': initialization is not requared. '
+    read(51,*) initRequired
+    if(.not.initRequired) then
+      if(outputLevel>2) write(*,*)'artemide.',moduleName,': initialization is not required. '
       started=.false.
       return
     end if

@@ -114,7 +114,7 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
     character(len=300)::path,line
-    logical::initRequared,dummyLogical
+    logical::initRequired,dummyLogical
     character(len=8)::orderMain
     integer::i,FILEver
     !$ integer:: omp_get_thread_num
@@ -152,9 +152,9 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
 
     call MoveTO(51,'*10   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) initRequared
-    if(.not.initRequared) then
-        if(outputLevel>2) write(*,*)'artemide.',moduleName,': initialization is not requared. '
+    read(51,*) initRequired
+    if(.not.initRequired) then
+        if(outputLevel>2) write(*,*)'artemide.',moduleName,': initialization is not required. '
         started=.false.
         return
     end if
@@ -856,7 +856,7 @@ end function xSec
     real(dp) :: zMin,zMax
     integer,dimension(1:3),intent(in)::process
     
-    !! the integration over Z is requared
+    !! the integration over Z is required
     if(doZ) then
       
       if(zmax > 1d0) then
@@ -986,7 +986,7 @@ end function xSec
     integer,dimension(1:3),intent(in)::process
     
     if(doX) then    
-      !!!Integration is requared
+      !!!Integration is required
       
       !!! in the case process=3 the input is y, which is to be transformed to X
       !!! evaluate corresponding y's
@@ -1154,7 +1154,7 @@ end function xSec
     real(dp) :: Qmin, Qmax,Qmin_in,Qmax_in,xMin,xMax,zMin,zMax
     integer,dimension(1:3),intent(in)::process
     
-    !! the integration over Q is requared
+    !! the integration over Q is required
     if(doQ) then
       !!! evaluate correspnding y's
       !!! in the case process=2 the integral is over y
@@ -1421,7 +1421,7 @@ end function xSec
       
       ptMax=ptMax_in
     
-    !! the integration over PT is requared
+    !! the integration over PT is required
     if(doPT) then
       
       if(mod(num,2)>0) then 

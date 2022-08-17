@@ -110,7 +110,7 @@ subroutine TMDs_inKT_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
     character(len=300)::path,line
-    logical::initRequared
+    logical::initRequired
     integer::FILEver
 
     if(started) return
@@ -142,9 +142,9 @@ subroutine TMDs_inKT_Initialize(file,prefix)
 
     call MoveTO(51,'*8   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) initRequared
-    if(.not.initRequared) then
-        if(outputLevel>2) write(*,*)'artemide.',moduleName,': initialization is not requared. '
+    read(51,*) initRequired
+    if(.not.initRequired) then
+        if(outputLevel>2) write(*,*)'artemide.',moduleName,': initialization is not required. '
         started=.false.
         return
     end if

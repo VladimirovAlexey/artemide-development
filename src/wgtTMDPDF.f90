@@ -117,7 +117,7 @@ subroutine wgtTMDPDF_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
     character(len=300)::path,line
-    logical::initRequared
+    logical::initRequired
     character(len=8)::orderTW2
     logical::bSTAR_lambdaDependent
     integer::i,FILEver
@@ -161,9 +161,9 @@ subroutine wgtTMDPDF_Initialize(file,prefix)
     !!!!--------------------- actual wgtTMDPDF section
     call MoveTO(51,'*13   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) initRequared
-    if(.not.initRequared) then
-        if(outputLevel>1) write(*,*)'artemide.',moduleName,': initialization is not requared. '
+    read(51,*) initRequired
+    if(.not.initRequired) then
+        if(outputLevel>1) write(*,*)'artemide.',moduleName,': initialization is not required. '
         started=.false.
         return
     end if
@@ -313,22 +313,22 @@ subroutine wgtTMDPDF_Initialize(file,prefix)
 end subroutine wgtTMDPDF_Initialize
 
 !! call for parameters from the model
-subroutine wgtTMDPDF_SetReplica_optional(num,buildGrid, gluonRequared)
+subroutine wgtTMDPDF_SetReplica_optional(num,buildGrid, gluonRequired)
     integer,intent(in):: num
-    logical,optional,intent(in):: buildGrid,gluonRequared
+    logical,optional,intent(in):: buildGrid,gluonRequired
     real(dp),allocatable::NParray(:)
 
     call GetReplicaParameters(num,NParray)
 
     if(present(buildGrid)) then
-    if(present(gluonRequared)) then
-        call wgtTMDPDF_SetLambdaNP_usual(NParray,buildGrid=buildGrid,gluonRequared=gluonRequared)
+    if(present(gluonRequired)) then
+        call wgtTMDPDF_SetLambdaNP_usual(NParray,buildGrid=buildGrid,gluonRequired=gluonRequired)
     else
         call wgtTMDPDF_SetLambdaNP_usual(NParray,buildGrid=buildGrid)
     end if
     else
-    if(present(gluonRequared)) then
-        call wgtTMDPDF_SetLambdaNP_usual(NParray,gluonRequared=gluonRequared)
+    if(present(gluonRequired)) then
+        call wgtTMDPDF_SetLambdaNP_usual(NParray,gluonRequired=gluonRequired)
     else
         call wgtTMDPDF_SetLambdaNP_usual(NParray)
     end if
@@ -348,17 +348,17 @@ end subroutine wgtTMDPDF_SetPDFreplica
 
 !!!Sets the non-pertrubative parameters lambda
 !!! carries additionl option to build the grid
-!!! if need to build grid, specify the gluon requared directive.
-subroutine wgtTMDPDF_SetLambdaNP_usual(lambdaIN,buildGrid, gluonRequared)
+!!! if need to build grid, specify the gluon required directive.
+subroutine wgtTMDPDF_SetLambdaNP_usual(lambdaIN,buildGrid, gluonRequired)
     real(dp),intent(in)::lambdaIN(:)
-    logical,optional,intent(in) :: buildGrid,gluonRequared
+    logical,optional,intent(in) :: buildGrid,gluonRequired
     real(dp),dimension(1:lambdaNPlength)::lambdaOLD
     logical::IsNewValues
     integer::i,ll
     messageCounter=0
 
     if(present(buildGrid)) prepareGrid=buildGrid
-    if(present(gluonRequared)) withGluon=gluonRequared
+    if(present(gluonRequired)) withGluon=gluonRequired
 
     ll=size(lambdaIN)
     if(ll<lambdaNPlength) then 
@@ -442,12 +442,12 @@ subroutine wgtTMDPDF_CurrentNPparameters(var)
 end subroutine wgtTMDPDF_CurrentNPparameters
 
 !!! This subroutine ask for the grid reconstruction (or destruction)
-subroutine wgtTMDPDF_resetGrid(buildGrid,gluonRequared)
-    logical,optional,intent(in)::buildGrid,gluonRequared
+subroutine wgtTMDPDF_resetGrid(buildGrid,gluonRequired)
+    logical,optional,intent(in)::buildGrid,gluonRequired
     logical::previousState
 
     if(present(buildGrid)) prepareGrid=buildGrid
-    if(present(gluonRequared)) withGluon=gluonRequared
+    if(present(gluonRequired)) withGluon=gluonRequired
 
     previousState=gridReady
     gridReady=.false.
