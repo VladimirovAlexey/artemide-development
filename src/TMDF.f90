@@ -1320,6 +1320,290 @@ end subroutine TMDF_ResetCounters
         +FA(-3)*FB(3)/9.d0&
         +FA(-4)*FB(4)*4d0/9.d0&
         +FA(-5)*FB(5)/9d0)
+    !--------------------------------------------------------------------------------  
+    !--------------------------------------------------------------------------------  
+    CASE (13001:13009) !A_LT asymmetry p->hN where n=last number
+	! e_q^2 *F_q(A)*F_q(B)
+	h=process-13000
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1) 
+	FB=uTMDFF_5(x2,b,mu,zeta2,h)
+	Integrand=+global_mass_scale*(&
+        FA(1)*FB(1)/9.d0&
+        +FA(2)*FB(2)*4.d0/9.d0&
+        +FA(3)*FB(3)/9.d0&
+        +FA(4)*FB(4)*4d0/9.d0&
+        +FA(5)*FB(5)/9d0&
+        +FA(-1)*FB(-1)/9.d0&
+        +FA(-2)*FB(-2)*4.d0/9.d0&
+        +FA(-3)*FB(-3)/9.d0&
+        +FA(-4)*FB(-4)*4d0/9.d0&
+        +FA(-5)*FB(-5)/9d0)
+    !--------------------------------------------------------------------------------  
+    CASE (13011:13019) !A_LT asymmetry d->hN where n=last number (d=deutron=(p+n)/2)
+	! e_q^2 *F_q(A)*F_q(B)
+	h=process-13010
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,h)
+	Integrand=+global_mass_scale*(&
+        (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
+        +FA(3)*FB(3)/9.d0&
+        +FA(4)*FB(4)*4d0/9.d0&
+        +FA(5)*FB(5)/9d0&
+        +(FA(-1)+FA(-2))*(FB(-1)+4d0*FB(-2))/18d0&
+        +FA(-3)*FB(-3)/9.d0&
+        +FA(-4)*FB(-4)*4d0/9.d0&
+        +FA(-5)*FB(-5)/9d0)
+    !--------------------------------------------------------------------------------  
+    CASE (13021:13029) !A_LT asymmetry p->bar-hN where n=last number
+	! e_q^2 *F_q(A)*F_bar-q(B)
+	h=process-13020
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,h)
+	Integrand=+global_mass_scale*(&
+        FA(1)*FB(-1)/9.d0&
+        +FA(2)*FB(-2)*4.d0/9.d0&
+        +FA(3)*FB(-3)/9.d0&
+        +FA(4)*FB(-4)*4d0/9.d0&
+        +FA(5)*FB(-5)/9d0&
+        +FA(-1)*FB(1)/9.d0&
+        +FA(-2)*FB(2)*4.d0/9.d0&
+        +FA(-3)*FB(3)/9.d0&
+        +FA(-4)*FB(4)*4d0/9.d0&
+        +FA(-5)*FB(5)/9d0)
+    !--------------------------------------------------------------------------------  
+    CASE (13031:13039) !A_LT asymmetry d->bar-hN where n=last number (d=deutron=(p+n)/2)
+	! e_q^2 *F_q(A)*F_bar-q(B)
+	h=process-13030
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,h)
+	Integrand=+global_mass_scale*(&
+        (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
+        +FA(3)*FB(-3)/9.d0&
+        +FA(4)*FB(-4)*4d0/9.d0&
+        +FA(5)*FB(-5)/9d0&
+        +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
+        +FA(-3)*FB(3)/9.d0&
+        +FA(-4)*FB(4)*4d0/9.d0&
+        +FA(-5)*FB(5)/9d0)
+	!--------------------------------------------------------------------------------  
+    CASE (13041:13049) !A_LT asymmetry p->hN where n=last number  (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_q(B)
+	h=process-13040
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,h)
+	Integrand=+global_mass_scale*(&
+        FA(2)*FB(1)/9.d0&
+        +FA(1)*FB(2)*4.d0/9.d0&
+        +FA(3)*FB(3)/9.d0&
+        +FA(4)*FB(4)*4d0/9.d0&
+        +FA(5)*FB(5)/9d0&
+        +FA(-2)*FB(-1)/9.d0&
+        +FA(-1)*FB(-2)*4.d0/9.d0&
+        +FA(-3)*FB(-3)/9.d0&
+        +FA(-4)*FB(-4)*4d0/9.d0&
+        +FA(-5)*FB(-5)/9d0)
+    !--------------------------------------------------------------------------------  
+    CASE (13051:13059) !A_LT asymmetry p->bar-hN where n=last number (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_bar-q(B)
+	h=process-13050
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,h)
+	Integrand=+global_mass_scale*(&
+        FA(2)*FB(-1)/9.d0&
+        +FA(1)*FB(-2)*4.d0/9.d0&
+        +FA(3)*FB(-3)/9.d0&
+        +FA(4)*FB(-4)*4d0/9.d0&
+        +FA(5)*FB(-5)/9d0&
+        +FA(-2)*FB(1)/9.d0&
+        +FA(-1)*FB(2)*4.d0/9.d0&
+        +FA(-3)*FB(3)/9.d0&
+        +FA(-4)*FB(4)*4d0/9.d0&
+        +FA(-5)*FB(5)/9d0)
+    !--------------------------------------------------------------------------------  
+    !--------------------------------------------------------------------------------  
+    CASE (13101) !p->h? where h?=h1+h2
+	! e_q^2 *F_q(A)*F_q(B)
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+	Integrand=+global_mass_scale*(&
+        FA(1)*FB(1)/9.d0&
+        +FA(2)*FB(2)*4.d0/9.d0&
+        +FA(3)*FB(3)/9.d0&
+        +FA(4)*FB(4)*4d0/9.d0&
+        +FA(5)*FB(5)/9d0&
+        +FA(-1)*FB(-1)/9.d0&
+        +FA(-2)*FB(-2)*4.d0/9.d0&
+        +FA(-3)*FB(-3)/9.d0&
+        +FA(-4)*FB(-4)*4d0/9.d0&
+        +FA(-5)*FB(-5)/9d0)
+    !--------------------------------------------------------------------------------  
+    CASE (13102) !p->h? where h?=h1+h2+h3
+	! e_q^2 *F_q(A)*F_q(B)
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+	Integrand=+global_mass_scale*(&
+        FA(1)*FB(1)/9.d0&
+        +FA(2)*FB(2)*4.d0/9.d0&
+        +FA(3)*FB(3)/9.d0&
+        +FA(4)*FB(4)*4d0/9.d0&
+        +FA(5)*FB(5)/9d0&
+        +FA(-1)*FB(-1)/9.d0&
+        +FA(-2)*FB(-2)*4.d0/9.d0&
+        +FA(-3)*FB(-3)/9.d0&
+        +FA(-4)*FB(-4)*4d0/9.d0&
+        +FA(-5)*FB(-5)/9d0)
+    !--------------------------------------------------------------------------------  
+    CASE (13103) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2)
+	! e_q^2 *F_q(A)*F_q(B)
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+	Integrand=+global_mass_scale*(&
+        (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
+        +FA(3)*FB(3)/9.d0&
+        +FA(4)*FB(4)*4d0/9.d0&
+        +FA(5)*FB(5)/9d0&
+        +(FA(-1)+FA(-2))*(FB(-1)+4d0*FB(-2))/18d0&
+        +FA(-3)*FB(-3)/9.d0&
+        +FA(-4)*FB(-4)*4d0/9.d0&
+        +FA(-5)*FB(-5)/9d0)
+    !--------------------------------------------------------------------------------  
+    CASE (13104) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
+	! e_q^2 *F_q(A)*F_q(B)
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+	Integrand=+global_mass_scale*(&
+        (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
+        +FA(3)*FB(3)/9.d0&
+        +FA(4)*FB(4)*4d0/9.d0&
+        +FA(5)*FB(5)/9d0&
+        +(FA(-1)+FA(-2))*(FB(-1)+4d0*FB(-2))/18d0&
+        +FA(-3)*FB(-3)/9.d0&
+        +FA(-4)*FB(-4)*4d0/9.d0&
+        +FA(-5)*FB(-5)/9d0)
+    !--------------------------------------------------------------------------------  
+    CASE (13105) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_q(B)
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+	Integrand=+global_mass_scale*(&
+        FA(2)*FB(1)/9.d0&
+        +FA(1)*FB(2)*4.d0/9.d0&
+        +FA(3)*FB(3)/9.d0&
+        +FA(4)*FB(4)*4d0/9.d0&
+        +FA(5)*FB(5)/9d0&
+        +FA(-2)*FB(-1)/9.d0&
+        +FA(-1)*FB(-2)*4.d0/9.d0&
+        +FA(-3)*FB(-3)/9.d0&
+        +FA(-4)*FB(-4)*4d0/9.d0&
+        +FA(-5)*FB(-5)/9d0)
+    !--------------------------------------------------------------------------------  
+    CASE (13106) !n->h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_q(B)
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+	Integrand=+global_mass_scale*(&
+        FA(2)*FB(1)/9.d0&
+        +FA(1)*FB(2)*4.d0/9.d0&
+        +FA(3)*FB(3)/9.d0&
+        +FA(4)*FB(4)*4d0/9.d0&
+        +FA(5)*FB(5)/9d0&
+        +FA(-2)*FB(-1)/9.d0&
+        +FA(-1)*FB(-2)*4.d0/9.d0&
+        +FA(-3)*FB(-3)/9.d0&
+        +FA(-4)*FB(-4)*4d0/9.d0&
+        +FA(-5)*FB(-5)/9d0)
+    !------------------------------------------------------------------------------------
+    CASE (13111) !p->bar h? where h?=h1+h2
+	! e_q^2 *F_q(A)*F_bq(B)
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+	Integrand=+global_mass_scale*(&
+        FA(1)*FB(-1)/9.d0&
+        +FA(2)*FB(-2)*4.d0/9.d0&
+        +FA(3)*FB(-3)/9.d0&
+        +FA(4)*FB(-4)*4d0/9.d0&
+        +FA(5)*FB(-5)/9d0&
+        +FA(-1)*FB(1)/9.d0&
+        +FA(-2)*FB(2)*4.d0/9.d0&
+        +FA(-3)*FB(3)/9.d0&
+        +FA(-4)*FB(4)*4d0/9.d0&
+        +FA(-5)*FB(5)/9d0)
+    !--------------------------------------------------------------------------------  
+    CASE (13112) !p->bar h? where h?=h1+h2+h3
+	! e_q^2 *F_q(A)*F_bq(B)
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+	Integrand=+global_mass_scale*(&
+        FA(1)*FB(-1)/9.d0&
+        +FA(2)*FB(-2)*4.d0/9.d0&
+        +FA(3)*FB(-3)/9.d0&
+        +FA(4)*FB(-4)*4d0/9.d0&
+        +FA(5)*FB(-5)/9d0&
+        +FA(-1)*FB(1)/9.d0&
+        +FA(-2)*FB(2)*4.d0/9.d0&
+        +FA(-3)*FB(3)/9.d0&
+        +FA(-4)*FB(4)*4d0/9.d0&
+        +FA(-5)*FB(5)/9d0)
+    !--------------------------------------------------------------------------------  
+    CASE (13113) !d->bar h? where h?=h1+h2 (d=deutron=(p+n)/2)
+	! e_q^2 *F_q(A)*F_bq(B)
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+	Integrand=+global_mass_scale*(&
+        (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
+        +FA(3)*FB(-3)/9.d0&
+        +FA(4)*FB(-4)*4d0/9.d0&
+        +FA(5)*FB(-5)/9d0&
+        +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
+        +FA(-3)*FB(3)/9.d0&
+        +FA(-4)*FB(4)*4d0/9.d0&
+        +FA(-5)*FB(5)/9d0)
+    !--------------------------------------------------------------------------------  
+    CASE (13114) !d->bar h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
+	! e_q^2 *F_q(A)*F_bq(B)
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+	Integrand=+global_mass_scale*(&
+        (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
+        +FA(3)*FB(-3)/9.d0&
+        +FA(4)*FB(-4)*4d0/9.d0&
+        +FA(5)*FB(-5)/9d0&
+        +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
+        +FA(-3)*FB(3)/9.d0&
+        +FA(-4)*FB(4)*4d0/9.d0&
+        +FA(-5)*FB(5)/9d0)
+    !------------------------------------------------------------------------------------
+    CASE (13115) !n->bar h? where h?=h1+h2 (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_bq(B)
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+	Integrand=+global_mass_scale*(&
+        FA(2)*FB(-1)/9.d0&
+        +FA(1)*FB(-2)*4.d0/9.d0&
+        +FA(3)*FB(-3)/9.d0&
+        +FA(4)*FB(-4)*4d0/9.d0&
+        +FA(5)*FB(-5)/9d0&
+        +FA(-2)*FB(1)/9.d0&
+        +FA(-1)*FB(2)*4.d0/9.d0&
+        +FA(-3)*FB(3)/9.d0&
+        +FA(-4)*FB(4)*4d0/9.d0&
+        +FA(-5)*FB(5)/9d0)
+    !--------------------------------------------------------------------------------  
+    CASE (13116) !n->bar h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
+	! e_q^2 *F_q(A)*F_bq(B)
+	FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+	FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+	Integrand=+global_mass_scale*(&
+        FA(2)*FB(-1)/9.d0&
+        +FA(1)*FB(-2)*4.d0/9.d0&
+        +FA(3)*FB(-3)/9.d0&
+        +FA(4)*FB(-4)*4d0/9.d0&
+        +FA(5)*FB(-5)/9d0&
+        +FA(-2)*FB(1)/9.d0&
+        +FA(-1)*FB(2)*4.d0/9.d0&
+        +FA(-3)*FB(3)/9.d0&
+        +FA(-4)*FB(4)*4d0/9.d0&
+        +FA(-5)*FB(5)/9d0)
     CASE DEFAULT
     write(*,*) ErrorString('undefined process: ',moduleName),process
     write(*,*) color('Evaluation stop',c_red_bold)
