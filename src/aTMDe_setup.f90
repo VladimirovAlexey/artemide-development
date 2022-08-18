@@ -395,7 +395,11 @@ subroutine SetupDefault(order)
     wgtTMDPDF_grid_bMax=100d0
     wgtTMDPDF_grid_SizeX=250
     wgtTMDPDF_grid_SizeB=500
-    wgtTMDPDF_grid_slope=10d0 
+    wgtTMDPDF_grid_slope=10d0
+    number_of_wgtTMDPDFs=0
+    if(allocated(enumeration_of_wgtTMDPDFs)) deallocate(enumeration_of_wgtTMDPDFs)
+    allocate(enumeration_of_wgtTMDPDFs(1:1))
+    enumeration_of_wgtTMDPDFs=(/-1/)
     
     
 
@@ -1547,6 +1551,10 @@ subroutine ReadConstantsFile(file,prefix)
         read(51,*) SiversTMDPDF_withGluon
         call MoveTO(51,'*p3  ')
         read(51,*) number_of_SiversTMDPDFs        
+        if(allocated(enumeration_of_SiversTMDPDFs)) deallocate(enumeration_of_SiversTMDPDFs)
+        allocate(enumeration_of_SiversTMDPDFs(1:number_of_SiversTMDPDFs))
+        call MoveTO(51,'*p4  ')
+        read(51,*) enumeration_of_SiversTMDPDFs
         call MoveTO(51,'*E   ')
         call MoveTO(51,'*p1  ')
         read(51,*) SiversTMDPDF_grid_xMin
@@ -1592,6 +1600,10 @@ subroutine ReadConstantsFile(file,prefix)
         read(51,*) wgtTMDPDF_withGluon
         call MoveTO(51,'*p3  ')
         read(51,*) number_of_wgtTMDPDFs        
+        if(allocated(enumeration_of_wgtTMDPDFs)) deallocate(enumeration_of_wgtTMDPDFs)
+        allocate(enumeration_of_wgtTMDPDFs(1:number_of_wgtTMDPDFs))
+        call MoveTO(51,'*p4  ')
+        read(51,*) enumeration_of_wgtTMDPDFs     
         call MoveTO(51,'*E   ')
         call MoveTO(51,'*p1  ')
         read(51,*) wgtTMDPDF_grid_xMin

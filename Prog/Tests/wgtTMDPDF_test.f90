@@ -15,8 +15,7 @@ real*8::TT(-5:5)
 
 call artemide_Initialize('const-test-wgt',prefix='Prog/Tests/const-files/')
 ! call artemide_Initialize('const-DY_LO',prefix='/home/alexey/artemide_Repository/Constants-files/')!
-call artemide_SetNPparameters_wgtTMDPDF((/0.0d0, 0d0,0.01d0/))
-
+call artemide_SetNPparameters_wgtTMDPDF((/0.0d0, 1d0/))
 x=0.1
 
 bMax=5d0

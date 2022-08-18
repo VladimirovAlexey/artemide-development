@@ -79,10 +79,10 @@ function DNP(mu,b,f)
     integer,intent(in)::f
     real(dp)::bSTAR
     
-    !bSTAR=b/SQRT(1_dp+b**2/NPparam(1)**2)
-    bSTAR=b/SQRT(1_dp+b**2/2d0**2)
-    !DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b
-    DNP=Dresum(C0_const/bSTAR,bSTAR,1)+RADEvolution(C0_const/bSTAR,mu,1)+NPparam(1)*bSTAR*b/cosh(NPparam(2)*b)
+    bSTAR=b/SQRT(1_dp+b**2/NPparam(1)**2)
+    !bSTAR=b/SQRT(1_dp+b**2/2d0**2)
+    DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b
+    !DNP=Dresum(C0_const/bSTAR,bSTAR,1)+RADEvolution(C0_const/bSTAR,mu,1)+NPparam(1)*bSTAR*b/cosh(NPparam(2)*b)
     
 end function DNP
   

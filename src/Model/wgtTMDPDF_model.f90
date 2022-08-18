@@ -86,7 +86,7 @@ function FNP(x,z,bT,hadron,lambdaNP)
   real(dp),intent(in)::lambdaNP(:)
   real*8::FNP0
 
-  FNP0=exp(-bT**2*lambdaNP(1))
+  FNP0=lambdaNP(2)/cosh(lambdaNP(1)*bT)
   
   FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
 
@@ -104,7 +104,7 @@ function g1T_tw3NP(x,hadron,lambdaNP)
   real(dp),intent(in)::lambdaNP(:)
   real*8::f0
   
-  f0=lambdaNP(2)*(1d0-x)**lambdaNP(3)
+  f0=0d0
   
   g1T_tw3NP=f0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
 
