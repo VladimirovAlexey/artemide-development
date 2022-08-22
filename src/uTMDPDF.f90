@@ -373,10 +373,10 @@ end subroutine uTMDPDF_SetReplica_optional
 
 !! call QCDinput to change the PDF replica number
 !! unset the grid, since it should be recalculated fro different PDF replica.
-subroutine uTMDPDF_SetPDFreplica(rep)
-    integer,intent(in):: rep
+subroutine uTMDPDF_SetPDFreplica(rep,hadron)
+    integer,intent(in):: rep,hadron
 
-    call QCDinput_SetPDFreplica(rep)
+    call QCDinput_SetPDFreplica(rep,hadron)
     gridReady=.false.  
     call uTMDPDF_resetGrid()
 end subroutine uTMDPDF_SetPDFreplica

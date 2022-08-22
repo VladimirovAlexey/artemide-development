@@ -338,10 +338,10 @@ end subroutine wgtTMDPDF_SetReplica_optional
 
 !! call QCDinput to change the PDF replica number
 !! unset the grid, since it should be recalculated fro different PDF replica.
-subroutine wgtTMDPDF_SetPDFreplica(rep)
-    integer,intent(in):: rep
+subroutine wgtTMDPDF_SetPDFreplica(rep,hadron)
+    integer,intent(in):: rep,hadron
 
-    call QCDinput_SetPDFreplica(rep)
+    call QCDinput_SethPDFreplica(rep,hadron)
     gridReady=.false.  
     call wgtTMDPDF_resetGrid()
 end subroutine wgtTMDPDF_SetPDFreplica

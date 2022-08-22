@@ -1119,8 +1119,6 @@ Command~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ & Description
 \\\hline
 \texttt{QCDinput{\_}Initialize(file,\blue{prefix})} & Subroutine to initialize anything what is needed. (string) \texttt{file} is the name of \texttt{constants-file}, which contains initialization information. (string)\texttt{prefix} is appended to \texttt{file} if provided.
 \\\hline
-\texttt{QCDinput\_SetPDFreplica(num)} & Changes the PDF replica number.
-\\\hline
 \texttt{As(Q)} &  Returns the (real*8) value of $\alpha_s(Q)/(4\pi)$. $Q$ is (real*8).
 \\\hline
 \texttt{xPDF(x,Q,hadron)} &  Returns the (real*8(-5:5)) value of $xf(x,Q)$ for given hadron. \texttt{x, Q} are (real*8), \texttt{hadron} is (integer).
@@ -1132,6 +1130,14 @@ Command~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ & Description
 \texttt{mCHARM} &  (real*8)Constant for mass of charm quark.
 \\\hline
 \texttt{mBOTTOM} &  (real*8)Constant for mass of bottom quark.
+\\\hline\hline
+\texttt{QCDinput\_SetPDFreplica(num,h)} & Changes the unpolarized PDF replica number for hadron \texttt{h} to \texttt{rep}.
+\\\hline
+\texttt{QCDinput\_SetFFreplica(num,h)} & Changes the unpolarized FF replica number for hadron \texttt{h} to \texttt{rep}.
+\\\hline
+\texttt{QCDinput\_SetlpPDFreplica(num,h)} & Changes the replica of PDF associated with linearly polarized gluon PDF number for hadron \texttt{h} to \texttt{rep}.
+\\\hline
+\texttt{QCDinput\_SethPDFreplica(num,h)} & Changes the replica of helicity PDF number for hadron \texttt{h} to \texttt{rep}.
 \\\hline\hline
 \end{tabular}
 \end{center}
@@ -1536,7 +1542,7 @@ Command &~~Type~~& ~~Sec.~~ & Short description
 \\\hline
 \texttt{uTMDPDF{\_}resetGrid(bG,g)}& subrout & \ref{uTMDPDF:grid}& Force reset or deconstruct the grid.
 \\\hline
-\texttt{uTMDPDF{\_}SetPDFreplica(num)}& subrout & -- & Call \texttt{QCDinput} to change the PDF replica number, deconstructs grid.
+\texttt{uTMDPDF{\_}SetPDFreplica(num,h)}& subrout & -- & Call \texttt{QCDinput} to change the PDF replica number for hadron \texttt{h}, deconstructs grid.
 \\
 \hline\hline
 \end{tabular}
@@ -3469,7 +3475,7 @@ doi:10.1007/JHEP05(2019)125
 	\item \textbf{uTMDFF:coeffFunc} 3-loop coefficient function added. 
 	\item \textbf{uTMDPDF:coeffFunc} 3-loop coefficient function added.
 	\item \textbf{uTMDFF:coeffFunc} Corrected missprint in the NNLO coeff.function ($\sim\pi^4\delta(\bar z)$ term)  
-	\item \textbf{all .TMD.} Singular list updated to include $(\ln^3\bar x/(1-x))_+$ terms [appear at $N^3$LO]
+	\item \textbf{all .TMD.} Singular list updated to include $(\ln^3\bar x/(1-x))_+$ terms [appear at N$^3$LO]
 	\item \textbf{TMD\_SIDIS} 4-loop coefficient function added. 
 	\item \textbf{TMD\_DY} 4-loop coefficient function added. Fixed a misprint in 3-loops (<0.01\% numerically)
 	\item \textbf{TMD\_AD:AD\_Integral}, implemented \texttt{RADEvolution} function, and accompanying expressions (roots, Lagrange coefficients).
@@ -3480,6 +3486,7 @@ doi:10.1007/JHEP05(2019)125
 	\item \textbf{TMDF}, Added processes: 13001-13059, 13101-13106, 13111-13116 (for $A_{LT}$)
 	\item \textbf{TMDs}, \textbf{TMDs\_inKT}, \textbf{harpy} Added \textbf{wgtTMDPDF} routines.
 	\item \textbf{aTMDe\_control} Added \textbf{wgtTMDPDF} routines.
+	\item \textbf{aTMDe\_setup} Fixed bug with absent list of hadrons for Sivers.
 	\item \textbf{aTMDe\_setup} Modifications due to \textbf{QCDinput} and \textbf{wgtTMDPDF} updates.
 	\item \textbf{wgtTMDPDF} Implemented.
 	\item \textbf{EWinput}: Fixed bug with the S-quark parameter for the interference term in Z-boson production (Thanks to S. Leal-Gomez).

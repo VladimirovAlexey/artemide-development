@@ -12,6 +12,9 @@ module harpy ! in /home/vla18041/LinkData2/arTeMiDe_Repository/artemide/harpy/ha
     use tmdx_sidis
     use atmde_control
     use utmdpdf
+    use utmdff
+    use lptmdpdf
+    use wgttmdpdf
     use tmdr_model
     logical, optional :: started=.false.
     subroutine initialize(file) ! in /home/vla18041/LinkData2/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
@@ -64,9 +67,22 @@ module harpy ! in /home/vla18041/LinkData2/arTeMiDe_Repository/artemide/harpy/ha
         real*8 :: c3_in
         real*8 :: c4_in
     end subroutine setscalevariation
-    subroutine setpdfreplica(rep) ! in /home/vla18041/LinkData2/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+    subroutine setpdfreplica(rep,hadron) ! in /home/vla18041/LinkData2/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         integer :: rep
+        integer :: hadron
     end subroutine setpdfreplica
+    subroutine setffreplica(rep,hadron) ! in /home/vla18041/LinkData2/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        integer :: rep
+        integer :: hadron
+    end subroutine setffreplica
+    subroutine setlppdfreplica(rep,hadron) ! in /home/vla18041/LinkData2/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        integer :: rep
+        integer :: hadron
+    end subroutine setlppdfreplica
+    subroutine setwgtpdfreplica(rep,hadron) ! in /home/vla18041/LinkData2/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        integer :: rep
+        integer :: hadron
+    end subroutine setwgtpdfreplica
     function getdnp(b,mu,f) ! in /home/vla18041/LinkData2/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         real*8 :: b
         real*8 :: mu

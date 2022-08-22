@@ -299,7 +299,7 @@ def _IsKinematicProper(s,qT,Q,y):
     
     return True
 
-def setPDFreplica(n):
+def setPDFreplica(n,h=1):
     """
     Changes the replica for PDF input.
     
@@ -317,7 +317,27 @@ def setPDFreplica(n):
     """
     if not isinstance(n,int):
         raise TypeError()
-    artemide.harpy.setpdfreplica(n)
+    artemide.harpy.setpdfreplica(n,h)
+    
+def sethPDFreplica(n,h=1):
+    """
+    Changes the replica for PDF input.
+    
+    This is a temporary function will be changed in future versions
+
+    Parameters
+    ----------
+    n : Integer
+        Number of PDF replica
+
+    Returns
+    -------
+    None.
+
+    """
+    if not isinstance(n,int):
+        raise TypeError()
+    artemide.harpy.setwgtpdfreplica(n,h)
 
 def get_DNP(b,mu,f=1):
     

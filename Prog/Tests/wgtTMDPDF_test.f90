@@ -64,7 +64,7 @@ do i=1,100
 
     TT=wgtTMDPDF_lowScale5(i*0.01d0,0.1d0,1)
     !TT=x_hPDF(i*0.01d0,11.d0,1)
-    write(*,'(A,F12.10,A,F12.10,A)') "{",i*0.01d0,",", TT(3),"},"
+    write(*,'(A,F12.10,A,F16.14,A)') "{",i*0.01d0,",", TT(3),"},"
 end do
 
 end program example

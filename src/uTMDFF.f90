@@ -91,6 +91,7 @@ logical::IsComposite=.false.					!!!flag to use the composite TMD
 public::uTMDFF_Initialize,uTMDFF_SetLambdaNP,uTMDFF_resetGrid,uTMDFF_SetScaleVariation,uTMDFF_CurrentNPparameters
 public::uTMDFF_IsInitialized
 public::uTMDFF_lowScale5,uTMDFF_lowScale50
+public::uTMDFF_SetFFreplica
 
 ! public::CheckCoefficient
 
@@ -375,6 +376,17 @@ subroutine uTMDFF_SetReplica_optional(num,buildGrid, gluonRequired)
     end if
   
 end subroutine uTMDFF_SetReplica_optional
+
+!! call QCDinput to change the PDF replica number
+!! unset the grid, since it should be recalculated fro different PDF replica.
+subroutine uTMDFF_SetFFreplica(rep,hadron)
+    integer,intent(in):: rep,hadron
+
+    call QCDinput_SetFFreplica(rep,hadron)
+    gridReady=.false.  
+    call uTMDFF_resetGrid()
+end subroutine uTMDFF_SetFFreplica
+
 !!!Sets the non-pertrubative parameters lambda
 !!! carries additionl option to build the grid
 !!! if need to build grid, specify the gluon required directive.

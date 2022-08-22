@@ -317,12 +317,12 @@ end subroutine SiversTMDPDF_SetReplica_optional
 
 !! call QCDinput to change the PDF replica number
 !! unset the grid, since it should be recalculated fro different PDF replica.
-subroutine SiversTMDPDF_SetPDFreplica(rep)
-    integer,intent(in):: rep
-
-    call QCDinput_SetPDFreplica(rep)
-    gridReady=.false.  
-    call SiversTMDPDF_resetGrid()
+subroutine SiversTMDPDF_SetPDFreplica(rep,hadron)
+    integer,intent(in):: rep,hadron
+    
+    if(outputLevel>0) write(*,*) &
+                WarningString('Cannot change PDF replica. No PDFs for Sivers. NOTHING IS DONE!',moduleName)
+    
 end subroutine SiversTMDPDF_SetPDFreplica
 
 !!!Sets the non-pertrubative parameters lambda

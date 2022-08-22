@@ -75,7 +75,7 @@
 *p2  : reference number for hadrons
     1
 *p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
- NNPDFpol11_100
+ DSSV19
 *p4  : list of initialization replicas
     0
  
@@ -435,15 +435,14 @@
  
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function (for tw-2 part only)
- NLO
+ LO
 *p2  : Use composite TMD-function definition
  F
 *B   : ---- Parameters of NP model ----
 *p1  : Length of lambdaNP (used in fNP and tw-3 part)
-           3
+           2
 *p2  : Initialization parameters (in column)
    2.0000000000000000     
-   0.0000000000000000
    1.0000000000000000     
 *C   : ---- Numerical evaluation parameters ----
 *p1  : Tolerance (relative tolerance of convolution integral)

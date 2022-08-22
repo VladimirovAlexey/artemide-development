@@ -13,6 +13,9 @@ use TMDX_DY
 use TMDX_SIDIS
 use aTMDe_control
 use uTMDPDF
+use uTMDFF
+use lpTMDPDF
+use wgtTMDPDF
 use TMDR_model
 
 !!! this flag is requared to guaranty that artemide is not started twice (it lead to the crush)
@@ -126,10 +129,28 @@ contains
   end subroutine SetScaleVariation
   
   !! reset the number for PDF replica for uTMDPDF
-  subroutine SetPDFreplica(rep)
-    integer::rep
-    call uTMDPDF_SetPDFreplica(rep)
+  subroutine SetPDFreplica(rep,hadron)
+    integer::rep,hadron
+    call uTMDPDF_SetPDFreplica(rep,hadron)
   end subroutine SetPDFreplica
+  
+    !! reset the number for PDF replica for uTMDFF
+  subroutine SetFFreplica(rep,hadron)
+    integer::rep,hadron
+    call uTMDFF_SetFFreplica(rep,hadron)
+  end subroutine SetFFreplica
+  
+    !! reset the number for PDF replica for lpTMDPDF
+  subroutine SetlpPDFreplica(rep,hadron)
+    integer::rep,hadron
+    call lpTMDPDF_SetPDFreplica(rep,hadron)
+  end subroutine SetlpPDFreplica
+  
+    !! reset the number for PDF replica for wgtTMDPDF
+  subroutine SetwgtPDFreplica(rep,hadron)
+    integer::rep,hadron
+    call wgtTMDPDF_SetPDFreplica(rep,hadron)
+  end subroutine SetwgtPDFreplica
   
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!! DNP

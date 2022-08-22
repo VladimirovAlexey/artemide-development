@@ -366,10 +366,10 @@ end subroutine lpTMDPDF_SetReplica_optional
   
 !! call QCDinput to change the PDF replica number
 !! unset the grid, since it should be recalculated fro different PDF replica.
-subroutine lpTMDPDF_SetPDFreplica(rep)
-    integer:: rep
+subroutine lpTMDPDF_SetPDFreplica(rep,hadron)
+    integer:: rep,hadron
 
-    call QCDinput_SetPDFreplica(rep)
+    call QCDinput_SetlpPDFreplica(rep,hadron)
     gridReady=.false.  
     call lpTMDPDF_resetGrid()
 end subroutine lpTMDPDF_SetPDFreplica

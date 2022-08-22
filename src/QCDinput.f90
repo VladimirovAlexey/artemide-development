@@ -23,7 +23,7 @@ private
 public::QCDinput_Initialize,QCDinput_IsInitialized
 public::As,activeNf
 public::xPDF,xFF,x_lp_PDF,x_hPDF
-public:: QCDinput_SetPDFreplica
+public:: QCDinput_SetPDFreplica, QCDinput_SetFFreplica, QCDinput_SetlpPDFreplica,QCDinput_SethPDFreplica
 
 character (len=8),parameter :: moduleName="QCDinput"
 !Current version of module
@@ -347,12 +347,29 @@ integer,allocatable::enumeration_of_hPDFs(:)
   end if
  end function index_of_hPDF
  
- 
- !!! set a different replica number for PDF.
- subroutine QCDinput_SetPDFreplica(rep)
- integer:: rep
-  call InitPDFM(1,rep)
- end subroutine QCDinput_SetPDFreplica
+!!! same with possibility to point to hadron
+subroutine QCDinput_SetPDFreplica(rep,hadron)
+    integer,intent(in):: rep,hadron
+    call InitPDFM(index_of_uPDF(hadron),rep)
+end subroutine QCDinput_SetPDFreplica
+
+!!! set a different replica number for FF with possibility to point to hadron
+subroutine QCDinput_SetFFreplica(rep,hadron)
+    integer,intent(in):: rep,hadron
+    call InitPDFM(index_of_uFF(hadron),rep)
+end subroutine QCDinput_SetFFreplica
+
+!!! set a different replica number for lp_PDF with possibility to point to hadron
+subroutine QCDinput_SetlpPDFreplica(rep,hadron)
+    integer,intent(in):: rep,hadron
+    call InitPDFM(index_of_lpPDF(hadron),rep)
+end subroutine QCDinput_SetlpPDFreplica
+
+!!! set a different replica number for hPDF with possibility to point to hadron
+subroutine QCDinput_SethPDFreplica(rep,hadron)
+    integer,intent(in):: rep,hadron
+    call InitPDFM(index_of_hPDF(hadron),rep)
+end subroutine QCDinput_SethPDFreplica
  
 !!number of active flavor at given mu
 function activeNf(mu)
