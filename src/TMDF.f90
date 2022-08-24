@@ -1320,8 +1320,10 @@ end subroutine TMDF_ResetCounters
         +FA(-3)*FB(3)/9.d0&
         +FA(-4)*FB(4)*4d0/9.d0&
         +FA(-5)*FB(5)/9d0)
-    !--------------------------------------------------------------------------------  
-    !--------------------------------------------------------------------------------  
+    !--------------------------------------------------------------------------------
+    !----------------------------------WGT-related asymetries------------------------
+    !-------------------------------------------------------------------------------
+    !---------------------------------SIDIS-----------------------------------------    
     CASE (13001:13009) !A_LT asymmetry p->hN where n=last number
 	! e_q^2 *F_q(A)*F_q(B)
 	h=process-13000
@@ -1604,6 +1606,40 @@ end subroutine TMDF_ResetCounters
         +FA(-3)*FB(3)/9.d0&
         +FA(-4)*FB(4)*4d0/9.d0&
         +FA(-5)*FB(5)/9d0)
+    !--------------------------------------------------------------------------------
+    !-------------------------SPECIAL DY CASES---------------------------------------  
+    CASE (13200) !pp->Z+gamma        
+        FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)  
+        FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+        FAB=FA*(FB(5:-5:-1))
+            
+        Integrand=global_mass_scale*XIntegrandForDYwithZgamma_GTU(FAB,Q2)
+    !--------------------------------------------------------------------------------  
+    CASE (13201) !pp-> W+
+        FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)  
+        FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+        
+        Integrand=-global_mass_scale*paramW_L*(& !!! -1=is due to the -gL^2 in the coupling for lepton
+        paramW_UD*(FA(2)*FB(-1)-FA(-1)*FB(2))&		!u*dbar+dbar*u
+        +paramW_US*(FA(2)*FB(-3)-FA(-3)*FB(2))&		!u*sbar+sbar*u
+        +paramW_UB*(FA(2)*FB(-5)-FA(-5)*FB(2))&		!u*bbar+bbar*u
+        +paramW_CD*(FA(4)*FB(-1)-FA(-1)*FB(4))&		!c*dbar+dbar*c
+        +paramW_CS*(FA(4)*FB(-3)-FA(-3)*FB(4))&		!c*sbar+sbar*c
+        +paramW_CB*(FA(4)*FB(-5)-FA(-5)*FB(4))&		!c*bbar+bbar*c
+        )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
+    !--------------------------------------------------------------------------------  
+    CASE (13202) !pp-> W-
+        FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
+        FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+        
+        Integrand=-global_mass_scale*paramW_L*(& !!! -1=is due to the -gL^2 in the coupling for lepton
+        paramW_UD*(FA(1)*FB(-2)-FA(-2)*FB(1))&		!d*ubar+ubar*d
+        +paramW_US*(FA(3)*FB(-2)-FA(-2)*FB(3))&		!s*ubar+ubar*s
+        +paramW_UB*(FA(5)*FB(-2)-FA(-2)*FB(5))&		!b*ubar+ubar*b
+        +paramW_CD*(FA(1)*FB(-4)-FA(-4)*FB(1))&		!d*cbar+cbar*d
+        +paramW_CS*(FA(3)*FB(-4)-FA(-4)*FB(3))&		!s*cbar+cbar*s
+        +paramW_CB*(FA(5)*FB(-4)-FA(-4)*FB(5))&		!b*cbar+cbar*b
+        )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2) 
     CASE DEFAULT
     write(*,*) ErrorString('undefined process: ',moduleName),process
     write(*,*) color('Evaluation stop',c_red_bold)
@@ -1696,4 +1732,44 @@ function XIntegrandForDYwithZgamma(FAB,Q2)
 	  Q2*Q2/((Q2-MZ2)**2+GammaZ2*MZ2)
      
 end function XIntegrandForDYwithZgamma
+
+!-------------------------------------------------------------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------------------------------------------------------------
+!!! The hadron tensonr for the structure function GTU in DY icludes Z + gamma
+function XIntegrandForDYwithZgamma_GTU(FAB,Q2)
+     real(dp)::XIntegrandForDYwithZgamma_GTU,Q2
+    !!cross-seciton parameters
+     real(dp),dimension(-5:5):: FAB     
+     
+     !gamma-part=0
+    XIntegrandForDYwithZgamma_GTU=&!gamma-Z interference
+      paramMIXL_A*(&
+	  paramMIXU*FAB(2)&
+	  +paramMIXD*FAB(1)&
+	  +paramMIXS*FAB(3)&
+	  +paramMIXC*FAB(4)&
+	  +paramMIXB*FAB(5)&
+	  -paramMIXU*FAB(-2)&
+	  -paramMIXD*FAB(-1)&
+	  -paramMIXS*FAB(-3)&
+	  -paramMIXC*FAB(-4)&
+	  -paramMIXB*FAB(-5))*&
+	  2d0*Q2*(Q2-MZ2)/((Q2-MZ2)**2+GammaZ2*MZ2)&
+     +&!ZZ-contributions
+     paramL_A*(&
+	  paramU*FAB(2)&
+	  +paramD*FAB(1)&
+	  +paramS*FAB(3)&
+	  +paramC*FAB(4)&
+	  +paramB*FAB(5)&
+	  -paramU*FAB(-2)&
+	  -paramD*FAB(-1)&
+	  -paramS*FAB(-3)&
+	  -paramC*FAB(-4)&
+	  -paramB*FAB(-5))*&
+	  Q2*Q2/((Q2-MZ2)**2+GammaZ2*MZ2)
+     
+end function XIntegrandForDYwithZgamma_GTU
+
+
 end module TMDF

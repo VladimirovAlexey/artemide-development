@@ -2350,6 +2350,12 @@ List of enumeration of structures functions
 13115 & $+M\delta_{f\bar f'}|e_f|^2$~~&$(g_{1T}^\perp)^{n}$ & $d^{h_{1+2}}_1$ & (wgt)$n^{\uparrow}+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
 \\\hline
 13116 & $+M\delta_{f\bar f'}|e_f|^2$~~&$(g_{1T}^\perp)^{n}$ & $d^{h_{1+2+3}}_1$ & (wgt)$n^{\uparrow}+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
+\\\hline
+13200 & $+M\Ds\delta_{\bar f f'}\frac{\bar z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $(g_{1T}^\perp)^p$ & $(-1)^f f_1$ & $G_{TU}^1$ cross-section in $p^{\uparrow}+p\to Z+\gamma$ & no
+\\\hline
+13201 & $+M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $(g_{1T}^\perp)^p$ & $(-1)^ff_1$ & $G_{TU}^1$ cross-section in $p^{\uparrow}+p\to W^+$ & no
+\\\hline
+13202 & $+M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $(g_{1T}^\perp)^p$ & $(-1)^ff_1$ & $G_{TU}^1$ cross-section in $p^{\uparrow}+p\to W^-$ & no
 \\\hline\hline
 \end{longtable}
 
@@ -2389,6 +2395,12 @@ $s_w^2$, $M_Z$, $\Gamma_Z$, etc. are defined in \texttt{constants}
 $f_1$-unpolarized TMDPDF
 \\
 $d_1$-unpolarized TMDFF
+\\
+$f_{1T}^\perp$-Sivers function
+\\
+$g_{1T}^\perp$-wgt-function
+\\
+$(-1)^f$ is (+1) for f=quark, and (-1) for f=anti-quark.
 \\
 Everywhere proton is expected to be hadron number 1.
 
@@ -3483,13 +3495,14 @@ doi:10.1007/JHEP05(2019)125
 	\item \textbf{TMD\_AD:AD\_atMu}, minor optimizations.
 	\item \textbf{TMD\_AD:AD\_secondary}, added 4-loop expressions for RAD, and zeta-lines.
 	\item \textbf{TMD\_AD:AD\_primary}, added 4-loop expressions for RAD, and anomalous dimensions, 5-loop $\Gamma_{\text{cusp}}$. The values are taken from [2202.04660, 2205.02249, 1812.11818]
-	\item \textbf{TMDF}, Added processes: 13001-13059, 13101-13106, 13111-13116 (for $A_{LT}$)
+	\item \textbf{TMDF}, Added processes: 13001-13059, 13101-13106, 13111-13116, 13200-13202 (for $A_{LT}$)
 	\item \textbf{TMDs}, \textbf{TMDs\_inKT}, \textbf{harpy} Added \textbf{wgtTMDPDF} routines.
 	\item \textbf{aTMDe\_control} Added \textbf{wgtTMDPDF} routines.
 	\item \textbf{aTMDe\_setup} Fixed bug with absent list of hadrons for Sivers.
 	\item \textbf{aTMDe\_setup} Modifications due to \textbf{QCDinput} and \textbf{wgtTMDPDF} updates.
 	\item \textbf{wgtTMDPDF} Implemented.
 	\item \textbf{EWinput}: Fixed bug with the S-quark parameter for the interference term in Z-boson production (Thanks to S. Leal-Gomez).
+	\item \textbf{QCDinput}: Added individual function for changing PDF replica for each TMD module. Also added argument to specify hadron. Updated corresponding function ins TMD's modules.
 	\item \textbf{QCDinput}: Helicity PDF input is added.
 	\item \textbf{QCDinput}: Bug in the enumeration of hadrons fixed.
 	\item \textbf{TMDX\_SIDIS}: Added option for exact factorization scales.
