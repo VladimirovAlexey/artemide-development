@@ -86,9 +86,11 @@ function FNP(x,z,bT,hadron,lambdaNP)
   real(dp),intent(in)::lambdaNP(:)
   real*8::FNP0
 
-  FNP0=lambdaNP(2)/cosh(lambdaNP(1)*bT)
+  !FNP0=lambdaNP(2)/cosh(lambdaNP(1)*bT)  
+  !FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
   
-  FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
+  FNP0=1/cosh(lambdaNP(1)*bT)  
+  FNP=FNP0*(/1d0,1d0,lambdaNP(4),lambdaNP(4),lambdaNP(4),0d0,lambdaNP(3),lambdaNP(2),lambdaNP(4),1d0,1d0/)
 
   end function FNP
   
