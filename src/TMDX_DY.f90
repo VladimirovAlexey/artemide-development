@@ -202,7 +202,7 @@ contains
 	if(outputLevel>0) write(*,*)  WarningString('try to set unknown order. Switch to NLO.',moduleName)
 	orderH_global=1
      END SELECT
-     if(outputLevel>2) write(*,*) '	artemide.TMDX_DY: the used order is ',trim(orderMain)
+     if(outputLevel>1) write(*,*) '	artemide.TMDX_DY: the used order is ',trim(orderMain)
      
      !!exact values of x1x2
      call MoveTO(51,'*p2   ')

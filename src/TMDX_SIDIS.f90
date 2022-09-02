@@ -187,7 +187,7 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
             if(outputLevel>0) write(*,*) WarningString('try to set unknown order. Switch to NLO.',moduleName)
             orderH_global=1
     END SELECT
-    if(outputLevel>2) write(*,*) '	artemide.TMDX_SIDIS: the used order is ',trim(orderMain)
+    if(outputLevel>1) write(*,*) '	artemide.TMDX_SIDIS: the used order is ',trim(orderMain)
     
     !! qT correction in kinematics
     call MoveTO(51,'*p2   ')
