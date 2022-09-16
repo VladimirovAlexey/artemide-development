@@ -161,6 +161,15 @@ contains
     
     getDNP=DNP(mu,b,f)
   end function getDNP
+
+  !!!!! optimal R
+  function getR(b,mu,zeta,f)
+    real*8::TMDR_Rzeta
+    real*8::b,mu,zeta
+    integer::f
+
+    getR=TMDR_Rzeta(bt,muf,zetaf,f)
+  end function getR
   
   
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

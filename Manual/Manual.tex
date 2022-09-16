@@ -3269,6 +3269,11 @@ module & function & \\
 & \texttt{TMDX\_DY\_SetScaleVariations(c1,c2,c3,c4)} & \texttt{SetScaleVariation(c1,c2,c3,c4)} 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \\\hline
+\texttt{TMDR} & \texttt{DNP(bt,mu,f)} & \texttt{getDNP(bt,mu,f)} 
+\\\cline{2-3}
+& \texttt{TMDR\_Rzeta(bt,muf,zetaf,f)} & \texttt{getR(bt,mu,zeta,f)} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\\\hline
 \texttt{TMDs} & \texttt{uTMDPDF\_5(x,bt,muf,zetaf,h)} & \texttt{uTMDPDF\_5\_Evolved(x,bt,muf,zetaf,h)} 
 \\\cline{2-3}
 & \texttt{uTMDPDF\_50(x,bt,muf,zetaf,h)} & \texttt{uTMDPDF\_50\_Evolved(x,bt,muf,zetaf,h)} 
@@ -3483,6 +3488,7 @@ doi:10.1007/JHEP05(2019)125
 \begin{itemize}
 \item[\textbf{Ver.2.06}]
 \begin{itemize}
+	\item \textbf{harpy} Added functions for wgt-function and also for TMDR module
 	\item \textbf{common:tw2Convolution} Fixed bug, with incorrect estimation of the integral reminder at $x_0\to 1$
 	\item \textbf{uTMDFF:coeffFunc} 3-loop coefficient function added. 
 	\item \textbf{uTMDPDF:coeffFunc} 3-loop coefficient function added.

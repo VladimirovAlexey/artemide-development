@@ -359,6 +359,33 @@ def get_DNP(b,mu,f=1):
     else:
         return artemide.harpy.getdnp(b_internal,mu,1)
 
+def get_R(b,mu,zeta,f=1):
+
+    if not isinstance(b,float):
+        raise ValueError("parameter b must be float")
+    elif (b<0.):
+        b_internal=-b
+    else:
+        b_internal=b
+    if not isinstance(mu,float):
+        raise ValueError("parameter mu must be float")
+    elif (mu<1.):
+        raise ValueError("parameter mu must be > 1 GeV")
+
+    if not isinstance(zeta,float):
+        raise ValueError("parameter zeta must be float")
+    elif (zeta<1.):
+        raise ValueError("parameter zeta must be > 1 GeV")
+
+    if not isinstance(f, int):
+        raise ValueError("parameter h must be integer")
+
+
+    if(f==0):
+        return artemide.harpy.getr(b_internal,mu,zeta,0)
+    else:
+        return artemide.harpy.getr(b_internal,mu,zeta,1)
+
 def get_uTMDPDF(x,b,h,mu=-1.,zeta=-1.,includeGluon=False):
     """
     Return the string of unpolarized TMDPDF 
