@@ -16,6 +16,7 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
     use lptmdpdf
     use wgttmdpdf
     use tmdr_model
+    use tmdr
     logical, optional :: started=.false.
     subroutine initialize(file) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         character*(*) :: file

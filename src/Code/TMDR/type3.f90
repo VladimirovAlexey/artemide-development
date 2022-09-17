@@ -34,3 +34,10 @@
   end if
 
  end function TMDR_Rzeta_type3
+
+function TMDR_Rzeta_harpy(b,muf,zetaf,f)
+  real(dp)::TMDR_Rzeta_harpy,b,muf,zetaf
+  integer::f
+
+  TMDR_Rzeta_harpy=TMDR_Rzeta_type3(b,muf,zetaf,f)
+end function TMDR_Rzeta_harpy

@@ -72,10 +72,10 @@ integer::NPlength=0
 !! array of non-pertrubative parameters
 real(dp),allocatable,dimension(:):: NPparam
 
-public::TMDR_R,TMDR_Rzeta
+public::TMDR_R,TMDR_Rzeta,TMDR_Rzeta_harpy
 public:: TMDR_Initialize,TMDR_setNPparameters,LowestQ,TMDR_IsInitialized,TMDR_CurrentNPparameters
 
-public::DNP!,GammaCusp,gammaV
+!public::DNP!,GammaCusp,gammaV
 
 
 

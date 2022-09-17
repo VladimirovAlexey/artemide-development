@@ -17,6 +17,7 @@ use uTMDFF
 use lpTMDPDF
 use wgtTMDPDF
 use TMDR_model
+use TMDR
 
 !!! this flag is requared to guaranty that artemide is not started twice (it lead to the crush)
 logical::started=.false.
@@ -168,7 +169,7 @@ contains
     real*8::b,mu,zeta
     integer::f
 
-    getR=TMDR_Rzeta(bt,muf,zetaf,f)
+    getR=TMDR_Rzeta_harpy(b,mu,zeta,f)
   end function getR
   
   
