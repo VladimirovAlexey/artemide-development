@@ -71,7 +71,7 @@ subroutine ModelUpdate(newNPParams)
 end subroutine ModelUpdate
   
  
-!!! This is the rapidity anomalous dimension non-pertrubative model
+!!! This is the rapidity anomalous dimension non-perturbative model
 !!! In your evaluation take care that the saddle point is inside the pertrubative regeme
 !!! Use function Dpert(mu,b,f) for D perturbative, use Dresum for D resum
 function DNP(mu,b,f)
@@ -80,15 +80,15 @@ function DNP(mu,b,f)
     real(dp)::bSTAR
     
     bSTAR=b/SQRT(1_dp+b**2/NPparam(1)**2)
-    !bSTAR=b/SQRT(1_dp+b**2/2d0**2)
-    DNP=Dresum(mu,bSTAR,1)+NPparam(2)*bSTAR*b
-    !DNP=Dresum(C0_const/bSTAR,bSTAR,1)+NPparam(2)*bSTAR*b+RADEvolution(C0_const/bSTAR,mu,1)
-    !DNP=Dresum(C0_const/bSTAR,bSTAR,1)+RADEvolution(C0_const/bSTAR,mu,1)+NPparam(1)*bSTAR*b/cosh(NPparam(2)*b)
+
+    DNP=Dresum(C0_const/bSTAR,bSTAR,1)+RADEvolution(C0_const/bSTAR,mu,1)&
+                +NPparam(2)*b*bSTAR+NPparam(3)*b*bSTAR*Log(bSTAR/NPparam(1))
+
     
 end function DNP
   
 !! This is the non-pertrubative shape of zeta_mu line.
-!! It MUST follow the equipotential line in pertrubative regime (at small-b), at the level pf PT accuracy.
+!! It MUST follow the equipotential line in perturbative regime (at small-b), at the level pf PT accuracy.
 !! Otherwice, your evolution is completely broken.
 !! Use zetaMUpert for perturbative values, use zetaSL for exact values
 function zetaNP(mu,b,f)
@@ -97,12 +97,13 @@ function zetaNP(mu,b,f)
     real(dp)::zz,rad,w1,w2
     
     rad=DNP(mu,b,f)
-    zz=Exp(-b**2/NPparam(1)**2)
-    !!
-    !!zz=Exp(-b**2/0.01d0)
+
+    !! this ofset is required to guaranty a good numerical bahavior at b->0.
+    !! In principle, zz=0 also works
+    zz=Exp(-b**2/0.1d0)
+
     zetaNP=zetaMUpert(mu,b,f)*zz+zetaSL(mu,rad,f)*(1d0-zz)
-    !!
-!      zetaNP=zetaSL(mu,rad,f)
+
 end function zetaNP
  
 !!! In SV19 model the replica parameters are stored in separate file.

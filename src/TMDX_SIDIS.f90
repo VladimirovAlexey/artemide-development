@@ -173,6 +173,8 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
             orderH_global=1
         CASE ("NNLO")
             orderH_global=2
+        CASE ("N2LO")
+            orderH_global=2
         CASE ("NNLO+")
             orderH_global=3
         CASE ("NNNLO")

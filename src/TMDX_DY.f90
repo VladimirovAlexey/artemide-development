@@ -188,6 +188,8 @@ contains
 	orderH_global=1
       CASE ("NNLO")
 	orderH_global=2
+      CASE ("N2LO")
+	orderH_global=2
       CASE ("NNLO+")
 	orderH_global=2
       CASE ("NNNLO")

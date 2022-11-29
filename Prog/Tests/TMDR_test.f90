@@ -4,37 +4,35 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 program example
 use aTMDe_control
-use uTMDPDF
+use TMDR
+use TMDR_model
 implicit none
 
 integer::i,iMax,f
-real*8::bMax,bStep,x
+real*8::bMax,bStep,TT
 real*8,allocatable::b(:)
-real*8::TT(-5:5),TT1(-5:5),TT2(-5:5)
 
 call artemide_Initialize('const-TMDR',prefix='Prog/Tests/const-files/')
 ! call artemide_Initialize('const-DY_LO',prefix='/home/alexey/artemide_Repository/Constants-files/')!
-call artemide_SetNPparameters_uTMDPDF((/0.253434d0, 9.04351d0, 346.999d0, 2.47992d0, -5.69988d0, 0.d0, 0.d0/))
+call artemide_SetNPparameters_TMDR((/2d0, 0.04d0/))
 
-!!!!!! simple plot of uTMDPDF at fixed x vs. b
+bMax=4d0
+bStep=0.1d0
+iMax=int(bMax/bStep)
 
-! x=0.1
-!
-! bMax=5d0
-! bStep=0.1d0
-! iMax=int(bMax/bStep)
-!
-! allocate(b(1:iMax))
-!
-! do i=1,iMax
-! !   b(i)=bStep*i
-! end do
-!
-! do i=1,iMax
-!
-!     TT=uTMDPDF_lowScale5(x,b(i),1)
-!     write(*,*) "{",b(i),",", TT(1),"},"
-! end do
+allocate(b(1:iMax))
+
+do i=1,iMax
+   b(i)=bStep*i
+end do
+
+do i=1,iMax
+
+    TT=DNP(2d0,b(i),1)
+    !TT=zetaNP(91d0,b(i),1)
+    !TT=TMDR_Rzeta(b(i),91d0,91d0**2,1)
+    write(*,'("{",F8.4," ,",F12.6,"},")') b(i), TT
+end do
 
 
 !!!!!! simple plot of uTMDPDF at fixed b vs. x

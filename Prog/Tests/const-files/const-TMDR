@@ -113,7 +113,7 @@
  
 *A   : ---- Main definitions ----
 *p1  : Order of evolution
- NNLO
+ N3LO
 *p2  : Type of evolution solution (1 = improved D solution ,2 = improved gamma solution, 3 = fixed mu)
            3
 *B   : ---- Parameters of NP model ----
@@ -137,7 +137,7 @@
  
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
- N3LO
+ NLO
 *B   : ---- Parameters of NP model ----
 *p1  : Length of lambdaNP
            7

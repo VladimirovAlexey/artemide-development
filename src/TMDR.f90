@@ -197,6 +197,13 @@ subroutine TMDR_Initialize(file,prefix)
 	orderD=2
 	orderDresum=2
 	orderZETA=2
+      CASE ("N2LO")
+	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO'
+	orderCusp=2
+	orderV=2
+	orderD=2
+	orderDresum=2
+	orderZETA=2
       CASE ("NNLO+")
 	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO+'
 	orderCusp=2

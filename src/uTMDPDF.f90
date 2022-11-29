@@ -197,6 +197,9 @@ subroutine uTMDPDF_Initialize(file,prefix)
         CASE ("NNLO")
             if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO'
             order_global=2
+        CASE ("N2LO")
+            if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO'
+            order_global=2
         CASE ("NNLO+")
             if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO+'
             order_global=2

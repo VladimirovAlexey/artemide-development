@@ -451,7 +451,8 @@ subroutine SetOMEGAnkQuark()
         !! * z_1
         OMEGA_nk_Q_internal(3,1,n)=(2d0*B3+(B1**2)*G1-B2*G1-G1**3+3*G1*G2-B1*B2-B1*G2-2d0*G3)/6d0*commonF
         !! * z_{-1}
-        OMEGA_nk_Q_internal(3,2,n)=(-B2+B1*G1+G1**2-G2-2d0*G1*gg1+2d0*gg2)*(B1-G1)/2d0*commonF
+        !!! corrected 17.11.2022
+        OMEGA_nk_Q_internal(3,2,n)=(-B2+B1*G1+G1**2-G2-2d0*G1*gg1+2d0*gg2)*(G1-B1)/2d0*commonF
         !! * z_{-2}
         OMEGA_nk_Q_internal(3,3,n)=((-B1*B2-B3+(B1**2)*G1+2d0*B2*G1-4d0*(G1**3)-B1*G2+6d0*G1*G2-2d0*G3)/12d0&
                 +(2d0*G1-B1)*(G1*gg1-gg2)/2d0-(G2*gg1-gg3)/2d0)*commonF

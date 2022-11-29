@@ -184,7 +184,7 @@ function zetaMUpert(mu,bt,f)
     
     !!!!! Important!!!!
     !! the perturbative value for zeta, must be taken 1-order higher
-    !! because there doulbe logarithms ~~beta0 L
+    !! because there double logarithms ~~beta0 L
     !! For 4-loop it requires 5-loop rad... The value which contains it is set to zero v(4,0)=0.
     if(f==0) then !!! gluon
         val=vnk_g(0,0,Nf)

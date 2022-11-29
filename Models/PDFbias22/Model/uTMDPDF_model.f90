@@ -87,57 +87,6 @@ function FNP(x,z,bT,hadron,lambdaNP)
     integer,intent(in)::hadron
     real(dp),intent(in)::lambdaNP(:)
     
-    !!!!!!! model 1
-!     real*8::FNPV,FNPS
-!     real*8::bb,wV,wS,w2,w3
-! 
-!     bb=bT**2
-!     wV=lambdaNP(1)*(1-x)+x*lambdaNP(2)
-!     wS=lambdaNP(3)*(1-x)+x*lambdaNP(4)
-!     w2=lambdaNP(5)*x**2
-!     w3=lambdaNP(6)*x**lambdaNP(7)*bb/(1d0+bb/4d0)
-! 
-!     if(wV<0d0 .or. wS<0d0 .or. w2<0d0) then
-!         FNPV=Exp(-10d0*bb)
-!         FNPS=Exp(-10d0*bb)
-!     else
-!         FNPV=Exp(-wV*bb/sqrt(1+w2*bb))*(1d0+w3)
-!         FNPS=Exp(-wS*bb/sqrt(1+w2*bb))*(1d0+w3)
-!     end if
-! 
-! 
-!     FNP=(/&
-!     FNPS,FNPS,FNPS,FNPS,FNPS,&
-!     0d0,&
-!     FNPV,FNPV,FNPS,FNPS,FNPS/)
-    
-!     !!!!!!! model 2
-!     real*8::FNP1,FNP2,FNPr
-!     real*8::bb,w1,w2,wr,wcommon
-! 
-!     bb=bT**2
-!     w1=lambdaNP(1)*(1-x)+x*lambdaNP(2)
-!     w2=lambdaNP(3)*(1-x)+x*lambdaNP(4)
-!     wr=lambdaNP(5)*(1-x)+x*lambdaNP(6)
-!     wcommon=lambdaNP(7)*x**2
-! 
-!     if(w1<0d0 .or. w2<0d0 .or. wr<0d0 .or. wcommon<0d0) then
-!         FNP1=Exp(-10d0*bb)
-!         FNP2=Exp(-10d0*bb)
-!         FNPr=Exp(-10d0*bb)
-!     else
-!         FNP1=Exp(-w1*bb/sqrt(1+wcommon*bb))
-!         FNP2=Exp(-w2*bb/sqrt(1+wcommon*bb))
-!         FNPr=Exp(-wr*bb/sqrt(1+wcommon*bb))
-!     end if
-! 
-! 
-!     FNP=(/&
-!     FNPr,FNPr,FNPr,FNP1,FNP2,&
-!     0d0,&
-!     FNP2,FNP1,FNPr,FNPr,FNPr/)
-
-    !!!!!!! model 3 &4 &5
     real*8::FNPu,FNPd, FNPubar, FNPdbar, FNPr
     real*8::bb,wu,wd,wubar,wdbar,wr,wcommon
     

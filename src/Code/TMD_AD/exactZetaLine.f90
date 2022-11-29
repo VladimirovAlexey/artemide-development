@@ -68,6 +68,7 @@ end function zetaSL
             !!! however, z[] \sim as, therefore, these terms contribute to as^4.
             !!! here I kill them. Istead I add their expansion up to p
                 val=val+(alpha**3)*(OMEGA_q(3,4,Nf)+p*OMEGA_q(3,5,Nf))
+                !val=val+(alpha**3)*(OMEGA_q(3,4,Nf)+z1*OMEGA_q(3,1,Nf)+zm1*OMEGA_q(3,2,Nf)+zm2*OMEGA_q(3,3,Nf))
                     !!! killed part
                     !!!+z1*OMEGA_q(3,1,Nf)+zm1*OMEGA_q(3,2,Nf)+zm2*OMEGA_q(3,3,Nf)
             if(orderZETA>=4) then
