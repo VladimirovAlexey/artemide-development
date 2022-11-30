@@ -765,20 +765,39 @@ contains
   end function integralOverYpoint_S_Rec
   
   !---------------------------------INTEGRATED over Q---------------------------------------------------------------
-  function Xsec_Qint(var,process,incCut,CutParam,Q_min,Q_max)
+  function Xsec_Qint(var,process,incCut,CutParam,Qmin_in,Qmax_in)
     real(dp),dimension(1:7)::var
     logical,intent(in)::incCut
     real(dp),dimension(1:4),intent(in)::CutParam
     integer,dimension(1:3),intent(in)::process
+    real(dp),intent(in):: Qmin_in,Qmax_in
     real(dp):: Xsec_Qint
-    real(dp):: Q_min,Q_max
+    integer::numSec,i
+    real(dp)::dQ
     
     if(TMDF_IsconvergenceLost()) then 
       Xsec_Qint=1d9
       return
     end if
+
+    !!! check how many maxQbins is inside the integration range (+1)
+    numSec=INT((Qmax_in-Qmin_in)/maxQbinSize)+1
+
+    if(numSec==1) then
+      !!! if the bin is smaller than maxQbinSize, integrate as is
+      Xsec_Qint=integralOverQpoint_S(var,process,incCut,CutParam,Qmin_in,Qmax_in)
+    else
+      !!! else divide to smaler bins and sum the integrals
+      dQ=(Qmax_in-Qmin_in)/numSec !!! size of new bins
+
+      Xsec_Qint=0d0
+      do i=0,numSec-1
+        Xsec_Qint=Xsec_Qint + &
+            integralOverQpoint_S(var,process,incCut,CutParam,Qmin_in+i*dQ,Qmin_in+(i+1)*dQ)
+      end do
+    end if
     
-    Xsec_Qint=integralOverQpoint_S(var,process,incCut,CutParam,Q_min,Q_max)
+
   end function Xsec_Qint
   
   !--------------Simpsons--------------------
