@@ -3496,6 +3496,7 @@ doi:10.1007/JHEP05(2019)125
 	\item \textbf{uTMDFF:coeffFunc} Corrected missprint in the NNLO coeff.function ($\sim\pi^4\delta(\bar z)$ term)  
 	\item \textbf{all .TMD.} Singular list updated to include $(\ln^3\bar x/(1-x))_+$ terms [appear at N$^3$LO]
 	\item \textbf{TMD\_SIDIS} 4-loop coefficient function added. 
+	\item \textbf{TMD\_DY} Added the check for the maximum size of the Q-bin size. If bin is too large, it is divided.
 	\item \textbf{TMD\_DY} 4-loop coefficient function added. Fixed a misprint in 3-loops (<0.01\% numerically)
 	\item \textbf{TMD\_AD:AD\_Integral}, implemented \texttt{RADEvolution} function, and accompanying expressions (roots, Lagrange coefficients).
 	\item \textbf{TMDR}, Fixed mistake with counting of orders (order of $\Gamma_{\text{cusp}}$ was higher by 1).
@@ -3750,6 +3751,7 @@ doi:10.1007/JHEP05(2019)125
 \item + helicity PDF in QCDinput (section 1.E)
 \item + worm gear T function (section 13)
 \item +option for accounting of exact values of factorization scales in SIDIS (sections 10.A.p6)
+\item +maximum size of the Q-bin (sections 9.B.p3)
 \end{enumerate}
 
 \newpage

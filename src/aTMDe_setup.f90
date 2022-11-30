@@ -17,7 +17,7 @@ private
 character (len=5),parameter :: version="v2.06"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=20
+integer,parameter::inputVer=21
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -146,6 +146,7 @@ real(dp)::TMDX_DY_tolerance
 integer::TMDX_DY_ptSECTION
 logical::TMDX_DY_exactX1X2,TMDX_DY_piResum,TMDX_DY_exactScale
 integer::TMDX_DY_numProc
+real::TMDX_DY_maxQbinSize
 
 !-------------------- TMDX-SIDIS parameters
 logical::include_TMDX_SIDIS
@@ -421,6 +422,7 @@ subroutine SetupDefault(order)
     include_TMDX_DY=.true.
     TMDX_DY_tolerance=0.001d0	!tolerance (i.e. relative integration tolerance -- in kinematic integrals;)
     TMDX_DY_ptSECTION=4		!default number of sections for pt-bin integration
+    TMDX_DY_maxQbinSize=30. !default maximum size of the Q-bin integration
     TMDX_DY_order=trim(order)
     TMDX_DY_exactX1X2=.true.
     TMDX_DY_piResum=.false.
@@ -826,6 +828,8 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDX_DY_tolerance
     write(51,"('*p2  : Minimal number of sections for pt-integration')")
     write(51,*) TMDX_DY_ptSECTION
+    write(51,"('*p3  : Maximum size of the Q-bin integration (larger bins are desected)')")
+    write(51,*) TMDX_DY_maxQbinSize
     write(51,"('*C   : ---- Parameters for parallel evaluation (used only if compiled with openMP) ----')")
     write(51,"('*p1  : Maximum number of processors to use')")
     write(51,*) TMDX_DY_numProc
@@ -1418,6 +1422,10 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) TMDX_DY_tolerance
     call MoveTO(51,'*p2  ')
     read(51,*) TMDX_DY_ptSECTION
+    if(FILEversion>=21) then
+        call MoveTO(51,'*p3  ')
+        read(51,*) TMDX_DY_maxQbinSize
+    end if
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')
     read(51,*) TMDX_DY_numProc
