@@ -732,7 +732,7 @@ contains
    real(dp),dimension(1:4),intent(in)::CutParam
    integer,dimension(1:3),intent(in)::process
    real(dp) :: interX,X1,X2,X3,X4,X5
-   real(dp) :: value,valueAB,valueACB
+   real(dp) :: valueAB,valueACB
    real(dp) :: yMin_in,yMax_in,y2,y3,y4,deltay
    real(dp),intent(in)::valueMax
    
