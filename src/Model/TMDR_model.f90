@@ -81,7 +81,7 @@ function DNP(mu,b,f)
     
     bSTAR=b/SQRT(1_dp+b**2/NPparam(1)**2)
 
-    DNP=Dresum(C0_const/bSTAR,bSTAR,1)+RADEvolution(C0_const/bSTAR,mu,1)&
+    DNP=Dpert(C0_const/bSTAR,bSTAR,1)+RADEvolution(C0_const/bSTAR,mu,1)&
                 +NPparam(2)*b*bSTAR+NPparam(3)*b*bSTAR*Log(bSTAR/NPparam(1))
 
     
