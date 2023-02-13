@@ -81,9 +81,8 @@ function DNP(mu,b,f)
     
     bSTAR=b/SQRT(1_dp+b**2/NPparam(1)**2)
 
-    DNP=Dpert(C0_const/bSTAR,bSTAR,1)+RADEvolution(C0_const/bSTAR,mu,1)&
+    DNP=Dpert(C0_const/bSTAR*NPparam(4),bSTAR,1)+RADEvolution(C0_const/bSTAR*NPparam(4),mu,1)&
                 +NPparam(2)*b*bSTAR+NPparam(3)*b*bSTAR*Log(bSTAR/NPparam(1))
-
     
 end function DNP
   
@@ -100,7 +99,7 @@ function zetaNP(mu,b,f)
 
     !! this ofset is required to guaranty a good numerical bahavior at b->0.
     !! In principle, zz=0 also works
-    zz=Exp(-b**2/0.1d0)
+    zz=Exp(-b**2/0.01d0)
 
     zetaNP=zetaMUpert(mu,b,f)*zz+zetaSL(mu,rad,f)*(1d0-zz)
 

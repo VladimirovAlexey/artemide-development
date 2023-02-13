@@ -70,7 +70,7 @@ function Common_lowScale5(x,bT,hadron)
     bTcurrent=1d-6
    end if
    
-   muCurrent=c4_global*mu_OPE(x,bTcurrent)
+   muCurrent=mu_OPE(x,bTcurrent,c4_global)
    alpha=As(muCurrent)
    Nf=real(activeNf(muCurrent),dp)
    Lmu=LogMuB(muCurrent,bTcurrent)
@@ -78,7 +78,7 @@ function Common_lowScale5(x,bT,hadron)
   !! in the x-dependent mu we should additionally calculate values at x=1
   if(IsMuXdependent) then
    !!! we first calculate at z=1
-    muAt1=c4_global*mu_OPE(1d0,bTcurrent)
+    muAt1=mu_OPE(1d0,bTcurrent,c4_global)
     LmuAt1=LogMuB(muAt1,bTcurrent)
     alphaAt1=As(muAt1)
     NfAt1=real(activeNf(muAt1),dp)
@@ -176,7 +176,7 @@ function Common_lowScale50(x,bT,hadron)
     bTcurrent=1d-6
    end if
    
-   muCurrent=c4_global*mu_OPE(x,bTcurrent)
+   muCurrent=mu_OPE(x,bTcurrent,c4_global)
    alpha=As(muCurrent)
    Nf=real(activeNf(muCurrent),dp)
    Lmu=LogMuB(muCurrent,bTcurrent)
@@ -185,7 +185,7 @@ function Common_lowScale50(x,bT,hadron)
   !! in the x-dependent mu we should additionally calculate values at x=1
   if(IsMuXdependent) then
    !!! we first calculate at z=1
-    muAt1=c4_global*mu_OPE(1d0,bTcurrent)
+    muAt1=mu_OPE(1d0,bTcurrent,c4_global)
     LmuAt1=LogMuB(muAt1,bTcurrent)
     alphaAt1=As(muAt1)
     NfAt1=real(activeNf(muAt1),dp)
@@ -294,10 +294,10 @@ recursive function MellinConvolutionVectorPart5(x0,x1,hadron) result(res5)
     !!!!If mu(x) we have to recalculate Coefficeints every new x!!! This should be very loooong
     if(IsMuXdependent) then
      if(bTcurrent>1d-8) then
-	  muCurrent=c4_global*mu_OPE(z,bTcurrent)
+	  muCurrent=mu_OPE(z,bTcurrent,c4_global)
 	  Lmu=LogMuB(muCurrent,bTcurrent)
 	 else
-	  muCurrent=c4_global*mu_OPE(z,10d-8)
+	  muCurrent=mu_OPE(z,10d-8,c4_global)
 	  Lmu=LogMuB(muCurrent,10d-8)
      end if
      alpha=As(muCurrent)
@@ -380,9 +380,9 @@ recursive function MellinConvolutionVectorPart5(x0,x1,hadron) result(res5)
 	    !!!! if the change of PDF*fNP is small enough we replace the integral, by the exact integral
 	    if(IsMuXdependent) then
 	      if(bTcurrent>1d-8) then
-            muCurrent=c4_global*mu_OPE(x0,bTcurrent)
+            muCurrent=mu_OPE(x0,bTcurrent,c4_global)
 	      else
-            muCurrent=c4_global*mu_OPE(x0,1d-8)
+            muCurrent=mu_OPE(x0,1d-8,c4_global)
 	      end if
 	    end if
 	    
@@ -394,10 +394,10 @@ recursive function MellinConvolutionVectorPart5(x0,x1,hadron) result(res5)
 	    if(MAXVAL(epspdf)<tolerance) then !!! variation is small
         if(IsMuXdependent) then
 		if(bTcurrent>1d-8) then
-		  muCurrent=c4_global*mu_OPE(x0,bTcurrent)
+		  muCurrent=mu_OPE(x0,bTcurrent,c4_global)
 		  Lmu=LogMuB(muCurrent,bTcurrent)
         else
-          muCurrent=c4_global*mu_OPE(x0,1d-8)
+          muCurrent=mu_OPE(x0,1d-8,c4_global)
 		  Lmu=LogMuB(muCurrent,1d-8)
         end if
         alpha=As(muCurrent)
@@ -487,10 +487,10 @@ recursive function MellinConvolutionVectorPart50(x0,x1,hadron) result(res5)
       !!!!If mu(z) we have to recalculate Coefficeints every new z!!! This should be very loooong
       if(IsMuXdependent) then
       if(bTcurrent>1d-8) then
-        muCurrent=c4_global*mu_OPE(z,bTcurrent)
+        muCurrent=mu_OPE(z,bTcurrent,c4_global)
         Lmu=LogMuB(muCurrent,bTcurrent)
       else
-        muCurrent=c4_global*mu_OPE(z,10d-8)
+        muCurrent=mu_OPE(z,10d-8,c4_global)
         Lmu=LogMuB(muCurrent,10d-8)
       end if
       alpha=As(muCurrent)
@@ -578,9 +578,9 @@ recursive function MellinConvolutionVectorPart50(x0,x1,hadron) result(res5)
 	    
 	    if(IsMuXdependent) then
 	      if(bTcurrent>1d-8) then
-            muCurrent=c4_global*mu_OPE(x0,bTcurrent)
+            muCurrent=mu_OPE(x0,bTcurrent,c4_global)
 	      else
-            muCurrent=c4_global*mu_OPE(x0,1d-8)
+            muCurrent=mu_OPE(x0,1d-8,c4_global)
 	      end if
 	    end if
 	    
@@ -591,10 +591,10 @@ recursive function MellinConvolutionVectorPart50(x0,x1,hadron) result(res5)
 	    if(MAXVAL(epspdf)<tolerance) then !!! variation is small
 	      if(IsMuXdependent) then
             if(bTcurrent>1d-8) then
-              muCurrent=c4_global*mu_OPE(x0,bTcurrent)
+              muCurrent=mu_OPE(x0,bTcurrent,c4_global)
               Lmu=LogMuB(muCurrent,bTcurrent)
             else
-              muCurrent=c4_global*mu_OPE(x0,1d-8)
+              muCurrent=mu_OPE(x0,1d-8,c4_global)
               Lmu=LogMuB(muCurrent,1d-8)
             end if
             alpha=As(muCurrent)
