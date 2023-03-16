@@ -33,14 +33,37 @@ do i=1,iMax
     TT0(i)=DNP(2d0,b(i),1)
 end do
 
+write(*,"(A)",advance="no")"A0={"
+do i=1,iMax
+    write(*,'("{",F8.4," ,",F16.8,"}")',advance="no") b(i), TT0(i)
+    if(i<iMax) write(*,"(A)",advance="no")","
+end do
+write(*,*) "};"
+write(*,*) " "
+
 call artemide_SetNPparameters_TMDR((/1.5d0, 0.05d0, 0.07d0,.75d0/))
 do i=1,iMax
-    TT1(i)=DNP(2d0,b(i),1)
+    TT0(i)=DNP(2d0,b(i),1)
 end do
 
+write(*,"(A)",advance="no")"A2={"
 do i=1,iMax
-    write(*,'("{",F8.4," ,",F12.8,"},")',advance="no") b(i), TT0(i)/TT1(i)
+    write(*,'("{",F8.4," ,",F16.8,"}")',advance="no") b(i), TT0(i)
+    if(i<iMax) write(*,"(A)",advance="no")","
 end do
 
+write(*,*) "};"
 write(*,*) " "
+
+call artemide_SetNPparameters_TMDR((/1.5d0, 0.05d0, 0.07d0,2.d0/))
+do i=1,iMax
+    TT0(i)=DNP(2d0,b(i),1)
+end do
+
+write(*,"(A)",advance="no")"A3={"
+do i=1,iMax
+    write(*,'("{",F8.4," ,",F16.8,"}")',advance="no") b(i), TT0(i)
+    if(i<iMax) write(*,"(A)",advance="no")","
+end do
+write(*,*) "};"
 end program example

@@ -52,6 +52,9 @@ integer,allocatable::enumeration_of_lpPDFs(:)
 integer::num_of_hPDFs,start_hPDFindex
 integer,allocatable::enumeration_of_hPDFs(:)
 
+!---common
+integer,allocatable::current_replicas(:)
+
  contains 
  
  
@@ -77,7 +80,7 @@ integer,allocatable::enumeration_of_hPDFs(:)
   else
     path=trim(adjustr(file))
   end if
-  
+
   OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
     !!! Search for output level
     call MoveTO(51,'*0   ')
@@ -138,6 +141,9 @@ integer,allocatable::enumeration_of_hPDFs(:)
 		    enumeration_of_uPDFs(i),trim(names(i)),replicas(i)
       end do
       
+      !!! save initial replicas to the list of  replicas
+      call append_list(current_replicas,replicas)
+
       deallocate(names,replicas)
     else
       !!! initialization is not needed
@@ -170,6 +176,9 @@ integer,allocatable::enumeration_of_hPDFs(:)
                 enumeration_of_uFFs(i),trim(names(i)),replicas(i)
       end do
       
+      !!! save initial replicas to the list of  replicas
+      call append_list(current_replicas,replicas)
+
       deallocate(names,replicas)
       
     else
@@ -204,6 +213,9 @@ integer,allocatable::enumeration_of_hPDFs(:)
                 enumeration_of_lpPDFs(i),trim(names(i)),replicas(i)
       end do
       
+      !!! save initial replicas to the list of  replicas
+      call append_list(current_replicas,replicas)
+
       deallocate(names,replicas)
     else
       !!! initialization is not needed
@@ -237,6 +249,9 @@ integer,allocatable::enumeration_of_hPDFs(:)
 		    enumeration_of_hPDFs(i),trim(names(i)),replicas(i)
       end do
       
+      !!! save initial replicas to the list of  replicas
+      call append_list(current_replicas,replicas)
+
       deallocate(names,replicas)
     else
       !!! initialization is not needed
@@ -244,11 +259,44 @@ integer,allocatable::enumeration_of_hPDFs(:)
     end if
  
   CLOSE (51, STATUS='KEEP') 
+
+  if(outputLevel>2) write(*,*) "The list of initial PDF replica numbers is :", current_replicas
      
    if(outputLevel>0) write(*,*) color('----- arTeMiDe.QCDinput '//trim(version)//': .... initialized',c_green)
    if(outputLevel>1) write(*,*) ' '
   started=.true.
+
  end subroutine QCDinput_Initialize
+
+ !!!! Add values of listB, to the end of listA
+ pure subroutine append_list(listA,listB)
+    integer,allocatable, intent(inout)::listA(:)
+    integer,intent(in)::listB(:)
+    integer,allocatable::dummy_list(:)
+    integer:: isize,i
+
+    if(allocated(listA)) then
+
+      isize=size(listA)+size(listB)
+      allocate(dummy_list(1:isize))
+      do i=1, size(listA)
+        dummy_list(i)=listA(i)
+      end do
+      do i=1, size(listB)
+        dummy_list(i+size(listA))=listB(i)
+      end do
+      deallocate(listA)
+
+      call move_alloc(dummy_list,listA)
+
+    else
+      allocate(listA(1:size(listB)))
+      do i=1, size(listB)
+        listA(i)=listB(i)
+      end do
+    end if
+
+ end subroutine append_list
  
  !!! provide the index of grid associated with uPDF(hadron)
  function index_of_uPDF(hadron)
@@ -347,40 +395,95 @@ integer,allocatable::enumeration_of_hPDFs(:)
   end if
  end function index_of_hPDF
  
-!!! same with possibility to point to hadron
-subroutine QCDinput_SetPDFreplica(rep,hadron)
+!!! set a different replica of uPDF (pointing to hadron)
+!!! check whatever its the same or not.
+!!! in the case the replica is same as stored -- does not change PDF (newPDF=false)
+!!! in the case the replica is different -- does change PDF (newPDF=true)
+subroutine QCDinput_SetPDFreplica(rep,hadron,newPDF)
     integer,intent(in):: rep,hadron
-    call InitPDFM(index_of_uPDF(hadron),rep)
+    logical,intent(out)::newPDF
+    integer:: num_h
+    num_h=index_of_uPDF(hadron)
+
+    !!! if the number of replica to change coincides with the already used. Do not change it
+    if(current_replicas(num_h)==rep) then
+      newPDF=.false.
+    else
+      call InitPDFM(num_h,rep)
+      current_replicas(num_h)=rep
+      newPDF=.true.
+    end if
 end subroutine QCDinput_SetPDFreplica
 
-!!! set a different replica number for FF with possibility to point to hadron
-subroutine QCDinput_SetFFreplica(rep,hadron)
+!!! set a different replica of uFF (pointing to hadron)
+!!! check whatever its the same or not.
+!!! in the case the replica is same as stored -- does not change PDF (newPDF=false)
+!!! in the case the replica is different -- does change PDF (newPDF=true)
+subroutine QCDinput_SetFFreplica(rep,hadron,newPDF)
     integer,intent(in):: rep,hadron
-    call InitPDFM(index_of_uFF(hadron),rep)
+    logical,intent(out)::newPDF
+    integer:: num_h
+    num_h=index_of_uFF(hadron)
+
+    !!! if the number of replica to change coincides with the already used. Do not change it
+    if(current_replicas(num_h)==rep) then
+      newPDF=.false.
+    else
+      call InitPDFM(num_h,rep)
+      current_replicas(num_h)=rep
+      newPDF=.true.
+    end if
 end subroutine QCDinput_SetFFreplica
 
-!!! set a different replica number for lp_PDF with possibility to point to hadron
-subroutine QCDinput_SetlpPDFreplica(rep,hadron)
+!!! set a different replica of lp_PDF (pointing to hadron)
+!!! check whatever its the same or not.
+!!! in the case the replica is same as stored -- does not change PDF (newPDF=false)
+!!! in the case the replica is different -- does change PDF (newPDF=true)
+subroutine QCDinput_SetlpPDFreplica(rep,hadron,newPDF)
     integer,intent(in):: rep,hadron
-    call InitPDFM(index_of_lpPDF(hadron),rep)
+    logical,intent(out)::newPDF
+    integer:: num_h
+    num_h=index_of_lpPDF(hadron)
+
+    !!! if the number of replica to change coincides with the already used. Do not change it
+    if(current_replicas(num_h)==rep) then
+      newPDF=.false.
+    else
+      call InitPDFM(num_h,rep)
+      current_replicas(num_h)=rep
+      newPDF=.true.
+    end if
 end subroutine QCDinput_SetlpPDFreplica
 
-!!! set a different replica number for hPDF with possibility to point to hadron
-subroutine QCDinput_SethPDFreplica(rep,hadron)
+!!! set a different replica of hPDF (pointing to hadron)
+!!! check whatever its the same or not.
+!!! in the case the replica is same as stored -- does not change PDF (newPDF=false)
+!!! in the case the replica is different -- does change PDF (newPDF=true)
+subroutine QCDinput_SethPDFreplica(rep,hadron,newPDF)
     integer,intent(in):: rep,hadron
-    call InitPDFM(index_of_hPDF(hadron),rep)
+    logical,intent(out)::newPDF
+    integer:: num_h
+    num_h=index_of_hPDF(hadron)
+
+    !!! if the number of replica to change coincides with the already used. Do not change it
+    if(current_replicas(num_h)==rep) then
+      newPDF=.false.
+    else
+      call InitPDFM(num_h,rep)
+      current_replicas(num_h)=rep
+      newPDF=.true.
+    end if
 end subroutine QCDinput_SethPDFreplica
  
 !!number of active flavor at given mu
 function activeNf(mu)
   integer::activeNf
   real(dp)::mu
-  
   if(mu>mBOTTOM) then
      activeNf=5
     else if(mu>mCHARM) then
      activeNf=4
-    else 
+    else
      activeNf=3
   end if
 end function activeNf

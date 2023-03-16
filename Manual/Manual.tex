@@ -3510,6 +3510,7 @@ doi:10.1007/JHEP05(2019)125
 	\item \textbf{aTMDe\_setup} Modifications due to \textbf{QCDinput} and \textbf{wgtTMDPDF} updates.
 	\item \textbf{wgtTMDPDF} Implemented (Thanks to M.Horstmann).
 	\item \textbf{EWinput}: Fixed bug with the S-quark parameter for the interference term in Z-boson production (Thanks to S. Leal-Gomez).
+	\item \textbf{QCDinput}: Added a check for the changing of PDF replica. It is not updated if the PDF replica is same. Updated corresponding function ins TMD's modules, such that they do not recompute grid if PDF remains the same.
 	\item \textbf{QCDinput}: Added individual function for changing PDF replica for each TMD module. Also added argument to specify hadron. Updated corresponding function ins TMD's modules.
 	\item \textbf{QCDinput}: Helicity PDF input is added.
 	\item \textbf{QCDinput}: Bug in the enumeration of hadrons fixed.

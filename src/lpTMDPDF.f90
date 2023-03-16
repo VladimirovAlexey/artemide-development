@@ -369,9 +369,17 @@ end subroutine lpTMDPDF_SetReplica_optional
 subroutine lpTMDPDF_SetPDFreplica(rep,hadron)
     integer:: rep,hadron
 
-    call QCDinput_SetlpPDFreplica(rep,hadron)
-    gridReady=.false.  
-    call lpTMDPDF_resetGrid()
+    logical::newPDF
+
+    call QCDinput_SetlpPDFreplica(rep,hadron,newPDF)
+    if(newPDF) then
+        gridReady=.false.
+        call lpTMDPDF_resetGrid()
+    else
+        if(outputLevel>1) write(*,"('arTeMiDe ',A,':  replica of PDF (',I4,' is the same as the used one. Nothing is done!')") &
+        moduleName, rep
+    end if
+
 end subroutine lpTMDPDF_SetPDFreplica
   
 !!!Sets the non-pertrubative parameters lambda

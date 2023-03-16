@@ -378,10 +378,17 @@ end subroutine uTMDPDF_SetReplica_optional
 !! unset the grid, since it should be recalculated fro different PDF replica.
 subroutine uTMDPDF_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
+    logical::newPDF
 
-    call QCDinput_SetPDFreplica(rep,hadron)
-    gridReady=.false.  
-    call uTMDPDF_resetGrid()
+    call QCDinput_SetPDFreplica(rep,hadron,newPDF)
+    if(newPDF) then
+        gridReady=.false.
+        call uTMDPDF_resetGrid()
+    else
+        if(outputLevel>1) write(*,"('arTeMiDe ',A,':  replica of PDF (',I4,' is the same as the used one. Nothing is done!')") &
+        moduleName, rep
+    end if
+
 end subroutine uTMDPDF_SetPDFreplica
 
 !!!Sets the non-pertrubative parameters lambda
