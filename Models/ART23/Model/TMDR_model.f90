@@ -47,8 +47,8 @@ contains
 subroutine ModelInitialization(InitialNPParams)  
     real(dp),intent(in):: InitialNPParams(:)
 
-    if(size(InitialNPParams)<4) then
-        write(*,*) color('ART23-model: Number NP parameters for TMDR is less then 4',c_red)
+    if(size(InitialNPParams)<3) then
+        write(*,*) color('ART23-model: Number NP parameters for TMDR is less then 3',c_red)
         write(*,*) 'Evaluation STOP'
         stop
     end if

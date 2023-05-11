@@ -74,8 +74,8 @@ subroutine ModelUpdate(newNPParams)
 
 end subroutine ModelUpdate
 
-!!! This is  non-perturbative function
-!!! non=perturbative parameters are lambdaNP()
+!!! This is  non-pertrubative function
+!!! non=pertrubative parameters are lambdaNP()
 !!! x-- is the bjorken variable of TMD
 !!! z-- is convolution variable
 function FNP(x,z,bT,hadron,lambdaNP)
@@ -133,6 +133,7 @@ function FNP(x,z,bT,hadron,lambdaNP)
       FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
       
   end if
+
 
   end function FNP
   
