@@ -38,6 +38,7 @@ $(SOURCEDIR)/TMD_AD.f90 \
 $(SOURCEDIR)/Model/TMDR_model.f90 \
 $(SOURCEDIR)/TMDR.f90 \
 $(SOURCEDIR)/Model/uTMDPDF_model.f90 \
+$(SOURCEDIR)/uTMDPDF_OPE.f90 \
 $(SOURCEDIR)/uTMDPDF.f90 \
 $(SOURCEDIR)/Model/uTMDFF_model.f90 \
 $(SOURCEDIR)/uTMDFF.f90 \
@@ -52,13 +53,14 @@ $(SOURCEDIR)/TMDF.f90 \
 $(SOURCEDIR)/TMDs_inKT.f90 \
 $(SOURCEDIR)/TMDX_DY.f90 \
 $(SOURCEDIR)/TMDX_SIDIS.f90 \
-$(SOURCEDIR)/aTMDe_control.f90 
+$(SOURCEDIR)/aTMDe_control.f90
 
 Twist2Files=\
 $(SOURCEDIR)/Code/Twist2/Twist2Convolution.f90 \
 $(SOURCEDIR)/Code/Grids/TMDGrid-B.f90 \
 $(SOURCEDIR)/Code/Twist2/Twist2Convolution-VAR.f90 \
-$(SOURCEDIR)/Code/Grids/TMDGrid-B-VAR.f90
+$(SOURCEDIR)/Code/Grids/TMDGrid-B-VAR.f90 \
+$(SOURCEDIR)/Code/Twist2/Twist2Convolution-new.f90
 
 Twist3Files=\
 $(SOURCEDIR)/Code/Grids/TMDGrid-B-2.f90 \
@@ -129,6 +131,7 @@ $(OBJ)/TMD_AD.o\
 $(OBJ)/TMDR_model.o\
 $(OBJ)/TMDR.o\
 $(OBJ)/uTMDPDF_model.o \
+$(OBJ)/uTMDPDF_OPE.o \
 $(OBJ)/uTMDPDF.o \
 $(OBJ)/uTMDFF_model.o \
 $(OBJ)/uTMDFF.o\
@@ -205,6 +208,12 @@ $(OBJ)/uTMDPDF_model.o: $(SOURCEDIR)/Model/uTMDPDF_model.f90 $(aTMDeUTILITY)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
+$(OBJ)/uTMDPDF_OPE.o: $(SOURCEDIR)/uTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/uTMDPDF_model.f90 $(Twist2Files) $(aTMDeUTILITY) $(uTMDPDFFiles)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/uTMDPDF_OPE.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+	
 $(OBJ)/uTMDPDF.o: $(SOURCEDIR)/uTMDPDF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/uTMDPDF_model.f90 $(Twist2Files) $(aTMDeUTILITY) $(uTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/uTMDPDF.f90 -I$(MOD)

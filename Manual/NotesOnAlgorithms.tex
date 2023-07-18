@@ -1,0 +1,206 @@
+%\documentclass[12pt]{article}
+\documentclass[prd,nofootinbib,eqsecnum,final]{revtex4}
+%,preprint,tightenlines,floatfix,showpacs,showkeys,preprintnumbers,
+%\usepackage[dvips]{graphicx,color}
+\usepackage{hyperref}
+\usepackage{graphicx,color}
+  \usepackage{bm}% bold math
+   \usepackage{amsmath}
+    \usepackage{amssymb}
+     \usepackage{pifont}
+%      \usepackage{simplewick}
+%      \usepackage{srcltx}
+\usepackage{tikz}
+\usepackage[most]{tcolorbox}
+\usepackage{rotating}
+\usepackage{multirow}
+\usepackage{longtable}
+%\usepackage[makeroom]{cancel}
+%\usepackage{fullpage}%full page style
+\usepackage{listings}
+
+%%%%%%%%%%%%%%%%%% ReNew Commands %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\Ds}{\displaystyle}
+
+\newcommand{\nn}{\nonumber}
+
+\newcommand{\tr}{\mathrm{tr}}
+\newcommand{\Tr}{\mathrm{Tr}}
+\newcommand{\sign}{\text{sign}}
+\newcommand{\even}{\text{even}}
+\newcommand{\odd}{\text{odd}}
+\newcommand{\sh}{\text{sh}}
+\newcommand{\ch}{\text{ch}}
+\newcommand{\const}{\text{const.}}
+\newcommand{\Li}{\text{Li}}
+\newcommand{\ot}{\leftarrow}
+
+\newcommand{\partialboth}{\!\!\stackrel{\leftrightarrow}{\partial}\!\!}
+
+\renewcommand{\(}{\left(}
+\renewcommand{\)}{\right)}
+\renewcommand{\[}{\left[}
+\renewcommand{\]}{\right]}
+
+\renewcommand{\Im}{\text{Im}}
+\renewcommand{\Re}{\text{Re}}
+
+\renewcommand{\vec}[1]{\bm{#1}}
+\newcommand{\fnot}[1]{\not{\! #1}}
+
+%\definecolor{green}{rgb}{0.133,0.56,0}
+\newcommand{\red}[1]{{\color[rgb]{1,0,0} #1}}
+\newcommand{\blue}[1]{{\color{blue} #1}}
+\newcommand{\gray}[1]{{\color{gray} #1}}
+
+\newcommand{\bboxed}[1]{\blue{\boxed{#1}}}
+
+\lstdefinestyle{DOS}
+{
+    backgroundcolor=\color{black},
+    basicstyle=\scriptsize\color{white}\ttfamily
+}
+%%%%%%%%%%%%%%%%%%%%%CODE FROM INTERNET FOR GRID WITH COORDIATES%%%%
+\makeatletter
+\def\grd@save@target#1{%
+  \def\grd@target{#1}}
+\def\grd@save@start#1{%
+  \def\grd@start{#1}}
+\tikzset{
+  grid with coordinates/.style={
+    to path={%
+      \pgfextra{%
+        \edef\grd@@target{(\tikztotarget)}%
+        \tikz@scan@one@point\grd@save@target\grd@@target\relax
+        \edef\grd@@start{(\tikztostart)}%
+        \tikz@scan@one@point\grd@save@start\grd@@start\relax
+        \draw[minor help lines] (\tikztostart) grid (\tikztotarget);
+        \draw[major help lines] (\tikztostart) grid (\tikztotarget);
+        \grd@start
+        \pgfmathsetmacro{\grd@xa}{\the\pgf@x/1cm}
+        \pgfmathsetmacro{\grd@ya}{\the\pgf@y/1cm}
+        \grd@target
+        \pgfmathsetmacro{\grd@xb}{\the\pgf@x/1cm}
+        \pgfmathsetmacro{\grd@yb}{\the\pgf@y/1cm}
+        \pgfmathsetmacro{\grd@xc}{\grd@xa + \pgfkeysvalueof{/tikz/grid with coordinates/major step}}
+        \pgfmathsetmacro{\grd@yc}{\grd@ya + \pgfkeysvalueof{/tikz/grid with coordinates/major step}}
+        \foreach \x in {\grd@xa,\grd@xc,...,\grd@xb}
+        \node[anchor=north] at (\x,\grd@ya) {\pgfmathprintnumber{\x}};
+        \foreach \y in {\grd@ya,\grd@yc,...,\grd@yb}
+        \node[anchor=east] at (\grd@xa,\y) {\pgfmathprintnumber{\y}};
+      }
+    }
+  },
+  minor help lines/.style={
+    help lines,
+    step=\pgfkeysvalueof{/tikz/grid with coordinates/minor step}
+  },
+  major help lines/.style={
+    help lines,
+    line width=\pgfkeysvalueof{/tikz/grid with coordinates/major line width},
+    step=\pgfkeysvalueof{/tikz/grid with coordinates/major step}
+  },
+  grid with coordinates/.cd,
+  minor step/.initial=.2,
+  major step/.initial=1,
+  major line width/.initial=1pt,
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\title{Notes on the algorithms\\ used in artemide ver.3.}
+\author{Alexey A. Vladimirov \\ \today}
+\noaffiliation
+
+\maketitle
+
+\section{Convolution and grids for distributions with twist-2 input}
+
+The convolution has the general form
+\begin{eqnarray}
+[C\otimes f](x,b,\mu)=\sum_f\int_x^1 \frac{dy}{y} C_{f,f'}\(\frac{x}{y},b,\mu\)f_{f'}(y,\mu).
+\end{eqnarray}
+Here the $\mu$ is internal parameter specified in the model.
+
+\textbf{One needs a grid for this convolution in (x,b)}.
+
+For it I use the algorithm from QCDnum. The coefficient function is presented as
+\begin{eqnarray}
+C_{f,f'}(x,b,\mu)=\sum_{n=0}\sum_{k=0}^n a_s^n \mathbf{L}^k C^{(n,k)}_{f,f'}(x).
+\end{eqnarray}
+The PDF is interpolated over the logarithmical grid
+\begin{eqnarray}
+\text{X-grid}:~~~[B_x,N_x],~~~x_i=10^{-B_x+\Delta_x i},~\text{with}~\Delta_x=\frac{B_x}{N_x},~i=0,...,N_x.
+\end{eqnarray}
+Such, grid span logarithmically $x\in[10^{-B},1]$. Over this grid I use qubic Lagrange interpolation
+\begin{eqnarray}
+f(x)=\sum_{i=0}^{N_x-1}\theta(x_i<x<x_{i+1})\sum_{r=-1,0,1,2} P_{i,r}(x)f(x_{i+r}),
+\end{eqnarray}
+where $P$ is the Lagrange polynomial over the logarithmic grid
+\begin{eqnarray}
+P_{i,r}(x)
+=\prod_{\substack{l=-1,0,1,2\\ l\neq r}}\frac{\log_{10} x-\log_{10} x_{i+l}}{\log_{10} x_{i+k}-\log_{10} x_{i+l}}
+=\prod_{\substack{l=-1,0,1,2\\ l\neq r}}\(\frac{\log_{10} \frac{x}{x_{i+k}}}{\Delta(k-l)}+1\),
+\end{eqnarray}
+The end segments are approximated by square polynomials, i.e. if $i=0$ $l\in{0,1,2}$ [+if $k<0$ $\to0$] if $i=N_x-1$ $l\in{-1,0,1}$ [+if $k>1$ $\to0$].
+
+Now the function $f$ can be represented as
+\begin{eqnarray}
+f(x)=\sum_{i=0}^{N_x}f(x_i)W_i(x),
+\end{eqnarray}
+where 
+\begin{eqnarray}
+W_i(x)=\sum_{k=-2,-1,0,1}\theta(x_{i+k}<x<x_{i+k+1})P_{i+k,k}(x).
+\end{eqnarray}
+Therefore, the convolution can be presented as
+\begin{eqnarray}
+[C\otimes f](x,b,\mu)=\sum_{f'} \sum_{n=0}\sum_{k=0}^n \sum_{i=0}^{N_x-1} a_s^n \mathbf{L}^k f_{f'}(x_i,\mu) 
+\mathfrak{T}_{ff'}^{(n,k)}(x,x_i),
+\end{eqnarray}
+where
+\begin{eqnarray}
+\mathfrak{T}_{ff'}^{(n,k)}(x,x_i)=\int_x^1 \frac{dy}{y}C^{(n,k)}_{ff'}\(\frac{x}{y}\)W_i(y).
+\end{eqnarray}
+For the $x=x_j \in $grid one has
+\begin{eqnarray}
+[C\otimes f](x_i,b,\mu)=\sum_{f'} \sum_{n=0}\sum_{k=0}^n \sum_{j=0}^{N_x-1} a_s^n \mathbf{L}^k  \mathfrak{T}_{ff';ij}^{(n,k)} f_{f'}(x_j,\mu) 
+,
+\end{eqnarray}
+where
+\begin{eqnarray}
+\mathfrak{T}_{ff',ij}^{(n,k)}=\int_{x_i}^1 \frac{dy}{y}C^{(n,k)}_{ff'}\(\frac{x_i}{y}\)W_j(y).
+\end{eqnarray}
+Note that since the function $W$ is restrictired one has
+\begin{eqnarray}
+\mathfrak{T}_{ff',ij}^{(n,k)}=
+\int_{\text{max}(x_i,x_{j-2},x_0)}^{\text{min}(x_{j+2},1)} \frac{dy}{y}C^{(n,k)}_{ff'}\(\frac{x_i}{y}\)W_j(y).
+\end{eqnarray}
+Or
+\begin{eqnarray}
+\mathfrak{T}_{ff',ij}^{(n,k)}=
+\int^{\text{min}(1,x_i/x_{j-2},x_i/x_0)}_{\text{max}(x_i/x_{j+2},x_i)} \frac{dy}{y}C^{(n,k)}_{ff'}(y)W_j\(\frac{x_i}{y}\).
+\end{eqnarray}
+The matrix has the following form
+\begin{eqnarray}
+\left(
+\begin{array}{cccccccc}
+\mathfrak{T}_{00} & \mathfrak{T}_{01} & \mathfrak{T}_{02} & ... & \mathfrak{T}_{0(N-3)} & \mathfrak{T}_{0(N-2)} & \mathfrak{T}_{0(N-1)} & \mathfrak{T}_{0N}
+\\
+\red{\mathfrak{T}_{10}} & \red{\mathfrak{T}_{11}} & \red{\mathfrak{T}_{12}} & ... & \red{\mathfrak{T}_{1(N-3)}} & \mathfrak{T}_{1(N-2)} & \mathfrak{T}_{1(N-1)} & \mathfrak{T}_{1N}
+\\
+0 & \red{\mathfrak{T}_{10}} & \red{\mathfrak{T}_{11}} & ... & \red{\mathfrak{T}_{1(N-4)}} & \mathfrak{T}_{2(N-2)} & \mathfrak{T}_{2(N-1)} & \mathfrak{T}_{2N}
+\\
+0 & 0 & \red{\mathfrak{T}_{10}} & ... & \red{\mathfrak{T}_{1(N-5)}} & \mathfrak{T}_{3(N-2)} & \mathfrak{T}_{3(N-1)} & \mathfrak{T}_{3N}
+\\ ... & ... &... &... &... &... &... &... 
+\\
+0 & 0 & 0 & ... & \red{\mathfrak{T}_{10}} & \mathfrak{T}_{(N-2)(N-2)} & \mathfrak{T}_{(N-2)(N-1)} & \mathfrak{T}_{(N-2)N}
+\\
+0 & 0 & 0 & ... & 0 & \mathfrak{T}_{(N-1)(N-2)} & \mathfrak{T}_{(N-1)(N-1)} & \mathfrak{T}_{(N-1)N}
+\\
+0 & 0 & 0 & ... & 0 & 0 & 0 & 0
+\end{array}
+\right),
+\end{eqnarray}
+where by red I show the part which has a pattern.
+\end{document}

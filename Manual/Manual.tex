@@ -109,7 +109,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\title{artemide ver.2.06}
+\title{artemide ver.3.00}
 \author{Alexey A. Vladimirov \\ \today}
 \noaffiliation
 \begin{abstract}
@@ -124,11 +124,19 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 
 ~
 
-If you use the \texttt{artemide}, please, quote \cite{Scimemi:2017etj}.
-
-If you find mistakes, have suggestions, or have questions write to: 
-
-Alexey Vladimirov: \textit{Alexey.Vladimirov@physik.uni-regensburg.de} or \textit{vladimirov.aleksey@gmail.com}
+If you use the \texttt{artemide}v.1.??, please, quote \cite{Scimemi:2017etj}.
+\\
+If you use the \texttt{artemide}v.2.??, please, quote \cite{Scimemi:2019cmh}.
+\\
+If you use the \texttt{artemide}v.2.06, please, quote \cite{Moos:2023yfa}.
+\\
+~
+\\
+If you find mistakes, have suggestions or questions, please, write to: 
+\\
+~
+\\
+Alexey Vladimirov: \textit{alexeyvl@ucm.es} or \textit{vladimirov.aleksey@gmail.com}
 \end{center}
 \end{tcolorbox}
 
@@ -158,6 +166,18 @@ Alexey Vladimirov: \textit{Alexey.Vladimirov@physik.uni-regensburg.de} or \texti
 \textbf{DY = Drell-Yan process}
 
 \textbf{SIDIS = Semi-Inclusive Deep-Inelastic Scattering}
+
+\textbf{LO = Leading order} (in QCD perturbation theory)
+
+\textbf{NLO = Next-to-Leading order}, (in QCD perturbation theory)
+
+\textbf{N$^2$LO = Next-to-Next-to-Leading order (etc)}, (in QCD perturbation theory)
+
+\textbf{LP = Leading power} (in power expansion of TMD factorization)
+
+\textbf{NLP = Next-to-Leading power (etc)}, (in power expansion of TMD factorization)
+
+\textbf{KPC = Kinematic power corrections}
 
 \newpage
 
@@ -2674,7 +2694,7 @@ TO BE WRITTEN
 
 \subsubsection{$\pi^2$-resummation}
 
-The coefficient function of DY-like cross-section $|C_V|^2$ is evaluated at $(-q^2)$ (space-like momentum). Thus, it has contributions $\sim \pi^2$, which could be large, especially in the case of Higgs-boson production, see discussion in  refs.{Ahrens:2008nc,Ahrens:2008qu}. These corrections could be resummed by RG technique \cite{Ahrens:2008qu}. So,
+The coefficient function of DY-like cross-section $|C_V|^2$ is evaluated at $(-q^2)$ (space-like momentum). Thus, it has contributions $\sim \pi^2$, which could be large, especially in the case of Higgs-boson production, see discussion in  refs.{Ahrens:2009cxz, Ahrens:2008qu}. These corrections could be resummed by RG technique \cite{Ahrens:2008qu}. So,
 \begin{eqnarray}
 |C_V(-q^2)|^2\to U_\pi |C_V(q^2)|^2,
 \end{eqnarray}
@@ -2738,7 +2758,7 @@ List of enumeration for $prefactor2$
 \\\hline
 4 & $\frac{4\pi^2}{3}\frac{\alpha_{\text{em}}(Q)}{s}Br_W|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$ for the W-boson production in the narrow width approximation. $Br_W=0.1086$ is W-boson branching ration to leptons. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}). Use together with \texttt{p3}=13,...,18. In this case, $Q$ is be $M_Z$. The result is in pb/GeV$^2$
 \\\hline
-5 & $\frac{2}{\pi}\frac{\pi m_H^2 a_s^2(Q)}{36 s v^2}C_t^2(m_t,Q)|C_g(Q)|^2|A(x_t)|^2$ & Cross-section $\frac{d\sigma}{dy d(q_T^2)}$ for the exclusive Higgs-boson production. The result is in pb/GeV$^2$. For definition of functions see \cite{Ahrens:2008nc}.
+5 & $\frac{2}{\pi}\frac{\pi m_H^2 a_s^2(Q)}{36 s v^2}C_t^2(m_t,Q)|C_g(Q)|^2|A(x_t)|^2$ & Cross-section $\frac{d\sigma}{dy d(q_T^2)}$ for the exclusive Higgs-boson production. The result is in pb/GeV$^2$. For definition of functions see \cite{Ahrens:2009cxz}.
 \\\hline\hline
 \end{tabular}
 Here $R=0.3893379\cdot 10^9$ the transformation factor from GeV to pb.
@@ -3325,165 +3345,9 @@ For convenience I have also created a more user-friendly interface, written on p
 
 \clearpage
 
-\begin{thebibliography}{10}
+\bibliography{bibfile}
 
-%\cite{Scimemi:2017etj}
-\bibitem{Scimemi:2017etj} 
-  I.~Scimemi and A.~Vladimirov,
-  %``Analysis of vector boson production within TMD factorization,''
-  Eur.\ Phys.\ J.\ C {\bf 78}, no. 2, 89 (2018)
-  doi:10.1140/epjc/s10052-018-5557-y
-  [arXiv:1706.01473 [hep-ph]].
-  %%CITATION = doi:10.1140/epjc/s10052-018-5557-y;%%
-  %8 citations counted in INSPIRE as of 16 Apr 2018
-
-%\cite{Collins:2011zzd}
-\bibitem{Collins:2011zzd}
-  J.~Collins,
-  %``Foundations of perturbative QCD,''
-  Camb.\ Monogr.\ Part.\ Phys.\ Nucl.\ Phys.\ Cosmol.\  {\bf 32} (2011) 1.
-  %%CITATION = CMPCE,32,1;%%
-
-%\cite{Harland-Lang:2014zoa}
-\bibitem{MMHT2014}
-  L.~A.~Harland-Lang, A.~D.~Martin, P.~Motylinski and R.~S.~Thorne,
-  %``Parton distributions in the LHC era: MMHT 2014 PDFs,''
-  Eur.\ Phys.\ J.\ C {\bf 75} (2015) no.5,  204
-  doi:10.1140/epjc/s10052-015-3397-6
-  [arXiv:1412.3989 [hep-ph]].
-  %%CITATION = doi:10.1140/epjc/s10052-015-3397-6;%%
-  %357 citations counted in INSPIRE as of 11 May 2017
-  
-%\cite{Scimemi:2018xaf}
-\bibitem{Scimemi:2018xaf}
-  I.~Scimemi and A.~Vladimirov,
-  %``Systematic analysis of double-scale evolution,''
-  JHEP {\bf 1808} (2018) 003
-  doi:10.1007/JHEP08(2018)003
-  [arXiv:1803.11089 [hep-ph]].
-  %%CITATION = doi:10.1007/JHEP08(2018)003;%%
-  
-%\cite{Buckley:2014ana}
-\bibitem{Buckley:2014ana} 
-  A.~Buckley, J.~Ferrando, S.~Lloyd, K.~Nordström, B.~Page, M.~Rüfenacht, M.~Schönherr and G.~Watt,
-  %``LHAPDF6: parton density access in the LHC precision era,''
-  Eur.\ Phys.\ J.\ C {\bf 75}, 132 (2015)
-  doi:10.1140/epjc/s10052-015-3318-8
-  [arXiv:1412.7420 [hep-ph]].
-  %%CITATION = doi:10.1140/epjc/s10052-015-3318-8;%%
-  %322 citations counted in INSPIRE as of 17 Apr 2018
-
-%\cite{Echevarria:2016scs}
-\bibitem{Echevarria:2016scs} 
-  M.~G.~Echevarria, I.~Scimemi and A.~Vladimirov,
-  %``Unpolarized Transverse Momentum Dependent Parton Distribution and Fragmentation Functions at next-to-next-to-leading order,''
-  JHEP {\bf 1609}, 004 (2016)
-  doi:10.1007/JHEP09(2016)004
-  [arXiv:1604.07869 [hep-ph]].
-  %%CITATION = doi:10.1007/JHEP09(2016)004;%%
-  %24 citations counted in INSPIRE as of 25 Apr 2018
-  
-%\cite{Echevarria:2015usa}
-\bibitem{Echevarria:2015usa} 
-  M.~G.~Echevarria, I.~Scimemi and A.~Vladimirov,
-  %``Transverse momentum dependent fragmentation function at next-to–next-to–leading order,''
-  Phys.\ Rev.\ D {\bf 93}, no. 1, 011502 (2016)
-  Erratum: [Phys.\ Rev.\ D {\bf 94}, no. 9, 099904 (2016)]
-  doi:10.1103/PhysRevD.93.011502, 10.1103/PhysRevD.94.099904
-  [arXiv:1509.06392 [hep-ph]].
-  %%CITATION = doi:10.1103/PhysRevD.93.011502, 10.1103/PhysRevD.94.099904;%%
-  %22 citations counted in INSPIRE as of 25 Apr 2018
-
-%\cite{Echevarria:2015byo}
-\bibitem{Echevarria:2015byo} 
-  M.~G.~Echevarria, I.~Scimemi and A.~Vladimirov,
-  %``Universal transverse momentum dependent soft function at NNLO,''
-  Phys.\ Rev.\ D {\bf 93}, no. 5, 054004 (2016)
-  doi:10.1103/PhysRevD.93.054004
-  [arXiv:1511.05590 [hep-ph]].
-  %%CITATION = doi:10.1103/PhysRevD.93.054004;%%
-  %31 citations counted in INSPIRE as of 25 Apr 2018
-  
-%\cite{Vladimirov:2016dll}
-\bibitem{Vladimirov:2016dll} 
-  A.~A.~Vladimirov,
-  %``Correspondence between Soft and Rapidity Anomalous Dimensions,''
-  Phys.\ Rev.\ Lett.\  {\bf 118}, no. 6, 062001 (2017)
-  doi:10.1103/PhysRevLett.118.062001
-  [arXiv:1610.05791 [hep-ph]].
-  %%CITATION = doi:10.1103/PhysRevLett.118.062001;%%
-  %19 citations counted in INSPIRE as of 25 Apr 2018
-  
-%\cite{Vladimirov:2017ksc}
-\bibitem{Vladimirov:2017ksc} 
-  A.~Vladimirov,
-  %``Structure of rapidity divergences in multi-parton scattering soft factors,''
-  JHEP {\bf 1804}, 045 (2018)
-  doi:10.1007/JHEP04(2018)045
-  [arXiv:1707.07606 [hep-ph]].
-  %%CITATION = doi:10.1007/JHEP04(2018)045;%%
-  %8 citations counted in INSPIRE as of 25 Apr 2018
-  
-%\cite{Gehrmann:2010ue}
-\bibitem{Gehrmann:2010ue} 
-  T.~Gehrmann, E.~W.~N.~Glover, T.~Huber, N.~Ikizlerli and C.~Studerus,
-  %``Calculation of the quark and gluon form factors to three loops in QCD,''
-  JHEP {\bf 1006}, 094 (2010)
-  doi:10.1007/JHEP06(2010)094
-  [arXiv:1004.3653 [hep-ph]].
-  %%CITATION = doi:10.1007/JHEP06(2010)094;%%
-  
-%\cite{Bacchetta:2006tn}
-\bibitem{Bacchetta:2006tn} 
-  A.~Bacchetta, M.~Diehl, K.~Goeke, A.~Metz, P.~J.~Mulders and M.~Schlegel,
-  %``Semi-inclusive deep inelastic scattering at small transverse momentum,''
-  JHEP {\bf 0702}, 093 (2007)
-  doi:10.1088/1126-6708/2007/02/093
-  [hep-ph/0611265].
-  %%CITATION = doi:10.1088/1126-6708/2007/02/093;%%
-  %513 citations counted in INSPIRE as of 26 Feb 2019
-  
-%\cite{Ahrens:2008nc}
-\bibitem{Ahrens:2008nc} 
-  V.~Ahrens, T.~Becher, M.~Neubert and L.~L.~Yang,
-  %``Renormalization-Group Improved Prediction for Higgs Production at Hadron Colliders,''
-  Eur.\ Phys.\ J.\ C {\bf 62}, 333 (2009)
-  doi:10.1140/epjc/s10052-009-1030-2
-  [arXiv:0809.4283 [hep-ph]].
-  %%CITATION = doi:10.1140/epjc/s10052-009-1030-2;%%
-  %184 citations counted in INSPIRE as of 16 Jun 2019
-
-%\cite{Ahrens:2008qu}
-\bibitem{Ahrens:2008qu}
-  V.~Ahrens, T.~Becher, M.~Neubert and L.~L.~Yang,
-  %``Origin of the Large Perturbative Corrections to Higgs Production at Hadron Colliders,''
-  Phys.\ Rev.\ D {\bf 79} (2009) 033013
-  doi:10.1103/PhysRevD.79.033013
-  [arXiv:0808.3008 [hep-ph]].
-  %%CITATION = doi:10.1103/PhysRevD.79.033013;%%
-  %121 citations counted in INSPIRE as of 17 Jun 2019
-  
-%\cite{Gutierrez-Reyes:2019rug}
-\bibitem{Gutierrez-Reyes:2019rug}
-D.~Gutierrez-Reyes, S.~Leal-Gomez, I.~Scimemi and A.~Vladimirov,
-%``Linearly polarized gluons at next-to-next-to leading order and the Higgs transverse momentum distribution,''
-JHEP \textbf{11} (2019), 121
-doi:10.1007/JHEP11(2019)121
-[arXiv:1907.03780 [hep-ph]].
-%10 citations counted in INSPIRE as of 11 May 2020
-
-%\cite{Scimemi:2019gge}
-\bibitem{Scimemi:2019gge}
-I.~Scimemi, A.~Tarasov and A.~Vladimirov,
-%``Collinear matching for Sivers function at next-to-leading order,''
-JHEP \textbf{05} (2019), 125
-doi:10.1007/JHEP05(2019)125
-[arXiv:1901.04519 [hep-ph]].
-%10 citations counted in INSPIRE as of 21 Jun 2020
-
-\end{thebibliography}
-
-\newpage
+\clearpage
 \section{Version history}
 \begin{itemize}
 \item[\textbf{Ver.2.06}]
@@ -4103,7 +3967,7 @@ User defined $a_s$
 \begin{tcolorbox}[enhanced,colframe=black,rightupper=0mm]
 RGE Grids
 \\
-Default from MMHT2014\cite{MMHT2014}
+Default from MMHT2014
 \end{tcolorbox}};
 \node [text width=3cm,below] at (0,4) {
 \begin{tcolorbox}[enhanced,colframe=green!75!black,rightupper=0mm]
