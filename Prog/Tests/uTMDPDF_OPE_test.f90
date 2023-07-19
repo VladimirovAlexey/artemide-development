@@ -6,6 +6,14 @@ program example
 use uTMDPDF_OPE
 implicit none
 
-write(*,*) NodeForX(0.0001d0), NodeForX(0.0301d0), NodeForX(0.721d0)
+real*8,dimension(0:5,0:5)::t
+integer::i
+
+t=Tmatrix(3,3,1,5d0)
+
+do i=0,5
+write(*,*) t(i,:)
+end do
+
 
 end program example

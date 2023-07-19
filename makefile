@@ -81,6 +81,7 @@ $(SOURCEDIR)/Code/TMDR/type2.f90 \
 $(SOURCEDIR)/Code/TMDR/type3.f90
 
 uTMDPDFFiles=\
+$(SOURCEDIR)/Code/uTMDPDF/coeffFunc-new.f90 \
 $(SOURCEDIR)/Code/uTMDPDF/coeffFunc.f90 \
 $(SOURCEDIR)/Code/uTMDPDF/convolutions.f90 \
 $(SOURCEDIR)/Code/uTMDPDF/modelTest.f90

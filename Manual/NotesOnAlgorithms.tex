@@ -121,7 +121,18 @@ The convolution has the general form
 \begin{eqnarray}
 [C\otimes f](x,b,\mu)=\sum_f\int_x^1 \frac{dy}{y} C_{f,f'}\(\frac{x}{y},b,\mu\)f_{f'}(y,\mu).
 \end{eqnarray}
-Here the $\mu$ is internal parameter specified in the model.
+Here the $\mu$ is internal parameter specified in the model. Furthermore, In the grid I save the function multiplied by $x$ I get
+\begin{eqnarray}
+x[C\otimes f](x,b,\mu)&=&
+\sum_f\int_x^1 dy\frac{x}{y} C_{f,f'}\(\frac{x}{y},b,\mu\)f_{f'}(y,\mu)
+\\\nn
+&=&
+\sum_f\int_x^1 dy\frac{x}{y} C_{f,f'}(y,b,\mu)f_{f'}\(\frac{x}{y},\mu\)
+\\\nn
+&=&
+\sum_f\int_x^1 dy C_{f,f'}(y,b,)F_{f'}\(\frac{x}{y},\mu\),
+\end{eqnarray}
+where $F(x)=xf(x)$ is the function stored in LHAPDF grids.
 
 \textbf{One needs a grid for this convolution in (x,b)}.
 
@@ -135,7 +146,7 @@ The PDF is interpolated over the logarithmical grid
 \end{eqnarray}
 Such, grid span logarithmically $x\in[10^{-B},1]$. Over this grid I use qubic Lagrange interpolation
 \begin{eqnarray}
-f(x)=\sum_{i=0}^{N_x-1}\theta(x_i<x<x_{i+1})\sum_{r=-1,0,1,2} P_{i,r}(x)f(x_{i+r}),
+F(x)=\sum_{i=0}^{N_x-1}\theta(x_i<x<x_{i+1})\sum_{r=-1,0,1,2} P_{i,r}(x)F(x_{i+r}),
 \end{eqnarray}
 where $P$ is the Lagrange polynomial over the logarithmic grid
 \begin{eqnarray}
@@ -147,20 +158,24 @@ The end segments are approximated by square polynomials, i.e. if $i=0$ $l\in{0,1
 
 Now the function $f$ can be represented as
 \begin{eqnarray}
-f(x)=\sum_{i=0}^{N_x}f(x_i)W_i(x),
+F(x)=\sum_{i=0}^{N_x}F(x_i)W_i(x),
 \end{eqnarray}
 where 
 \begin{eqnarray}
 W_i(x)=\sum_{k=-2,-1,0,1}\theta(x_{i+k}<x<x_{i+k+1})P_{i+k,k}(x).
 \end{eqnarray}
+\begin{itemize}
+\item the function $W$ has finite support $x_{i-2}<x<x_{i+2}$ and looks like a symmetric bump , with max at $x=x_i$
+\item For $x=x_i$ (node) one has $W_i(x_j)=\delta_{ij}$
+\end{itemize}
 Therefore, the convolution can be presented as
 \begin{eqnarray}
-[C\otimes f](x,b,\mu)=\sum_{f'} \sum_{n=0}\sum_{k=0}^n \sum_{i=0}^{N_x-1} a_s^n \mathbf{L}^k f_{f'}(x_i,\mu) 
+[C\otimes f](x,b,\mu)=\sum_{f'} \sum_{n=0}\sum_{k=0}^n \sum_{i=0}^{N_x-1} a_s^n \mathbf{L}^k F_{f'}(x_i,\mu) 
 \mathfrak{T}_{ff'}^{(n,k)}(x,x_i),
 \end{eqnarray}
 where
 \begin{eqnarray}
-\mathfrak{T}_{ff'}^{(n,k)}(x,x_i)=\int_x^1 \frac{dy}{y}C^{(n,k)}_{ff'}\(\frac{x}{y}\)W_i(y).
+\mathfrak{T}_{ff'}^{(n,k)}(x,x_i)=\int_x^1 dy C^{(n,k)}_{ff'}(y)W_i\(\frac{x}{y}\).
 \end{eqnarray}
 For the $x=x_j \in $grid one has
 \begin{eqnarray}
@@ -169,17 +184,12 @@ For the $x=x_j \in $grid one has
 \end{eqnarray}
 where
 \begin{eqnarray}
-\mathfrak{T}_{ff',ij}^{(n,k)}=\int_{x_i}^1 \frac{dy}{y}C^{(n,k)}_{ff'}\(\frac{x_i}{y}\)W_j(y).
+\mathfrak{T}_{ff',ij}^{(n,k)}=\int_{x_i}^1 dy~C^{(n,k)}_{ff'}(y)W_j\(\frac{x_i}{y}\).
 \end{eqnarray}
-Note that since the function $W$ is restrictired one has
+Note that since the function $W$ has restrictired support one has
 \begin{eqnarray}
 \mathfrak{T}_{ff',ij}^{(n,k)}=
-\int_{\text{max}(x_i,x_{j-2},x_0)}^{\text{min}(x_{j+2},1)} \frac{dy}{y}C^{(n,k)}_{ff'}\(\frac{x_i}{y}\)W_j(y).
-\end{eqnarray}
-Or
-\begin{eqnarray}
-\mathfrak{T}_{ff',ij}^{(n,k)}=
-\int^{\text{min}(1,x_i/x_{j-2},x_i/x_0)}_{\text{max}(x_i/x_{j+2},x_i)} \frac{dy}{y}C^{(n,k)}_{ff'}(y)W_j\(\frac{x_i}{y}\).
+\int^{\text{min}(1,x_i/x_{j-2})}_{\text{max}(x_i/x_{j+2},x_i)} dy C^{(n,k)}_{ff'}(y)W_j\(\frac{x_i}{y}\).
 \end{eqnarray}
 The matrix has the following form
 \begin{eqnarray}
@@ -198,9 +208,27 @@ The matrix has the following form
 \\
 0 & 0 & 0 & ... & 0 & \mathfrak{T}_{(N-1)(N-2)} & \mathfrak{T}_{(N-1)(N-1)} & \mathfrak{T}_{(N-1)N}
 \\
-0 & 0 & 0 & ... & 0 & 0 & 0 & 0
+0 & 0 & 0 & ... & 0 & 0 & 0 & \mathfrak{T}_{NN}
 \end{array}
 \right),
 \end{eqnarray}
 where by red I show the part which has a pattern.
+
+The coefficient function has three parts
+\begin{eqnarray}
+C(x)=C_\delta(x)+C_S(x)+C_R(x),
+\end{eqnarray}
+where
+\begin{eqnarray}
+C_\delta(x)=c_\delta \delta(1-x),\qquad
+C_S(x)=c_S [g(x)]_+,
+\end{eqnarray}
+and $C_R$ is a regular part. Clearly the contribution of $C_\delta$ to $\mathfrak{T}$ is
+\begin{eqnarray}
+c_\delta \delta_{ij} \to \mathfrak{T}_{ff',ij}^{(n,k)}
+\end{eqnarray}
+The regular part contributes
+\begin{eqnarray}
+\int_{x_i/x_{j+2}}^{\min(1,x_i/x_{j-2})}dy C_R(y)W_j\(\frac{x_i}{y}\)\to \mathfrak{T}_{ff',ij}^{(n,k)}
+\end{eqnarray}
 \end{document}
