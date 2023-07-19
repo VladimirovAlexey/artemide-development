@@ -20,6 +20,7 @@
 
 module uTMDPDF_OPE
 use aTMDe_Numerics
+use IntegrationRoutines
 use IO_functions
 use QCDinput
 implicit none
@@ -41,13 +42,13 @@ integer :: orderMain=2 !! LO=0, NLO=1,...
 
 !!! Grid parameters
 !! over x: x_i=10^(-Bx+Delta*i), i=0...Nx
-! real(dp) :: Bx=5._dp !!! min x is 10^{-Bx}
-! integer :: Nx=200 !!! number of points in grid
-! real(dp) :: stepX=0.025_dp !!! increment of grid
+real(dp) :: Bx=5._dp !!! min x is 10^{-Bx}
+integer :: Nx=200 !!! number of points in grid
+real(dp) :: stepX=0.025_dp !!! increment of grid
 
-real(dp) :: Bx=1._dp !!! min x is 10^{-Bx}
-integer :: Nx=5 !!! number of points in grid
-real(dp) :: stepX=0.20_dp !!! increment of grid
+!real(dp) :: Bx=1._dp !!! min x is 10^{-Bx}
+!integer :: Nx=5 !!! number of points in grid
+!real(dp) :: stepX=0.20_dp !!! increment of grid
 
 !! Numerical parameters
 real(dp) :: toleranceINT=1d-8  !!! tolerance for numerical integration
@@ -62,13 +63,16 @@ integer,parameter::parametrizationLength=37
 !!!!! TO DO: UPDATE TO EXACT VALUES [use 1809.07084]!!
 
 !!!!!!----FOR TEST
-public::XatNode,NodeForX,LagrangeP,Winterpolator,Tmatrix
+public::XatNode,NodeForX,Winterpolator,Tmatrix,Tmatrix2
 
 contains
 
 !! Coefficient function
 INCLUDE 'Code/uTMDPDF/coeffFunc-new.f90'
 
-INCLUDE 'Code/Twist2/Twist2Convolution-new.f90'
+!! X-grid routines
+INCLUDE 'Code/Twist2/Twist2Xgrid.f90'
+!! Mellin convolution matrix
+INCLUDE 'Code/Twist2/Twist2MatrixT.f90'
 
 end module uTMDPDF_OPE

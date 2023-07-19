@@ -231,4 +231,15 @@ The regular part contributes
 \begin{eqnarray}
 \int_{x_i/x_{j+2}}^{\min(1,x_i/x_{j-2})}dy C_R(y)W_j\(\frac{x_i}{y}\)\to \mathfrak{T}_{ff',ij}^{(n,k)}
 \end{eqnarray}
+Finally, the plus-part contributes
+\begin{eqnarray}
+&&\int_{x_i/x_{j+2}}^{\min(1,x_i/x_{j-2})}dy C_S(y)W_j\(\frac{x_i}{y}\)
+=\int_{x_i/x_{j+2}}^{\min(1,x_i/x_{j-2})}dy c_S[g(y)]_+W_j\(\frac{x_i}{y}\)
+\\\nn
+&&=\int_{x_i/x_{j+2}}^{\min(1,x_i/x_{j-2})}dy c_S g(y)_+(W_j\(\frac{x_i}{y}\)-W_j(x_i))-c_S\int_0^{x_i/x_{j+2}} dy g(y)W_j(x_i)
+\\\nn
+&&=\int_{x_i/x_{j+2}}^{\min(1,x_i/x_{j-2})}dy c_S g(y)_+(W_j\(\frac{x_i}{y}\)-\delta_{ij})-c_S\int_0^{x_i/x_{j+2}} dy g(y)\delta_{ij}
+\to \mathfrak{T}_{ff',ij}^{(n,k)},
+\end{eqnarray}
+where it is used that $W_j(x_i)=\delta_{ij}$.
 \end{document}
