@@ -117,6 +117,96 @@
 
 \section{Convolution and grids for distributions with twist-2 input}
 
+\subsection{X grid}
+
+The value of $x$ spans $0<x<1$, but never reaches $x=0$. The grid is characterized by
+\begin{itemize}
+\item $x_{\text{min}}$ the minimal value of $x$
+\item $N_x$ number of segments. The number of nodes is $N_x+1$.
+\item Function $x_i$ which is $x_0=x_{\text{min}}$ and $x_{N_x}=1$.
+\end{itemize}
+These functions determine the following extra functions
+\begin{itemize}
+\item $\text{inv}[x]$ which is inverse of $x_i$. The integer part of $\text{inv}[x]$ gives the number $i$, such that $x_{i}<x<x_{i+1}$
+\item $\Delta_x$ typical increment
+\end{itemize}
+For any grid one has
+\begin{eqnarray}
+\text{inv}[x_{i}]=i.
+\end{eqnarray}
+
+There are many functional forms for grid. Here are the most convenient
+\begin{itemize}
+\item \textbf{Linear grid} 
+\begin{eqnarray}
+x_i=x_{\text{min}}+i\Delta_x,\qquad \Delta_x=\frac{1-x_{\text{min}}}{N_x},\qquad \text{inv}[x]=\frac{x-x_{\text{min}}}{\Delta_x}.
+\end{eqnarray}
+Not convenient since PDFs usually grows at small-x
+\item \textbf{Logarithm grid} 
+\begin{eqnarray}
+x_i=x_{\text{min}}10^{i\Delta_x},\qquad \Delta_x=\frac{-\log_{10} x_{\text{min}}}{N_x},\qquad \text{inv}[x]=\frac{\log_{10}(x/x_{\text{min}})}{\Delta_x}.
+\end{eqnarray}
+This is almost standard in the PDF community. However, at $x\sim 1$ the points became sparse, and it rise the problem of precision loss. Usual solution is to use several grids for different ranges of $x$.
+\item \textbf{Arcosh grid} 
+\begin{eqnarray}
+x_i=\frac{1}{\cosh\(\Delta_x(i-N_x)\)},\qquad \Delta_x=\frac{\text{arccosh}(1/x_{\text{min}})}{N_x},\qquad \text{inv}[x]=
+N_x-\frac{\text{arccosh}(1/x)}{\Delta_x}.
+\end{eqnarray}
+This grid is alike logarithmic at small-x, but has extra points at $x\to 1$. Therefore, one does not need extra griding at large-x.
+\end{itemize}
+
+\subsection{Lagrange interpolation}
+
+The Lagrange interpolation is defined by the order and the shift. Basically one defines
+\begin{itemize}
+\item $K=\{s,s+1,...,s+r+1\}$, where $s$ is a shift, and $r$ is the order.
+\end{itemize}
+The standard choices are
+\begin{itemize}
+\item \textbf{Qubic backward grid:} $s=-2$, $r=3$, $K=\{-2,-1,0,1\}$. In this case the function is determined in the last segment from three.
+\item \textbf{Qubic central grid:} $s=-1$, $r=3$, $K=\{-1,0,1,2\}$. In this case the function is determined in the middle segment from three.
+\item \textbf{Qubic forward grid:} $s=0$, $r=3$, $K=\{0,1,2,3\}$. In this case the function is determined in the first segment from three.
+\end{itemize}
+The interpolation is done by
+\begin{eqnarray}
+F(x)=\sum_{i=0}^{N_x-1}\theta(x_i<x<x_{i+1})\sum_{k\in K} P_{i,k}(x)F(x_{i+k}),
+\end{eqnarray}
+where $P$ is the Lagrange polynomial
+\begin{eqnarray}
+P_{i,k}(x)
+=\prod_{\substack{l\in K\\ l\neq r}}\frac{\text{inv}[x]-\text{inv}[x_{i+l}]}{\text{inv}[x_{i+k}]-\text{inv}[x_{i+l}]}.
+\end{eqnarray}
+Note, that since $\text{inv}[x_{i}]=i$ it simplifies
+\begin{eqnarray}
+P_{i,k}(x)
+=\prod_{\substack{l\in K\\ l\neq r}}\(\frac{\text{inv}[x]}{k-l}-\frac{i+l}{k-l}\).
+\end{eqnarray}
+
+The interpolation sum can be rearranged as
+\begin{eqnarray}
+F(x)=\sum_{i=0}^{N_x-1}W_i(x)F(x_{i}),
+\end{eqnarray}
+where
+\begin{eqnarray}
+W_i(x)=\sum_{k\in K}\theta(x_{i-k}<x<x_{i-k+1})P_{i-k,k}(x).
+\end{eqnarray}
+This function has the following properties
+\begin{itemize}
+\item $W_i(x)\neq 0$ for $x_{i-K_\text{max}}<x<x_{i-K_\text{min}+1}$ which is the same as 
+$x_{i-s-r-1}<x<x_{i-s+1}$
+\item $W_i(x_j)=\delta_{ij}$
+\item The shape of the function $W$ is independent on $i$. I.e. being evaluated in the terms of node-variables it is the same, but up to a shift.
+\end{itemize}
+
+
+One of the problems with griding PDFs is the unknown value of PDF out side of the grid. The possible solutions are 1) reduce the order of interpolation at the borders 2) approximate points outside the grid. 
+
+\textit{I have checked that} with the arcosh-grid [$x_\text{min}=10^{-5}$, $N_x=200$] the error for forward and backward grids at $x\to1$ are very similar [test function behaved $(1-x)^{2+..}$] if $f(x>1)=0$. Therefore, the forward grid (in this case) is a good choise.
+
+
+\subsection{Convolution on the grid}
+
+
 The convolution has the general form
 \begin{eqnarray}
 [C\otimes f](x,b,\mu)=\sum_f\int_x^1 \frac{dy}{y} C_{f,f'}\(\frac{x}{y},b,\mu\)f_{f'}(y,\mu).
@@ -134,41 +224,11 @@ x[C\otimes f](x,b,\mu)&=&
 \end{eqnarray}
 where $F(x)=xf(x)$ is the function stored in LHAPDF grids.
 
-\textbf{One needs a grid for this convolution in (x,b)}.
-
 For it I use the algorithm from QCDnum. The coefficient function is presented as
 \begin{eqnarray}
 C_{f,f'}(x,b,\mu)=\sum_{n=0}\sum_{k=0}^n a_s^n \mathbf{L}^k C^{(n,k)}_{f,f'}(x).
 \end{eqnarray}
-The PDF is interpolated over the logarithmical grid
-\begin{eqnarray}
-\text{X-grid}:~~~[B_x,N_x],~~~x_i=10^{-B_x+\Delta_x i},~\text{with}~\Delta_x=\frac{B_x}{N_x},~i=0,...,N_x.
-\end{eqnarray}
-Such, grid span logarithmically $x\in[10^{-B},1]$. Over this grid I use qubic Lagrange interpolation
-\begin{eqnarray}
-F(x)=\sum_{i=0}^{N_x-1}\theta(x_i<x<x_{i+1})\sum_{r=-1,0,1,2} P_{i,r}(x)F(x_{i+r}),
-\end{eqnarray}
-where $P$ is the Lagrange polynomial over the logarithmic grid
-\begin{eqnarray}
-P_{i,r}(x)
-=\prod_{\substack{l=-1,0,1,2\\ l\neq r}}\frac{\log_{10} x-\log_{10} x_{i+l}}{\log_{10} x_{i+k}-\log_{10} x_{i+l}}
-=\prod_{\substack{l=-1,0,1,2\\ l\neq r}}\(\frac{\log_{10} \frac{x}{x_{i+k}}}{\Delta(k-l)}+1\),
-\end{eqnarray}
-The end segments are approximated by square polynomials, i.e. if $i=0$ $l\in{0,1,2}$ [+if $k<0$ $\to0$] if $i=N_x-1$ $l\in{-1,0,1}$ [+if $k>1$ $\to0$].
-
-Now the function $f$ can be represented as
-\begin{eqnarray}
-F(x)=\sum_{i=0}^{N_x}F(x_i)W_i(x),
-\end{eqnarray}
-where 
-\begin{eqnarray}
-W_i(x)=\sum_{k=-2,-1,0,1}\theta(x_{i+k}<x<x_{i+k+1})P_{i+k,k}(x).
-\end{eqnarray}
-\begin{itemize}
-\item the function $W$ has finite support $x_{i-2}<x<x_{i+2}$ and looks like a symmetric bump , with max at $x=x_i$
-\item For $x=x_i$ (node) one has $W_i(x_j)=\delta_{ij}$
-\end{itemize}
-Therefore, the convolution can be presented as
+Since the function is the function on the grid one can compute
 \begin{eqnarray}
 [C\otimes f](x,b,\mu)=\sum_{f'} \sum_{n=0}\sum_{k=0}^n \sum_{i=0}^{N_x-1} a_s^n \mathbf{L}^k F_{f'}(x_i,\mu) 
 \mathfrak{T}_{ff'}^{(n,k)}(x,x_i),
@@ -189,8 +249,49 @@ where
 Note that since the function $W$ has restrictired support one has
 \begin{eqnarray}
 \mathfrak{T}_{ff',ij}^{(n,k)}=
-\int^{\text{min}(1,x_i/x_{j-2})}_{\text{max}(x_i/x_{j+2},x_i)} dy C^{(n,k)}_{ff'}(y)W_j\(\frac{x_i}{y}\).
+\int^{\text{min}(1,x_i/x_{j-K_{\text{max}}})}_{\text{max}(x_i/x_{j-K_{\text{min}+1}},x_i)} dy C^{(n,k)}_{ff'}(y)W_j\(\frac{x_i}{y}\).
 \end{eqnarray}
+More over since $x<1$
+\begin{eqnarray}
+\mathfrak{T}_{ff',ij}^{(n,k)}=
+\int^{\text{min}(1,x_i/x_{j-K_{\text{max}}})}_{x_i/x_{j-K_{\text{min}+1}}} dy C^{(n,k)}_{ff'}(y)W_j\(\frac{x_i}{y}\).
+\end{eqnarray}
+
+The coefficient function has three parts
+\begin{eqnarray}
+C(x)=C_\delta(x)+C_S(x)+C_R(x),
+\end{eqnarray}
+where
+\begin{eqnarray}
+C_\delta(x)=c_\delta \delta(1-x),\qquad
+C_S(x)=c_S [g(x)]_+,
+\end{eqnarray}
+and $C_R$ is a regular part. Clearly the contribution of $C_\delta$ to $\mathfrak{T}$ is
+\begin{eqnarray}
+c_\delta \delta_{ij} \to \mathfrak{T}_{ff',ij}^{(n,k)}
+\end{eqnarray}
+The regular part contributes
+\begin{eqnarray}
+\int^{\text{min}(1,x_i/x_{j-K_{\text{max}}})}_{x_i/x_{j-K_{\text{min}+1}}}dy C_R(y)W_j\(\frac{x_i}{y}\)\to \mathfrak{T}_{ff',ij}^{(n,k)}
+\end{eqnarray}
+Finally, the plus-part contributes
+\begin{eqnarray}
+&&\int^{\text{min}(1,x_i/x_{j-K_{\text{max}}})}_{x_i/x_{j-K_{\text{min}+1}}}dy C_S(y)W_j\(\frac{x_i}{y}\)
+=\int^{\text{min}(1,x_i/x_{j-K_{\text{max}}})}_{x_i/x_{j-K_{\text{min}+1}}}dy c_S[g(y)]_+W_j\(\frac{x_i}{y}\)
+\\\nn
+&&=\int^{\text{min}(1,x_i/x_{j-K_{\text{max}}})}_{x_i/x_{j-K_{\text{min}+1}}}dy c_S g(y)_+(W_j\(\frac{x_i}{y}\)-W_j(x_i))-c_S\int_0^{j-K_{\text{min}}+1} dy g(y)W_j(x_i)
+\\\nn
+&&=\int^{\text{min}(1,x_i/x_{j-K_{\text{max}}})}_{x_i/x_{j-K_{\text{min}+1}}}dy c_S g(y)_+(W_j\(\frac{x_i}{y}\)-\delta_{ij})-c_S\int_0^{j-K_{\text{min}}+1} dy g(y)\delta_{ij}
+\to \mathfrak{T}_{ff',ij}^{(n,k)},
+\end{eqnarray}
+where it is used that $W_j(x_i)=\delta_{ij}$.
+
+\red{In the case of forward cubic grid}:
+$$
+\int^{\text{min}(1,x_i/x_{j-K_{\text{max}}})}_{x_i/x_{j-K_{\text{min}+1}}} ~~\to~~
+\int^{\text{min}(1,x_i/x_{j-3})}_{x_i/x_{j+1}}
+$$
+
 The matrix has the following form
 \begin{eqnarray}
 \left(
@@ -214,32 +315,5 @@ The matrix has the following form
 \end{eqnarray}
 where by red I show the part which has a pattern.
 
-The coefficient function has three parts
-\begin{eqnarray}
-C(x)=C_\delta(x)+C_S(x)+C_R(x),
-\end{eqnarray}
-where
-\begin{eqnarray}
-C_\delta(x)=c_\delta \delta(1-x),\qquad
-C_S(x)=c_S [g(x)]_+,
-\end{eqnarray}
-and $C_R$ is a regular part. Clearly the contribution of $C_\delta$ to $\mathfrak{T}$ is
-\begin{eqnarray}
-c_\delta \delta_{ij} \to \mathfrak{T}_{ff',ij}^{(n,k)}
-\end{eqnarray}
-The regular part contributes
-\begin{eqnarray}
-\int_{x_i/x_{j+2}}^{\min(1,x_i/x_{j-2})}dy C_R(y)W_j\(\frac{x_i}{y}\)\to \mathfrak{T}_{ff',ij}^{(n,k)}
-\end{eqnarray}
-Finally, the plus-part contributes
-\begin{eqnarray}
-&&\int_{x_i/x_{j+2}}^{\min(1,x_i/x_{j-2})}dy C_S(y)W_j\(\frac{x_i}{y}\)
-=\int_{x_i/x_{j+2}}^{\min(1,x_i/x_{j-2})}dy c_S[g(y)]_+W_j\(\frac{x_i}{y}\)
-\\\nn
-&&=\int_{x_i/x_{j+2}}^{\min(1,x_i/x_{j-2})}dy c_S g(y)_+(W_j\(\frac{x_i}{y}\)-W_j(x_i))-c_S\int_0^{x_i/x_{j+2}} dy g(y)W_j(x_i)
-\\\nn
-&&=\int_{x_i/x_{j+2}}^{\min(1,x_i/x_{j-2})}dy c_S g(y)_+(W_j\(\frac{x_i}{y}\)-\delta_{ij})-c_S\int_0^{x_i/x_{j+2}} dy g(y)\delta_{ij}
-\to \mathfrak{T}_{ff',ij}^{(n,k)},
-\end{eqnarray}
-where it is used that $W_j(x_i)=\delta_{ij}$.
+
 \end{document}

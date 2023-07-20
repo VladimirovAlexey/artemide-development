@@ -35,20 +35,28 @@ character (len=11),parameter :: moduleName="uTMDPDF_OPE"
 !Last appropriate version of constants-file
 integer,parameter::inputver=0
 
-INCLUDE 'Tables/G7K15.f90'
+!--- general
+logical:: started=.false.
+!! Level of output
+!! 0=only critical
+!! 1=initialization details
+!! 2=WARNINGS
+integer::outputLevel=2
+!! variable that count number of WRNING mesagges. In order not to spam too much
+integer::messageTrigger=6
 
 !!! Perturbative order
 integer :: orderMain=2 !! LO=0, NLO=1,...
 
-!!! Grid parameters
-!! over x: x_i=10^(-Bx+Delta*i), i=0...Nx
-real(dp) :: Bx=5._dp !!! min x is 10^{-Bx}
+!!! X-Grid parameters
+!! over x: i=0...Nx, x_0=xMin
+real(dp) :: xMin=0.00001_dp !!! min x 
 integer :: Nx=200 !!! number of points in grid
-real(dp) :: stepX=0.025_dp !!! increment of grid
+real(dp) :: DeltaX !!! increment of grid
 
-!real(dp) :: Bx=1._dp !!! min x is 10^{-Bx}
-!integer :: Nx=5 !!! number of points in grid
-!real(dp) :: stepX=0.20_dp !!! increment of grid
+! real(dp) :: xMin=0.1_dp !!! min x 
+! integer :: Nx=10 !!! number of points in grid
+! real(dp) :: DeltaX !!! increment of grid
 
 !! Numerical parameters
 real(dp) :: toleranceINT=1d-8  !!! tolerance for numerical integration
@@ -62,8 +70,12 @@ integer,parameter::parametrizationLength=37
 !! The Lmu^2 part is exact the later parts are fitted, but exact if posible (e.g. Lmu and Nf parts for q->q)
 !!!!! TO DO: UPDATE TO EXACT VALUES [use 1809.07084]!!
 
+
+!!--------------------------------------Public interface-----------------------------------------
+public::uTMDPDF_OPE_Initialize
+
 !!!!!!----FOR TEST
-public::XatNode,NodeForX,Winterpolator,Tmatrix,Tmatrix2
+public::XatNode,invX,NodeForX,Winterpolator,Tmatrix,Tmatrix2,TmatrixElement
 
 contains
 
@@ -74,5 +86,25 @@ INCLUDE 'Code/uTMDPDF/coeffFunc-new.f90'
 INCLUDE 'Code/Twist2/Twist2Xgrid.f90'
 !! Mellin convolution matrix
 INCLUDE 'Code/Twist2/Twist2MatrixT.f90'
+
+
+function uTMDPDF_IsInitialized()
+    logical::uTMDPDF_IsInitialized
+    uTMDPDF_IsInitialized=started
+end function uTMDPDF_IsInitialized
+
+!! Initialization of the package
+subroutine uTMDPDF_OPE_Initialize(file,prefix)
+    character(len=*),intent(in)::file
+    character(len=*),intent(in),optional::prefix
+
+    if(started) return
+    
+    !!!! HERE THE INTIALISATION ROTINE
+    
+    !!! function to initialze the Xgrid
+    call XGrid_Initialize()
+    
+end subroutine uTMDPDF_OPE_Initialize
 
 end module uTMDPDF_OPE

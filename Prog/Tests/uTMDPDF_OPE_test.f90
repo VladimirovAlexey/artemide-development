@@ -6,33 +6,39 @@ program example
 use uTMDPDF_OPE
 implicit none
 
-real*8,dimension(0:200,0:200)::m1,m2
+real*8,dimension(0:200,0:200)::TT
+real*8,dimension(0:200)::FF,RR
 integer::i,j
 real::t1,t2,t3,t4
 
+call uTMDPDF_OPE_Initialize("file")
+
+
 call cpu_time(t1)
-m1=Tmatrix(1,3,1,5d0)
+TT=Tmatrix(-1,1,1,5d0)
 call cpu_time(t2)
 
-! do i=0,5
-! write(*,*) m1(i,:)
+! do i=0,10
+! write(*,*) real(m1(i,6:10))
 ! end do
-
-write(*,*) "-----------------"
-
-call cpu_time(t3)
-m2=Tmatrix2(1,3,1,5d0)
-call cpu_time(t4)
-
-! do i=0,5
-! write(*,*) m2(i,:)
-! end do
-
-write(*,*) "-----------------"
-write(*,*) sum(m1-m2)
 
 write(*,*) "time1 =", t2-t1
-write(*,*) "time2 =", t4-t3
 
+do i=0,200
+    FF(i)=TESTF(XatNode(i))
+end do
+
+RR=MATMUL(TT,FF)
+
+do i=0,200
+    write(*,'("{",F8.6,",",F12.10,"},")')XatNode(i),RR(i)
+end do
+
+
+contains
+function TESTF(x)
+real*8::x,TESTF
+    TESTF=1-x
+end function TESTF
 
 end program example

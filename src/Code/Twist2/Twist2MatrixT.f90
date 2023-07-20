@@ -43,7 +43,7 @@ function TmatrixElement(flav,i,j,n,k,Nf)
             inter=C_q_q_delta(n,k,Nf)            
             !!! The remnant [0,x_i] from the (..)_+ integration
             singC=C_q_q_plus(n,k,Nf)
-            xCurrent=xi/XatNode(j+2)
+            xCurrent=xi/XatNode(j+1)
             inter=inter+Log(1-xCurrent)*singC(1)
             inter=inter+Log(1-xCurrent)**2*singC(2)/2_dp
             inter=inter+Log(1-xCurrent)**3*singC(3)/3_dp
@@ -53,18 +53,23 @@ function TmatrixElement(flav,i,j,n,k,Nf)
             
             !!! The remnant [0,x_i] from the (..)_+ integration
             singC=C_g_g_plus(n,k,Nf)
-            xCurrent=xi/XatNode(j+2)
+            xCurrent=xi/XatNode(j+1)
             inter=inter+Log(1-xCurrent)*singC(1)
             inter=inter+Log(1-xCurrent)**2*singC(2)/2_dp
             inter=inter+Log(1-xCurrent)**3*singC(3)/3_dp
         end if
     end if        
     
-    if(i<j+2) then
+    if(i<j+1) then
         !! compute boundaries
-        vMin=xi/XatNode(j+2)
-        if(i<j-2) then
-            vMax=xi/XatNode(j-2)
+        if(j==Nx) then
+            vMin=xi
+        else
+            vMin=xi/XatNode(j+1)
+        end if
+        
+        if(i<j-3) then
+            vMax=xi/XatNode(j-3)
         else
             vMax=1_dp
         end if
@@ -83,7 +88,7 @@ function TmatrixElement(flav,i,j,n,k,Nf)
             end if        
         end if
     end if            
-
+    
     TmatrixElement=inter
 
     !!!!! these are wrapper functions to pass ther integrand to GK routine

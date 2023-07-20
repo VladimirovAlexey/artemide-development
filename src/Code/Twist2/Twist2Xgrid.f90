@@ -7,8 +7,11 @@
 !
 !	Be AWARE of possible clash of variable names.
 !
+!       The grid is hard coded to be cubic forward KK=[0,1,2,3]
 !	This part is devoted to the common functions for X-grid
+!       XGrid_Initialize()
 !       real XatNode(i)      - gives x_i
+!       real invX(x)         - gives i such that x_i=x
 !       integer NodeForX(x)  - gives i such that x_i<x<x_{i+1}
 !       Winterpolator(x,i)   - interpolation function such that f(x)=sum_i W(x,i) f(x_i)
 !	
@@ -16,6 +19,12 @@
 !
 !				A.Vladimirov (18.07.2023)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+!!! sets global variables for the X-griding
+subroutine XGrid_Initialize()
+    DeltaX=acosh(1/xMin)/Nx
+end subroutine XGrid_Initialize
 
 !!!! The algorithm is similar to QCD num.
 !!!! I.e. it computes the convolution matrices
@@ -25,82 +34,59 @@ pure function XatNode(i)
     real(dp):: XatNode
     integer,intent(in)::i
     
-    XatNode=10**(-Bx+i*stepX) 
+    XatNode=1_dp/cosh(DeltaX*(i-Nx))
 end function XatNode
+
+!!!! Inverse X
+pure function invX(x)
+    real(dp):: invX
+    real(dp), intent(in):: x
+    
+    invX=Nx-acosh(1/x)/DeltaX
+    
+end function invX
 
 !!!! Value of low-grid value for given X
 pure function NodeForX(x)
     integer:: NodeForX
     real(dp), intent(in):: x
     
-    NodeForX=INT((log10(x)+Bx)/stepX)
+    NodeForX=INT(invX(x))
     
 end function NodeForX
 
-!!!! Lagrange polynomial for interpolation over Log10-grid
+!!!! Lagrange polynomial for interpolation
 !!!! x- variable,
 !!!! j- node to intepolate x->[x_i,x_i+1]
-!!!! k=-1,0,1,2 is the polynomial for y_i+k
-!!!! The polynomial is cubic, utmost sectors are quadratic
+!!!! k=0,1,2,3 is the polynomial for y_i+k
+!!!! The polynomial is cubic forward 
 !!!! WARNING!!! there is no check for x and j being in grid
+!!!! WARNING!!! cubic forwardness is hard coded. It is used in the constraction of Tmatrix
 pure function LagrangeP(x,j,k)
     real(dp):: LagrangeP
     real(dp), intent(in):: x
     integer, intent(in):: j,k
     real(dp)::lx
-        
-    if(j==0) then
-        SELECT CASE(k) 
-            CASE(0)
-                lx=LOG10(x/XatNode(0))/stepX
-                LagrangeP=(1-lx)*(1-lx/2)
-            CASE(1)
-                lx=LOG10(x/XatNode(1))/stepX
-                LagrangeP=(1-lx)*(1+lx)
-            CASE(2)
-                lx=LOG10(x/XatNode(2))/stepX
-                LagrangeP=(1+lx)*(1+lx/2)
-            CASE DEFAULT
-                LagrangeP=0_dp
-        END SELECT
-    else if(j==Nx-1) then
-        SELECT CASE(k) 
-            CASE(-1)
-                lx=LOG10(x/XatNode(Nx-2))/stepX
-                LagrangeP=(1-lx)*(1-lx/2)
-            CASE(0)
-                lx=LOG10(x/XatNode(Nx-1))/stepX
-                LagrangeP=(1-lx)*(1+lx)
-            CASE(1)
-                lx=LOG10(x/XatNode(Nx))/stepX
-                LagrangeP=(1+lx)*(1+lx/2)
-            CASE DEFAULT
-                LagrangeP=0_dp
-        END SELECT
-    else
-        SELECT CASE(k)
-            CASE(-1)
-                lx=LOG10(x/XatNode(j-1))/stepX
-                LagrangeP=(1-lx)*(1-lx/2)*(1-lx/3)
-            CASE(0)
-                lx=LOG10(x/XatNode(j))/stepX
-                LagrangeP=(1-lx)*(1-lx/2)*(1+lx)
-            CASE(1)
-                lx=LOG10(x/XatNode(j+1))/stepX
-                LagrangeP=(1-lx)*(1+lx/2)*(1+lx)
-            CASE(2)
-                lx=LOG10(x/XatNode(j+2))/stepX
-                LagrangeP=(1+lx)*(1+lx/2)*(1+lx/3)
-            CASE DEFAULT
-                LagrangeP=0_dp
-        END SELECT
-    end if
+    
+    lx=invX(x)-j    
+    SELECT CASE(k)
+        CASE(0)
+            LagrangeP=(1-lx)*(2-lx)*(3-lx)/6
+        CASE(1)
+            LagrangeP=lx*(2-lx)*(3-lx)/2
+        CASE(2)
+            LagrangeP=-lx*(1-lx)*(3-lx)/2
+        CASE(3)
+            LagrangeP=lx*(1-lx)*(2-lx)/6
+        CASE DEFAULT
+            LagrangeP=0_dp
+    END SELECT
 end function LagrangeP
 
 
 !!! The intepolation function, which gives x->i
 !!! i.e. A PDF is presented as f(x)=W_i(x)f(x_i)
-!!! The function is W=O(x_{i-2}<x<x_{i-1})P(x,i-2,2)+...+O(x_{i+1}<x<x_{i+1})P(x,i+1,-1)
+!!! The function is W=O(x_{i-3}<x<x_{i-2})P(x,i-3,3)+...+O(x_{i}<x<x_{i+1})P(x,i,0)
 !!! x, and i are natural arguments.
 !!! If x outside of grid ->0
 pure function Winterpolator(x,i)
@@ -111,17 +97,13 @@ pure function Winterpolator(x,i)
     
     !!! first get the node for x
     j=NodeForX(x)
-    !!! if
+    !!! if node out side of the grid. >>0
     if(j<0 .or. j>Nx-1) then
         Winterpolator=0_dp
         return
     end if
     !!! the difference is the shift of interpolator
     k=i-j
-    if(k<-1 .or. k>2) then
-        Winterpolator=0_dp
-    else
-        Winterpolator=LagrangeP(x,j,k)
-    end if
+    Winterpolator=LagrangeP(x,j,k)
 
 end function Winterpolator
