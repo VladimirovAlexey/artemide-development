@@ -24,7 +24,7 @@ call cpu_time(t2)
 
 write(*,*) "time1 =", t2-t1
 
-do i=0,200
+do i=0,300
     FF(i)=TESTF(XatNode(i))
 end do
 
@@ -38,7 +38,7 @@ end do
 contains
 function TESTF(x)
 real*8::x,TESTF
-    TESTF=1-x
+    TESTF=1-Log(x)-x**2
 end function TESTF
 
 end program example

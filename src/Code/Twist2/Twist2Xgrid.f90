@@ -23,7 +23,8 @@
 
 !!! sets global variables for the X-griding
 subroutine XGrid_Initialize()
-    DeltaX=acosh(1/xMin)/Nx
+    DeltaX=acosh(1_dp/xMin)/Nx
+    !DeltaX=-LOG10(xMin)/Nx
 end subroutine XGrid_Initialize
 
 !!!! The algorithm is similar to QCD num.
@@ -35,6 +36,7 @@ pure function XatNode(i)
     integer,intent(in)::i
     
     XatNode=1_dp/cosh(DeltaX*(i-Nx))
+    !XatNode=xMin*10**(i*DeltaX)
 end function XatNode
 
 !!!! Inverse X
@@ -42,8 +44,8 @@ pure function invX(x)
     real(dp):: invX
     real(dp), intent(in):: x
     
-    invX=Nx-acosh(1/x)/DeltaX
-    
+    invX=Nx-acosh(1_dp/x)/DeltaX
+    !invX=LOG10(x/xMin)/DeltaX
 end function invX
 
 !!!! Value of low-grid value for given X
@@ -71,13 +73,13 @@ pure function LagrangeP(x,j,k)
     lx=invX(x)-j    
     SELECT CASE(k)
         CASE(0)
-            LagrangeP=(1-lx)*(2-lx)*(3-lx)/6
+            LagrangeP=(1_dp-lx)*(2_dp-lx)*(3_dp-lx)/6_dp
         CASE(1)
-            LagrangeP=lx*(2-lx)*(3-lx)/2
+            LagrangeP=lx*(2_dp-lx)*(3_dp-lx)/2_dp
         CASE(2)
-            LagrangeP=-lx*(1-lx)*(3-lx)/2
+            LagrangeP=-lx*(1_dp-lx)*(3_dp-lx)/2_dp
         CASE(3)
-            LagrangeP=lx*(1-lx)*(2-lx)/6
+            LagrangeP=lx*(1_dp-lx)*(2_dp-lx)/6_dp
         CASE DEFAULT
             LagrangeP=0_dp
     END SELECT

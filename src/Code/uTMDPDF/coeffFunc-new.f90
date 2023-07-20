@@ -1919,7 +1919,7 @@ function CoefREG(flav,x,n,k,Nf)
     CASE(6)
         CoefREG=CoefREG_q_qp(x,n,k,Nf)
     CASE(-1)
-        CoefREG=1-x
+        CoefREG=(1-x)
     CASE DEFAULT
         write(*,*) ERRORString('No such flav',moduleName)
         stop

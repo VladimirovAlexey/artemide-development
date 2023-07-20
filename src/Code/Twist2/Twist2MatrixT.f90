@@ -75,7 +75,7 @@ function TmatrixElement(flav,i,j,n,k,Nf)
         end if
         
         !! regular part all flavors
-        inter=inter+Integrate_GK(FFreg,vMin,vMax,toleranceINT)
+        inter=inter+Integrate_GK(FFreg,vMin,vMax,toleranceINT)  
         
         !! (..)_+ part
         if(flav==1 .or. flav==4) then

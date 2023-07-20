@@ -50,8 +50,8 @@ integer :: orderMain=2 !! LO=0, NLO=1,...
 
 !!! X-Grid parameters
 !! over x: i=0...Nx, x_0=xMin
-real(dp) :: xMin=0.00001_dp !!! min x 
-integer :: Nx=200 !!! number of points in grid
+real(dp) :: xMin=0.0001_dp !!! min x 
+integer :: Nx=300 !!! number of points in grid
 real(dp) :: DeltaX !!! increment of grid
 
 ! real(dp) :: xMin=0.1_dp !!! min x 

@@ -292,28 +292,6 @@ $$
 \int^{\text{min}(1,x_i/x_{j-3})}_{x_i/x_{j+1}}
 $$
 
-The matrix has the following form
-\begin{eqnarray}
-\left(
-\begin{array}{cccccccc}
-\mathfrak{T}_{00} & \mathfrak{T}_{01} & \mathfrak{T}_{02} & ... & \mathfrak{T}_{0(N-3)} & \mathfrak{T}_{0(N-2)} & \mathfrak{T}_{0(N-1)} & \mathfrak{T}_{0N}
-\\
-\red{\mathfrak{T}_{10}} & \red{\mathfrak{T}_{11}} & \red{\mathfrak{T}_{12}} & ... & \red{\mathfrak{T}_{1(N-3)}} & \mathfrak{T}_{1(N-2)} & \mathfrak{T}_{1(N-1)} & \mathfrak{T}_{1N}
-\\
-0 & \red{\mathfrak{T}_{10}} & \red{\mathfrak{T}_{11}} & ... & \red{\mathfrak{T}_{1(N-4)}} & \mathfrak{T}_{2(N-2)} & \mathfrak{T}_{2(N-1)} & \mathfrak{T}_{2N}
-\\
-0 & 0 & \red{\mathfrak{T}_{10}} & ... & \red{\mathfrak{T}_{1(N-5)}} & \mathfrak{T}_{3(N-2)} & \mathfrak{T}_{3(N-1)} & \mathfrak{T}_{3N}
-\\ ... & ... &... &... &... &... &... &... 
-\\
-0 & 0 & 0 & ... & \red{\mathfrak{T}_{10}} & \mathfrak{T}_{(N-2)(N-2)} & \mathfrak{T}_{(N-2)(N-1)} & \mathfrak{T}_{(N-2)N}
-\\
-0 & 0 & 0 & ... & 0 & \mathfrak{T}_{(N-1)(N-2)} & \mathfrak{T}_{(N-1)(N-1)} & \mathfrak{T}_{(N-1)N}
-\\
-0 & 0 & 0 & ... & 0 & 0 & 0 & \mathfrak{T}_{NN}
-\end{array}
-\right),
-\end{eqnarray}
-where by red I show the part which has a pattern.
 
 
 \end{document}
