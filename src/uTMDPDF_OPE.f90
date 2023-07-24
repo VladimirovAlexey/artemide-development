@@ -50,9 +50,11 @@ integer :: orderMain=2 !! LO=0, NLO=1,...
 
 !!! X-Grid parameters
 !! over x: i=0...Nx, x_0=xMin
-real(dp) :: xMin=0.0001_dp !!! min x 
-integer :: Nx=300 !!! number of points in grid
+real(dp) :: xMin=0.00001_dp !!! min x 
+integer :: Nx=200 !!! number of points in grid
 real(dp) :: DeltaX !!! increment of grid
+integer :: KminX=0
+integer :: KmaxX=5 !!! parameters of range of intepolation
 
 ! real(dp) :: xMin=0.1_dp !!! min x 
 ! integer :: Nx=10 !!! number of points in grid
@@ -75,17 +77,18 @@ integer,parameter::parametrizationLength=37
 public::uTMDPDF_OPE_Initialize
 
 !!!!!!----FOR TEST
-public::XatNode,invX,NodeForX,Winterpolator,Tmatrix,Tmatrix2,TmatrixElement
+public::XatNode,invX,NodeForX,Winterpolator!,Tmatrix,TmatrixElement
 
 contains
 
 !! Coefficient function
-INCLUDE 'Code/uTMDPDF/coeffFunc-new.f90'
+INCLUDE 'Code/uTMDPDF/coeffFunc-new2.f90'
+!INCLUDE 'Code/uTMDPDF/coeffFunc-new.f90'
 
 !! X-grid routines
 INCLUDE 'Code/Twist2/Twist2Xgrid.f90'
 !! Mellin convolution matrix
-INCLUDE 'Code/Twist2/Twist2MatrixT.f90'
+!INCLUDE 'Code/Twist2/Twist2MatrixT.f90'
 
 
 function uTMDPDF_IsInitialized()

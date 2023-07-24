@@ -63,26 +63,24 @@ end function NodeForX
 !!!! k=0,1,2,3 is the polynomial for y_i+k
 !!!! The polynomial is cubic forward 
 !!!! WARNING!!! there is no check for x and j being in grid
-!!!! WARNING!!! cubic forwardness is hard coded. It is used in the constraction of Tmatrix
 pure function LagrangeP(x,j,k)
     real(dp):: LagrangeP
     real(dp), intent(in):: x
     integer, intent(in):: j,k
     real(dp)::lx
+    integer::l
     
-    lx=invX(x)-j    
-    SELECT CASE(k)
-        CASE(0)
-            LagrangeP=(1_dp-lx)*(2_dp-lx)*(3_dp-lx)/6_dp
-        CASE(1)
-            LagrangeP=lx*(2_dp-lx)*(3_dp-lx)/2_dp
-        CASE(2)
-            LagrangeP=-lx*(1_dp-lx)*(3_dp-lx)/2_dp
-        CASE(3)
-            LagrangeP=lx*(1_dp-lx)*(2_dp-lx)/6_dp
-        CASE DEFAULT
-            LagrangeP=0_dp
-    END SELECT
+    lx=invX(x)-j
+    if(k<KminX .and. k>KmaxX) then
+        LagrangeP=0_dp
+    else
+        LagrangeP=1_dp
+        do l=KminX,KmaxX
+            if(k/=l) then
+            LagrangeP=LagrangeP*(lx-l)/(k-l)
+            end if
+        end do
+    end if
 end function LagrangeP
 
 
@@ -106,6 +104,10 @@ pure function Winterpolator(x,i)
     end if
     !!! the difference is the shift of interpolator
     k=i-j
-    Winterpolator=LagrangeP(x,j,k)
+    if(k<kminX .or. k>kMaxX) then
+        Winterpolator=0_dp
+    else
+        Winterpolator=LagrangeP(x,j,k)
+    end if
 
 end function Winterpolator

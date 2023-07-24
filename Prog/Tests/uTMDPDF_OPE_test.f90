@@ -24,21 +24,21 @@ call cpu_time(t2)
 
 write(*,*) "time1 =", t2-t1
 
-do i=0,300
+do i=0,200
     FF(i)=TESTF(XatNode(i))
 end do
 
 RR=MATMUL(TT,FF)
 
 do i=0,200
-    write(*,'("{",F8.6,",",F12.10,"},")')XatNode(i),RR(i)
+    write(*,'("{",F8.6,",",F18.10,"},")')XatNode(i),RR(i)
 end do
 
 
 contains
 function TESTF(x)
 real*8::x,TESTF
-    TESTF=1-Log(x)-x**2
+    TESTF=(1-Log(x)-x**2)/x
 end function TESTF
 
 end program example

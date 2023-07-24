@@ -149,34 +149,3 @@ function Tmatrix(flav,n,k,Nf)
     end do
     end do
 end function Tmatrix
-
-!!!! The matrix T is defined as Mellin convolution of [C W_j]_i
-!!!! The parameter flav is unversal flavor parameter
-function Tmatrix2(flav,n,k,Nf)
-    real(dp),dimension(0:Nx,0:Nx)::Tmatrix2
-    integer, intent(in)::n,k,flav
-    real(dp),intent(in)::Nf
-    integer::i,j
-    real(dp),dimension(0:Nx-3)::matrixSequence
-    
-    Tmatrix2=0_dp
-    
-    !!! The first line is unique
-    do j=0,Nx        
-        Tmatrix2(0,j)=TmatrixElement(flav,0,j,n,k,Nf)
-    end do
-    
-    !!! the 0:n-3 elements of matrix are repeated.
-    !!! save them to a separate value
-    do j=0,Nx-3        
-        matrixSequence(j)=TmatrixElement(flav,1,j,n,k,Nf)
-    end do
-    
-    !!!! 0:N-3 from sequence rest is computed
-    do i=1,Nx-1
-        Tmatrix2(i,i-1:Nx-3)=matrixSequence(0:Nx-i-2)
-        Tmatrix2(i,Nx-2)=TmatrixElement(flav,i,Nx-2,n,k,Nf)
-        Tmatrix2(i,Nx-1)=TmatrixElement(flav,i,Nx-1,n,k,Nf)
-        Tmatrix2(i,Nx)=TmatrixElement(flav,i,Nx,n,k,Nf)
-    end do
-end function Tmatrix2
