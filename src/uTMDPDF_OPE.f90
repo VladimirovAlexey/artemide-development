@@ -49,7 +49,7 @@ integer::messageTrigger=6
 !!!------------------------- PARAMETERS DEFINED IN THE INI-file--------------
 
 !!! Perturbative order
-integer :: orderMain=1 !! LO=0, NLO=1,...
+integer :: orderMain=3 !! LO=0, NLO=1,...
 
 !!!! X-Grid parameters
 !! over x: i=0...Nx, x_0=xMin
@@ -59,13 +59,11 @@ real(dp) :: DeltaX !!! increment of grid
 integer :: KminX=0
 integer :: KmaxX=5 !!! parameters of range of intepolation
 
-! real(dp) :: xMin=0.1_dp !!! min x 
-! integer :: Nx=10 !!! number of points in grid
-! real(dp) :: DeltaX !!! increment of grid
-
 !!!! Numerical parameters
 real(dp) :: toleranceINT=1d-6  !!! tolerance for numerical integration
 real(dp) :: bFREEZE=1d-6       !!! small value of b at which b freesed
+
+logical(dp) :: IsMuYdependent  !!! if mu is y independent, computation is much(!) faster
 
 !!!------------------------- HARD-CODED PARAMETERS ----------------------
 !!! Coefficient lists
@@ -108,6 +106,7 @@ end function uTMDPDF_IsInitialized
 subroutine uTMDPDF_OPE_Initialize(file,prefix)
     character(len=*),intent(in)::file
     character(len=*),intent(in),optional::prefix
+    integer::i
 
     if(started) return
     
@@ -118,6 +117,15 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     
     !!! _OPE_model initialisation
     call ModelInitialization()
+    
+    !!!!!!!Checking the x-dependance of muOPE
+    IsMuYdependent=testMU()
+
+    if(IsMuYdependent) then
+        if(outputLevel>2) write(*,*) trim(moduleName)//': mu OPE is dependent on x'
+    else
+        if(outputLevel>2) write(*,*) trim(moduleName)//': mu OPE is independent on x'
+    end if
     
 end subroutine uTMDPDF_OPE_Initialize
 

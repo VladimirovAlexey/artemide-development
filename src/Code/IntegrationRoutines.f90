@@ -270,7 +270,11 @@ function Integrate_GK_array5(f,xMin,xMax,tolerance)
     end do
     
     !!! check convergence
-    eps=delta*abs(k15)*tolerance  
+    eps=delta*abs(k15)*tolerance
+    !!! if integral is almost zero, I compare to 10^(-8)
+    do i=-5,5
+        if(abs(eps(i))<1.-8d0) eps(i)=1.-8d0
+    end do
     
     ISconvergent=.true.
     do i=-5,5
