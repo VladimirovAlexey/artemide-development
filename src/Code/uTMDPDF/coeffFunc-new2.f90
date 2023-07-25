@@ -15,22 +15,22 @@ pure function parametrizationString(z)
   real(dp)::lz,l1z,zz
   real(dp),dimension(1:parametrizationLength)::parametrizationString
 
-  zz=1d0-z
+  zz=1._dp-z
   lz=Log(z)
-  l1z=Log(1d0-z)
+  l1z=Log(1._dp-z)
 
   parametrizationString=(/&
     l1z,l1z**2,l1z**3,l1z**4,l1z**5,&
-    1d0/z,lz/z,lz**2/z,&
+    1._dp/z,lz/z,lz**2/z,&
     lz,lz**2,lz**3,lz**4,lz**5,&  !!!<--- exact part, approximate part --->
-    1d0,z,z*zz,&
-    z*(lz/zz+1d0),z*lz**2/zz,z*lz**3/zz,&
+    1._dp,z,z*zz,&
+    z*(lz/zz+1._dp),z*lz**2/zz,z*lz**3/zz,&
     z*lz,z*lz**2,z*lz**3,z*lz**4,&
     z*zz*lz,z*zz*lz**2,z*zz*lz**3,&
     zz*l1z,zz*l1z**2,zz*l1z**3,&
     z*zz*l1z,z*zz*l1z**2,z*zz*l1z**3,&
     lz*l1z,z*lz*l1z,z*zz*lz*l1z,&
-    l1z/zz*(1-z**2+2*lz),zz/z*(l1z+z)&
+    l1z/zz*(1._dp-z**2+2*lz),zz/z*(l1z+z)&
     /)
 
 end function parametrizationString
@@ -42,10 +42,10 @@ pure function parametrizationStringAt1(z)
   real(dp),intent(in)::z
   real(dp)::lz,l1z,zz
   real(dp),dimension(1:parametrizationLength)::parametrizationStringAt1
-    zz=1d0-z
+    zz=1._dp-z
     l1z=Log(zz)
      parametrizationStringAt1=(/ &
-          zz*(l1z-1), & !Log[1-x]
+          zz*(l1z-1d0), & !Log[1-x]
           zz*(2d0-2d0*l1z+l1z**2),&  ! Log^2[1-x]
 	      zz*(-6d0+6d0*l1z-3d0*l1z**2+l1z**3),& !Log^3[1-x]
 	      zz*(24d0 - 24d0*l1z + 12d0*l1z**2 - 4d0*l1z**3 + l1z**4),& !Log^4[1-x]

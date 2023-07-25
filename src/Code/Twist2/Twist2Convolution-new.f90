@@ -8,130 +8,174 @@
 !	Be AWARE of possible clash of variable names.
 !
 !	This part is devoted to the calculation of Mellin convolution between
-!       interpolation function and the coefficient function.
-!       Tmatrix(flav,n,k,Nf) = real(0:Nx,0:Nx)
-!       int flav: flavor combination 1=qq,2=qg,3=gq,4=gg,5=qqb,6=qqp
-!       int n, k: as^n L^k
-!       real Nf: number of flavors
-!
-!       Tmatrix2 = Tmatrix but it uses symmetries and MUCH faster
+!       PDF and the coefficient function.
+!       CxF_compute(x,b,hadron) = real(-5:5)
 !	
-!	v.3.00 Created (AV, 18.07.2023)
+!	v.3.00 Created (AV, 24.07.2023)
 !
-!				A.Vladimirov (18.07.2023)
+!				A.Vladimirov (24.07.2023)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+!!Evaluate Log[muOPE^2 bT^2/4/Exp(-2Gamma_E)]
+!! the b here is b*,
+!! Functions muOPE and bSTAR are defined in _OPE_model
+!! x is global x, y is the convolution variable
+!! this funciton is used only in Coefficeint functions
+pure function LogMuB(bT,x,y)
+    real(dp)::LogMuB
+    real(dp),intent(in)::bT,x,y
+    LogMuB=2._dp*Log(bSTAR(bT,x,y)*muOPE(bt,x,y,c4_global)*C0_inv_const)
+end function LogMuB  
 
-!!!! The matrix T is defined as Mellin convolution of [C W_j]_i
-!!!! The parameter flav is unversal flavor parameter
-!!!! i,j is the element of the matrix
-!!!! n,k, Nf are standard variables
-function TmatrixElement(flav,i,j,n,k,Nf)
-    real(dp)::TmatrixElement
-    integer, intent(in)::i,j,n,k,flav
-    real(dp),intent(in)::Nf
-    real(dp)::inter,vMin,vMax,xCurrent,xi
-    real(dp),dimension(1:3)::singC
+!!!! The CxF is defined as Mellin convolution of [C xF]
+!!!! The integral is \int_x^1 dy C(y) F[x/y], where F[x]=x PDF(x)
+!!!! The ordinary convolution \int_x^1 dy/y C(y) PDF(x/y) = CxF(x)/x
+!!!! the parameters x,y for model are defined as in this formula
+function CxF_compute(x,bT,hadron,includeGluon)
+    real(dp),dimension(-5:5)::CxF_compute
+    integer, intent(in)::hadron
+    real(dp),intent(in)::x,bT
+    logical,intent(in)::includeGluon
+    real(dp):: bTcurrent,lx
     
-    inter=0_dp
+    real(dp),dimension(-5:5)::deltaPart,PLUSremnant, PLUSpart
+    real(dp):: muAt1,asAt1,LogAt1,NfAt1,Cqq,Cgg,Csingqq,Csinggg
+    real(dp),dimension(1:3)::CplusAt1_gg,CplusAt1_qq
+    real(dp),dimension(-5:5)::PDFat1
     
-    xi=XatNode(i)  
+    !! for extrimely small-values of b we freeze it.
+    if(bT>bFREEZE) then 
+        bTcurrent=bT
+    else
+        bTcurrent=bFREEZE
+    end if
     
-    if(i==j) then             
-        if(flav==1) then
-            !!! delta-function contribution
-            inter=C_q_q_delta(n,k,Nf)            
-            !!! The remnant [0,x_i] from the (..)_+ integration
-            singC=C_q_q_plus(n,k,Nf)
-            xCurrent=xi/XatNode(j-KminX+1)
-            if(n>0) then
-            inter=inter+Log(1-xCurrent)*singC(1)
-            if(n>1) then
-            inter=inter+Log(1-xCurrent)**2*singC(2)/2_dp
-            if(n>2) then
-            inter=inter+Log(1-xCurrent)**3*singC(3)/3_dp
-            end if
-            end if
-            end if
-            
-        else if(flav==4) then
-            inter=C_g_g_delta(n,k,Nf)
-            
-            !!! The remnant [0,x_i] from the (..)_+ integration
-            singC=C_g_g_plus(n,k,Nf)
-            xCurrent=xi/XatNode(j-KminX+1)
-            if(n>0) then
-            inter=inter+Log(1-xCurrent)*singC(1)
-            if(n>1) then
-            inter=inter+Log(1-xCurrent)**2*singC(2)/2_dp
-            if(n>2) then
-            inter=inter+Log(1-xCurrent)**3*singC(3)/3_dp
-            end if 
-            end if
-            end if
-        end if
-    end if        
+    !!!! delta-part
+    !! C(y)~delta(1-y)
+    muAt1=muOPE(bt,x,1._dp,c4_global)
+    asAt1=As(muAt1)
+    LogAt1=LogMuB(bT,x,1._dp)
+    NfAt1=activeNf(muAt1)
     
-    if(i<j-KminX+1) then
-        !! compute boundaries
-        if(j==Nx) then
-            vMin=xi
-        else
-            vMin=xi/XatNode(j-KminX+1)
-        end if
+    Cqq=C_q_q_delta(asAt1,NfAt1,LogAt1)
+    if(includeGluon) then        
+        Cgg=C_g_g_delta(asAt1,NfAt1,LogAt1)        
+    else
+        Cgg=0._dp
+    end if
+    deltaPart=(/Cqq,Cqq,Cqq,Cqq,Cqq,Cgg,Cqq,Cqq,Cqq,Cqq,Cqq/)*xf(x,muAt1,hadron)
+    
+    CxF_compute=deltaPart
+    
+    !!!! other parts contribute only if order >LO
+    if(orderMain>0) then
+    !!! account the remnant of the integration over 1/(..)_+
+    !!! it is equal \int_0^x c(y) f(1)
+    lx=Log(1._dp-x)
+    CplusAt1_qq=Coeff_q_q_plus(asAt1,NfAt1,LogAt1)
+    Csingqq=sum(CplusAt1_qq*(/lx,lx**2/2._dp,lx**3/3._dp/))
+    if(includeGluon) then 
+        CplusAt1_gg=Coeff_g_g_plus(asAt1,NfAt1,LogAt1)
+        Csinggg=sum(CplusAt1_gg*(/lx,lx**2/2._dp,lx**3/3._dp/))
+    else
+        CplusAt1_gg=0._dp
+        Csinggg=0._dp
+    end if
+    PDFat1=xf(x,muAt1,hadron)
+    
+    PLUSremnant=(/Csingqq,Csingqq,Csingqq,Csingqq,Csingqq,&
+    Csinggg,Csingqq,Csingqq,Csingqq,Csingqq,Csingqq/)*PDFat1
+    
+    CxF_compute=CxF_compute+PLUSremnant&
+        +Integrate_GK_array5(FFreg,x,1._dp,toleranceINT)&
+        +Integrate_GK_array5(FFplus,x,1._dp,toleranceINT)
         
-        if(i<j-KmaxX) then
-            vMax=xi/XatNode(j-KmaxX)
-        else
-            vMax=1_dp
-        end if
-        
-        !! regular part all flavors
-        inter=inter+Integrate_GK(FFreg,vMin,vMax,toleranceINT)  
-        
-        !! (..)_+ part
-        if(flav==1 .or. flav==4) then
-            !! (..)_+ part only for qq and gg
-            if(i==j) then
-                !! note that in this case singC is compute earlier
-                inter=inter+Integrate_GK(FFplus,vMin,vMax,toleranceINT)
-            else
-                inter=inter+Integrate_GK(FFplus2,vMin,vMax,toleranceINT)
-            end if        
-        end if
-    end if            
+    end if
     
-    TmatrixElement=inter
-
-    !!!!! these are wrapper functions to pass ther integrand to GK routine
-    !!!!! FORTRAN gets only function of one variable
-    !!!!! using the trick with internal function one can by-pass this limitation
+!     !!!!! these are wrapper functions to pass ther integrand to GK routine
+!     !!!!! FORTRAN gets only function of one variable
+!     !!!!! using the trick with internal function one can by-pass this limitation
     contains
     
     !!! regular integrand
-    function FFreg(x)
-        real(dp)::FFreg
-        real(dp),intent(in)::x
-        FFreg=CoefREG(flav,x,n,k,Nf)*Winterpolator(xi/x,j)
+    function FFreg(y)
+        real(dp),dimension(-5:5)::FFreg
+        real(dp),intent(in)::y        
+        real(dp)::muCurrent,asCurrent,LogCurrent,NfCurrent,Aqq,Aqg,Agq,Agg,Aqqp,Aqqb,PDFsum
+        real(dp),dimension(-5:5)::PDFs
+        real(dp),dimension(1:parametrizationLength):: var
+        
+        muCurrent=muOPE(bt,x,y,c4_global)
+        asCurrent=As(muCurrent)
+        LogCurrent=LogMuB(bT,x,y)
+        NfCurrent=activeNf(muCurrent)
+        
+        var=parametrizationString(y)
+        
+        Aqq=sum(var*Coeff_q_q_reg(asCurrent,NfCurrent,LogCurrent))
+        Aqg=sum(var*Coeff_q_g_reg(asCurrent,NfCurrent,LogCurrent))
+        if(includeGluon) then
+        Agq=sum(var*Coeff_g_q_reg(asCurrent,NfCurrent,LogCurrent))
+        Agg=sum(var*Coeff_g_g_reg(asCurrent,NfCurrent,LogCurrent))
+        else
+        Agq=0._dp
+        Agg=0._dp
+        end if
+        Aqqb=sum(var*Coeff_q_qb_reg(asCurrent,NfCurrent,LogCurrent))
+        Aqqp=sum(var*Coeff_q_qp_reg(asCurrent,NfCurrent,LogCurrent))
+        
+        PDFs=xf(x/y,muCurrent,hadron)
+        PDFsum=PDFs(-5)+PDFs(-4)+PDFs(-3)+PDFs(-2)+PDFs(-1)+PDFs(1)+PDFs(2)+PDFs(3)+PDFs(4)+PDFs(5)
+        
+        FFreg=(/&
+        Aqq*PDFs(-5)+Aqqb*PDFs(5)+Aqqp*PDFsum+Aqg*PDFs(0),&
+        Aqq*PDFs(-4)+Aqqb*PDFs(4)+Aqqp*PDFsum+Aqg*PDFs(0),&
+        Aqq*PDFs(-3)+Aqqb*PDFs(3)+Aqqp*PDFsum+Aqg*PDFs(0),&
+        Aqq*PDFs(-2)+Aqqb*PDFs(2)+Aqqp*PDFsum+Aqg*PDFs(0),&
+        Aqq*PDFs(-1)+Aqqb*PDFs(1)+Aqqp*PDFsum+Aqg*PDFs(0),&
+        Agg*PDFs(0)+Agq*PDFsum,&
+        Aqq*PDFs(1)+Aqqb*PDFs(-1)+Aqqp*PDFsum+Aqg*PDFs(0),&
+        Aqq*PDFs(2)+Aqqb*PDFs(-2)+Aqqp*PDFsum+Aqg*PDFs(0),&
+        Aqq*PDFs(3)+Aqqb*PDFs(-3)+Aqqp*PDFsum+Aqg*PDFs(0),&
+        Aqq*PDFs(4)+Aqqb*PDFs(-4)+Aqqp*PDFsum+Aqg*PDFs(0),&
+        Aqq*PDFs(5)+Aqqb*PDFs(-5)+Aqqp*PDFsum+Aqg*PDFs(0)/)
     end function FFreg
     
     !!! (..)_+ integrand
-    function FFplus(x)
-        real(dp)::FFplus
-        real(dp),intent(in)::x
-        FFplus=(singC(1)+singC(2)*Log(1-x)+singC(2)*Log(1-x)**2)/(1-x)*&
-            (Winterpolator(xi/x,j)-1)
+    function FFplus(y)
+        real(dp),dimension(-5:5)::FFplus
+        real(dp),intent(in)::y
+        real(dp),dimension(1:3)::Cplus_qq,Cplus_gg
+        real(dp),dimension(-5:5)::PDF,inter1,inter2
+        real(dp)::muCurrent,asCurrent,LogCurrent,NfCurrent,dummy1,dummy2
+        
+        muCurrent=muOPE(bt,x,y,c4_global)
+        asCurrent=As(muCurrent)
+        LogCurrent=LogMuB(bT,x,y)
+        NfCurrent=activeNf(muCurrent)
+        
+        Cplus_qq=Coeff_q_q_plus(asCurrent,NfCurrent,LogCurrent)
+        if(includeGluon) then
+            Cplus_gg=Coeff_g_g_plus(asCurrent,NfCurrent,LogCurrent)
+        else
+            Cplus_gg=0._dp
+        end if
+        PDF=xf(x/y,muCurrent,hadron)
+        
+        dummy1=sum((/1._dp,log(1._dp-y),log(1._dp-y)**2/)*Cplus_qq)
+        dummy2=sum((/1._dp,log(1._dp-y),log(1._dp-y)**2/)*Cplus_gg)
+        inter1=(/dummy1,dummy1,dummy1,dummy1,dummy1,&
+        dummy2,dummy1,dummy1,dummy1,dummy1,dummy1/)
+        
+        dummy1=sum((/1._dp,log(1._dp-y),log(1._dp-y)**2/)*CplusAt1_qq)
+        dummy2=sum((/1._dp,log(1._dp-y),log(1._dp-y)**2/)*CplusAt1_gg)
+        inter2=(/dummy1,dummy1,dummy1,dummy1,dummy1,&
+        dummy2,dummy1,dummy1,dummy1,dummy1,dummy1/)        
+        
+        FFplus=(inter1*PDF-inter2*PDFat1)/(1-y)
     end function FFplus
     
-    !!! (..)_+ integrand, that does not hit the delta-function
-    function FFplus2(x)
-        real(dp)::FFplus2
-        real(dp),intent(in)::x
-        FFplus2=(singC(1)+singC(2)*Log(1-x)+singC(2)*Log(1-x)**2)/(1-x)*&
-            Winterpolator(xi/x,j)
-    end function FFplus2
-    
-end function TmatrixElement
+end function CxF_compute
 
 !!!! The matrix T is defined as Mellin convolution of [C W_j]_i
 !!!! The parameter flav is unversal flavor parameter
@@ -141,11 +185,11 @@ function Tmatrix(flav,n,k,Nf)
     real(dp),intent(in)::Nf
     integer::i,j
     
-    Tmatrix=0_dp
-    
-    do i=0,Nx-1
-    do j=0,Nx        
-        Tmatrix(i,j)=TmatrixElement(flav,i,j,n,k,Nf)
-    end do
-    end do
+!     Tmatrix=0_dp
+!     
+!     do i=0,Nx-1
+!     do j=0,Nx        
+!         Tmatrix(i,j)=TmatrixElement(flav,i,j,n,k,Nf)
+!     end do
+!     end do
 end function Tmatrix

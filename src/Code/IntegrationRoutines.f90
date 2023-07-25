@@ -17,14 +17,24 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 module IntegrationRoutines
-  use aTMDe_numerics
-  implicit none
+use aTMDe_numerics
+implicit none
 
-  private
-  INCLUDE '../Tables/G7K15.f90'
+private
+INCLUDE '../Tables/G7K15.f90'
 
-  public::Integrate_S5,Integrate_SN,Integrate_SA
-  public::Integrate_G7,Integrate_K15,Integrate_GK
+public::Integrate_S5,Integrate_SN,Integrate_SA
+public::Integrate_G7,Integrate_K15,Integrate_GK
+public::Integrate_GK_array5
+
+!!! this is interface for function (-5:5) in the integration
+abstract interface 
+    function func_array5(x)
+        import::dp
+        real(dp),dimension(-5:5) :: func_array5
+        real(dp), intent(in) ::x
+    end function func_array5
+end interface
   
 contains
 
@@ -39,9 +49,9 @@ function Integrate_S5(f,xMin,xMax)
     real(dp)::delta,x2,x3,x4,f1,f2,f3,f4,f5
 
     delta=xMax-xMin
-    x2=xMin+delta/4_dp
-    x3=xMin+delta/2_dp
-    x4=xMax-delta/4_dp
+    x2=xMin+delta/4._dp
+    x3=xMin+delta/2._dp
+    x4=xMax-delta/4._dp
 
     f1=f(xMin)
     f2=f(x2)
@@ -49,7 +59,7 @@ function Integrate_S5(f,xMin,xMax)
     f4=f(x4)
     f5=f(xMax)
         
-    Integrate_S5=delta*(f1+4_dp*f2+2_dp*f3+4_dp*f4+f5)/12_dp
+    Integrate_S5=delta*(f1+4._dp*f2+2._dp*f3+4._dp*f4+f5)/12._dp
     
 end function Integrate_S5
 
@@ -71,17 +81,17 @@ function Integrate_SN(f,xMin,xMax,N)
     !!!! even terms
     do i=1,N-1,2
         xCur=xMin+i*delta
-        inter=inter+4_dp*f(xCur)    
+        inter=inter+4._dp*f(xCur)    
     end do
     !!!! odd term
     do i=2,N-2,2
         xCur=xMin+i*delta
-        inter=inter+2_dp*f(xCur)    
+        inter=inter+2._dp*f(xCur)    
     end do
     
     inter=inter+f(xMax)!!!! last term
         
-    Integrate_SN=delta/3_dp*inter
+    Integrate_SN=delta/3._dp*inter
     
 end function Integrate_SN
 
@@ -96,9 +106,9 @@ function Integrate_SA(f,xMin,xMax,tolerance)
 
     
     delta=xMax-xMin
-    x2=xMin+delta/4_dp
-    x3=xMin+delta/2_dp
-    x4=xMax-delta/4_dp
+    x2=xMin+delta/4._dp
+    x3=xMin+delta/2._dp
+    x4=xMax-delta/4._dp
 
     f1=f(xMin)
     f2=f(x2)
@@ -107,7 +117,7 @@ function Integrate_SA(f,xMin,xMax,tolerance)
     f5=f(xMax)
     
     !!! the error parameter is weighted with the approximate integral size
-    eps=tolerance*abs(delta*(f1+4_dp*f2+2_dp*f3+4_dp*f4+f5)/12_dp)
+    eps=tolerance*abs(delta*(f1+4._dp*f2+2._dp*f3+4._dp*f4+f5)/12._dp)
         
     Integrate_SA=SA_Rec(f,xMin,x2,x3,f1,f2,f3,eps)+SA_Rec(f,x3,x4,xMax,f3,f4,f5,eps)
     
@@ -118,13 +128,13 @@ recursive function SA_Rec(f,x1,x3,x5,f1,f3,f5,eps) result(res)
     real(dp)::f1,f2,f3,f4,f5,eps,res
     real(dp)::value15,value135
     
-    x2=(x1+x3)/2_dp
+    x2=(x1+x3)/2._dp
     f2=f(x2)
-    x4=(x3+x5)/2_dp
+    x4=(x3+x5)/2._dp
     f4=f(x4)
     
-    value15=(x5-x1)*(f1+4_dp*f3+f5)/6_dp
-    value135=(x5-x1)*(f1+4_dp*f2+2_dp*f3+4_dp*f4+f5)/12_dp
+    value15=(x5-x1)*(f1+4._dp*f3+f5)/6._dp
+    value135=(x5-x1)*(f1+4._dp*f2+2._dp*f3+4._dp*f4+f5)/12._dp
         
     If(ABS(value135-value15)>eps) then
         res=SA_Rec(f,x1,x2,x3,f1,f2,f3,eps)+SA_Rec(f,x3,x4,x5,f3,f4,f5,eps)
@@ -143,10 +153,10 @@ function Integrate_G7(f,xMin,xMax)
     real(dp)::delta,av,inter
     integer::i
 
-    delta=(xMax-xMin)/2_dp
-    av=(xMax+xMin)/2_dp
+    delta=(xMax-xMin)/2._dp
+    av=(xMax+xMin)/2._dp
     
-    inter=0_dp
+    inter=0._dp
     do i=1,7
         inter=inter+Wi_g77(i)*f(Xi_g7(i)*delta+av)
     end do
@@ -164,10 +174,10 @@ function Integrate_K15(f,xMin,xMax)
     real(dp)::delta,av,inter
     integer::i
 
-    delta=(xMax-xMin)/2_dp
-    av=(xMax+xMin)/2_dp
+    delta=(xMax-xMin)/2._dp
+    av=(xMax+xMin)/2._dp
     
-    inter=0_dp
+    inter=0._dp
     do i=1,15
         inter=inter+Wi_k15(i)*f(Xi_k15(i)*delta+av)
     end do
@@ -187,11 +197,11 @@ function Integrate_GK(f,xMin,xMax,tolerance)
     real(dp)::delta,av,g7,k15,eps,tolerance,fI
     integer::i
 
-    delta=(xMax-xMin)/2_dp
-    av=(xMax+xMin)/2_dp
+    delta=(xMax-xMin)/2._dp
+    av=(xMax+xMin)/2._dp
     
-    g7=0_dp
-    k15=0_dp
+    g7=0._dp
+    k15=0._dp
     do i=1,15
         fI=f(Xi_k15(i)*delta+av)
         g7=g7+Wi_g7(i)*fI
@@ -214,11 +224,11 @@ recursive function GK_Rec(f,xMin,xMax,eps) result(res)
     real(dp)::delta,av,g7,k15,eps,fI
     integer::i
 
-    delta=(xMax-xMin)/2_dp
-    av=(xMax+xMin)/2_dp
+    delta=(xMax-xMin)/2._dp
+    av=(xMax+xMin)/2._dp
     
-    g7=0_dp
-    k15=0_dp
+    g7=0._dp
+    k15=0._dp
     do i=1,15
         fI=f(Xi_k15(i)*delta+av)
         g7=g7+Wi_g7(i)*fI
@@ -232,5 +242,87 @@ recursive function GK_Rec(f,xMin,xMax,eps) result(res)
     end if
     
 end function GK_Rec
+
+!!! Gauss-Kronrod 7/15 adaptive for array
+!!! f::  array(-5:5) function of 1 variable
+!!! xMin, and xMax boundaries of the integral. xMax>xMin !!
+!!! tolerance is relative (it is wieghted by approximate value of integral)
+!!! the integral is considered convergent once all components are convergent
+function Integrate_GK_array5(f,xMin,xMax,tolerance)
+    real(dp),dimension(-5:5)::Integrate_GK_array5
+    procedure(func_array5)::f
+    real(dp),intent(in)::xMin,xMax
+    real(dp)::delta,av,tolerance
+    real(dp), dimension(-5:5)::fI,g7,k15,eps
+    integer::i
+    logical::ISconvergent
+    
+    
+    
+    delta=(xMax-xMin)/2._dp
+    av=(xMax+xMin)/2._dp
+    g7=0._dp
+    k15=0._dp
+    do i=1,15
+        fI=f(Xi_k15(i)*delta+av)
+        g7=g7+Wi_g7(i)*fI
+        k15=k15+Wi_k15(i)*fI
+    end do
+    
+    !!! check convergence
+    eps=delta*abs(k15)*tolerance  
+    
+    ISconvergent=.true.
+    do i=-5,5
+       if(delta*abs(k15(i)-g7(i))>eps(i)) then
+        ISconvergent=.false.
+        exit
+       end if
+    end do
+    
+    if(ISconvergent) then
+        Integrate_GK_array5=delta*k15                
+    else
+        Integrate_GK_array5=GK_array5_Rec(f,xMin,av,eps)+GK_array5_Rec(f,av,xMax,eps)
+    end if
+    
+end function Integrate_GK_array5
+
+recursive function GK_array5_Rec(f,xMin,xMax,eps) result(res)
+    real(dp),dimension(-5:5)::res
+    procedure(func_array5)::f
+    real(dp),intent(in)::xMin,xMax
+    real(dp)::delta,av
+    real(dp),dimension(-5:5)::g7,k15,eps,fI
+    integer::i
+    logical::ISconvergent
+    
+    delta=(xMax-xMin)/2._dp
+    av=(xMax+xMin)/2._dp
+
+    g7=0._dp
+    k15=0._dp
+    do i=1,15
+        fI=f(Xi_k15(i)*delta+av)
+        g7=g7+Wi_g7(i)*fI
+        k15=k15+Wi_k15(i)*fI
+    end do
+    
+    !!! check convergence
+    ISconvergent=.true.
+    do i=-5,5
+       if(delta*abs(k15(i)-g7(i))>eps(i)) then
+        ISconvergent=.false.
+        exit
+       end if
+    end do
+    
+    if(ISconvergent) then
+        res=delta*k15                
+    else
+        res=GK_array5_Rec(f,xMin,av,eps)+GK_array5_Rec(f,av,xMax,eps)
+    end if
+    
+end function GK_array5_Rec
 
 end module IntegrationRoutines

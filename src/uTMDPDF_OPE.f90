@@ -23,6 +23,7 @@ use aTMDe_Numerics
 use IntegrationRoutines
 use IO_functions
 use QCDinput
+use uTMDPDF_OPE_model
 implicit none
 
 !------------------------LOCALs -----------------------------------------------
@@ -42,13 +43,15 @@ logical:: started=.false.
 !! 1=initialization details
 !! 2=WARNINGS
 integer::outputLevel=2
-!! variable that count number of WRNING mesagges. In order not to spam too much
+!! variable that count number of WARNING mesagges. In order not to spam too much
 integer::messageTrigger=6
 
-!!! Perturbative order
-integer :: orderMain=2 !! LO=0, NLO=1,...
+!!!------------------------- PARAMETERS DEFINED IN THE INI-file--------------
 
-!!! X-Grid parameters
+!!! Perturbative order
+integer :: orderMain=1 !! LO=0, NLO=1,...
+
+!!!! X-Grid parameters
 !! over x: i=0...Nx, x_0=xMin
 real(dp) :: xMin=0.00001_dp !!! min x 
 integer :: Nx=200 !!! number of points in grid
@@ -60,9 +63,11 @@ integer :: KmaxX=5 !!! parameters of range of intepolation
 ! integer :: Nx=10 !!! number of points in grid
 ! real(dp) :: DeltaX !!! increment of grid
 
-!! Numerical parameters
-real(dp) :: toleranceINT=1d-8  !!! tolerance for numerical integration
+!!!! Numerical parameters
+real(dp) :: toleranceINT=1d-6  !!! tolerance for numerical integration
+real(dp) :: bFREEZE=1d-6       !!! small value of b at which b freesed
 
+!!!------------------------- HARD-CODED PARAMETERS ----------------------
 !!! Coefficient lists
 integer,parameter::parametrizationLength=37
 !! { Log[1-x], log[1-x]^2, log[1-x]^3, log[1-x]^4, log[1-x]^5  !exact
@@ -72,12 +77,14 @@ integer,parameter::parametrizationLength=37
 !! The Lmu^2 part is exact the later parts are fitted, but exact if posible (e.g. Lmu and Nf parts for q->q)
 !!!!! TO DO: UPDATE TO EXACT VALUES [use 1809.07084]!!
 
+!!!------------------------- DYNAMICAL-GLOBAL PARAMETERS -------------------
+real(dp) :: c4_global=1_dp  !!! scale variation parameter
 
 !!--------------------------------------Public interface-----------------------------------------
 public::uTMDPDF_OPE_Initialize
 
 !!!!!!----FOR TEST
-public::XatNode,invX,NodeForX,Winterpolator!,Tmatrix,TmatrixElement
+public::XatNode,invX,NodeForX,Winterpolator,CxF_compute!,Tmatrix,TmatrixElement
 
 contains
 
@@ -88,6 +95,7 @@ INCLUDE 'Code/uTMDPDF/coeffFunc-new2.f90'
 !! X-grid routines
 INCLUDE 'Code/Twist2/Twist2Xgrid.f90'
 !! Mellin convolution matrix
+INCLUDE 'Code/Twist2/Twist2Convolution-new.f90'
 !INCLUDE 'Code/Twist2/Twist2MatrixT.f90'
 
 
@@ -108,6 +116,20 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     !!! function to initialze the Xgrid
     call XGrid_Initialize()
     
+    !!! _OPE_model initialisation
+    call ModelInitialization()
+    
 end subroutine uTMDPDF_OPE_Initialize
+
+!!!!array of x times PDF(x,Q) for hadron 'hadron'
+!!!! array is (-5:5) (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+function xf(x,Q,hadron)
+    real(dp) :: x,Q
+    integer:: hadron
+    real(dp), dimension(-5:5):: xf
+    
+    xf=xPDF(x,Q,hadron)
+    
+end function xf
 
 end module uTMDPDF_OPE
