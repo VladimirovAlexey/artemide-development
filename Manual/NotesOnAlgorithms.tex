@@ -292,6 +292,11 @@ $$
 \int^{\text{min}(1,x_i/x_{j-3})}_{x_i/x_{j+1}}
 $$
 
+\begin{tcolorbox}
+This method appears to have a fixed precision. I.e. its precision is equal proportional to the grid spacing. For reasonable grid the integral produces $10^{-4}$ relative precision, which cannot be improved. Precision drops for smaller x (because of the range of integration). This is due to the fact that this method effective incorporate the mistake of interpolation into the integration. 
+
+\textbf{Since I need only a finite number of convolutions. I turn back to the usual computation of the integral.}
+\end{tcolorbox}
 
 
 \end{document}
