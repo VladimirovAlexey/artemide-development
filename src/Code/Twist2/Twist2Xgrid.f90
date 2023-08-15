@@ -7,7 +7,8 @@
 !
 !	Be AWARE of possible clash of variable names.
 !
-!       The grid is hard coded to be cubic forward KK=[0,1,2,3]
+!       The interpolation type is defined by K, 
+!       as the segments runs out of grid, the interpolation order is reduced 
 !	This part is devoted to the common functions for X-grid
 !       XGrid_Initialize()
 !       real XatNode(i)      - gives x_i
@@ -59,10 +60,10 @@ end function NodeForX
 
 !!!! Lagrange polynomial for interpolation
 !!!! x- variable,
-!!!! j- node to intepolate x->[x_i,x_i+1]
-!!!! k=0,1,2,3 is the polynomial for y_i+k
-!!!! The polynomial is cubic forward 
-!!!! WARNING!!! there is no check for x and j being in grid
+!!!! j- node to intepolate x->[x_j,x_j+1]
+!!!! k=[kMin,...kMax] is the polynomial for y_i+k
+!!!! If the segment runs out of grid the corresponding contribution is eliminated
+!!!!    it corresponds to a reduced interpolation order.
 pure function LagrangeP(x,j,k)
     real(dp):: LagrangeP
     real(dp), intent(in):: x
@@ -76,7 +77,8 @@ pure function LagrangeP(x,j,k)
     else
         LagrangeP=1_dp
         do l=KminX,KmaxX
-            if(k/=l) then
+            !!!  0<= segment <=Nx is a check for segment being in the grid
+            if(k/=l .and. j+l<=Nx .and. j+l>=0) then
             LagrangeP=LagrangeP*(lx-l)/(k-l)
             end if
         end do

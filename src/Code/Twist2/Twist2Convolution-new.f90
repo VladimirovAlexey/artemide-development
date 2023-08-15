@@ -94,9 +94,9 @@ function CxF_compute(x,bT,hadron,includeGluon)
     
     !!! values of parameters at y=1
     !!! they are used also later
-    muAt1=muOPE(bt,x,1._dp,c4_global)
+    muAt1=muOPE(bTcurrent,x,1._dp,c4_global)
     asAt1=As(muAt1)
-    LogAt1=LogMuB(bT,x,1._dp)
+    LogAt1=LogMuB(bTcurrent,x,1._dp)
     NfAt1=activeNf(muAt1)
     PDFat1=xf(x,muAt1,hadron)
     
@@ -175,9 +175,9 @@ function CxF_compute(x,bT,hadron,includeGluon)
         
         !!! if mu is y-dependent one needs to update the values of parameters for each y
         if(IsMuYdependent) then
-            muCurrent=muOPE(bt,x,y,c4_global)
+            muCurrent=muOPE(bTcurrent,x,y,c4_global)
             asCurrent=As(muCurrent)
-            LogCurrent=LogMuB(bT,x,y)
+            LogCurrent=LogMuB(bTcurrent,x,y)
             NfCurrent=activeNf(muCurrent)
         
             Aqq=sum(var*Coeff_q_q_reg(asCurrent,NfCurrent,LogCurrent))
@@ -234,9 +234,9 @@ function CxF_compute(x,bT,hadron,includeGluon)
         
         !!!! if mu is y-dependent one needs to update the values each step
         if(IsMuYdependent) then
-            muCurrent=muOPE(bt,x,y,c4_global)
+            muCurrent=muOPE(bTcurrent,x,y,c4_global)
             asCurrent=As(muCurrent)
-            LogCurrent=LogMuB(bT,x,y)
+            LogCurrent=LogMuB(bTcurrent,x,y)
             NfCurrent=activeNf(muCurrent)
         
             Cplus_qq=Coeff_q_q_plus(asCurrent,NfCurrent,LogCurrent)

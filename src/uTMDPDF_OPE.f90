@@ -23,7 +23,7 @@ use aTMDe_Numerics
 use IntegrationRoutines
 use IO_functions
 use QCDinput
-use uTMDPDF_OPE_model
+use uTMDPDF_model_new
 implicit none
 
 !------------------------LOCALs -----------------------------------------------
@@ -56,8 +56,8 @@ integer :: orderMain=3 !! LO=0, NLO=1,...
 real(dp) :: xMin=0.00001_dp !!! min x 
 integer :: Nx=200 !!! number of points in grid
 real(dp) :: DeltaX !!! increment of grid
-integer :: KminX=0
-integer :: KmaxX=5 !!! parameters of range of intepolation
+integer :: KminX=-1
+integer :: KmaxX=2 !!! parameters of range of intepolation
 
 !!!! Numerical parameters
 real(dp) :: toleranceINT=1d-6  !!! tolerance for numerical integration
@@ -116,7 +116,7 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     call XGrid_Initialize()
     
     !!! _OPE_model initialisation
-    call ModelInitialization()
+    !call ModelInitialization()
     
     !!!!!!!Checking the x-dependance of muOPE
     IsMuYdependent=testMU()

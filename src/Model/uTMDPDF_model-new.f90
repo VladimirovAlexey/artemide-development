@@ -1,0 +1,148 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!			Model function for unpolarized TMDPDF 
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+module uTMDPDF_model_new
+use aTMDe_Numerics
+use IO_functions
+implicit none
+
+private
+
+!!!!!------------------------------------------------------------------------------------
+!!!!! These functions MUST defined in module  !!
+!!!!!
+!!!!! 1) The subroutine is called during the initialization of TMD-module
+!!!!!    arg=array of initial NP-parameters
+public:: ModelInitialization
+!!!!! 2) The subroutine that is called on reset of NP-parameters in TMD-module
+!!!!!    arg=array of new NP-parameters
+public:: ModelUpdate
+!!!!! 3) Function which returns FNP function
+!!!!!    arg=(x,b,hadron,lambdaNP) with x=x_Bj for TMD (real_dp), 
+!!!!!    b=transverse distance(real_dp), hadron=number of the hadron in grid(integer)
+!!!!!    lambdaNP = array of NP parameters (real_dp(:))
+real(dp),public,dimension(-5:5):: FNP
+!!!!! 4) Function which returns the value of b used as argument of convolution integrals
+!!!!!    arg=(bT,x,y) with br=transverse distance(real_dp), x being Bjorken x (real_dp), and y being convolution variable (real_dp)
+real(dp),public:: bSTAR
+!!!!! 5) Function which returns the scale of matching (OPE scale)
+!!!!!    arg=(bT,x,y,c4) with bT, x, y same as in bSTAR, and c4(real_dp) is scale variation parameter
+real(dp),public:: muOPE
+!!!!!------------------------------------------------------------------------------------
+
+real(dp),allocatable::NPparam(:)
+
+contains  
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! USER DEFINED FUNCTIONS   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!! Write nessecery model intitialization.
+subroutine ModelInitialization(NPstart)
+    real(dp),intent(in)::NPstart(:)
+    allocate(NPparam(1:size(NPstart)))
+    NPparam=NPstart
+    
+    write(*,*) color(">>>  The model for uTMDPDF for ART23   <<<",c_cyan)
+    
+end subroutine ModelInitialization
+
+!!!!!! Write nessecery model update (e.g. save current NP-parameters)
+!!!!!! newNPParams is the new NP-array
+subroutine ModelUpdate(newNPParams)  
+    real(dp),intent(in):: newNPParams(:)
+    
+    NPparam=newNPParams !! save new vector of NP-parameters
+
+end subroutine ModelUpdate
+
+!!! This is  non-perturbative function
+!!! non=perturbative parameters are lambdaNP()
+!!! x-- is the bjorken variable of TMD
+!!! z-- is convolution variable
+function FNP(x,bT,hadron,lambdaNP)
+  real(dp),intent(in)::x,bT    
+  integer,intent(in)::hadron
+  real(dp),intent(in)::lambdaNP(:)
+  real*8::FNP0,FNPu,FNPd,FNPubar,FNPdbar,FNPr
+
+   real*8::bb,w1,w2,w3,wu,wd,wubar,wdbar,wr,wcommon
+   
+   if(hadron==1) then
+   
+    bb=bT**2
+
+    wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)
+    wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)
+    wubar=lambdaNP(5)*(1-x)+x*lambdaNP(6)
+    wdbar=lambdaNP(7)*(1-x)+x*lambdaNP(8)
+    wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)
+    !wcommon=(lambdaNP(11)*x**2+lambdaNP(12))
+
+
+    if(wu<0d0 .or. wd<0d0 .or. wubar<0d0 .or. wdbar<0d0 .or. wr<0d0 .or. wcommon<0d0) then
+        FNPu=Exp(-10d0*bb)
+        FNPd=Exp(-10d0*bb)
+        FNPubar=Exp(-10d0*bb)
+        FNPdbar=Exp(-10d0*bb)
+        FNPr=Exp(-10d0*bb)
+    else
+        FNPu=1d0/cosh(wu*bT)
+        FNPd=1d0/cosh(wd*bT)
+        FNPubar=1d0/cosh(wubar*bT)
+        FNPdbar=1d0/cosh(wdbar*bT)
+        FNPr=1d0/cosh(wr*bT)
+    end if
+
+
+    FNP=(/&
+    FNPr,FNPr,FNPr,FNPubar,FNPdbar,&
+    0d0,&
+    FNPd,FNPu,FNPr,FNPr,FNPr/)
+
+
+
+  else 
+      bb=bT**2
+      w1=(lambdaNP(7)+(1-x)**2*lambdaNP(8))
+      w2=lambdaNP(9)
+      if(w2<0d0 .or. w1<0d0) then
+      FNP0=-1d0
+      else
+      FNP0=Exp(-w1*bb/sqrt(1+w2*bb))
+      end if
+
+      FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
+      
+  end if
+    
+    FNP=1._dp
+  end function FNP
+  
+!!!! This is the function b* that enters the logarithms of coefficient function
+!!!! at small-b it should be ~b to match the collinear regime
+!!!! at large-b it is a part of model
+!!!! x -- is the global x for TMDPDF,
+!!!! y -- is the convolution variable in the definition \int dy/y C(y) PDF(x/y)
+pure function bSTAR(bT,x,y)
+    real(dp),intent(in)::bT,x,y
+
+    bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
+end function bSTAR
+  
+!!!!This function is the mu(x,b), which is used inside the OPE
+!!!! x -- is the global x for TMDPDF,
+!!!! y -- is the convolution variable in the definition \int dy/y C(y) PDF(x/y)
+!!!! c4-- is the scale variation variable
+pure function muOPE(bt,x,y,c4)
+    real(dp),intent(in)::bt,x,y,c4
+
+    muOPE=C0_const*c4/bT+2d0
+    
+    if(muOPE>1000d0) then
+        muOPE=1000d0
+    end if
+end function muOPE
+
+end module uTMDPDF_model_new

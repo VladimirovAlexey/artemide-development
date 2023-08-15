@@ -155,6 +155,8 @@ N_x-\frac{\text{arccosh}(1/x)}{\Delta_x}.
 This grid is alike logarithmic at small-x, but has extra points at $x\to 1$. Therefore, one does not need extra griding at large-x.
 \end{itemize}
 
+
+
 \subsection{Lagrange interpolation}
 
 The Lagrange interpolation is defined by the order and the shift. Basically one defines
@@ -174,13 +176,14 @@ F(x)=\sum_{i=0}^{N_x-1}\theta(x_i<x<x_{i+1})\sum_{k\in K} P_{i,k}(x)F(x_{i+k}),
 where $P$ is the Lagrange polynomial
 \begin{eqnarray}
 P_{i,k}(x)
-=\prod_{\substack{l\in K\\ l\neq r}}\frac{\text{inv}[x]-\text{inv}[x_{i+l}]}{\text{inv}[x_{i+k}]-\text{inv}[x_{i+l}]}.
+=\prod_{\substack{l\in K \\ 0\leq l+i\leq N_x \\ l\neq r}}\frac{\text{inv}[x]-\text{inv}[x_{i+l}]}{\text{inv}[x_{i+k}]-\text{inv}[x_{i+l}]}.
 \end{eqnarray}
 Note, that since $\text{inv}[x_{i}]=i$ it simplifies
 \begin{eqnarray}
 P_{i,k}(x)
-=\prod_{\substack{l\in K\\ l\neq r}}\(\frac{\text{inv}[x]}{k-l}-\frac{i+l}{k-l}\).
+=\prod_{\substack{l\in K\\0\leq l+i\leq N_x\\ l\neq r}}\(\frac{\text{inv}[x]}{k-l}-\frac{i+l}{k-l}\).
 \end{eqnarray}
+The restriction $0\leq l+i\leq N_x$ drops the contribution of the nodes that are outside of the grid. It reduces the order of interpolation polynomial for these segments. E.g. in the forward grid ($K=[0,1,2...]$) the largest segment is interpolated by a linear polynomial.
 
 The interpolation sum can be rearranged as
 \begin{eqnarray}
@@ -203,6 +206,46 @@ One of the problems with griding PDFs is the unknown value of PDF out side of th
 
 \textit{I have checked that} with the arcosh-grid [$x_\text{min}=10^{-5}$, $N_x=200$] the error for forward and backward grids at $x\to1$ are very similar [test function behaved $(1-x)^{2+..}$] if $f(x>1)=0$. Therefore, the forward grid (in this case) is a good choise.
 
+\subsection{B grid}
+
+The value of $b$ spans $0<b$, but for the large values of $b$ the function does not change much and can be approximated by constant. The grid is characterized by
+\begin{itemize}
+\item $B_{\text{max}}$ the maximum value of $b$ stored in the grid. 
+\item $N_b$ number of segments. The number of nodes is $N_b+1$.
+\item Function $b_i$ which is $b_0=0$ and $b_{N_b}=B_{\text{max}}$.
+\end{itemize}
+These functions determine the following extra functions
+\begin{itemize}
+\item $\text{inv}[b]$ which is inverse of $b_i$. The integer part of $\text{inv}[b]$ gives the number $i$, such that $b_{i}<b<b_{i+1}$
+\item $\Delta_b$ typical increment
+\end{itemize}
+For any grid one has
+\begin{eqnarray}
+\text{inv}[b_{i}]=i.
+\end{eqnarray}
+
+There are many functional forms for grid. Here are the most convenient
+\begin{itemize}
+\item \textbf{Linear grid} 
+\begin{eqnarray}
+b_i=i\Delta_b,\qquad \Delta_b=\frac{B_{\text{max}}}{N_b},\qquad \text{inv}[b]=\frac{b}{\Delta_b}.
+\end{eqnarray}
+Not convenient.
+\item \textbf{Exponential grid} 
+\begin{eqnarray}
+b_i=(B_{\text{max}}+1)^{i \Delta_b}-1,\qquad \Delta_b=\frac{1}{N_b},\qquad \text{inv}[b]=N_b\frac{\log(b+1)}{\ln(B_\text{max}+1)}.
+\end{eqnarray}
+This is a good grid because typical OPE is logarithmic in $b$.
+\end{itemize}
+
+For the large values of $b$ (which extend the grid), it is sufficient to extrapolate by the formula
+\begin{eqnarray}
+f(b)=\(\frac{b}{b_E}\)^{\alpha_E}.
+\end{eqnarray}
+The values $b_E$ and $\alpha_E$ can be found from the last two points of the grid $\{b_1,f_1\}$ and $\{b_2,f_2\}$
+\begin{eqnarray}
+\alpha_E=\frac{\ln(f_2/f_1)}{\ln(b_2/b_1)},\qquad b_E=b_1 (f_1)^{-1/\alpha_E}
+\end{eqnarray}
 
 \subsection{Convolution on the grid}
 
