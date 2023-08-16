@@ -153,6 +153,13 @@ x_i=\frac{1}{\cosh\(\Delta_x(i-N_x)\)},\qquad \Delta_x=\frac{\text{arccosh}(1/x_
 N_x-\frac{\text{arccosh}(1/x)}{\Delta_x}.
 \end{eqnarray}
 This grid is alike logarithmic at small-x, but has extra points at $x\to 1$. Therefore, one does not need extra griding at large-x.
+
+\item \textbf{Arcosh grid with control parameter} 
+\begin{eqnarray}
+x_i=\frac{1}{\cosh^p\(\Delta_x(i-N_x)\)},\qquad \Delta_x=\frac{\text{arccosh}(1/x^{1/p}_{\text{min}})}{N_x},\qquad \text{inv}[x]=
+N_x-\frac{\text{arccosh}(1/x^{1/p})}{\Delta_x}.
+\end{eqnarray}
+This grid is alike logarithmic at small-x, but has extra points at $x\to 1$. Therefore, one does not need extra griding at large-x. The parameter $p$ gives extra flexibility. At $p_x>1$ the density of points at $x\to 1$ grows.
 \end{itemize}
 
 
@@ -236,6 +243,12 @@ Not convenient.
 b_i=(B_{\text{max}}+1)^{i \Delta_b}-1,\qquad \Delta_b=\frac{1}{N_b},\qquad \text{inv}[b]=N_b\frac{\log(b+1)}{\ln(B_\text{max}+1)}.
 \end{eqnarray}
 This is a good grid because typical OPE is logarithmic in $b$.
+
+\item \textbf{Exponential grid with $b_{\text{min}}$} 
+\begin{eqnarray}
+b_i=B_{\text{min}} e^{-i \Delta_b},\qquad \Delta_b=\frac{1}{N_b}\ln\(\frac{b_{\text{min}}}{B_{\text{max}}},\qquad \text{inv}[b]=\frac{1}{\Delta_b}\ln\(\frac{b_{\text{min}}}{b}\).
+\end{eqnarray}
+This grid has a lot of points at small-b, and for $b<b_\text{min}$ one could freeze the value.
 \end{itemize}
 
 For the large values of $b$ (which extend the grid), it is sufficient to extrapolate by the formula

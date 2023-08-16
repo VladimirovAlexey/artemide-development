@@ -24,29 +24,31 @@
 
 !!! sets global variables for the X-griding
 subroutine XGrid_Initialize()
-    DeltaX=acosh(1_dp/xMin)/Nx
-    !DeltaX=-LOG10(xMin)/Nx
+    DeltaX=(acosh(1._dp/xMin)**(1._dp/parX))/Nx
 end subroutine XGrid_Initialize
-
-!!!! The algorithm is similar to QCD num.
-!!!! I.e. it computes the convolution matrices
 
 !!!! Value of X at the node i
 pure function XatNode(i)
     real(dp):: XatNode
     integer,intent(in)::i
     
-    XatNode=1_dp/cosh(DeltaX*(i-Nx))
-    !XatNode=xMin*10**(i*DeltaX)
+    XatNode=1._dp/cosh((DeltaX*(Nx-i))**parX)
 end function XatNode
+
+!!!! Value of X at the node i(real)
+pure function XatNode_real(i)
+    real(dp):: XatNode_real
+    real(dp),intent(in)::i
+
+    XatNode_real=1._dp/cosh((DeltaX*(Nx-i))**parX)
+end function XatNode_real
 
 !!!! Inverse X
 pure function invX(x)
     real(dp):: invX
     real(dp), intent(in):: x
     
-    invX=Nx-acosh(1_dp/x)/DeltaX
-    !invX=LOG10(x/xMin)/DeltaX
+    invX=Nx-(acosh(1._dp/x)**(1._dp/parX))/DeltaX
 end function invX
 
 !!!! Value of low-grid value for given X
@@ -75,7 +77,7 @@ pure function LagrangeP(x,j,k)
     if(k<KminX .and. k>KmaxX) then
         LagrangeP=0_dp
     else
-        LagrangeP=1_dp
+        LagrangeP=1._dp
         do l=KminX,KmaxX
             !!!  0<= segment <=Nx is a check for segment being in the grid
             if(k/=l .and. j+l<=Nx .and. j+l>=0) then
@@ -101,13 +103,13 @@ pure function Winterpolator(x,i)
     j=NodeForX(x)
     !!! if node out side of the grid. >>0
     if(j<0 .or. j>Nx-1) then
-        Winterpolator=0_dp
+        Winterpolator=0._dp
         return
     end if
     !!! the difference is the shift of interpolator
     k=i-j
     if(k<kminX .or. k>kMaxX) then
-        Winterpolator=0_dp
+        Winterpolator=0._dp
     else
         Winterpolator=LagrangeP(x,j,k)
     end if

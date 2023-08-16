@@ -155,7 +155,7 @@
  
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
- N3LO
+ NLO
 *p2  : Use composite TMD-function definition
  F
 *B   : ---- Parameters of NP model ----

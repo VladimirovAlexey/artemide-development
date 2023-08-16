@@ -49,21 +49,36 @@ integer::messageTrigger=6
 !!!------------------------- PARAMETERS DEFINED IN THE INI-file--------------
 
 !!! Perturbative order
-integer :: orderMain=3 !! LO=0, NLO=1,...
+integer :: orderMain=1 !! LO=0, NLO=1,...
 
 !!!! X-Grid parameters
 !! over x: i=0...Nx, x_0=xMin
 real(dp) :: xMin=0.00001_dp !!! min x 
-integer :: Nx=200 !!! number of points in grid
+integer :: Nx=400 !!! number of points in grid
 real(dp) :: DeltaX !!! increment of grid
+real(dp) :: parX=2._dp !!! parameter of the grid
 integer :: KminX=-1
 integer :: KmaxX=2 !!! parameters of range of intepolation
+
+!!!! B-Grid parameters
+!! over b: i=0...Nb, x_nB=BMax
+real(dp) :: BMAX=15._dp !!! maximum B
+real(dp) :: BMIN=1d-6 !!! minimum B
+integer :: NB=200 !!! number of points in grid
+real(dp) :: DeltaB !!! increment of grid
+real(dp) :: parB !!! parameter of the grid
+integer :: KminB=-1
+integer :: KmaxB=2 !!! parameters of range of intepolation
 
 !!!! Numerical parameters
 real(dp) :: toleranceINT=1d-6  !!! tolerance for numerical integration
 real(dp) :: bFREEZE=1d-6       !!! small value of b at which b freesed
 
-logical(dp) :: IsMuYdependent  !!! if mu is y independent, computation is much(!) faster
+logical(dp) :: IsMuYdependent = .true.  !!! if mu is y independent, computation is much(!) faster
+
+!!!! grid preparation
+logical :: useGrid=.true.  !!!idicator that grid must be prepared
+logical :: withGluon=.false.   !!!indicator the gluon is needed in the grid
 
 !!!------------------------- HARD-CODED PARAMETERS ----------------------
 !!! Coefficient lists
@@ -77,12 +92,19 @@ integer,parameter::parametrizationLength=37
 
 !!!------------------------- DYNAMICAL-GLOBAL PARAMETERS -------------------
 real(dp) :: c4_global=1_dp  !!! scale variation parameter
+logical :: gridReady!!!!indicator that grid is ready to use. If it is .true., the TMD calculated from the grid
+
+!!!------------------------- SPECIAL VARIABLES FOR GRID (used by TMDGrid-XB)------------------
+real(dp), dimension(:,:,:,:), allocatable :: gridMain !!!! THIS IS HUGE(!) matrix for the grid
+real(dp), dimension(:,:,:,:), allocatable :: interpolationParameters !!!! for b>bGrid_Max we
+integer, dimension(:), allocatable:: hadronsInGRID  !!! table that saves the number of hadons into plain list
+integer::numberOfHadrons=1				!!!total number of hadrons to be stored
 
 !!--------------------------------------Public interface-----------------------------------------
 public::uTMDPDF_OPE_Initialize
 
 !!!!!!----FOR TEST
-public::XatNode,invX,NodeForX,Winterpolator,CxF_compute!,Tmatrix,TmatrixElement
+public::MakeGrid,ExtractFromGrid,CxF_compute,TestGrid
 
 contains
 
@@ -92,9 +114,12 @@ INCLUDE 'Code/uTMDPDF/coeffFunc-new2.f90'
 
 !! X-grid routines
 INCLUDE 'Code/Twist2/Twist2Xgrid.f90'
-!! Mellin convolution matrix
+!! B-grid routines
+INCLUDE 'Code/Twist2/Twist2Bgrid.f90'
+!! Mellin convolution routine
 INCLUDE 'Code/Twist2/Twist2Convolution-new.f90'
-!INCLUDE 'Code/Twist2/Twist2MatrixT.f90'
+!! Grid operation
+INCLUDE 'Code/Grids/TMDGrid-XB.f90'
 
 
 function uTMDPDF_IsInitialized()
@@ -112,8 +137,10 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     
     !!!! HERE THE INTIALISATION ROTINE
     
-    !!! function to initialze the Xgrid
+    !!! call initializations fro Grids
     call XGrid_Initialize()
+    call BGrid_Initialize()
+    call TMDGrid_XB_Initialize((/1/))
     
     !!! _OPE_model initialisation
     !call ModelInitialization()

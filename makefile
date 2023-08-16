@@ -59,11 +59,12 @@ $(SOURCEDIR)/aTMDe_control.f90
 Twist2Files=\
 $(SOURCEDIR)/Code/Twist2/Twist2Convolution.f90 \
 $(SOURCEDIR)/Code/Twist2/Twist2Convolution-new.f90 \
+$(SOURCEDIR)/Code/Grids/TMDGrid-XB.f90 \
 $(SOURCEDIR)/Code/Grids/TMDGrid-B.f90 \
 $(SOURCEDIR)/Code/Twist2/Twist2Convolution-VAR.f90 \
 $(SOURCEDIR)/Code/Grids/TMDGrid-B-VAR.f90 \
 $(SOURCEDIR)/Code/Twist2/Twist2Xgrid.f90 \
-$(SOURCEDIR)/Code/Twist2/Twist2MatrixT.f90 
+$(SOURCEDIR)/Code/Twist2/Twist2Bgrid.f90
 
 Twist3Files=\
 $(SOURCEDIR)/Code/Grids/TMDGrid-B-2.f90 \
