@@ -36,8 +36,9 @@ subroutine TMDGrid_XB_Initialize(hList)
 
 end subroutine TMDGrid_XB_Initialize
 
-!!! this subroutine create grid.
+!!! this subroutine creates the grid.
 !!! it stores the value of CxF (which is OPE multiplied by x)
+!!! and also the lists for large-b extrapolation
 subroutine MakeGrid()
   real(dp):: x_local,b_local
   integer:: iX,iB,j,h,h_local
@@ -108,6 +109,9 @@ end subroutine MakeGrid
 
 
 !!!! this code is largerly migrated from artemide 2.01
+!!!! This procedure extract the values of function from the grid
+!!!! it is a bi-qubic interpolation. (first in b, next in x)
+!!!! for b<bMin it freezes at bMin
 function ExtractFromGrid(x,bT,hadron)
   real(dp),intent(in)::x,bT
   integer,intent(in)::hadron
@@ -127,7 +131,7 @@ function ExtractFromGrid(x,bT,hadron)
     end if
   end do
 
-
+  !!! checking exeptions
   if(h==0) then
     write(*,*) ErrorString('the hadron '//numToStr(hadron)//' is not found in the grid',moduleName)
     write(*,*) 'arTeMiDe: evaluation STOP'
@@ -292,6 +296,7 @@ subroutine TestGrid()
   end do
 end subroutine TestGrid
 
+!!! actual test of the grid. Runs around the square, compute and perform avarage.
 function TestPartOfGrid(Ix_Low,Ix_high,Ib_low,Ib_high,h)
   integer,intent(in)::Ix_Low,Ix_high,Ib_low,Ib_high,h
   real(dp),dimension(-5:5)::TestPartOfGrid

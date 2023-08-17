@@ -49,7 +49,7 @@ integer::messageTrigger=6
 !!!------------------------- PARAMETERS DEFINED IN THE INI-file--------------
 
 !!! Perturbative order
-integer :: orderMain=0 !! LO=0, NLO=1,...
+integer :: orderMain=2 !! LO=0, NLO=1,...
 
 !!!! X-Grid parameters
 !! over x: i=0...Nx, x_0=xMin
@@ -64,7 +64,6 @@ real(dp) :: BMAX=25._dp !!! maximum B
 real(dp) :: BMIN=1d-6 !!! minimum B
 integer :: NB=250 !!! number of points in grid
 real(dp) :: DeltaB !!! increment of grid
-real(dp) :: parB !!! parameter of the grid
 
 !!!! Numerical parameters
 real(dp) :: toleranceINT=1d-6  !!! tolerance for numerical integration
