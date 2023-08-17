@@ -20,20 +20,12 @@
 
 
 !!!! prepare variables
-!!!! hList is the list of hadrons to prepare grid
-subroutine TMDGrid_XB_Initialize(hList)
-  integer,dimension(:),intent(in)::hList
+subroutine TMDGrid_XB_Initialize()
   if(useGrid) then
     allocate(gridMain(0:NX,0:NB,-5:5,1:numberOfHadrons))
     !!! these are paramerer bE and aE
     allocate(interpolationParameters(1:2,0:NX,-5:5,1:numberOfHadrons))
   end if
-
-  !!! save the list of hadrons
-  numberOfHadrons=size(hList)
-  allocate(hadronsInGRID(1:numberOfHadrons))
-  hadronsInGRID=hList
-
 end subroutine TMDGrid_XB_Initialize
 
 !!! this subroutine creates the grid.
@@ -41,7 +33,7 @@ end subroutine TMDGrid_XB_Initialize
 !!! and also the lists for large-b extrapolation
 subroutine MakeGrid()
   real(dp):: x_local,b_local
-  integer:: iX,iB,j,h,h_local
+  integer:: iX,iB,j,h
   
   real(dp),dimension(0:Nx-1,-5:5)::f1,f2,aE!! for interpolation computation
   real(dp)::b1,b2,time1,time2
@@ -53,7 +45,6 @@ subroutine MakeGrid()
   if(outputlevel>2) write(*,*) 'arTeMiDe.',moduleName,' starts to compute grid.'
 
   do h=1,numberOfHadrons
-   h_local=hadronsInGRID(h)
    !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(x_local,b_local)
    do iX=0,Nx
     do iB=0,Nb
@@ -64,12 +55,12 @@ subroutine MakeGrid()
       !!! Nx corresponds to x=1, all PDF MUST be 0.
       gridMain(iX,iB,-5:5,h)=0d0
      else
-       gridMain(iX,iB,-5:5,h)=CxF_compute(x_local,b_local,h_local,withGluon)
+       gridMain(iX,iB,-5:5,h)=CxF_compute(x_local,b_local,h,withGluon)
      end if
     end do    
     end do
     !$OMP END PARALLEL DO
-    if(outputLevel>1 .and. numberOfHadrons>1) write(*,'(" ",A,": Grid for hadron ",I3," is done")') moduleName,h_local
+    if(outputLevel>1 .and. numberOfHadrons>1) write(*,'(" ",A,": Grid for hadron ",I3," is done")') moduleName,h
    end do
 
   !!!!!!!!!!!!!**************************************************************************************************************
@@ -80,11 +71,10 @@ subroutine MakeGrid()
   !!! for it we compute 2 parameters aE=interpolationParameters(1), and bE=interpolationParameters(2)
   !!! the interpolation is done by f=(b/bE)**aE
   do h=1,numberOfHadrons
-   h_local=hadronsInGRID(h)
    b1=BatNode(Nb-1)
-   f1=gridMain(0:Nx-1,Nb-1,-5:5,h_local)
+   f1=gridMain(0:Nx-1,Nb-1,-5:5,h)
    b2=BatNode(Nb)
-   f2=gridMain(0:Nx-1,Nb,-5:5,h_local)
+   f2=gridMain(0:Nx-1,Nb,-5:5,h)
    aE=log(f2/f1)/log(b2/b1)
    interpolationParameters(1,0:Nx-1,-5:5,h)=aE
    interpolationParameters(2,0:Nx-1,-5:5,h)=b1*(f1)**(-1_dp/aE)
@@ -112,28 +102,19 @@ end subroutine MakeGrid
 !!!! This procedure extract the values of function from the grid
 !!!! it is a bi-qubic interpolation. (first in b, next in x)
 !!!! for b<bMin it freezes at bMin
-function ExtractFromGrid(x,bT,hadron)
+function ExtractFromGrid(x,bT,h)
   real(dp),intent(in)::x,bT
-  integer,intent(in)::hadron
+  integer,intent(in)::h
   real(dp),dimension(-5:5)::ExtractFromGrid
 
   real(dp),dimension(0:3,-5:5):: interI
   real(dp)::indexX,indexB,fX,fB
-  integer::i,iX,iB,h
+  integer::i,iX,iB
   real(dp)::var1,var2,var3,var4 !!dummyvariables
 
-  !!!searching for hadron
-  h=0
-  do i=1,numberOfHadrons
-    if(hadronsInGRID(i)==hadron) then
-      h=i
-      exit
-    end if
-  end do
-
   !!! checking exeptions
-  if(h==0) then
-    write(*,*) ErrorString('the hadron '//numToStr(hadron)//' is not found in the grid',moduleName)
+  if(h==0 .or. h>numberOfHadrons) then
+    write(*,*) ErrorString('the hadron '//numToStr(h)//' is not found in the grid',moduleName)
     write(*,*) 'arTeMiDe: evaluation STOP'
     stop
   end if
@@ -257,7 +238,7 @@ end function ExtractFromGrid
 
 !!!! This subroutine test grid by computing the values of function at middle points and compare to exact values
 subroutine TestGrid()
-    integer::h,h_local,i,j
+    integer::h,i,j
     real(dp),dimension(-5:5):: test_local
 
     character*5,dimension(0:5),parameter::xSTR=(/"    0","10^-4"," 0.01","  0.1","  0.8","    1"/)
@@ -271,7 +252,6 @@ subroutine TestGrid()
    write(*,*) color("  ---  TEST OF GRIDS ---" , c_yellow_bold)
    write(*,*) "* Avarage values of [interpolation/exact-1] in the middle points of grid (max deviation)"
    do h=1,numberOfHadrons
-    h_local=hadronsInGRID(h)
     write(*,*) color("  -----  Hadron "//trim(int4ToStr(h)) , c_yellow_bold)
 
     write(*,&
@@ -284,7 +264,7 @@ subroutine TestGrid()
         write(*,*)&
     "|----------------------------------------------------------------------------------------------------------------|"
       do j=1,size(bVal)-1
-      test_local=TestPartOfGrid(xVal(i-1),xVal(i),bVal(j-1),bVal(j),h_local)
+      test_local=TestPartOfGrid(xVal(i-1),xVal(i),bVal(j-1),bVal(j),h)
       write(*,'(" |",A5,"<b<",A5," |",E12.5," |",E12.5," |",E12.5," |",E12.5," |",E12.5," |",E12.5," |",E12.5," |")') &
       bSTR(j-1),bSTR(j),test_local(-3:3)
     end do

@@ -11,10 +11,9 @@ real*8,dimension(0:200,-5:5)::TT1,TT2
 integer::i
 real::t1,t2,t3,t4
 
-call uTMDPDF_Initialize('const-uTMDPDF_MSHT',prefix='Prog/Tests/const-files/')
-call uTMDPDF_OPE_Initialize("file")
+call uTMDPDF_OPE_Initialize('uTMDPDF.atmde',prefix='Prog/Tests/const-files/')
 
-call MakeGrid()
+!call MakeGrid()
 
 
 call cpu_time(t1)

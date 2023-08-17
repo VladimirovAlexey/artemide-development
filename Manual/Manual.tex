@@ -1490,6 +1490,39 @@ Each module consists of several sub-modules, which have names as \texttt{TMDname
 
 The most part of modules are identical. There are a few differences in the implementation. So, first the general structure is presented, and then particularities.
 
+Different OPE's are known up to different orders. Consequently, the modules implement them at different orders. The orders are denoted as
+\begin{eqnarray*}
+\texttt{NA}&:\to & \text{no OPE}
+\\
+\texttt{LO}&:\to & C=\mathcal{O}(a_s^0)
+\\
+\texttt{NLO}&:\to & C=\mathcal{O}(a_s^1)
+\\
+\texttt{NNLO}=\texttt{N2LO}&:\to & C=\mathcal{O}(a_s^2)
+\\
+\texttt{NNNLO}=\texttt{N3LO}&:\to & C=\mathcal{O}(a_s^3).
+\end{eqnarray*}
+\begin{itemize}
+\item The \texttt{NA} option is used to remove any relation to collinear distributions. In this case $TMD(x,b)=f_{\text{NP}}(x,b)$
+\item If the coefficient function at LO/NLO/.. is zero, the convolution is also zero. E.g. linearly polarized gluons start at $\sim a_s$, the convolution is zero at \texttt{LO}. 
+\end{itemize}
+\begin{center}
+List of available orders for different distributions
+\end{center}
+\begin{eqnarray*}
+\texttt{uTMDPDF}&:& \texttt{NA, LO, NLO, N2LO, N3LO}
+\\
+\texttt{uTMDFF}&:& \texttt{NA, LO, NLO, N2LO, N3LO}
+\\
+\texttt{lpTMDPDF}&:& \texttt{NA, LO, NLO, N2LO}
+\\
+\texttt{wgtTMDPDF}[tw2]&:& \texttt{NA, LO, NLO}
+\\
+\texttt{wgtTMDPDF}[tw3]&:& \texttt{NA}
+\\
+\texttt{SiversTMDPDF}[tw3]&:& \texttt{NA}
+\end{eqnarray*}
+
 \subsection{\texttt{\_OPE} modules (tw2)}
 \label{TMD_OPE}
 
@@ -1505,6 +1538,50 @@ where $F(x)=xf(x)$ and
 \mathbf{L}=\ln\(\frac{\mu^2_{\text{OPE}}b^2}{4e^{-2\gamma_E}}\).
 \end{eqnarray}
 
+\begin{tcolorbox}
+\begin{center}
+OPE modules are initialized automatically from the corresponding TMD module.
+\end{center}
+\end{tcolorbox}
+
+\subsubsection{INI-parameters}
+
+\begin{tabular}{||p{5.5cm}||c||p{8.5cm}||}
+\hline\hline
+Entry &~~Type~~& Description
+\\\hline
+A.p1 & T/F & Order of the coefficient function. Could be N/A, LO, NLO,.. (see table below for details)
+\\\hline
+A.p2 & T/F & Trigger to prepare the grid (T=prepare). Preparation is done on the initialization stage.
+\\\hline
+A.p3 & T/F & Trigger to include the gluon TMD into the grid (T=include). Doubles the computation time. If not included, gluon contribution is $0$.
+\\\hline
+A.p4 & int$>$0 & Number of hadrons/grid to prepare. This must coincide with i.??.p1 (corresponding PDF number in \texttt{QCDinput}). The type of TMD is dictated by the collinear PDF and $f_{\text{NP}}$.
+\\\hline
+A.p5 & T/F & Trigger the test of the grid (T=run the test). Take the same time as computation of the grid (by single processor). Example Result is shown in sec.\ref{sec:OPE:grid1}. 
+\\\hline\hline
+C.p1 & real & Tolerance for integration (default =$10^{-6}$)
+\\\hline
+C.p2 & int & Maximum number of iteration for adaptive integration. (default =$10^{4}$)
+\\\hline\hline
+D.p1 & real & $x_{\text{min}}$ for the grid (see (\ref{OPE:x-grid}))
+\\\hline
+D.p2 & real & $p_x$ for the grid (see (\ref{OPE:x-grid}))
+\\\hline
+D.p3 & real & $b_{\text{min}}$ for the grid (see (\ref{OPE:b-grid})). [It is not related to parameter $b_{\min}$ of $b^*$-prescription!]
+\\\hline
+D.p4 & real & $b_{\max}$ for the grid (see (\ref{OPE:b-grid})) [It is not related to parameter $b_{\max}$ of $b^*$-prescription!]
+\\\hline
+D.p5 & integer & Number of nodes in the x-grid
+\\\hline
+D.p6 & integer & Number of nodes in the b-grid
+\\
+\hline\hline
+\end{tabular}
+
+
+
+
 \subsubsection{Model parameters.} 
 
 The OPE is fully deterministic formula, but it contains the free scale, and often one implement $b^*$-modification. These parameters are written in \texttt{model}-module. Namely:
@@ -1519,13 +1596,14 @@ In both cases, the variables $x$ and $y$ are defined as in eqn.(\ref{OPE:tw2:mai
 TO BE WRITTEN
 
 \subsubsection{Grid}
+\label{sec:OPE:grid1}
 
 For fitting procedure one often needs to evaluate TMDs multiple times. For example, for fit performed in \cite{Scimemi:2017etj} the evaluation of singe $\chi^2$ entry requires $\sim 16\times 10^6$ calls of \texttt{uTMDPDF{\_}..}. So, every call of \texttt{uTMDPDF{\_}..} at NNLO order, requires $\sim 200$ calls of pdfs, depending on $x$, $b$ and $\lambda$'s, in order to evaluate the integral over $y$. In such situations, it is much faster to make a grid of TMD distributions for a given set of non-pertrubative parameters (i.e. the grid is in $x$ and $b$), and then use this grid for the interpolation of TMD values. The calculation of a grid is not a very fast procedure, nonetheless, for large computation (number of TMD calls $>10^4-10^5$) is more efficient.
 
 The grid used in the artemide 3.0 is:
 
 \textbf{Arcosh grid with control parameter}
-\begin{eqnarray}
+\begin{eqnarray}\label{OPE:x-grid}
 i=0,...,N_x,\qquad 
 x_i=\frac{1}{\cosh^p\(\Delta_x(i-N_x)\)},\qquad \Delta_x=\frac{\text{arccosh}(1/x^{1/p}_{\text{min}})}{N_x},\qquad \text{inv}[x]=
 N_x-\frac{\text{arccosh}(1/x^{1/p})}{\Delta_x}.
@@ -1533,7 +1611,7 @@ N_x-\frac{\text{arccosh}(1/x^{1/p})}{\Delta_x}.
 This grid is alike logarithmic at small-x, but has extra points at $x\to 1$. Therefore, one does not need extra griding at large-x. The parameter $p$ gives extra flexibility. At $p_x>1$ the density of points at $x\to 1$ grows. 
 
 \textbf{Exponential grid with $b_{\text{min}}$} 
-\begin{eqnarray}
+\begin{eqnarray}\label{OPE:b-grid}
 b_i=B_{\text{min}} e^{-i \Delta_b},\qquad \Delta_b=\frac{1}{N_b}\ln\(\frac{b_{\text{min}}}{B_{\text{max}}},\qquad \text{inv}[b]=\frac{1}{\Delta_b}\ln\(\frac{b_{\text{min}}}{b}\).
 \end{eqnarray}
 This grid has a lot of points at small-b. and for $b<b_\text{min}$ one could freeze the value.
@@ -1644,11 +1722,12 @@ I.e. the average accuracy for very large $x$ is $\sim 0.1\%$ (3 digits), for lar
 \end{figure}
 
 
- 
 \textbf{Extra Notes:}
 \begin{itemize}
 \item Grid is computed by parallel do (if OMP is enabled).
+\caption{\label{fig:OPE1} Example of convolution (vs.b). Upper row is the convolution. Lower row is the ratio of extraction vs. computaion. The peak in vicinity $b\sim 0.4$ is the quark threshold.}
 \end{itemize}
+
 
 
 \newpage
