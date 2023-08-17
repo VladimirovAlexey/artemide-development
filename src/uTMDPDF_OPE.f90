@@ -49,7 +49,7 @@ integer::messageTrigger=6
 !!!------------------------- PARAMETERS DEFINED IN THE INI-file--------------
 
 !!! Perturbative order
-integer :: orderMain=1 !! LO=0, NLO=1,...
+integer :: orderMain=3 !! LO=0, NLO=1,...
 
 !!!! X-Grid parameters
 !! over x: i=0...Nx, x_0=xMin
@@ -57,8 +57,6 @@ real(dp) :: xMin=0.00001_dp !!! min x
 integer :: Nx=400 !!! number of points in grid
 real(dp) :: DeltaX !!! increment of grid
 real(dp) :: parX=2._dp !!! parameter of the grid
-integer :: KminX=-1
-integer :: KmaxX=2 !!! parameters of range of intepolation
 
 !!!! B-Grid parameters
 !! over b: i=0...Nb, x_nB=BMax
@@ -67,8 +65,6 @@ real(dp) :: BMIN=1d-6 !!! minimum B
 integer :: NB=200 !!! number of points in grid
 real(dp) :: DeltaB !!! increment of grid
 real(dp) :: parB !!! parameter of the grid
-integer :: KminB=-1
-integer :: KmaxB=2 !!! parameters of range of intepolation
 
 !!!! Numerical parameters
 real(dp) :: toleranceINT=1d-6  !!! tolerance for numerical integration
@@ -154,6 +150,8 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
         if(outputLevel>2) write(*,*) trim(moduleName)//': mu OPE is independent on x'
     end if
     
+    !$    call OMP_set_num_threads(8)
+
 end subroutine uTMDPDF_OPE_Initialize
 
 !!!!array of x times PDF(x,Q) for hadron 'hadron'

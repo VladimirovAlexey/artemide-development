@@ -44,12 +44,16 @@ subroutine MakeGrid()
   
   real(dp),dimension(0:Nx-1,-5:5)::f1,f2,aE!! for interpolation computation
   real(dp)::b1,b2,time1,time2
+
+  !$ real*8::omp_get_wtime
   
   call cpu_time(time1)
+  !$ time1=omp_get_wtime()
   if(outputlevel>2) write(*,*) 'arTeMiDe.',moduleName,' starts to compute grid.'
 
   do h=1,numberOfHadrons
    h_local=hadronsInGRID(h)
+   !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(x_local,b_local)
    do iX=0,Nx
     do iB=0,Nb
      x_local=XatNode(iX)
@@ -63,6 +67,7 @@ subroutine MakeGrid()
      end if
     end do    
     end do
+    !$OMP END PARALLEL DO
     if(outputLevel>1 .and. numberOfHadrons>1) write(*,'(" ",A,": Grid for hadron ",I3," is done")') moduleName,h_local
    end do
 
@@ -87,6 +92,7 @@ subroutine MakeGrid()
   interpolationParameters(1,Nx,-5:5,h)=1000_dp
   interpolationParameters(2,Nx,-5:5,h)=0.000000001_dp
   call cpu_time(time2)
+  !$ time2=omp_get_wtime()
 
   if(outputlevel>1) then
     if(numberOfHadrons>1) then

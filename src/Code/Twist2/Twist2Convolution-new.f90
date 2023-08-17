@@ -78,6 +78,7 @@ function CxF_compute(x,bT,hadron,includeGluon)
     real(dp),dimension(-5:5)::PDFat1
     
     real(dp),dimension(1:parametrizationLength):: Bqq,Bqg,Bgq,Bgg,Bqqb,Bqqp
+    integer::i
     
     !! for extrimely small-values of b we freeze it.
     if(bT>bFREEZE) then 
@@ -149,14 +150,23 @@ function CxF_compute(x,bT,hadron,includeGluon)
         Bqqb=Coeff_q_qb_reg(asAt1,NfAt1,LogAt1)
         Bqqp=Coeff_q_qp_reg(asAt1,NfAt1,LogAt1)
     end if
-     
-    
+
     !!! the integral over regular and singular parts are added
     CxF_compute=CxF_compute+PLUSremnant&
         +Integrate_GK_array5(FFreg,x,1._dp,toleranceINT)&
         +Integrate_GK_array5(FFplus,x,1._dp,toleranceINT)
-        
+
     end if
+
+  do i=-5,5
+   if(ISNAN(CxF_compute(i))) then
+
+    write(*,*) ErrorString('convolution computed to NAN. CHECK INTEGRATION',moduleName)
+    write(*,*) '----- information on last call -----'
+    write(*,*) 'x=', x, 'bT=',bT,' i=',i, 'hadron=',hadron,' result=',CxF_compute(i)
+
+   end if
+  end do
     
 !     !!!!! these are wrapper functions to pass ther integrand to GK routine
 !     !!!!! FORTRAN gets only function of one variable
@@ -171,7 +181,12 @@ function CxF_compute(x,bT,hadron,includeGluon)
         real(dp),dimension(-5:5)::PDFs
         real(dp),dimension(1:parametrizationLength):: var
         
-        var=parametrizationString(y)
+        !!! very rare error, if y~1 (up to machine precision) freeze it!
+        if(y<0.999999999d0) then
+            var=parametrizationString(y)
+        else
+            var=parametrizationString(0.999999999d0)
+        end if
         
         !!! if mu is y-dependent one needs to update the values of parameters for each y
         if(IsMuYdependent) then
@@ -229,7 +244,12 @@ function CxF_compute(x,bT,hadron,includeGluon)
         real(dp),dimension(-5:5)::PDF,inter1,inter2
         real(dp)::muCurrent,asCurrent,LogCurrent,NfCurrent,dummy1,dummy2,ly
         
-        ly=log(1._dp-y)
+        !!! very rare error, if y~1 (up to machine precision) freeze it!
+        if(y<0.999999999d0) then
+            ly=log(1._dp-y)
+        else
+            ly=log(1._dp-0.999999999d0)
+        end if
         listLY=(/1._dp,ly,ly**2/)
         
         !!!! if mu is y-dependent one needs to update the values each step

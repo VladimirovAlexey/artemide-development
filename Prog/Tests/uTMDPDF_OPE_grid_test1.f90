@@ -17,9 +17,6 @@ call MakeGrid()
 f1=ExtractFromGrid(0.23d0,2.3d0,1)
 f2=CxF_compute(0.23d0,2.3d0,1,.true.)
 
-write(*,*) ">GRID>",f1
-write(*,*) ">DIRE>",f2
-
 call TestGrid()
 
 end program example
