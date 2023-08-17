@@ -81,10 +81,10 @@ function CxF_compute(x,bT,hadron,includeGluon)
     integer::i
     
     !! for extrimely small-values of b we freeze it.
-    if(bT>bFREEZE) then 
+    if(bT>bMIN) then
         bTcurrent=bT
     else
-        bTcurrent=bFREEZE
+        bTcurrent=bMIN
     end if
     
     !! drop the case of x>1

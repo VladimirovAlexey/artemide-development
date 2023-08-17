@@ -69,7 +69,6 @@ real(dp) :: DeltaB !!! increment of grid
 !!!! Numerical parameters
 real(dp) :: toleranceINT=1d-6  !!! tolerance for numerical integration
 integer :: maxIteration=4000   !!! maximum iteration in the integrals (not used at the moment)
-real(dp) :: bFREEZE=1d-6       !!! small value of b at which b freesed
 
 logical(dp) :: IsMuYdependent = .true.  !!! if mu is y independent, computation is much(!) faster
 
@@ -252,7 +251,6 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     read(51,*) parX
     call MoveTO(51,'*p3  ')
     read(51,*) BMIN
-    bFREEZE=BMIN
     call MoveTO(51,'*p4  ')
     read(51,*) BMAX
     call MoveTO(51,'*p5  ')

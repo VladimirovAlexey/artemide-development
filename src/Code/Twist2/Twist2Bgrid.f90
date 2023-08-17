@@ -14,7 +14,14 @@
 !       real BatNode(i)      - gives b_i
 !       real invB(x)         - gives i such that b_i=b
 !       integer NodeForB(x)  - gives i such that b_i<b<b_{i+1}
-!	
+!
+!!!!!---------------------------------
+! ADD to the main module
+! real(dp) :: BMAX=25._dp !!! maximum B
+! real(dp) :: BMIN=1d-6 !!! minimum B
+! integer :: NB=250 !!! number of points in grid
+! real(dp) :: DeltaB !!! increment of grid
+!
 !	v.3.00 Created (AV, 18.07.2023)
 !
 !				A.Vladimirov (18.07.2023)

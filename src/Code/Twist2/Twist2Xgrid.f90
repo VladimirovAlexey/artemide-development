@@ -14,7 +14,14 @@
 !       real XatNode(i)      - gives x_i
 !       real invX(x)         - gives i such that x_i=x
 !       integer NodeForX(x)  - gives i such that x_i<x<x_{i+1}
-!	
+!
+!!!!!---------------------------------
+! ADD to the main module
+! real(dp) :: xMin=0.00001_dp !!! min x
+! integer :: Nx=400 !!! number of points in grid
+! real(dp) :: DeltaX !!! increment of grid
+! real(dp) :: parX=2._dp !!! parameter of the grid
+!
 !	v.3.00 Created (AV, 18.07.2023)
 !
 !				A.Vladimirov (18.07.2023)
