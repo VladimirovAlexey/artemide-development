@@ -93,6 +93,7 @@ public::uTMDPDF_IsInitialized,uTMDPDF_CurrentNPparameters
 public::uTMDPDF_lowScale5,uTMDPDF_lowScale50
 !   public::CheckCoefficient
 !   public::mu_OPE
+public::TestGrid_2
 
 interface uTMDPDF_SetLambdaNP
     module procedure uTMDPDF_SetLambdaNP_usual,uTMDPDF_SetReplica_optional

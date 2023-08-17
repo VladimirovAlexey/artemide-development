@@ -19,4 +19,8 @@ f2=CxF_compute(0.23d0,2.3d0,1,.true.)
 
 call TestGrid()
 
+call uTMDPDF_SetLambdaNP((/0.d0,0.d0,0.d0,0.d0,0.d0,0.d0,0.d0/))
+
+call TestGrid_2()
+
 end program example

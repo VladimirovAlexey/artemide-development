@@ -346,3 +346,80 @@ function ExtractFromGrid(x,bT,hadron)
   end do
 			  
 end function ExtractFromGrid 
+
+
+!!!! This subroutine test grid by computing the values of function at middle points and compare to exact values
+subroutine TestGrid_2()
+    integer::h,h_local,i,j
+    real(dp),dimension(-5:5):: test_local
+
+    character*5,dimension(0:5),parameter::xSTR=(/"    0","10^-4"," 0.01","  0.1","  0.8","    1"/)
+    character*5,dimension(0:4),parameter::bSTR=(/"    0","  0.1","   1.","   5."," BMAX"/)
+    integer,dimension(0:5)::xVal
+    integer,dimension(0:4)::bVal
+
+    xVal=(/GridSizeX-1,INT(GridSizeX*LOG(0.0001d0)/LOG(xGrid_Min)),INT(GridSizeX*LOG(0.01d0)/LOG(xGrid_Min)),&
+    INT(GridSizeX*LOG(0.1d0)/LOG(xGrid_Min)),INT(GridSizeX*LOG(0.8d0)/LOG(xGrid_Min)),0/)
+    bVal=(/0,INT(LOG(1d0+0.1d0/bFactor)/slopeFactor),INT(LOG(1d0+1.d0/bFactor)/slopeFactor),&
+    INT(LOG(1d0+5.d0/bFactor)/slopeFactor),GridSizeB/)
+
+   write(*,*) color("  ---  TEST OF GRIDS ---" , c_yellow_bold)
+   write(*,*) "* Avarage values of [interpolation/exact-1] in the middle points of grid (max deviation)"
+   do h=1,numberOfHadrons
+    h_local=hadronsInGRID(h)
+    write(*,*) color("  -----  Hadron "//trim(int4ToStr(h)) , c_yellow_bold)
+
+    write(*,&
+    '(" |              |     sBar    |     uBar    |     dBar    |   gluon     |      d      |      u      |      s      |")')
+    write(*,*)&
+       "|----------------------------------------------------------------------------------------------------------------|"
+      do i=1,size(xVal)-1
+      if(xGrid_Min<xVal(i)) then
+        write(*,*)"|",xSTR(i-1),"<x<",xSTR(i),"                                                      "
+        write(*,*)&
+    "|----------------------------------------------------------------------------------------------------------------|"
+      do j=1,size(bVal)-1
+      test_local=TestPartOfGrid(xVal(i),xVal(i-1),bVal(j-1),bVal(j),h_local)
+      write(*,'(" |",A5,"<b<",A5," |",E12.5," |",E12.5," |",E12.5," |",E12.5," |",E12.5," |",E12.5," |",E12.5," |")') &
+      bSTR(j-1),bSTR(j),test_local(-3:3)
+    end do
+    write(*,*)&
+    "|----------------------------------------------------------------------------------------------------------------|"
+    end if
+    end do
+     write(*,*) color("  -----  test for hadron "//trim(int4ToStr(h))//" complete." , c_yellow_bold)
+  end do
+end subroutine TestGrid_2
+
+function TestPartOfGrid(Ix_Low,Ix_high,Ib_low,Ib_high,h)
+  integer,intent(in)::Ix_Low,Ix_high,Ib_low,Ib_high,h
+  real(dp),dimension(-5:5)::TestPartOfGrid
+  real(dp),dimension(1:(Ix_high-Ix_Low),1:(Ib_high-Ib_low),-5:5)::f1,f2
+  integer::ix,ib
+  real(dp)::x_local,b_local
+  real(dp),dimension(-5:5)::comulant
+
+  comulant=0._dp
+
+  do ix=1,Ix_high-Ix_Low
+
+  x_local=xGrid_Min**((Ix_high-ix+0.5_dp)/REAL(GridSizeX))
+
+  do ib=1,Ib_high-Ib_Low
+  b_local=(EXP(slopeFactor*(Ib_Low+ib+0.5_dp))-1d0)*bFactor
+  !if(ix==1) write(*,*) "---->",Ib_Low,Ib_high,b_local
+
+    f1(ix,ib,-5:5)=ExtractFromGrid(x_local,b_local,h)
+    f2(ix,ib,-5:5)=Common_lowScale5(x_local,b_local,h)
+    if(.not.withGluon) then
+      f1(ix,ib,0)=1._dp
+      f2(ix,ib,0)=1._dp
+    end if
+
+    comulant=comulant+abs(f1(ix,ib,-5:5)/f2(ix,ib,-5:5)-1._dp)
+  end do
+  end do
+
+  TestPartOfGrid=comulant/(Ix_high-Ix_Low)/(Ib_high-Ib_low)
+
+end function TestPartOfGrid

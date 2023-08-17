@@ -155,7 +155,7 @@
  
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
- NLO
+ LO
 *p2  : Use composite TMD-function definition
  F
 *B   : ---- Parameters of NP model ----
@@ -176,7 +176,7 @@
        10000
 *D   : ---- Grid preparation options ----
 *p1  : Prepare grid
- F
+ T
 *p2  : Include gluon TMDs into the grid
  F
 *p3  : total number of PDFs added to the grid (by default it coincides with number of initialized PDFs)
