@@ -68,6 +68,7 @@ real(dp) :: DeltaB !!! increment of grid
 
 !!!! Numerical parameters
 real(dp) :: toleranceINT=1d-6  !!! tolerance for numerical integration
+real(dp) :: toleranceGEN=1d-6  !!! tolerance for other purposes
 integer :: maxIteration=4000   !!! maximum iteration in the integrals (not used at the moment)
 
 logical(dp) :: IsMuYdependent = .true.  !!! if mu is y independent, computation is much(!) faster
@@ -98,10 +99,11 @@ integer, dimension(:), allocatable:: hadronsInGRID  !!! table that saves the num
 integer::numberOfHadrons=1				!!!total number of hadrons to be stored
 
 !!--------------------------------------Public interface-----------------------------------------
-public::uTMDPDF_OPE_Initialize
+public::uTMDPDF_OPE_Initialize,uTMDPDF_OPE_convolution
+public::uTMDPDF_OPE_resetGrid,uTMDPDF_OPE_testGrid,uTMDPDF_OPE_SetPDFreplica,uTMDPDF_OPE_SetScaleVariation
 
 !!!!!!----FOR TEST
-public::MakeGrid,ExtractFromGrid,CxF_compute,TestGrid
+!public::MakeGrid,ExtractFromGrid,CxF_compute,TestGrid
 
 contains
 
@@ -236,6 +238,8 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     call MoveTO(51,'*p1  ')
     read(51,*) toleranceINT
     call MoveTO(51,'*p2  ')
+    read(51,*) toleranceGEN
+    call MoveTO(51,'*p3  ')
     read(51,*) maxIteration
 
     if(outputLevel>2) then
@@ -288,11 +292,13 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
 
     gridReady=.false.
 
-    call MakeGrid()
+    if(useGrid) then
+        call MakeGrid()
 
-    gridReady=.true.
+        gridReady=.true.
 
-    if(runTest) call TestGrid()
+        if(runTest) call TestGrid()
+    end if
 
     started=.true.
     messageCounter=0
@@ -301,6 +307,8 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     if(outputLevel>1) write(*,*) ' '
 
 end subroutine uTMDPDF_OPE_Initialize
+
+!!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
 !!!!array of x times PDF(x,Q) for hadron 'hadron'
 !!!! array is (-5:5) (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
@@ -312,5 +320,115 @@ function xf(x,Q,hadron)
     xf=xPDF(x,Q,hadron)
     
 end function xf
+
+function uTMDPDF_OPE_convolution(x,b,h,addGluon)
+    real(dp),dimension(-5:5)::uTMDPDF_OPE_convolution
+    real(dp),intent(in)::x,b
+    integer,intent(in)::h
+    logical,optional,intent(in)::addGluon
+
+    logical::gluon
+
+    !!! check gluonity
+    if(present(addGluon)) then
+        gluon=addGluon
+    else
+        gluon=withGluon
+    end if
+
+    !!! test boundaries
+    if(x>1d0) then
+        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
+        uTMDPDF_OPE_convolution=0._dp
+        return
+    else if(x<1d-12) then
+        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
+        stop
+    else if(b<0d0) then
+        write(*,*) ErrorString('Called b<0. b='//numToStr(b)//' . Evaluation STOP',moduleName)
+        stop
+    end if
+
+    !!!! case NA
+    if(orderMain==-50) then
+        if(gluon) then
+            uTMDPDF_OPE_convolution=1._dp
+        else
+            uTMDPDF_OPE_convolution=(/1._dp,1._dp,1._dp,1._dp,1._dp,0._dp,1._dp,1._dp,1._dp,1._dp,1._dp/)
+        end if
+        return
+    end if
+
+    !!! computation
+    if(useGrid) then
+        if(gridReady) then
+            uTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)/x
+        else
+            call Warning_Raise('Called OPE_convolution while grid is not ready.',messageCounter,messageTrigger,moduleName)
+            call uTMDPDF_OPE_resetGrid()
+            uTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)/x
+        end if
+    else
+        uTMDPDF_OPE_convolution=CxF_compute(x,b,h,gluon)/x
+    end if
+
+end function uTMDPDF_OPE_convolution
+
+
+!!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
+!!! This subroutine force reconstruction of the grid (if griding is ON)
+subroutine uTMDPDF_OPE_resetGrid()
+    gridReady=.false.
+    if(useGrid) then
+        if(outputLevel>1) write(*,*) 'arTeMiDe ',moduleName,':  Grid Reset. with c4=',c4_global
+        call MakeGrid()
+
+        gridReady=.true.
+    end if
+end subroutine uTMDPDF_OPE_resetGrid
+
+!!! This subroutine force reconstruction of the grid (if griding is ON)
+subroutine uTMDPDF_OPE_testGrid()
+    if(useGrid) then
+        if(.not.gridReady) then
+            call uTMDPDF_OPE_resetGrid()
+        end if
+        call TestGrid()
+    end if
+end subroutine uTMDPDF_OPE_testGrid
+
+!! call QCDinput to change the PDF replica number
+!! unset the grid, since it should be recalculated fro different PDF replica.
+subroutine uTMDPDF_OPE_SetPDFreplica(rep,hadron)
+    integer,intent(in):: rep,hadron
+    logical::newPDF
+
+    call QCDinput_SetPDFreplica(rep,hadron,newPDF)
+    if(newPDF) then
+        gridReady=.false.
+        call uTMDPDF_OPE_resetGrid()
+    else
+        if(outputLevel>1) write(*,"('arTeMiDe ',A,':  replica of PDF (',I4,' is the same as the used one. Nothing is done!')") &
+        moduleName, rep
+    end if
+
+end subroutine uTMDPDF_OPE_SetPDFreplica
+
+!!!! this routine set the variations of scales
+!!!! it is used for the estimation of errors
+subroutine uTMDPDF_OPE_SetScaleVariation(c4_in)
+    real(dp),intent(in)::c4_in
+    if(c4_in<0.1d0 .or. c4_in>10.d0) then
+        if(outputLevel>0) write(*,*) WarningString('variation in c4 is enourmous. c4 is set to 2',moduleName)
+        c4_global=2d0
+        call uTMDPDF_OPE_resetGrid()
+    else if(abs(c4_in-c4_global)<toleranceGEN) then
+        if(outputLevel>1) write(*,*) color('uTMDPDF: c4-variation is ignored. c4='//real8ToStr(c4_global),c_yellow)
+    else
+        c4_global=c4_in
+        if(outputLevel>1) write(*,*) color('uTMDPDF: set scale variations c4 as:'//real8ToStr(c4_global),c_yellow)
+        call uTMDPDF_OPE_resetGrid()
+    end if
+end subroutine uTMDPDF_OPE_SetScaleVariation
 
 end module uTMDPDF_OPE

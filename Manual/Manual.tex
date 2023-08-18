@@ -1528,10 +1528,10 @@ List of available orders for different distributions
 
 OPE modules compute the following convolution
 \begin{eqnarray}\label{OPE:tw2:main}
-[C\times f](x)&=&x\int_x^1 \frac{dy}{y} C(y,\mathbf{L})f\(\frac{x}{y},\mu_{\text{OPE}}\)
+[C\times f](x)&=&\int_x^1 \frac{dy}{y} C(y,\mathbf{L})f\(\frac{x}{y},\mu_{\text{OPE}}\)
 \\
 &=&
-\int_x^1 dy C(y,\mathbf{L})F\(\frac{x}{y},\mu_{\text{OPE}}\),
+\frac{1}{x}\int_x^1 dy C(y,\mathbf{L})F\(\frac{x}{y},\mu_{\text{OPE}}\),
 \end{eqnarray}
 where $F(x)=xf(x)$ and 
 \begin{eqnarray}
@@ -1546,7 +1546,8 @@ OPE modules are initialized automatically from the corresponding TMD module.
 
 \subsubsection{INI-parameters}
 
-\begin{tabular}{||p{5.5cm}||c||p{8.5cm}||}
+\begin{center}
+\begin{tabular}{||p{1.5cm}||c||p{12.5cm}||}
 \hline\hline
 Entry &~~Type~~& Description
 \\\hline
@@ -1556,13 +1557,15 @@ A.p2 & T/F & Trigger to prepare the grid (T=prepare). Preparation is done on the
 \\\hline
 A.p3 & T/F & Trigger to include the gluon TMD into the grid (T=include). Doubles the computation time. If not included, gluon contribution is $0$.
 \\\hline
-A.p4 & int$>$0 & Number of hadrons/grid to prepare. This must coincide with i.??.p1 (corresponding PDF number in \texttt{QCDinput}). The type of TMD is dictated by the collinear PDF and $f_{\text{NP}}$.
+A.p4 & int$>$0 & Number of hadrons/grid to prepare. This must coincide with 1.??.p1 (corresponding PDF number in \texttt{QCDinput}). The type of TMD is dictated by the collinear PDF and $f_{\text{NP}}$.
 \\\hline
-A.p5 & T/F & Trigger the test of the grid (T=run the test). Take the same time as computation of the grid (by single processor). Example Result is shown in sec.\ref{sec:OPE:grid1}. 
+A.p5 & T/F & Trigger the test of the grid (T=run the test). Take the same time as computation of the grid (by a single processor). Requires A.p2=T. Example Result is shown in sec.\ref{sec:OPE:grid1}. 
 \\\hline\hline
 C.p1 & real & Tolerance for integration (default =$10^{-6}$)
 \\\hline
-C.p2 & int & Maximum number of iteration for adaptive integration. (default =$10^{4}$)
+C.p2 & real & Tolerance general (used for check of variable modifications, etc. Does not affect integration precision). (default =$10^{-6}$)
+\\\hline
+C.p3 & int & Maximum number of iteration for adaptive integration. (default =$10^{4}$)
 \\\hline\hline
 D.p1 & real & $x_{\text{min}}$ for the grid (see (\ref{OPE:x-grid}))
 \\\hline
@@ -1578,9 +1581,31 @@ D.p6 & integer & Number of nodes in the b-grid
 \\
 \hline\hline
 \end{tabular}
+\end{center}
 
+\subsubsection{Functions}
 
-
+\begin{center}
+\texttt{XX}=name of module (e.g. \texttt{uTMDPDF}, \texttt{uTMDFF}, etc.)
+\\
+\begin{tabular}{||p{5.5cm}||c||p{8.5cm}||}
+\hline\hline
+Entry &~~Type~~& Description
+\\\hline
+\texttt{XX\_OPE\_Initialize(file,prefix)} & subroutine & Initialize the module from INI-file.
+\\\hline
+\texttt{XX\_resetGrid()} & subroutine & Force recomputation of the grid. Only if griding is ON.
+\\\hline
+\texttt{XX\_OPE\_testGrid()} & subroutine & Run the test of grid (see sec.\ref{sec:OPE:grid1}).  Only if griding is ON.
+\\\hline
+\texttt{XX\_OPE\_SetPDFreplica(rep,h)} & subroutine & Switch the PDF replica to \texttt{rep}(int) for hadron \texttt{h} (int). Recompute the grid (if griding is ON). If the new replica is as before nothing is done.
+\\\hline
+\texttt{XX\_OPE\_SetScaleVariation(c4)} & subroutine & Change the scale variation parameter $c_4$ (it enters the definition of $\mu_{\text{OPE}}$). Recompute the grid (if griding is ON). The parameter (real)\texttt{c4} is restricted to $0.1<c_4<10$.
+\\\hline\hline
+\texttt{XX\_OPE\_convolution(x,b,h,G)} & dp\_real(-5:5) & Returns (\ref{OPE:tw2:main}) for (x,b)=((real)\texttt{x}, (real)\texttt{b}), and hadron number (int)\texttt{h}. In the case of \texttt{NA} returns 1. If grid is computed restore from the grid. The flag (T/F)\texttt{G} is optional. It indicates the inclusion of gluon into the result. Note, that if gluons were not included into the grid they are zero.
+\\\hline\hline
+\end{tabular}
+\end{center}
 
 \subsubsection{Model parameters.} 
 

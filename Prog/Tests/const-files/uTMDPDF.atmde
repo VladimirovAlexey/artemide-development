@@ -173,7 +173,9 @@
 *C   : ---- (OPE) Numerical evaluation parameters ----
 *p1  : Tolerance (relative tolerance of convolution integral)
    1.0000000000000000E-006
-*p2  : Maximum number of iterations (for adaptive integration)
+*p2  : Tolerance general (used for various comparisons)
+   1.0000000000000000E-006
+*p3  : Maximum number of iterations (for adaptive integration)
        10000
 
 *D   : ---- (OPE) Parameters of grid ----
