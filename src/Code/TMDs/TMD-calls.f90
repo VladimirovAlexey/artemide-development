@@ -69,9 +69,9 @@ function uTMDPDF_50_Ev(x,bt,muf,zetaf,hadron)
         Rkernel=TMDR_Rzeta(bT,muf,zetaf,mui,1)
         RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
     END SELECT
-    !uTMDPDF_50_Ev=Rkernel*uTMDPDF_lowScale50(x,bT,hadron)
+    !uTMDPDF_50_Ev=Rkernel*uTMDPDF_lowScale5(x,bT,hadron)
     !uTMDPDF_50_Ev(0)=uTMDPDF_50_Ev(0)*RkernelG/Rkernel
-    uTMDPDF_50_Ev=uTMDPDF_lowScale50(x,bT,hadron)*&
+    uTMDPDF_50_Ev=uTMDPDF_lowScale5(x,bT,hadron)*&
         (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
 
     !!! forcefully set =0 below threshold
@@ -103,7 +103,7 @@ function uTMDPDF_50_optimal(x,bt,hadron)
     real(dp),intent(in):: x,bt
     integer,intent(in)::hadron
 
-    uTMDPDF_50_optimal=uTMDPDF_lowScale50(x,bT,hadron)
+    uTMDPDF_50_optimal=uTMDPDF_lowScale5(x,bT,hadron)
 end function uTMDPDF_50_optimal
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PRODUCTS FOR DY!!!!!!!!!!!!!!!!!!!!!!
@@ -242,9 +242,9 @@ function uTMDFF_50_Ev(x,bt,muf,zetaf,hadron)
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
         RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
     END SELECT
-    !uTMDFF_50_Ev=Rkernel*uTMDFF_lowScale50(x,bT,hadron)
+    !uTMDFF_50_Ev=Rkernel*uTMDFF_lowScale5(x,bT,hadron)
     !uTMDFF_50_Ev(0)=uTMDFF_50_Ev(0)*RkernelG/Rkernel
-    uTMDFF_50_Ev=uTMDFF_lowScale50(x,bT,hadron)*&
+    uTMDFF_50_Ev=uTMDFF_lowScale5(x,bT,hadron)*&
         (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
 
     !!! forcefully set =0 below threshold
@@ -275,7 +275,7 @@ function uTMDFF_50_optimal(x,bt,hadron)
     real(dp),intent(in):: x,bt
     integer,intent(in)::hadron
 
-    uTMDFF_50_optimal=uTMDFF_lowScale50(x,bT,hadron)
+    uTMDFF_50_optimal=uTMDFF_lowScale5(x,bT,hadron)
 
 end function uTMDFF_50_optimal
 
@@ -304,7 +304,7 @@ function lpTMDPDF_50_Ev(x,bt,muf,zetaf,hadron)
         mui=c3_global*mu_LOW(bt)
         RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
     END SELECT
-    lpTMDPDF_50_Ev=RkernelG*lpTMDPDF_lowScale50(x,bT,hadron)
+    lpTMDPDF_50_Ev=RkernelG*lpTMDPDF_lowScale5(x,bT,hadron)
 
     !!! forcefully set=0 all quarks
     !     glTMDPDF_50_Ev(5)=0_dp
@@ -328,7 +328,7 @@ function lpTMDPDF_50_optimal(x,bt,hadron)
     real(dp),intent(in):: x,bt
     integer,intent(in)::hadron
 
-    lpTMDPDF_50_optimal=lpTMDPDF_lowScale50(x,bT,hadron)
+    lpTMDPDF_50_optimal=lpTMDPDF_lowScale5(x,bT,hadron)
 
 end function lpTMDPDF_50_optimal
 
@@ -394,9 +394,9 @@ function SiversTMDPDF_50_Ev(x,bt,muf,zetaf,hadron)
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
         RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
     END SELECT
-    !SiversTMDPDF_50_Ev=Rkernel*SiversTMDPDF_lowScale50(x,bT,hadron)
+    !SiversTMDPDF_50_Ev=Rkernel*SiversTMDPDF_lowScale5(x,bT,hadron)
     !SiversTMDPDF_50_Ev(0)=SiversTMDPDF_50_Ev(0)*RkernelG/Rkernel
-    SiversTMDPDF_50_Ev=SiversTMDPDF_lowScale50(x,bT,hadron)*&
+    SiversTMDPDF_50_Ev=SiversTMDPDF_lowScale5(x,bT,hadron)*&
         (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
 
     !!! forcefully set =0 below threshold
@@ -427,7 +427,7 @@ function SiversTMDPDF_50_optimal(x,bt,hadron)
     real(dp),intent(in):: x,bt
     integer,intent(in)::hadron
 
-    SiversTMDPDF_50_optimal=SiversTMDPDF_lowScale50(x,bT,hadron)
+    SiversTMDPDF_50_optimal=SiversTMDPDF_lowScale5(x,bT,hadron)
 
 end function SiversTMDPDF_50_optimal
 
@@ -494,9 +494,9 @@ function wgtTMDPDF_50_Ev(x,bt,muf,zetaf,hadron)
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
         RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
     END SELECT
-    !wgtTMDPDF_50_Ev=Rkernel*wgtTMDPDF_lowScale50(x,bT,hadron)
+    !wgtTMDPDF_50_Ev=Rkernel*wgtTMDPDF_lowScale5(x,bT,hadron)
     !wgtTMDPDF_50_Ev(0)=wgtTMDPDF_50_Ev(0)*RkernelG/Rkernel
-    wgtTMDPDF_50_Ev=wgtTMDPDF_lowScale50(x,bT,hadron)*&
+    wgtTMDPDF_50_Ev=wgtTMDPDF_lowScale5(x,bT,hadron)*&
         (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
 
     !!! forcefully set =0 below threshold
@@ -527,6 +527,6 @@ function wgtTMDPDF_50_optimal(x,bt,hadron)
     real(dp),intent(in):: x,bt
     integer,intent(in)::hadron
 
-    wgtTMDPDF_50_optimal=wgtTMDPDF_lowScale50(x,bT,hadron)
+    wgtTMDPDF_50_optimal=wgtTMDPDF_lowScale5(x,bT,hadron)
 
 end function wgtTMDPDF_50_optimal

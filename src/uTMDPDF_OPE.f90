@@ -34,7 +34,7 @@ private
 character (len=5),parameter :: version="v3.00"
 character (len=11),parameter :: moduleName="uTMDPDF_OPE"
 !Last appropriate version of constants-file
-integer,parameter::inputver=0
+integer,parameter::inputver=30
 
 !--- general
 logical:: started=.false.
@@ -99,7 +99,7 @@ integer, dimension(:), allocatable:: hadronsInGRID  !!! table that saves the num
 integer::numberOfHadrons=1				!!!total number of hadrons to be stored
 
 !!--------------------------------------Public interface-----------------------------------------
-public::uTMDPDF_OPE_Initialize,uTMDPDF_OPE_convolution
+public::uTMDPDF_OPE_IsInitialized,uTMDPDF_OPE_Initialize,uTMDPDF_OPE_convolution
 public::uTMDPDF_OPE_resetGrid,uTMDPDF_OPE_testGrid,uTMDPDF_OPE_SetPDFreplica,uTMDPDF_OPE_SetScaleVariation
 
 !!!!!!----FOR TEST
@@ -164,6 +164,7 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
         write(*,*) 'artemide.'//trim(moduleName)//': const-file version is too old.'
         write(*,*) '		     Update the const-file with artemide.setup'
         write(*,*) '  '
+        CLOSE (51, STATUS='KEEP')
         stop
     end if
     call MoveTO(51,'*p2  ')
@@ -185,10 +186,11 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     if(.not.initRequired) then
         if(outputLevel>1) write(*,*)'artemide.',moduleName,': initialization is not required. '
         started=.false.
+        CLOSE (51, STATUS='KEEP')
         return
     end if
 
-     !----- ORDER
+    !----- ORDER
     call MoveTO(51,'*A   ')
     call MoveTO(51,'*p1  ')
     read(51,*) order_global
@@ -271,7 +273,6 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     end if
 
     CLOSE (51, STATUS='KEEP')
-
     c4_global=1d0
 
     !!! call initializations for Grids
@@ -289,12 +290,10 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     else
         if(outputLevel>2) write(*,*) trim(moduleName)//': mu OPE is independent on x'
     end if
-
     gridReady=.false.
 
     if(useGrid) then
         call MakeGrid()
-
         gridReady=.true.
 
         if(runTest) call TestGrid()
@@ -336,18 +335,7 @@ function uTMDPDF_OPE_convolution(x,b,h,addGluon)
         gluon=withGluon
     end if
 
-    !!! test boundaries
-    if(x>1d0) then
-        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
-        uTMDPDF_OPE_convolution=0._dp
-        return
-    else if(x<1d-12) then
-        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
-        stop
-    else if(b<0d0) then
-        write(*,*) ErrorString('Called b<0. b='//numToStr(b)//' . Evaluation STOP',moduleName)
-        stop
-    end if
+    !!!! test for boundaries is done in uTMDPDF_lowScale5 (on the enty to this procedure)
 
     !!!! case NA
     if(orderMain==-50) then

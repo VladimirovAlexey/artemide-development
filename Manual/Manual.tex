@@ -1523,30 +1523,11 @@ List of available orders for different distributions
 \texttt{SiversTMDPDF}[tw3]&:& \texttt{NA}
 \end{eqnarray*}
 
-\subsection{\texttt{\_OPE} modules (tw2)}
-\label{TMD_OPE}
-
-OPE modules compute the following convolution
-\begin{eqnarray}\label{OPE:tw2:main}
-[C\times f](x)&=&\int_x^1 \frac{dy}{y} C(y,\mathbf{L})f\(\frac{x}{y},\mu_{\text{OPE}}\)
-\\
-&=&
-\frac{1}{x}\int_x^1 dy C(y,\mathbf{L})F\(\frac{x}{y},\mu_{\text{OPE}}\),
-\end{eqnarray}
-where $F(x)=xf(x)$ and 
-\begin{eqnarray}
-\mathbf{L}=\ln\(\frac{\mu^2_{\text{OPE}}b^2}{4e^{-2\gamma_E}}\).
-\end{eqnarray}
-
-\begin{tcolorbox}
-\begin{center}
-OPE modules are initialized automatically from the corresponding TMD module.
-\end{center}
-\end{tcolorbox}
-
 \subsubsection{INI-parameters}
 
 \begin{center}
+\textbf{Parameters universal for all such modules which include only tw2 or tw3 OPE (mixed case see below).} 
+\\
 \begin{tabular}{||p{1.5cm}||c||p{12.5cm}||}
 \hline\hline
 Entry &~~Type~~& Description
@@ -1560,6 +1541,10 @@ A.p3 & T/F & Trigger to include the gluon TMD into the grid (T=include). Doubles
 A.p4 & int$>$0 & Number of hadrons/grid to prepare. This must coincide with 1.??.p1 (corresponding PDF number in \texttt{QCDinput}). The type of TMD is dictated by the collinear PDF and $f_{\text{NP}}$.
 \\\hline
 A.p5 & T/F & Trigger the test of the grid (T=run the test). Take the same time as computation of the grid (by a single processor). Requires A.p2=T. Example Result is shown in sec.\ref{sec:OPE:grid1}. 
+\\\hline\hline
+B.p1 & int & Number of NP parameters.
+\\\hline
+B.p2 & real & $B_{\text{MAX-ABS}}$, a large number such that $b>B_{\text{MAX-ABS}}$ the TMD is returned 0. (default 100).
 \\\hline\hline
 C.p1 & real & Tolerance for integration (default =$10^{-6}$)
 \\\hline
@@ -1582,6 +1567,54 @@ D.p6 & integer & Number of nodes in the b-grid
 \hline\hline
 \end{tabular}
 \end{center}
+
+\subsubsection{Functions}
+
+\begin{center}
+\texttt{XX}=name of module (e.g. \texttt{uTMDPDF}, \texttt{uTMDFF}, etc.)
+\\
+\begin{tabular}{||p{5.5cm}||c||p{8.5cm}||}
+\hline\hline
+Entry &~~Type~~& Description
+\\\hline
+\texttt{XX\_Initialize(file,prefix)} & subroutine & Initialize the module from INI-file.
+\\\hline
+\texttt{XX\_SetPDFreplica(rep,h)} & subroutine & Passes to \texttt{XX\_OPE\_SetPDFreplica}
+\\\hline
+\texttt{XX\_SetScaleVariation(c4)} & subroutine & Passes to \texttt{XX\_OPE\_SetScaleVariation}
+\\\hline
+\texttt{XX\_SetLambdaNP(lambda)} & subroutine & Set a new vector of NP parameters $\lambda_{\text{NP}}$. The new vector must be same size as declared at the setup.
+\\\hline
+\texttt{XX\_uTMDPDF_CurrentLambdaNP()} & real(:) & Returns the current vector fo $\lambda_{\text{NP}}$.
+\\\hline\hline
+\texttt{XX\_OPE\_convolution(x,b,h,G)} & dp\_real(-5:5) & Returns (\ref{OPE:tw2:main}) for (x,b)=((real)\texttt{x}, (real)\texttt{b}), and hadron number (int)\texttt{h}. In the case of \texttt{NA} returns 1. If grid is computed restore from the grid. The flag (T/F)\texttt{G} is optional. It indicates the inclusion of gluon into the result. Note, that if gluons were not included into the grid they are zero.
+\\\hline\hline
+\texttt{XX\_lowScale5(x,bT,h)} & real(-5:5) & Returns the value of TMD distributions for given (x,b) (reals) and hadron h. The value is the vector over flavors.
+\end{tabular}
+\end{center}
+
+\subsection{\texttt{\_OPE} modules (tw2)}
+\label{TMD_OPE}
+
+OPE modules compute the following convolution
+\begin{eqnarray}\label{OPE:tw2:main}
+[C\times f](x)&=&\int_x^1 \frac{dy}{y} C(y,\mathbf{L})f\(\frac{x}{y},\mu_{\text{OPE}}\)
+\\
+&=&
+\frac{1}{x}\int_x^1 dy C(y,\mathbf{L})F\(\frac{x}{y},\mu_{\text{OPE}}\),
+\end{eqnarray}
+where $F(x)=xf(x)$ and 
+\begin{eqnarray}
+\mathbf{L}=\ln\(\frac{\mu^2_{\text{OPE}}b^2}{4e^{-2\gamma_E}}\).
+\end{eqnarray}
+
+\begin{tcolorbox}
+\begin{center}
+OPE modules are initialized automatically from the corresponding TMD module.
+\end{center}
+\end{tcolorbox}
+
+
 
 \subsubsection{Functions}
 

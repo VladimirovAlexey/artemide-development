@@ -111,8 +111,8 @@ end function lpTMDPDF_base50
 !!---		   hadron=sum components (if compositeness ON)
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
-function lpTMDPDF_lowScale50(x,bT,hadron)
-  real(dp),dimension(-5:5)::lpTMDPDF_lowScale50
+function lpTMDPDF_lowScale5(x,bT,hadron)
+  real(dp),dimension(-5:5)::lpTMDPDF_lowScale5
   real(dp) :: x, bT
   integer::hadron
   
@@ -121,20 +121,20 @@ function lpTMDPDF_lowScale50(x,bT,hadron)
   integer::j,jN
   
   if(x>1d0) then
-    lpTMDPDF_lowScale50=(/0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0/)
+    lpTMDPDF_lowScale5=(/0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0/)
     return
   end if
   
   if(IsComposite) then
     
-    lpTMDPDF_lowScale50=(/0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0/)
+    lpTMDPDF_lowScale5=(/0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0/)
     
     call GetCompositionArray(hadron,lambdaNP,includeInComposition,compositionCoefficients)
     jN=size(includeInComposition)
     
     do j=1,jN
       if(includeInComposition(j)) then
-	lpTMDPDF_lowScale50=lpTMDPDF_lowScale50+compositionCoefficients(j)*lpTMDPDF_base50(x,bT,j)
+	lpTMDPDF_lowScale5=lpTMDPDF_lowScale5+compositionCoefficients(j)*lpTMDPDF_base50(x,bT,j)
       end if
     end do
     
@@ -142,6 +142,6 @@ function lpTMDPDF_lowScale50(x,bT,hadron)
   
   else
   
-   lpTMDPDF_lowScale50=lpTMDPDF_base50(x,bT,hadron)  
+   lpTMDPDF_lowScale5=lpTMDPDF_base50(x,bT,hadron)
   end if
-end function lpTMDPDF_lowScale50
+end function lpTMDPDF_lowScale5

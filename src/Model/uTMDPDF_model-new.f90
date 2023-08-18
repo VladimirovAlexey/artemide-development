@@ -13,7 +13,6 @@ private
 !!!!! These functions MUST defined in module  !!
 !!!!!
 !!!!! 1) The subroutine is called during the initialization of TMD-module
-!!!!!    arg=array of initial NP-parameters
 public:: ModelInitialization
 !!!!! 2) The subroutine that is called on reset of NP-parameters in TMD-module
 !!!!!    arg=array of new NP-parameters
@@ -39,10 +38,11 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!! Write nessecery model intitialization.
-subroutine ModelInitialization(NPstart)
-    real(dp),intent(in)::NPstart(:)
-    allocate(NPparam(1:size(NPstart)))
-    NPparam=NPstart
+subroutine ModelInitialization(lengthNP)
+    integer,intent(in)::lengthNP
+    !!!!!! here are the initial parameters!!
+    allocate(NPparam(1:lengthNP))
+    NPparam=0._dp
     
     write(*,*) color(">>>  The model for uTMDPDF for ART23   <<<",c_cyan)
     
@@ -118,7 +118,7 @@ function FNP(x,bT,hadron,lambdaNP)
   end if
     
     FNP=1._dp
-  end function FNP
+end function FNP
   
 !!!! This is the function b* that enters the logarithms of coefficient function
 !!!! at small-b it should be ~b to match the collinear regime

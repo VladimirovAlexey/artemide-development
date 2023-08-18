@@ -39,9 +39,8 @@ subroutine MakeGrid()
   
   real(dp),dimension(0:Nx-1,-5:5)::f1,f2,aE!! for interpolation computation
   real(dp)::b1,b2,time1,time2
-
   !$ real*8::omp_get_wtime
-  
+
   call cpu_time(time1)
   !$ time1=omp_get_wtime()
   if(outputlevel>2) write(*,*) 'arTeMiDe.',moduleName,' starts to compute grid.'
@@ -59,6 +58,7 @@ subroutine MakeGrid()
      else
        gridMain(iX,iB,-5:5,h)=CxF_compute(x_local,b_local,h,withGluon)
      end if
+
     end do    
     end do
     !$OMP END PARALLEL DO

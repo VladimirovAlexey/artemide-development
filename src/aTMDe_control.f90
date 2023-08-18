@@ -152,10 +152,10 @@ subroutine artemide_Initialize(file,prefix,order)
     !allocate lambda's and read initialization NP-array
     if(include_uTMDPDF) then
         allocate(lambdaNP_uTMDPDF(1:NPlength_uTMDPDF))
-        call MoveTO(51,'*p2  ')
-        do i=1,NPlength_uTMDPDF
-            read(51,*) lambdaNP_uTMDPDF(i)
-        end do
+!         call MoveTO(51,'*p2  ')
+!         do i=1,NPlength_uTMDPDF
+!             read(51,*) lambdaNP_uTMDPDF(i)
+!         end do
     end if
 
     call MoveTO(51,'*5   ')
@@ -729,23 +729,23 @@ end subroutine artemide_SetReplica_TMDR
   
 subroutine artemide_SetReplica_uTMDPDF(num)
     integer,intent(in)::num
-
-    if(.not.include_uTMDPDF) then
-        if(outputLevel>0) &
-        write(*,*) ErrorString('attempt to set a replica for uTMDPDF,&
-                while uTMDPDF module is not included in the current setup',moduleName)
-        if(outputLevel>0) write(*,*) color('NOTHING IS DONE',c_red)
-        return
-    end if
-
-    call uTMDPDF_SetLambdaNP(num)
-    call uTMDPDF_CurrentNPparameters(lambdaNP_uTMDPDF)
-
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
-
+!
+!     if(.not.include_uTMDPDF) then
+!         if(outputLevel>0) &
+!         write(*,*) ErrorString('attempt to set a replica for uTMDPDF,&
+!                 while uTMDPDF module is not included in the current setup',moduleName)
+!         if(outputLevel>0) write(*,*) color('NOTHING IS DONE',c_red)
+!         return
+!     end if
+!
+!     call uTMDPDF_SetLambdaNP(num)
+!     call uTMDPDF_CurrentNPparameters(lambdaNP_uTMDPDF)
+!
+!     !!! reseting other packages
+!     if(include_TMDF) call TMDF_ResetCounters()
+!     if(include_TMDX_DY) call TMDX_DY_ResetCounters()
+!     if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
+!
 end subroutine artemide_SetReplica_uTMDPDF
   
 subroutine artemide_SetReplica_uTMDFF(num)

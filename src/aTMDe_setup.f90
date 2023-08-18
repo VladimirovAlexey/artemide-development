@@ -17,7 +17,7 @@ private
 character (len=5),parameter :: version="v2.06"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=21
+integer,parameter::inputVer=30
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -65,15 +65,16 @@ real(dp),allocatable::TMDR_lambdaNP_init(:)
 
 !-------------------- uTMDPDF parameters
 logical::include_uTMDPDF
-integer::uTMDPDF_lambdaLength
-real(dp)::uTMDPDF_tolerance
-integer::uTMDPDF_maxIteration
 character*8::uTMDPDF_order
-logical::uTMDPDF_makeGrid,uTMDPDF_withGluon
-real(dp)::uTMDPDF_grid_bMax,uTMDPDF_grid_xMin,uTMDPDF_grid_slope
+logical::uTMDPDF_makeGrid,uTMDPDF_withGluon,uTMDPDF_runGridTest
+integer::uTMDPDF_lambdaLength
+real(dp)::uTMDPDF_BMAX_ABS
+real(dp)::uTMDPDF_toleranceINT
+real(dp)::uTMDPDF_toleranceGEN
+integer::uTMDPDF_maxIteration
+real(dp)::uTMDPDF_grid_xMin,uTMDPDF_grid_parX
+real(dp)::uTMDPDF_grid_bMin,uTMDPDF_grid_bMax
 integer::uTMDPDF_grid_SizeX,uTMDPDF_grid_SizeB
-real(dp),allocatable::uTMDPDF_lambdaNP_init(:)
-logical::uTMDPDF_IsComposite
 
 !-------------------- uTMDFF parameters
 logical::include_uTMDFF
@@ -316,19 +317,21 @@ subroutine SetupDefault(order)
 
     !-------------------- parameters for UTMDPDF
     include_uTMDPDF=.true.
-    uTMDPDF_order=trim(order)
-    uTMDPDF_IsComposite=.false.
+    uTMDPDF_order=trim("LO")
     uTMDPDF_makeGrid=.true.
     uTMDPDF_withGluon=.false.
+    uTMDPDF_runGridTest=.false.
     uTMDPDF_lambdaLength=2
-    call ReNewInitializationArray(uTMDPDF_lambdaNP_init,uTMDPDF_lambdaLength)! initialization values of parameters
-    uTMDPDF_tolerance=0.0001d0	!tolerance (i.e. relative integration tolerance -- in convolution integrals)
+    uTMDPDF_BMAX_ABS=100.d0
+    uTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
+    uTMDPDF_toleranceGEN=1.d-6!general tolerance
     uTMDPDF_maxIteration=10000	!maxIteration for adaptive integration
     uTMDPDF_grid_xMin=0.00001d0
-    uTMDPDF_grid_bMax=100d0
-    uTMDPDF_grid_SizeX=250
-    uTMDPDF_grid_SizeB=750
-    uTMDPDF_grid_slope=10d0    
+    uTMDPDF_grid_parX=2.d0
+    uTMDPDF_grid_bMin=1.d-6
+    uTMDPDF_grid_bMax=25.d0
+    uTMDPDF_grid_SizeX=400
+    uTMDPDF_grid_SizeB=200
 
     !-------------------- parameters for UTMDFF
     include_uTMDFF=.false.!!! we do not initialize TMDFF by definition
@@ -676,44 +679,45 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p1  : initialize uTMDPDF module')")
     write(51,*) include_uTMDPDF
     write(51,"(' ')")
-    write(51,"('*A   : ---- Main definitions ----')")
+    write(51,"('*A   : ---- OPE main definitions ----')")
     write(51,"('*p1  : Order of coefficient function')")
     write(51,*) trim(uTMDPDF_order)
-    write(51,"('*p2  : Use composite TMD-function definition')")
-    write(51,*) uTMDPDF_IsComposite
+    write(51,"('*p2  : Prepare grid')")
+    write(51,*) uTMDPDF_makeGrid
+    write(51,"('*p3  : Include gluon TMDs into the grid')")
+    write(51,*) uTMDPDF_withGluon
+    write(51,"('*p4  : total number of PDFs added to the grid (by default it coincides with number of initialized PDFs)')")
+    write(51,*) number_of_uPDFs
+    write(51,"('*p5  : run the test of the grid (takes some time)')")
+    write(51,*) uTMDPDF_runGridTest
+    write(51,"(' ')")
     write(51,"('*B   : ---- Parameters of NP model ----')")
     write(51,"('*p1  : Length of lambdaNP')")
     write(51,*) uTMDPDF_lambdaLength
-    write(51,"('*p2  : Initialization parameters (in column)')")
-    do i=1,uTMDPDF_lambdaLength
-        write(51,*) uTMDPDF_lambdaNP_init(i)
-    end do
+    write(51,"('*p2  : Absolute maximum b (for larger b, TMD=0)')")
+    write(51,*) uTMDPDF_BMAX_ABS
+    write(51,"(' ')")
     write(51,"('*C   : ---- Numerical evaluation parameters ----')")
     write(51,"('*p1  : Tolerance (relative tolerance of convolution integral)')")
-    write(51,*) uTMDPDF_tolerance
-    write(51,"('*p2  : Maximum number of iterations (for adaptive integration)')")
+    write(51,*) uTMDPDF_toleranceINT
+    write(51,"('*p2  : Tolerance general (used for various comparisons)')")
+    write(51,*) uTMDPDF_toleranceGEN
+    write(51,"('*p3  : Maximum number of iterations (for adaptive integration)')")
     write(51,*) uTMDPDF_maxIteration
-    write(51,"('*D   : ---- Grid preparation options ----')")
-    write(51,"('*p1  : Prepare grid')")
-    write(51,*) uTMDPDF_makeGrid
-    write(51,"('*p2  : Include gluon TMDs into the grid')")
-    write(51,*) uTMDPDF_withGluon
-    write(51,"('*p3  : total number of PDFs added to the grid (by default it coincides with number of initialized PDFs)')")
-    write(51,*) number_of_uPDFs
-    write(51,"('*p4  : reference numbers for hadrons (by default it coincides with references for PDFs)')")
-    call writeShortIntegerList(51,enumeration_of_uPDFs)
-    write(51,"('*E   : ---- Parameters of grid ----')")
+    write(51,"(' ')")
+    write(51,"('*D   : ---- (OPE) Parameters of grid ----')")
     write(51,"('*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)')")
     write(51,*) uTMDPDF_grid_xMin
-    write(51,"('*p2  : the maximum bT in grid (min=0), for larger approximate extrapolation is done')")
+    write(51,"('*p2  : Parameter for x-griding function (better not to change it)')")
+    write(51,*) uTMDPDF_grid_parX
+    write(51,"('*p3  : the minimum bT in grid, for smaller value the result is constant')")
+    write(51,*) uTMDPDF_grid_bMin
+    write(51,"('*p4  : the maximum bT in grid, for larger b the approximate extrapolation is done')")
     write(51,*) uTMDPDF_grid_bMax
-    write(51,"('*p3  : GridSizeX (250 is enough for 10^-8 presicion, for grid up to 10^-5)')")
+    write(51,"('*p5  : Grid Size over X')")
     write(51,*) uTMDPDF_grid_SizeX
-    write(51,"('*p4  : GridSizeB (750 is enough for ~10^-6 presicion, 500 for 10^-5 presicion)')")
+    write(51,"('*p6  : Grid Size over B ')")
     write(51,*) uTMDPDF_grid_SizeB
-    write(51,"('*p5  : slope scale of griding at smaller b (better not to change it :) )')")
-    write(51,*) uTMDPDF_grid_slope
-
 
     write(51,"(' ')")
     write(51,"(' ')")
@@ -1264,37 +1268,18 @@ subroutine ReadConstantsFile(file,prefix)
 
 
     !# ----                           PARAMETERS OF uTMDPDF                  -----
+    if(FILEversion>=30) then
     call MoveTO(51,'*4   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_uTMDPDF
     call MoveTO(51,'*A   ')
     call MoveTO(51,'*p1  ')
     read(51,*) uTMDPDF_order
-    if(FILEversion>=12) then
-        call MoveTO(51,'*p2  ')
-        read(51,*) uTMDPDF_IsComposite
-    end if
-    call MoveTO(51,'*B   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) uTMDPDF_lambdaLength
-    call ReNewInitializationArray(uTMDPDF_lambdaNP_init,uTMDPDF_lambdaLength)!!!!we need to redo (and reallocate) the initialization of the NP-array
-    if(FILEversion>=10) then
-        call MoveTO(51,'*p2  ')      
-        do i=1,uTMDPDF_lambdaLength
-    read(51,*) uTMDPDF_lambdaNP_init(i)
-        end do
-    end if
-    call MoveTO(51,'*C   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) uTMDPDF_tolerance
     call MoveTO(51,'*p2  ')
-    read(51,*) uTMDPDF_maxIteration
-    call MoveTO(51,'*D   ')
-    call MoveTO(51,'*p1  ')
     read(51,*) uTMDPDF_makeGrid
-    call MoveTO(51,'*p2  ')
-    read(51,*) uTMDPDF_withGluon
     call MoveTO(51,'*p3  ')
+    read(51,*) uTMDPDF_withGluon
+    call MoveTO(51,'*p4  ')
     read(51,*) i
     if(i/=number_of_uPDFs) then
         if(outputLevel>0) write(*,*) ' '
@@ -1302,18 +1287,34 @@ subroutine ReadConstantsFile(file,prefix)
         if(outputLevel>0) write(*,*) color('                        information on the number of uTMDPDFs is ignored',c_red)
         if(outputLevel>0) write(*,*) ' '
     end if
-    call MoveTO(51,'*E   ')
+    call MoveTO(51,'*p5  ')
+    read(51,*) uTMDPDF_runGridTest
+    call MoveTO(51,'*B   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) uTMDPDF_lambdaLength
+    call MoveTO(51,'*p2  ')
+    read(51,*) uTMDPDF_BMAX_ABS
+    call MoveTO(51,'*C   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) uTMDPDF_toleranceINT
+    call MoveTO(51,'*p2  ')
+    read(51,*) uTMDPDF_toleranceGEN
+    call MoveTO(51,'*p3  ')
+    read(51,*) uTMDPDF_maxIteration
+    call MoveTO(51,'*D   ')
     call MoveTO(51,'*p1  ')
     read(51,*) uTMDPDF_grid_xMin
     call MoveTO(51,'*p2  ')
-    read(51,*) uTMDPDF_grid_bMax
+    read(51,*) uTMDPDF_grid_parX
     call MoveTO(51,'*p3  ')
-    read(51,*) uTMDPDF_grid_SizeX
+    read(51,*) uTMDPDF_grid_bMin
     call MoveTO(51,'*p4  ')
-    read(51,*) uTMDPDF_grid_SizeB
+    read(51,*) uTMDPDF_grid_bMax
     call MoveTO(51,'*p5  ')
-    read(51,*) uTMDPDF_grid_slope
-
+    read(51,*) uTMDPDF_grid_SizeX
+    call MoveTO(51,'*p6  ')
+    read(51,*) uTMDPDF_grid_SizeB
+    end if
 
     !# ----                           PARAMETERS OF uTMDFF                   -----
     call MoveTO(51,'*5   ')
