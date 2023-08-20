@@ -36,7 +36,7 @@ pure function parametrizationString(z)
 end function parametrizationString
   
   !!! the function which contains 
-    !!! int_z^1 parameterization at values of z -> 1
+    !!! parameterization of int_z^1 at values of z -> 1
     !!! it is used to estimate integration error at z~1
 pure function parametrizationStringAt1(z)
   real(dp),intent(in)::z
@@ -59,7 +59,7 @@ pure function parametrizationStringAt1(z)
   
 end function parametrizationStringAt1
 
-  
+
 !!!!Each coefficient is split to delta, sing x->1, regular
     
 !!!!!coefficient function q<-q delta-part

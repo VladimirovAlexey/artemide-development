@@ -13,7 +13,7 @@ module uTMDPDF
 use aTMDe_Numerics
 use IO_functions
 use uTMDPDF_OPE
-use uTMDPDF_model_new
+use uTMDPDF_model
 
 implicit none
 !------------------------LOCALs -----------------------------------------------

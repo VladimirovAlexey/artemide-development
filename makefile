@@ -37,7 +37,6 @@ $(SOURCEDIR)/EWinput.f90 \
 $(SOURCEDIR)/TMD_AD.f90 \
 $(SOURCEDIR)/Model/TMDR_model.f90 \
 $(SOURCEDIR)/TMDR.f90 \
-$(SOURCEDIR)/Model/uTMDPDF_model-new.f90 \
 $(SOURCEDIR)/Model/uTMDPDF_model.f90 \
 $(SOURCEDIR)/uTMDPDF_OPE.f90 \
 $(SOURCEDIR)/uTMDPDF.f90 \
@@ -123,7 +122,6 @@ aTMDeMODEL = \
 $(SOURCEDIR)/Model/TMDR_model.f90 \
 $(SOURCEDIR)/Model/TMDs_model.f90 \
 $(SOURCEDIR)/Model/uTMDFF_model.f90 \
-$(SOURCEDIR)/Model/uTMDPDF_model-new.f90 \
 $(SOURCEDIR)/Model/uTMDPDF_model.f90 
 
 aTMDeOBJ = \
@@ -137,7 +135,6 @@ $(OBJ)/EWinput.o\
 $(OBJ)/TMD_AD.o\
 $(OBJ)/TMDR_model.o\
 $(OBJ)/TMDR.o\
-$(OBJ)/uTMDPDF_model-new.o \
 $(OBJ)/uTMDPDF_model.o \
 $(OBJ)/uTMDPDF_OPE.o \
 $(OBJ)/uTMDPDF.o \
@@ -209,12 +206,6 @@ $(OBJ)/EWinput.o: $(SOURCEDIR)/EWinput.f90 $(aTMDeUTILITY)
 	$(FC) -c $(SOURCEDIR)/EWinput.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
-
-$(OBJ)/uTMDPDF_model-new.o: $(SOURCEDIR)/Model/uTMDPDF_model-new.f90 $(aTMDeUTILITY)
-#	mkdir -p obj
-	$(FC) -c $(SOURCEDIR)/Model/uTMDPDF_model-new.f90 -I$(MOD)
-	mv *.o $(OBJ)
-	mv *.mod $(MOD)
 	
 $(OBJ)/uTMDPDF_model.o: $(SOURCEDIR)/Model/uTMDPDF_model.f90 $(aTMDeUTILITY)
 #	mkdir -p obj
@@ -222,7 +213,7 @@ $(OBJ)/uTMDPDF_model.o: $(SOURCEDIR)/Model/uTMDPDF_model.f90 $(aTMDeUTILITY)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/uTMDPDF_OPE.o: $(SOURCEDIR)/uTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/uTMDPDF_model-new.f90 $(Twist2Files) $(aTMDeUTILITY) $(uTMDPDFFiles)
+$(OBJ)/uTMDPDF_OPE.o: $(SOURCEDIR)/uTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/uTMDPDF_model.f90 $(Twist2Files) $(aTMDeUTILITY) $(uTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/uTMDPDF_OPE.f90 -I$(MOD)
 	mv *.o $(OBJ)

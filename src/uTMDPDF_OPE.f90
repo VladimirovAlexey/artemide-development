@@ -23,7 +23,7 @@ use aTMDe_Numerics
 use IntegrationRoutines
 use IO_functions
 use QCDinput
-use uTMDPDF_model_new
+use uTMDPDF_model
 implicit none
 
 !------------------------LOCALs -----------------------------------------------
@@ -109,7 +109,6 @@ contains
 
 !! Coefficient function
 INCLUDE 'Code/uTMDPDF/coeffFunc-new2.f90'
-!INCLUDE 'Code/uTMDPDF/coeffFunc-new.f90'
 
 !! X-grid routines
 INCLUDE 'Code/Twist2/Twist2Xgrid.f90'
