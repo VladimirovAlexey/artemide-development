@@ -12,7 +12,7 @@ integer::i,j
 real::t1,t2,t3,t4
 real*8::x,b
 
-call uTMDPDF_OPE_Initialize('aTMDe-temporary',prefix='Prog/Tests/const-files/')
+call uTMDPDF_OPE_Initialize('uTMDPDF.atmde',prefix='Prog/Tests/const-files/')
 
 do i=0,50
 do j=0,50

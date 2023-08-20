@@ -80,8 +80,8 @@ function CxF_compute(x,bT,hadron,includeGluon)
     real(dp),dimension(1:parametrizationLength):: Bqq,Bqg,Bgq,Bgg,Bqqb,Bqqp
     integer::i
 
-    real(dp),parameter::yCUT=0.9999_dp
-    real(dp),parameter::xCUT=0.9_dp
+    real(dp)::yCUT
+    real(dp),parameter::xCUT=0.99_dp
 
     !! for extrimely small-values of b we freeze it.
     if(bT>bMIN) then
@@ -154,18 +154,17 @@ function CxF_compute(x,bT,hadron,includeGluon)
         Bqqp=Coeff_q_qp_reg(asAt1,NfAt1,LogAt1)
     end if
 
-!     !!!! at large-x compute as is..
+    !!! for smaller x, the part y~1 can be computed approximately (the xCUT is necesary since if x~y the error grows)
+    !!! however if x is large ~1, the  should be closer to 1.
+    yCUT=0.9999_dp
     if(x>xCUT) then
-        !!! the integral over regular and singular parts are added
-        CxF_compute=CxF_compute+PLUSremnant&
-            +Integrate_GK_array5(FFreg,x,1._dp,toleranceINT)&
-            +Integrate_GK_array5(FFplus,x,1._dp,toleranceINT)
-    else !!! for smaller x, the part y~1 can be computed approximately (the xCUT is necesary since if x~y the error grows)
-        CxF_compute=CxF_compute+PLUSremnant&
+       yCUT=(100._dp+x)/101._dp
+    end if
+
+    CxF_compute=CxF_compute+PLUSremnant&
             +Integrate_GK_array5(FFreg,x,yCUT,toleranceINT)&
             +Integrate_GK_array5(FFplus,x,yCUT,toleranceINT)&
             +Integrate_largey()
-    end if
 
     end if
 
@@ -192,12 +191,12 @@ function CxF_compute(x,bT,hadron,includeGluon)
         real(dp),dimension(-5:5)::PDFs
         real(dp),dimension(1:parametrizationLength):: var
 
-        !!! very rare error, if y~1 (up to machine precision) freeze it!
-        if(y<0.999999999d0) then
+!         !!! very rare error, if y~1 (up to machine precision) freeze it!
+!         if(y<0.999999999d0) then
             var=parametrizationString(y)
-        else
-            var=parametrizationString(0.999999999d0)
-        end if
+!         else
+!             var=parametrizationString(0.999999999d0)
+!         end if
 
         !!! if mu is y-dependent one needs to update the values of parameters for each y
         if(IsMuYdependent) then
