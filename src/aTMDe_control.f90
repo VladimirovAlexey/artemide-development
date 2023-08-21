@@ -73,7 +73,6 @@ subroutine artemide_Initialize(file,prefix,order)
     character(len=*),optional::order
     character(len=300)::path
     integer::FILEver,i
-    logical::initilize_NParrays
     !-----------------------------------------------------------
     if(present(prefix).and.present(order)) then
         call artemide_Setup_fromFile(file,prefix=prefix,order=order)
@@ -117,10 +116,6 @@ subroutine artemide_Initialize(file,prefix,order)
     call MoveTO(51,'*p3  ')
     read(51,*) outputLevel    
 
-    call MoveTO(51,'*C   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) initilize_NParrays
-
     call MoveTO(51,'*2   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_EWinput
@@ -150,10 +145,6 @@ subroutine artemide_Initialize(file,prefix,order)
     !allocate lambda's and read initialization NP-array
     if(include_uTMDPDF) then
         allocate(lambdaNP_uTMDPDF(1:NPlength_uTMDPDF))
-!         call MoveTO(51,'*p2  ')
-!         do i=1,NPlength_uTMDPDF
-!             read(51,*) lambdaNP_uTMDPDF(i)
-!         end do
     end if
 
     call MoveTO(51,'*5   ')
@@ -165,10 +156,6 @@ subroutine artemide_Initialize(file,prefix,order)
     !allocate lambda's and read initialization NP-array
     if(include_uTMDFF) then
         allocate(lambdaNP_uTMDFF(1:NPlength_uTMDFF))
-        call MoveTO(51,'*p2  ')
-        do i=1,NPlength_uTMDFF
-            read(51,*) lambdaNP_uTMDFF(i)
-        end do
     end if
 
     call MoveTO(51,'*6   ')
@@ -200,10 +187,6 @@ subroutine artemide_Initialize(file,prefix,order)
     !allocate lambda's and read initialization NP-array
     if(include_lpTMDPDF) then
         allocate(lambdaNP_lpTMDPDF(1:NPlength_lpTMDPDF))
-        call MoveTO(51,'*p2  ')
-        do i=1,NPlength_lpTMDPDF
-            read(51,*) lambdaNP_lpTMDPDF(i)
-        end do
     end if
     
     call MoveTO(51,'*12   ')
@@ -215,10 +198,6 @@ subroutine artemide_Initialize(file,prefix,order)
     !allocate lambda's and read initialization NP-array
     if(include_SiversTMDPDF) then
         allocate(lambdaNP_SiversTMDPDF(1:NPlength_SiversTMDPDF))
-        call MoveTO(51,'*p2  ')
-        do i=1,NPlength_SiversTMDPDF
-            read(51,*) lambdaNP_SiversTMDPDF(i)
-        end do
     end if
     
     call MoveTO(51,'*13   ')
@@ -230,10 +209,6 @@ subroutine artemide_Initialize(file,prefix,order)
     !allocate lambda's and read initialization NP-array
     if(include_wgtTMDPDF) then
         allocate(lambdaNP_wgtTMDPDF(1:NPlength_wgtTMDPDF))
-        call MoveTO(51,'*p2  ')
-        do i=1,NPlength_wgtTMDPDF
-            read(51,*) lambdaNP_wgtTMDPDF(i)
-        end do
     end if
 
     CLOSE (51, STATUS='KEEP')
@@ -364,17 +339,6 @@ subroutine artemide_Initialize(file,prefix,order)
     isStarted=.true.
 
     if(outputLevel>1) write(*,*) color(' artemide.control: initialization done.',c_green_bold)
-
-    if(initilize_NParrays) then
-    if(outputLevel>1) write(*,*) 'artemide.control: setting initial NP arrays.'
-    if(include_TMDR) call artemide_SetNPparameters_TMDR(lambdaNP_TMDR)
-    if(include_uTMDPDF) call artemide_SetNPparameters_uTMDPDF(lambdaNP_uTMDPDF)
-    if(include_uTMDFF) call artemide_SetNPparameters_uTMDFF(lambdaNP_uTMDFF)
-    if(include_lpTMDPDF) call artemide_SetNPparameters_lpTMDPDF(lambdaNP_lpTMDPDF)
-    if(include_SiversTMDPDF) call artemide_SetNPparameters_SiversTMDPDF(lambdaNP_SiversTMDPDF)
-    if(include_wgtTMDPDF) call artemide_SetNPparameters_wgtTMDPDF(lambdaNP_wgtTMDPDF)
-    if(outputLevel>1) write(*,*) color(' artemide.control: initial NP arrays set.',c_green_bold)
-    end if
 end subroutine artemide_Initialize
   
   !-------------------------------------------------------------- NP parameters ---------------------------

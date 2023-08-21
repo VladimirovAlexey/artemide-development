@@ -23,14 +23,7 @@ implicit none
  !$  t1=OMP_get_wtime()
  
   write(*,*) "Initialize artemide at LO. It is fast ~1 sek. NNLO could be much longer ~5 min."
-  call artemide_Initialize('const-test')
-!   call TMDX_DY_Initialize('LO')
-  ! call TMDX_DY_setProcess(1,1,6)
-  ! call SetCuts(.true.,20d0,-2.4d0,2.4d0)
-  ! call TMDX_DY_XSetup(8000d0**2,91d0,0.01d0)
-!   call TMDX_DY_SetNPParameters(0)
-  !call artemide_SetReplica_uTMDPDF(0)
-  !call artemide_SetReplica_TMDR(0)
+  call artemide_Initialize('test.atmde')
  
   do j=1,3
   pt(j)=2*REAL(j)
@@ -41,17 +34,9 @@ implicit none
   ptPLUS(4)=ptMax(3)
   
   
-!  call CalcXsec_DY_PTint_Qint_Yint(xSec,ptmin,ptmax,66d0,126d0,-0.5d0,3.5d0)
-!   do j=1,3
-!   write(*,*) ptmin(j),'--',ptmax(j),xSec(j)
-!   end do 
-!  
   write(*,*) "Calculating some values for cross-section one-by-one (DY around Z-boson peak, ATLAS 8TeV kinematics)"
   write(*,*) "ptMin 	--	ptMax		xSec"
    do j=1,3
-!     write(*,*) ptmin(j),'--',ptmax(j),xSec_DY(process=(/1,1,6/),s=8000d0**2,&
-! 		qT=(/ptMin(j),ptmax(j)/),Q=(/66d0,126d0/),y=(/-0.5d0,3.5d0/),&
-! 		includeCuts=.true.,CutParameters=(/20d0,20d0,-2.4d0,2.4d0/),Num=4)
       p1=(/ptMin(j),ptmax(j)/)
       p2=(/66d0,116d0/)
       p3=(/-2.4d0,2.4d0/)

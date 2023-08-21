@@ -14,7 +14,7 @@ implicit none
 
 private
 
-character (len=5),parameter :: version="v2.06"
+character (len=5),parameter :: version="v3.00"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
 integer,parameter::inputVer=30
@@ -22,9 +22,7 @@ integer,parameter::inputVer=30
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
 integer::messageTrigger
-
-!! if .true. uses the given NP arrays to initialize from aTMDe_control
-logical::initialize_NParrays
+integer::number_of_processors !!!! number of processors which could be used by openMP
 
 !-----------------------physic parameters
 logical::include_EWinput
@@ -161,7 +159,7 @@ real(dp)::TMDX_SIDIS_toleranceZ,TMDX_SIDIS_toleranceX
 character(len=4)::TMDX_SIDIS_methodZ,TMDX_SIDIS_methodX
 
 !---------------------------------------------------
-public::artemide_Setup_Default,artemide_Setup_fromFile,artemide_include,CreateConstantsFile,ReadConstantsFile,CheckConstantsFile
+public::artemide_Setup_fromFile,artemide_include,CreateConstantsFile,ReadConstantsFile,CheckConstantsFile
 public::Set_uPDF,Set_uFF,Set_lpPDF,Set_quarkMasses,Set_EWparameters
 public::Set_TMDR_order,Set_TMDR_evolutionType,Set_TMDR_lengthNParray
 public::Set_uTMDPDF,Set_uTMDPDF_order,Set_uTMDPDF_gridEvaluation,Set_uTMDPDF_lengthNParray
@@ -171,15 +169,6 @@ public::Set_lpTMDPDF,Set_lpTMDPDF_order,Set_lpTMDPDF_gridEvaluation,Set_lpTMDPDF
 contains
 
 INCLUDE 'Code/aTMDe_setup/const-modification.f90'
-  
-!!!
-subroutine artemide_Setup_Default(order)
-    character(len=*),intent(in)::order
-
-    outputLevel=2
-    call SetupDefault(trim(order))
-
-end subroutine artemide_Setup_Default
   
 subroutine artemide_Setup_fromFile(file,prefix,order)
     character(len=*)::file
@@ -212,7 +201,7 @@ subroutine SetupDefault(order)
     outputLevel=2
     messageTrigger=6
 
-    initialize_NParrays=.false.
+    number_of_processors=8
 
     include_EWinput=.true.
     !-----------------------physic parameters
@@ -474,7 +463,17 @@ function CheckConstantsFile(file,prefix)
     call MoveTO(51,'*p1  ')
     read(51,*) FILEversion
     CLOSE (51, STATUS='KEEP') 
-        
+
+    if(FILEversion<30) then
+        write(*,*) color('aTMDe_setup: present version of setup-file is for artemide v2.'&
+        , c_red_bold)
+        write(*,*) color('..           It is incompatible with the preent version.'&
+        , c_red)
+        write(*,*) color('..           Please, use actual file or update it manually.'&
+        ,c_red)
+        stop
+    end if
+
     if(FILEversion<inputVer) then
         CheckConstantsFile=.false.
     else
@@ -529,8 +528,8 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) hc2
     write(51,"(' ')")
     write(51,"('*C   : ---- aTMDe-control parameters ----')")
-    write(51,"('*p1  : initialize the modules by NP arrays')")
-    write(51,*) initialize_NParrays
+    write(51,"('*p1  : Maximum number of processors to use (used only if compiled with openMP)')")
+    write(51,*) number_of_processors
     write(51,"(' ')")
 
 
@@ -1075,6 +1074,14 @@ subroutine ReadConstantsFile(file,prefix)
         if(outputLevel>0) write(*,*) color('aTMDe_setup: UPDATE ARTEMIDE!',c_red_bold)
         if(outputLevel>0) write(*,*) color('aTMDe_setup: UPDATE ARTEMIDE!',c_red_bold)
         if(outputLevel>0) write(*,*) 'aTMDe_setup: Attempt to load...'
+    else if(FILEversion<30) then
+        write(*,*) color('aTMDe_setup: suggested setup-file is for artemide v2.'&
+        , c_red_bold)
+        write(*,*) color('..           It is incompatible with the preent version.'&
+        , c_red)
+        write(*,*) color('..           Please, use actual file or update it manually.'&
+        ,c_red)
+        stop
     else if(FILEversion<inputVer) then
         if(outputLevel>0) write(*,*) color('aTMDe_setup: Version of input file(',c_red_bold), &
                                         color(int4ToStr(FILEversion),c_red_bold),&
@@ -1093,11 +1100,9 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p1  ')
     read(51,*) hc2
 
-    if(FILEversion>=11) then
-        call MoveTO(51,'*C   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) initialize_NParrays
-    end if
+    call MoveTO(51,'*C   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) number_of_processors
 
     !# ----                           PARAMETERS OF QCDinput                 -----
     call MoveTO(51,'*1   ')
@@ -1106,10 +1111,9 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) mCHARM
     call MoveTO(51,'*p2  ')
     read(51,*) mBOTTOM
-    if(FILEversion>3) then
-        call MoveTO(51,'*p3  ')
-        read(51,*) mTOP
-    end if
+    call MoveTO(51,'*p3  ')
+    read(51,*) mTOP
+
     !-------PDF for uTMDPDF
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
@@ -1152,51 +1156,49 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p4  ')
     read(51,*) replicas_of_uFFs
 
-    if(FILEversion>=3) then
-        !-------PDF for lpTMDPDF
-        call MoveTO(51,'*D   ')
-        call MoveTO(51,'*p1  ')
 
-        read(51,*) number_of_lpPDFs
-        if(allocated(enumeration_of_lpPDFs)) deallocate(enumeration_of_lpPDFs)
-        if(allocated(replicas_of_lpPDFs)) deallocate(replicas_of_lpPDFs)
-        if(allocated(sets_of_lpPDFs)) deallocate(sets_of_lpPDFs)
-        allocate(enumeration_of_lpPDFs(1:number_of_lpPDFs))
-        allocate(sets_of_lpPDFs(1:number_of_lpPDFs))
-        allocate(replicas_of_lpPDFs(1:number_of_lpPDFs))    
+    !-------PDF for lpTMDPDF
+    call MoveTO(51,'*D   ')
+    call MoveTO(51,'*p1  ')
 
-        call MoveTO(51,'*p2  ')
-        read(51,*) enumeration_of_lpPDFs
-        call MoveTO(51,'*p3  ')
-        do i=1,number_of_lpPDFs
-            read(51,*) sets_of_lpPDFs(i)
-        end do
-        call MoveTO(51,'*p4  ')
-        read(51,*) replicas_of_lpPDFs
-    end if
+    read(51,*) number_of_lpPDFs
+    if(allocated(enumeration_of_lpPDFs)) deallocate(enumeration_of_lpPDFs)
+    if(allocated(replicas_of_lpPDFs)) deallocate(replicas_of_lpPDFs)
+    if(allocated(sets_of_lpPDFs)) deallocate(sets_of_lpPDFs)
+    allocate(enumeration_of_lpPDFs(1:number_of_lpPDFs))
+    allocate(sets_of_lpPDFs(1:number_of_lpPDFs))
+    allocate(replicas_of_lpPDFs(1:number_of_lpPDFs))
+
+    call MoveTO(51,'*p2  ')
+    read(51,*) enumeration_of_lpPDFs
+    call MoveTO(51,'*p3  ')
+    do i=1,number_of_lpPDFs
+        read(51,*) sets_of_lpPDFs(i)
+    end do
+    call MoveTO(51,'*p4  ')
+    read(51,*) replicas_of_lpPDFs
     
-    if(FILEversion>=18) then
-        !-------helicity PDF
-        call MoveTO(51,'*E   ')
-        call MoveTO(51,'*p1  ')
 
-        read(51,*) number_of_hPDFs
-        if(allocated(enumeration_of_hPDFs)) deallocate(enumeration_of_hPDFs)
-        if(allocated(replicas_of_hPDFs)) deallocate(replicas_of_hPDFs)
-        if(allocated(sets_of_hPDFs)) deallocate(sets_of_hPDFs)
-        allocate(enumeration_of_hPDFs(1:number_of_hPDFs))
-        allocate(sets_of_hPDFs(1:number_of_hPDFs))
-        allocate(replicas_of_hPDFs(1:number_of_hPDFs))    
+    !-------helicity PDF
+    call MoveTO(51,'*E   ')
+    call MoveTO(51,'*p1  ')
 
-        call MoveTO(51,'*p2  ')
-        read(51,*) enumeration_of_hPDFs
-        call MoveTO(51,'*p3  ')
-        do i=1,number_of_hPDFs
-            read(51,*) sets_of_hPDFs(i)
-        end do
-        call MoveTO(51,'*p4  ')
-        read(51,*) replicas_of_hPDFs
-    end if
+    read(51,*) number_of_hPDFs
+    if(allocated(enumeration_of_hPDFs)) deallocate(enumeration_of_hPDFs)
+    if(allocated(replicas_of_hPDFs)) deallocate(replicas_of_hPDFs)
+    if(allocated(sets_of_hPDFs)) deallocate(sets_of_hPDFs)
+    allocate(enumeration_of_hPDFs(1:number_of_hPDFs))
+    allocate(sets_of_hPDFs(1:number_of_hPDFs))
+    allocate(replicas_of_hPDFs(1:number_of_hPDFs))
+
+    call MoveTO(51,'*p2  ')
+    read(51,*) enumeration_of_hPDFs
+    call MoveTO(51,'*p3  ')
+    do i=1,number_of_hPDFs
+        read(51,*) sets_of_hPDFs(i)
+    end do
+    call MoveTO(51,'*p4  ')
+    read(51,*) replicas_of_hPDFs
 
     !# ----                           PARAMETERS OF EWinput                  -----
     call MoveTO(51,'*2   ')
@@ -1210,10 +1212,8 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p3  ')
     read(51,*) Vckm_UD,Vckm_US,Vckm_UB
     read(51,*) Vckm_CD,Vckm_CS,Vckm_CB
-    if(FILEversion>=14) then
-        call MoveTO(51,'*p4  ')
-        read(51,*) alphaQED_MTAU
-    end if
+    call MoveTO(51,'*p4  ')
+    read(51,*) alphaQED_MTAU
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
     read(51,*) mZ
@@ -1224,24 +1224,20 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) mW
     call MoveTO(51,'*p2  ')
     read(51,*) GammaW
-    if(FILEversion>=5) then
-        call MoveTO(51,'*D   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) mH
-        call MoveTO(51,'*p2  ')
-        read(51,*) GammaH
-        call MoveTO(51,'*p3  ')
-        read(51,*) vevH
-    end if
-    if(FILEversion>=13) then
-        call MoveTO(51,'*E   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) mELECTRON
-        call MoveTO(51,'*p2  ')
-        read(51,*) mMUON
-        call MoveTO(51,'*p3  ')
-        read(51,*) mTAU
-    end if
+    call MoveTO(51,'*D   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) mH
+    call MoveTO(51,'*p2  ')
+    read(51,*) GammaH
+    call MoveTO(51,'*p3  ')
+    read(51,*) vevH
+    call MoveTO(51,'*E   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) mELECTRON
+    call MoveTO(51,'*p2  ')
+    read(51,*) mMUON
+    call MoveTO(51,'*p3  ')
+    read(51,*) mTAU
 
 
     !# ----                            PARAMETERS OF TMDR                    -----
@@ -1274,7 +1270,6 @@ subroutine ReadConstantsFile(file,prefix)
 
 
     !# ----                           PARAMETERS OF uTMDPDF                  -----
-    if(FILEversion>=30) then
     call MoveTO(51,'*4   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_uTMDPDF
@@ -1320,10 +1315,8 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) uTMDPDF_grid_SizeX
     call MoveTO(51,'*p6  ')
     read(51,*) uTMDPDF_grid_SizeB
-    end if
 
     !# ----                           PARAMETERS OF uTMDFF                   -----
-    if(FILEversion>=30) then
     call MoveTO(51,'*5   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_uTMDFF
@@ -1369,7 +1362,6 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) uTMDFF_grid_SizeX
     call MoveTO(51,'*p6  ')
     read(51,*) uTMDFF_grid_SizeB
-    end if
 
 
     !# ----                            PARAMETERS OF TMDs                    -----
@@ -1387,11 +1379,10 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) TMDF_tolerance
     call MoveTO(51,'*p2  ')
     read(51,*) TMDF_OGATAh
-    if(FILEversion>=16) then
-        call MoveTO(51,'*B   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) TMDF_mass
-    end if
+    call MoveTO(51,'*B   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) TMDF_mass
+
 
 
     !# ----                          PARAMETERS OF TMDs-inKT                 -----
@@ -1414,23 +1405,18 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) TMDX_DY_order
     call MoveTO(51,'*p2  ')
     read(51,*) TMDX_DY_exactX1X2
-    if(FILEversion>=6) then
-        call MoveTO(51,'*p3  ')
-        read(51,*) TMDX_DY_piResum
-    end if
-    if(FILEversion>=17) then
-        call MoveTO(51,'*p4  ')
-        read(51,*) TMDX_DY_exactScale
-    end if
+    call MoveTO(51,'*p3  ')
+    read(51,*) TMDX_DY_piResum
+    call MoveTO(51,'*p4  ')
+    read(51,*) TMDX_DY_exactScale
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
     read(51,*) TMDX_DY_tolerance
     call MoveTO(51,'*p2  ')
     read(51,*) TMDX_DY_ptSECTION
-    if(FILEversion>=21) then
-        call MoveTO(51,'*p3  ')
-        read(51,*) TMDX_DY_maxQbinSize
-    end if
+    call MoveTO(51,'*p3  ')
+    read(51,*) TMDX_DY_maxQbinSize
+
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')
     read(51,*) TMDX_DY_numProc
@@ -1449,37 +1435,28 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) TMDX_SIDIS_M1corr
     call MoveTO(51,'*p4  ')
     read(51,*) TMDX_SIDIS_M2corr
-    if(FILEversion>=9) then
-        call MoveTO(51,'*p5  ')
-        read(51,*) TMDX_SIDIS_qTinX1Z1corr
-    end if
-    if(FILEversion>=20) then
-        call MoveTO(51,'*p6  ')
-        read(51,*) TMDX_SIDIS_exactScale
-    end if
+    call MoveTO(51,'*p5  ')
+    read(51,*) TMDX_SIDIS_qTinX1Z1corr
+    call MoveTO(51,'*p6  ')
+    read(51,*) TMDX_SIDIS_exactScale
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
     read(51,*) TMDX_SIDIS_tolerance
     call MoveTO(51,'*p2  ')
     read(51,*) TMDX_SIDIS_ptSECTION
-    if(FILEversion>=7) then
-        call MoveTO(51,'*p3  ')
-        read(51,*) TMDX_SIDIS_toleranceZ
-        call MoveTO(51,'*p4  ')
-        read(51,*) TMDX_SIDIS_methodZ
-    end if
-    if(FILEversion>=8) then
-        call MoveTO(51,'*p5  ')
-        read(51,*) TMDX_SIDIS_toleranceX
-        call MoveTO(51,'*p6  ')
-        read(51,*) TMDX_SIDIS_methodX
-    end if
+    call MoveTO(51,'*p3  ')
+    read(51,*) TMDX_SIDIS_toleranceZ
+    call MoveTO(51,'*p4  ')
+    read(51,*) TMDX_SIDIS_methodZ
+    call MoveTO(51,'*p5  ')
+    read(51,*) TMDX_SIDIS_toleranceX
+    call MoveTO(51,'*p6  ')
+    read(51,*) TMDX_SIDIS_methodX
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')
     read(51,*) TMDX_SIDIS_numProc
 
     !# ----                           PARAMETERS OF lpTMDPDF                  -----
-    if(FILEversion>=30) then
     call MoveTO(51,'*11   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_lpTMDPDF
@@ -1529,10 +1506,8 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) lpTMDPDF_grid_SizeX
     call MoveTO(51,'*p6  ')
     read(51,*) lpTMDPDF_grid_SizeB
-    end if
     
     !# ----                           PARAMETERS OF SiversTMDPDF                  -----
-    if(FILEversion>=30) then
     call MoveTO(51,'*12   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_SiversTMDPDF
@@ -1559,10 +1534,8 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) SiversTMDPDF_toleranceGEN
     call MoveTO(51,'*p3  ')
     read(51,*) SiversTMDPDF_maxIteration
-    end if
     
     !# ----                           PARAMETERS OF wgtTMDPDF                  -----
-    if(FILEversion>=30) then
     call MoveTO(51,'*13   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_wgtTMDPDF
@@ -1620,8 +1593,6 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) number_of_tw3_wgtPDF
     call MoveTO(51,'*p5  ')
     read(51,*) wgtTMDPDF_runGridTest_tw3
-    end if
-
 
     CLOSE (51, STATUS='KEEP') 
 
