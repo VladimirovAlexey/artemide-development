@@ -71,10 +71,11 @@
  
 *E   : ----hPDF sets----
 *p1  : total number of PDFs to initialize (0= initialization is skipped)
-           0
+           1
 *p2  : reference number for hadrons
-   -1
+   1
 *p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
+MSHT20nnlo_as118
 *p4  : list of initialization replicas
     0
  
@@ -151,7 +152,7 @@
 # ---------------------------------------------------------------------------
 *4   :
 *p1  : initialize uTMDPDF module
- T
+ F
  
 *A   : ---- OPE main definitions ----
 *p1  : Order of coefficient function
@@ -347,7 +348,7 @@
 # ---------------------------------------------------------------------------
 *11   :
 *p1  : initialize uTMDPDF module
- T
+ F
 
 *A   : ---- OPE main definitions ----
 *p1  : Order of coefficient function
@@ -428,7 +429,7 @@
 # ---------------------------------------------------------------------------
 *13  :
 *p1  : initialize wgtTMDPDF module
- F
+ T
  
 *A   : ---- OPE[tw2] main definitions ----
 *p1  : Order of coefficient function

@@ -1,13 +1,13 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !			arTeMiDe 3.00
 !
-!	Evaluation of the small-b OPE for uTMDPDF
+!	Evaluation of the small-b OPE for uTMDFF
 !	
 !	if you use this module please, quote ????.????
 !
-!	ver 3.00: release (AV, 18.07.2023)
+!	ver 3.00: release (AV, 20.07.2023)
 !
-!				A.Vladimirov (18.07.2023)
+!				A.Vladimirov (20.07.2023)
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -18,12 +18,12 @@
 ! * only global variables are kept here
 ! * the most part of the code is universal, and shared by many such modules
 
-module uTMDPDF_OPE
+module uTMDFF_OPE
 use aTMDe_Numerics
 use IntegrationRoutines
 use IO_functions
 use QCDinput
-use uTMDPDF_model
+use uTMDFF_model
 implicit none
 
 !------------------------LOCALs -----------------------------------------------
@@ -32,7 +32,7 @@ private
 
 !Current version of module
 character (len=5),parameter :: version="v3.00"
-character (len=11),parameter :: moduleName="uTMDPDF_OPE"
+character (len=11),parameter :: moduleName="uTMDFF_OPE"
 !Last appropriate version of constants-file
 integer,parameter::inputver=30
 
@@ -80,13 +80,7 @@ logical :: runTest=.false.   !!!trigger to run the test
 
 !!!------------------------- HARD-CODED PARAMETERS ----------------------
 !!! Coefficient lists
-integer,parameter::parametrizationLength=37
-!! { Log[1-x], log[1-x]^2, log[1-x]^3, log[1-x]^4, log[1-x]^5  !exact
-!!   1/x, log[x]/x, Log[x]^2/x  !exact
-!! Log[x], log[x]^2, Log[x]^3, log[x]^4, Log[x]^5 !exact
-!! T0,...,T23 (Chebyshev polynomials) }
-!! The Lmu^2 part is exact the later parts are fitted, but exact if posible (e.g. Lmu and Nf parts for q->q)
-!!!!! TO DO: UPDATE TO EXACT VALUES [use 1809.07084]!!
+integer,parameter::parametrizationLength=36
 
 !!!------------------------- DYNAMICAL-GLOBAL PARAMETERS -------------------
 real(dp) :: c4_global=1_dp  !!! scale variation parameter
@@ -98,8 +92,8 @@ real(dp), dimension(:,:,:,:), allocatable :: interpolationParameters !!!! for b>
 integer::numberOfHadrons=1				!!!total number of hadrons to be stored
 
 !!--------------------------------------Public interface-----------------------------------------
-public::uTMDPDF_OPE_IsInitialized,uTMDPDF_OPE_Initialize,uTMDPDF_OPE_convolution
-public::uTMDPDF_OPE_resetGrid,uTMDPDF_OPE_testGrid,uTMDPDF_OPE_SetPDFreplica,uTMDPDF_OPE_SetScaleVariation
+public::uTMDFF_OPE_IsInitialized,uTMDFF_OPE_Initialize,uTMDFF_OPE_convolution
+public::uTMDFF_OPE_resetGrid,uTMDFF_OPE_testGrid,uTMDFF_OPE_SetPDFreplica,uTMDFF_OPE_SetScaleVariation
 
 !!!!!!----FOR TEST
 !public::MakeGrid,ExtractFromGrid,CxF_compute,TestGrid
@@ -107,7 +101,7 @@ public::uTMDPDF_OPE_resetGrid,uTMDPDF_OPE_testGrid,uTMDPDF_OPE_SetPDFreplica,uTM
 contains
 
 !! Coefficient function
-INCLUDE 'Code/uTMDPDF/coeffFunc.f90'
+INCLUDE 'Code/uTMDFF/coeffFunc.f90'
 
 !! X-grid routines
 INCLUDE 'Code/Twist2/Twist2Xgrid.f90'
@@ -119,13 +113,13 @@ INCLUDE 'Code/Twist2/Twist2Convolution.f90'
 INCLUDE 'Code/Twist2/Twist2Grid-XB.f90'
 
 
-function uTMDPDF_OPE_IsInitialized()
-    logical::uTMDPDF_OPE_IsInitialized
-    uTMDPDF_OPE_IsInitialized=started
-end function uTMDPDF_OPE_IsInitialized
+function uTMDFF_OPE_IsInitialized()
+    logical::uTMDFF_OPE_IsInitialized
+    uTMDFF_OPE_IsInitialized=started
+end function uTMDFF_OPE_IsInitialized
 
 !! Initialization of the package
-subroutine uTMDPDF_OPE_Initialize(file,prefix)
+subroutine uTMDFF_OPE_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
     character(len=300)::path,line
@@ -178,7 +172,7 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     !$read(51,*) i
     !$ call OMP_set_num_threads(i)
 
-    call MoveTO(51,'*4   ')
+    call MoveTO(51,'*5   ')
     call MoveTO(51,'*p1  ')
     read(51,*) initRequired
     if(.not.initRequired) then
@@ -278,7 +272,7 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     call BGrid_Initialize()
     call TMDGrid_XB_Initialize()
     
-    !!! Model initialisation is called from the uTMDPDF-module
+    !!! Model initialisation is called from the uTMDFF-module
     
     !!!!!!!Checking the x-dependance of muOPE
     IsMuYdependent=testMU()
@@ -300,10 +294,10 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     started=.true.
     messageCounter=0
 
-    if(outputLevel>0) write(*,*) color('----- arTeMiDe.uTMDPDF_OPE '//trim(version)//': .... initialized',c_green)
+    if(outputLevel>0) write(*,*) color('----- arTeMiDe.uTMDFF_OPE '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) ' '
 
-end subroutine uTMDPDF_OPE_Initialize
+end subroutine uTMDFF_OPE_Initialize
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
@@ -314,12 +308,17 @@ function xf(x,Q,hadron)
     integer:: hadron
     real(dp), dimension(-5:5):: xf
     
-    xf=xPDF(x,Q,hadron)
+    xf=xFF(x,Q,hadron)
     
 end function xf
 
-function uTMDPDF_OPE_convolution(x,b,h,addGluon)
-    real(dp),dimension(-5:5)::uTMDPDF_OPE_convolution
+
+!!!!! in the case of TMDFF one computes the convolution as
+!!! int_z^1 dy/y C[z/y] d[y]/y^2 = 1/z^3 int_z^1 dy [y^2C](y) D[z/y],
+!!! where D(z)=z d(z), and [y^2C](y) is tabulated in the coeff.functions.
+!!! the Convolution integral computes int_z^1 dy [y^2C](y) D[z/y]. Thus one needs to devide by z^3
+function uTMDFF_OPE_convolution(x,b,h,addGluon)
+    real(dp),dimension(-5:5)::uTMDFF_OPE_convolution
     real(dp),intent(in)::x,b
     integer,intent(in)::h
     logical,optional,intent(in)::addGluon
@@ -333,14 +332,14 @@ function uTMDPDF_OPE_convolution(x,b,h,addGluon)
         gluon=withGluon
     end if
 
-    !!!! test for boundaries is done in uTMDPDF_lowScale5 (on the enty to this procedure)
+    !!!! test for boundaries is done in uTMDFF_lowScale5 (on the enty to this procedure)
 
     !!!! case NA
     if(orderMain==-50) then
         if(gluon) then
-            uTMDPDF_OPE_convolution=1._dp
+            uTMDFF_OPE_convolution=1._dp
         else
-            uTMDPDF_OPE_convolution=(/1._dp,1._dp,1._dp,1._dp,1._dp,0._dp,1._dp,1._dp,1._dp,1._dp,1._dp/)
+            uTMDFF_OPE_convolution=(/1._dp,1._dp,1._dp,1._dp,1._dp,0._dp,1._dp,1._dp,1._dp,1._dp,1._dp/)
         end if
         return
     end if
@@ -348,22 +347,22 @@ function uTMDPDF_OPE_convolution(x,b,h,addGluon)
     !!! computation
     if(useGrid) then
         if(gridReady) then
-            uTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)/x
+            uTMDFF_OPE_convolution=ExtractFromGrid(x,b,h)/x**3
         else
             call Warning_Raise('Called OPE_convolution while grid is not ready.',messageCounter,messageTrigger,moduleName)
-            call uTMDPDF_OPE_resetGrid()
-            uTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)/x
+            call uTMDFF_OPE_resetGrid()
+            uTMDFF_OPE_convolution=ExtractFromGrid(x,b,h)/x**3
         end if
     else
-        uTMDPDF_OPE_convolution=CxF_compute(x,b,h,gluon)/x
+        uTMDFF_OPE_convolution=CxF_compute(x,b,h,gluon)/x**3
     end if
 
-end function uTMDPDF_OPE_convolution
+end function uTMDFF_OPE_convolution
 
 
 !!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
 !!! This subroutine force reconstruction of the grid (if griding is ON)
-subroutine uTMDPDF_OPE_resetGrid()
+subroutine uTMDFF_OPE_resetGrid()
     gridReady=.false.
     if(useGrid) then
         if(outputLevel>1) write(*,*) 'arTeMiDe ',moduleName,':  Grid Reset. with c4=',c4_global
@@ -371,50 +370,50 @@ subroutine uTMDPDF_OPE_resetGrid()
 
         gridReady=.true.
     end if
-end subroutine uTMDPDF_OPE_resetGrid
+end subroutine uTMDFF_OPE_resetGrid
 
 !!! This subroutine force reconstruction of the grid (if griding is ON)
-subroutine uTMDPDF_OPE_testGrid()
+subroutine uTMDFF_OPE_testGrid()
     if(useGrid) then
         if(.not.gridReady) then
-            call uTMDPDF_OPE_resetGrid()
+            call uTMDFF_OPE_resetGrid()
         end if
         call TestGrid()
     end if
-end subroutine uTMDPDF_OPE_testGrid
+end subroutine uTMDFF_OPE_testGrid
 
 !! call QCDinput to change the PDF replica number
 !! unset the grid, since it should be recalculated fro different PDF replica.
-subroutine uTMDPDF_OPE_SetPDFreplica(rep,hadron)
+subroutine uTMDFF_OPE_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
     logical::newPDF
 
     call QCDinput_SetPDFreplica(rep,hadron,newPDF)
     if(newPDF) then
         gridReady=.false.
-        call uTMDPDF_OPE_resetGrid()
+        call uTMDFF_OPE_resetGrid()
     else
-        if(outputLevel>1) write(*,"('arTeMiDe ',A,':  replica of PDF (',I4,' is the same as the used one. Nothing is done!')") &
+        if(outputLevel>1) write(*,"('arTeMiDe ',A,':  replica of FF (',I4,' is the same as the used one. Nothing is done!')") &
         moduleName, rep
     end if
 
-end subroutine uTMDPDF_OPE_SetPDFreplica
+end subroutine uTMDFF_OPE_SetPDFreplica
 
 !!!! this routine set the variations of scales
 !!!! it is used for the estimation of errors
-subroutine uTMDPDF_OPE_SetScaleVariation(c4_in)
+subroutine uTMDFF_OPE_SetScaleVariation(c4_in)
     real(dp),intent(in)::c4_in
     if(c4_in<0.1d0 .or. c4_in>10.d0) then
         if(outputLevel>0) write(*,*) WarningString('variation in c4 is enourmous. c4 is set to 2',moduleName)
         c4_global=2d0
-        call uTMDPDF_OPE_resetGrid()
+        call uTMDFF_OPE_resetGrid()
     else if(abs(c4_in-c4_global)<toleranceGEN) then
-        if(outputLevel>1) write(*,*) color('uTMDPDF: c4-variation is ignored. c4='//real8ToStr(c4_global),c_yellow)
+        if(outputLevel>1) write(*,*) color('uTMDFF: c4-variation is ignored. c4='//real8ToStr(c4_global),c_yellow)
     else
         c4_global=c4_in
-        if(outputLevel>1) write(*,*) color('uTMDPDF: set scale variations c4 as:'//real8ToStr(c4_global),c_yellow)
-        call uTMDPDF_OPE_resetGrid()
+        if(outputLevel>1) write(*,*) color('uTMDFF: set scale variations c4 as:'//real8ToStr(c4_global),c_yellow)
+        call uTMDFF_OPE_resetGrid()
     end if
-end subroutine uTMDPDF_OPE_SetScaleVariation
+end subroutine uTMDFF_OPE_SetScaleVariation
 
-end module uTMDPDF_OPE
+end module uTMDFF_OPE

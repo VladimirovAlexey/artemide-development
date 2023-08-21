@@ -60,7 +60,6 @@ end subroutine ModelUpdate
 !!! This is  non-perturbative function
 !!! non=perturbative parameters are lambdaNP()
 !!! x-- is the bjorken variable of TMD
-!!! z-- is convolution variable
 function FNP(x,bT,hadron,lambdaNP)
   real(dp),intent(in)::x,bT    
   integer,intent(in)::hadron

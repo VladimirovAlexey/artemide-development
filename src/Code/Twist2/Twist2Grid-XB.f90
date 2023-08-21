@@ -46,7 +46,7 @@ subroutine MakeGrid()
   if(outputlevel>2) write(*,*) 'arTeMiDe.',moduleName,' starts to compute grid.'
 
   do h=1,numberOfHadrons
-   !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(x_local,b_local)
+   !$OMP DO
    do iX=0,Nx
     do iB=0,Nb
      x_local=XatNode(iX)
@@ -61,7 +61,7 @@ subroutine MakeGrid()
 
     end do    
     end do
-    !$OMP END PARALLEL DO
+    !$OMP END DO
     if(outputLevel>1 .and. numberOfHadrons>1) write(*,'(" ",A,": Grid for hadron ",I3," is done")') moduleName,h
    end do
 

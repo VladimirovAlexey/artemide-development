@@ -1633,8 +1633,13 @@ The first term is computed by the adaptive algorithm. The second term is compute
 where $g(y)$ is integrable, and the last integral is taken explicitly.
 \item The parameter $y_C=1-10^{-4}$ (\textbf{red}) for a moment is fixed. It provides the accuracy of the last integral (6-7 digits), which is far better than.
 \item For $x\sim y_C$ the accuracy drops. In this case, the values of $y_C$ is recomputed by formula $y_C=(100+x)/101$ (i.e. it is 2-digits closer to 1 than $x$).
+\item \textbf{The definition of TMDFF does not perfectly match the definition of collinear FF. There is a relative factor $1/z^2$.} So the convolution reads
+\begin{eqnarray}
+D(z,b)=\int_z^1 \frac{dy}{y}\mathbb{C}\(\frac{z}{y},\mathbf{L}_\mu\)\frac{d(y,\mu)}{y^2}=
+\frac{1}{z^3}\int_z^1 dy [y^2C]\(y,\mathbf{L}_\mu\)D(\frac{z}{y},\mu),
+\end{eqnarray}
+where $D(z)=zd(z)$.
 \end{itemize}
-
 
 \subsubsection{Functions}
 

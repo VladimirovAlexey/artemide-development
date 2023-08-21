@@ -62,10 +62,11 @@
  
 *D   : ----lpPDF sets----
 *p1  : total number of PDFs to initialize (0= initialization is skipped)
-           0
+           1
 *p2  : reference number for hadrons
-    0
+    1
 *p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
+MSHT20nnlo_as118
 *p4  : list of initialization replicas
     0
  
@@ -75,6 +76,7 @@
 *p2  : reference number for hadrons
    -1
 *p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
+
 *p4  : list of initialization replicas
     0
  
@@ -151,7 +153,7 @@
 # ---------------------------------------------------------------------------
 *4   :
 *p1  : initialize uTMDPDF module
- T
+ F
  
 *A   : ---- OPE main definitions ----
 *p1  : Order of coefficient function
@@ -359,11 +361,11 @@
 *p4  : total number of PDFs added to the grid (by default it coincides with number of initialized PDFs)
            1
 *p5  : run the test of the grid (takes some time)
-           F
+           T
 
 *B   : ---- Parameters of NP model ----
 *p1  : Length of lambdaNP
-           7
+           2
 *p2  : Absolute maximum b (for larger b, TMD=0)
            100.000000
 
@@ -458,7 +460,7 @@
 
 *D   : ---- OPE[tw2] Parameters of grid ----
 *p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)
-   1.0000000000000001E-005
+   5.0000000000000001E-002
 *p2  : Parameter for x-griding function (better not to change it)
    2.0000000000000000
 *p3  : the minimum bT in grid, for smaller value the result is constant
@@ -466,7 +468,7 @@
 *p4  : the maximum bT in grid, for larger approximate extrapolation is done
    25.00000000000000
 *p5  : Grid Size over X
-         400
+         100
 *p6  : Grid Size over B
          200
 

@@ -58,8 +58,6 @@ real(dp)::c1_saved,c2_saved,c3_saved,c4_saved
 public::artemide_Initialize
 public::artemide_SetNPparameters,artemide_SetNPparameters_TMDR,artemide_SetNPparameters_uTMDFF,artemide_SetNPparameters_uTMDPDF
 public::artemide_SetNPparameters_lpTMDPDF,artemide_SetNPparameters_SiversTMDPDF,artemide_SetNPparameters_wgtTMDPDF
-public::artemide_SetReplica_TMDR,artemide_SetReplica_uTMDFF,artemide_SetReplica_uTMDPDF
-public::artemide_SetReplica_lpTMDPDF,artemide_SetReplica_SiversTMDPDF,artemide_SetReplica_wgtTMDPDF
 public::artemide_SetScaleVariations
 public::artemide_ShowStatistics
 public::artemide_GetReplicaFromFile,artemide_NumOfReplicasInFile
@@ -727,111 +725,6 @@ subroutine artemide_SetReplica_TMDR(num)
 
 end subroutine artemide_SetReplica_TMDR
   
-subroutine artemide_SetReplica_uTMDPDF(num)
-    integer,intent(in)::num
-!
-!     if(.not.include_uTMDPDF) then
-!         if(outputLevel>0) &
-!         write(*,*) ErrorString('attempt to set a replica for uTMDPDF,&
-!                 while uTMDPDF module is not included in the current setup',moduleName)
-!         if(outputLevel>0) write(*,*) color('NOTHING IS DONE',c_red)
-!         return
-!     end if
-!
-!     call uTMDPDF_SetLambdaNP(num)
-!     call uTMDPDF_CurrentNPparameters(lambdaNP_uTMDPDF)
-!
-!     !!! reseting other packages
-!     if(include_TMDF) call TMDF_ResetCounters()
-!     if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-!     if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
-!
-end subroutine artemide_SetReplica_uTMDPDF
-  
-subroutine artemide_SetReplica_uTMDFF(num)
-    integer,intent(in)::num
-
-    if(.not.include_uTMDFF) then
-        if(outputLevel>0) &
-        write(*,*) ErrorString('attempt to set a replica for uTMDFF,&
-            while uTMDFF module is not included in the current setup',moduleName)
-        if(outputLevel>0) write(*,*) color('NOTHING IS DONE',c_red)
-        return
-    end if
-
-    call uTMDFF_SetLambdaNP(num)
-    call uTMDFF_CurrentNPparameters(lambdaNP_uTMDFF)
-
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
-
-end subroutine artemide_SetReplica_uTMDFF
-  
-subroutine artemide_SetReplica_lpTMDPDF(num)
-    integer,intent(in)::num
-
-    if(.not.include_lpTMDPDF) then
-        if(outputLevel>0) &
-        write(*,*) ErrorString('attempt to set a replica for lpTMDPDF,&
-            while lpTMDPDF module is not included in the current setup',ModuleName)
-        if(outputLevel>0) write(*,*) 'NOTHING IS DONE'
-        return
-    end if
-
-    call lpTMDPDF_SetLambdaNP(num)
-    call lpTMDPDF_CurrentNPparameters(lambdaNP_lpTMDPDF)
-
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
-
-end subroutine artemide_SetReplica_lpTMDPDF
-
-subroutine artemide_SetReplica_SiversTMDPDF(num)
-    integer,intent(in)::num
-
-    if(.not.include_SiversTMDPDF) then
-        if(outputLevel>0) &
-        write(*,*) ErrorString('attempt to set a replica for SiversTMDPDF,&
-            while SiversTMDPDF module is not included in the current setup',ModuleName)
-        if(outputLevel>0) write(*,*) 'NOTHING IS DONE'
-        return
-    end if
-
-    call SiversTMDPDF_SetLambdaNP(num)
-    call SiversTMDPDF_CurrentNPparameters(lambdaNP_SiversTMDPDF)
-
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
-
-end subroutine artemide_SetReplica_SiversTMDPDF
-
-subroutine artemide_SetReplica_wgtTMDPDF(num)
-    integer,intent(in)::num
-
-    if(.not.include_wgtTMDPDF) then
-        if(outputLevel>0) &
-        write(*,*) ErrorString('attempt to set a replica for wgtTMDPDF,&
-            while wgtTMDPDF module is not included in the current setup',ModuleName)
-        if(outputLevel>0) write(*,*) 'NOTHING IS DONE'
-        return
-    end if
-
-    call wgtTMDPDF_SetLambdaNP(num)
-    call wgtTMDPDF_CurrentNPparameters(lambdaNP_wgtTMDPDF)
-
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
-
-end subroutine artemide_SetReplica_wgtTMDPDF
-  
 !------------------------------------------------------- Other routines ---------------------------------
 subroutine artemide_ShowStatistics()
     integer::i
@@ -896,7 +789,7 @@ subroutine artemide_SetScaleVariations(c1,c2,c3,c4)
     if(include_uTMDPDF) call uTMDPDF_SetScaleVariation(c4)
     if(include_uTMDFF) call uTMDFF_SetScaleVariation(c4)
     if(include_lpTMDPDF) call lpTMDPDF_SetScaleVariation(c4)
-    if(include_SiversTMDPDF) call SiversTMDPDF_SetScaleVariation(c4)
+    if(include_SiversTMDPDF) call SiversTMDPDF_SetScaleVariation_tw3(c4)
     if(include_wgtTMDPDF) call wgtTMDPDF_SetScaleVariation(c4)
     if(include_TMDs) call TMDs_SetScaleVariations(c1,c3)
     if(include_TMDX_DY) call TMDX_DY_SetScaleVariation(c2)

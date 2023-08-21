@@ -4,7 +4,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 program example
 !use aTMDe_control
-use wgtTMDPDF
+use SiversTMDPDF
 use QCDinput
 implicit none
 
@@ -14,9 +14,9 @@ real*8,allocatable::b(:)
 real*8::TT(-5:5)
 
 !call artemide_Initialize('wgtTMDPDF.atmde',prefix='Prog/Tests/const-files/')
-call wgtTMDPDF_Initialize('wgtTMDPDF.atmde',prefix='Prog/Tests/const-files/')
+call SiversTMDPDF_Initialize('SiversTMDPDF.atmde',prefix='Prog/Tests/const-files/')
 ! call artemide_Initialize('const-DY_LO',prefix='/home/alexey/artemide_Repository/Constants-files/')!
-call wgtTMDPDF_SetLambdaNP((/0.0d0, 1d0/))
+call SiversTMDPDF_SetLambdaNP((/1d0,0.3d0,2d0,0.5d0,0.5d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/))
 x=0.1
 
 bMax=5d0
@@ -45,7 +45,7 @@ write(*,*) '---------------------- D -----------------------'
 
 do i=1,100
 
-    TT=wgtTMDPDF_lowScale5(i*0.01d0,0.1d0,1)
+    TT=SiversTMDPDF_lowScale5(i*0.01d0,0.1d0,1)
     !TT=x_hPDF(i*0.01d0,11.d0,1)
     write(*,'(A,F12.10,A,F12.10,A)') "{",i*0.01d0,",", TT(1),"},"
 end do
@@ -54,7 +54,7 @@ write(*,*) '---------------------- U -----------------------'
 
 do i=1,100
 
-    TT=wgtTMDPDF_lowScale5(i*0.01d0,0.1d0,1)
+    TT=SiversTMDPDF_lowScale5(i*0.01d0,0.1d0,1)
     !TT=x_hPDF(i*0.01d0,11.d0,1)
     write(*,'(A,F12.10,A,F12.10,A)') "{",i*0.01d0,",", TT(2),"},"
 end do
@@ -63,7 +63,7 @@ write(*,*) '---------------------- S -----------------------'
 
 do i=1,100
 
-    TT=wgtTMDPDF_lowScale5(i*0.01d0,0.1d0,1)
+    TT=SiversTMDPDF_lowScale5(i*0.01d0,0.1d0,1)
     !TT=x_hPDF(i*0.01d0,11.d0,1)
     write(*,'(A,F12.10,A,F16.14,A)') "{",i*0.01d0,",", TT(3),"},"
 end do
