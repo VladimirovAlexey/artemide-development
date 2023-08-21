@@ -78,55 +78,56 @@ integer::uTMDPDF_grid_SizeX,uTMDPDF_grid_SizeB
 
 !-------------------- uTMDFF parameters
 logical::include_uTMDFF
-integer::uTMDFF_lambdaLength
-real(dp)::uTMDFF_tolerance
-integer::uTMDFF_maxIteration
 character*8::uTMDFF_order
-logical::uTMDFF_makeGrid,uTMDFF_withGluon
-real(dp)::uTMDFF_grid_bMax,uTMDFF_grid_xMin,uTMDFF_grid_slope
+logical::uTMDFF_makeGrid,uTMDFF_withGluon,uTMDFF_runGridTest
+integer::uTMDFF_lambdaLength
+real(dp)::uTMDFF_BMAX_ABS
+real(dp)::uTMDFF_toleranceINT
+real(dp)::uTMDFF_toleranceGEN
+integer::uTMDFF_maxIteration
+real(dp)::uTMDFF_grid_xMin,uTMDFF_grid_parX
+real(dp)::uTMDFF_grid_bMin,uTMDFF_grid_bMax
 integer::uTMDFF_grid_SizeX,uTMDFF_grid_SizeB
-real(dp),allocatable::uTMDFF_lambdaNP_init(:)
-logical::uTMDFF_IsComposite
 
 !-------------------- lpTMDPDF parameters
 logical::include_lpTMDPDF
-integer::lpTMDPDF_lambdaLength
-real(dp)::lpTMDPDF_tolerance
-integer::lpTMDPDF_maxIteration
 character*8::lpTMDPDF_order
-logical::lpTMDPDF_makeGrid,lpTMDPDF_withGluon
-real(dp)::lpTMDPDF_grid_bMax,lpTMDPDF_grid_xMin,lpTMDPDF_grid_slope
+logical::lpTMDPDF_makeGrid,lpTMDPDF_withGluon,lpTMDPDF_runGridTest
+integer::lpTMDPDF_lambdaLength
+real(dp)::lpTMDPDF_BMAX_ABS
+real(dp)::lpTMDPDF_toleranceINT
+real(dp)::lpTMDPDF_toleranceGEN
+integer::lpTMDPDF_maxIteration
+real(dp)::lpTMDPDF_grid_xMin,lpTMDPDF_grid_parX
+real(dp)::lpTMDPDF_grid_bMin,lpTMDPDF_grid_bMax
 integer::lpTMDPDF_grid_SizeX,lpTMDPDF_grid_SizeB
-real(dp),allocatable::lpTMDPDF_lambdaNP_init(:)
-logical::lpTMDPDF_IsComposite
 
 !-------------------- SiversTMDPDF parameters
 logical::include_SiversTMDPDF
-integer::SiversTMDPDF_lambdaLength
-real(dp)::SiversTMDPDF_tolerance
-integer::SiversTMDPDF_maxIteration
-character*8::SiversTMDPDF_order
-logical::SiversTMDPDF_makeGrid,SiversTMDPDF_withGluon
-real(dp)::SiversTMDPDF_grid_bMax,SiversTMDPDF_grid_xMin,SiversTMDPDF_grid_slope
-integer::SiversTMDPDF_grid_SizeX,SiversTMDPDF_grid_SizeB
-real(dp),allocatable::SiversTMDPDF_lambdaNP_init(:)
-logical::SiversTMDPDF_IsComposite
 integer::number_of_SiversTMDPDFs
-integer,allocatable::enumeration_of_SiversTMDPDFs(:)
+character*8::SiversTMDPDF_order
+logical::SiversTMDPDF_makeGrid,SiversTMDPDF_withGluon,SiversTMDPDF_runGridTest
+integer::SiversTMDPDF_lambdaLength
+real(dp)::SiversTMDPDF_BMAX_ABS
+real(dp)::SiversTMDPDF_toleranceINT
+real(dp)::SiversTMDPDF_toleranceGEN
+integer::SiversTMDPDF_maxIteration
 
 !-------------------- wgtTMDPDF parameters
 logical::include_wgtTMDPDF
-integer::wgtTMDPDF_lambdaLength
-real(dp)::wgtTMDPDF_tolerance
-integer::wgtTMDPDF_maxIteration
 character*8::wgtTMDPDF_order
-logical::wgtTMDPDF_makeGrid,wgtTMDPDF_withGluon
-real(dp)::wgtTMDPDF_grid_bMax,wgtTMDPDF_grid_xMin,wgtTMDPDF_grid_slope
+logical::wgtTMDPDF_makeGrid,wgtTMDPDF_withGluon,wgtTMDPDF_runGridTest
+character*8::wgtTMDPDF_order_tw3
+integer::number_of_tw3_wgtPDF
+logical::wgtTMDPDF_makeGrid_tw3,wgtTMDPDF_withGluon_tw3,wgtTMDPDF_runGridTest_tw3
+integer::wgtTMDPDF_lambdaLength
+real(dp)::wgtTMDPDF_BMAX_ABS
+real(dp)::wgtTMDPDF_toleranceINT
+real(dp)::wgtTMDPDF_toleranceGEN
+integer::wgtTMDPDF_maxIteration
+real(dp)::wgtTMDPDF_grid_xMin,wgtTMDPDF_grid_parX
+real(dp)::wgtTMDPDF_grid_bMin,wgtTMDPDF_grid_bMax
 integer::wgtTMDPDF_grid_SizeX,wgtTMDPDF_grid_SizeB
-real(dp),allocatable::wgtTMDPDF_lambdaNP_init(:)
-logical::wgtTMDPDF_IsComposite
-integer::number_of_wgtTMDPDFs
-integer,allocatable::enumeration_of_wgtTMDPDFs(:)
 
 !-------------------- TMDs parameters
 logical::include_TMDs
@@ -317,7 +318,7 @@ subroutine SetupDefault(order)
 
     !-------------------- parameters for UTMDPDF
     include_uTMDPDF=.true.
-    uTMDPDF_order=trim("LO")
+    uTMDPDF_order=trim("NLO")
     uTMDPDF_makeGrid=.true.
     uTMDPDF_withGluon=.false.
     uTMDPDF_runGridTest=.false.
@@ -335,75 +336,75 @@ subroutine SetupDefault(order)
 
     !-------------------- parameters for UTMDFF
     include_uTMDFF=.false.!!! we do not initialize TMDFF by definition
-    uTMDFF_order=trim(order)
-    uTMDFF_IsComposite=.false.
+    uTMDFF_order=trim("NLO")
     uTMDFF_makeGrid=.true.
     uTMDFF_withGluon=.false.
-    uTMDFF_lambdaLength=1
-    call ReNewInitializationArray(uTMDFF_lambdaNP_init,uTMDFF_lambdaLength)! initialization values of parameters
-    uTMDFF_tolerance=0.0001d0	!tolerance (i.e. relative integration tolerance -- in convolution integrals)
+    uTMDFF_runGridTest=.false.
+    uTMDFF_lambdaLength=2
+    uTMDFF_BMAX_ABS=100.d0
+    uTMDFF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
+    uTMDFF_toleranceGEN=1.d-6!general tolerance
     uTMDFF_maxIteration=10000	!maxIteration for adaptive integration
     uTMDFF_grid_xMin=0.05d0
-    uTMDFF_grid_bMax=50d0
-    uTMDFF_grid_SizeX=250
-    uTMDFF_grid_SizeB=400
-    uTMDFF_grid_slope=10d0
+    uTMDFF_grid_parX=2.d0
+    uTMDFF_grid_bMin=1.d-6
+    uTMDFF_grid_bMax=25.d0
+    uTMDFF_grid_SizeX=200
+    uTMDFF_grid_SizeB=200
 
     !-------------------- parameters for lpTMDPDF
-    include_lpTMDPDF=.false. !!! we do not initialize lpTMDPDF by definition
-    lpTMDPDF_order=trim(order)
-    lpTMDPDF_IsComposite=.false.
+    include_lpTMDPDF=.false.!!! we do not initialize TMDFF by definition
+    lpTMDPDF_order=trim("NLO")
     lpTMDPDF_makeGrid=.true.
-    lpTMDPDF_withGluon=.true.
-    lpTMDPDF_lambdaLength=1
-    call ReNewInitializationArray(lpTMDPDF_lambdaNP_init,lpTMDPDF_lambdaLength)! initialization values of parameters
-    lpTMDPDF_tolerance=0.0001d0	!tolerance (i.e. relative integration tolerance -- in convolution integrals)
+    lpTMDPDF_withGluon=.true. !!! this is true by default
+    lpTMDPDF_runGridTest=.false.
+    lpTMDPDF_lambdaLength=2
+    lpTMDPDF_BMAX_ABS=100.d0
+    lpTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
+    lpTMDPDF_toleranceGEN=1.d-6!general tolerance
     lpTMDPDF_maxIteration=10000	!maxIteration for adaptive integration
     lpTMDPDF_grid_xMin=0.00001d0
-    lpTMDPDF_grid_bMax=100d0
-    lpTMDPDF_grid_SizeX=250
-    lpTMDPDF_grid_SizeB=750
-    lpTMDPDF_grid_slope=10d0
+    lpTMDPDF_grid_parX=2.d0
+    lpTMDPDF_grid_bMin=1.d-6
+    lpTMDPDF_grid_bMax=25.d0
+    lpTMDPDF_grid_SizeX=400
+    lpTMDPDF_grid_SizeB=200
 
     !-------------------- parameters for SiversTMDPDF
     include_SiversTMDPDF=.false. !!! we do not initialize SiversTMDPDF by definition
-    SiversTMDPDF_order=trim('LO') !!! by definition Sivers is tree-order
-    SiversTMDPDF_IsComposite=.false.
+    SiversTMDPDF_order=trim('NA') !!! by definition Sivers is tree-order
     SiversTMDPDF_makeGrid=.false.   !!! no need to make grid
     SiversTMDPDF_withGluon=.false.
+    SiversTMDPDF_runGridTest=.false.
+    number_of_SiversTMDPDFs=1
     SiversTMDPDF_lambdaLength=1
-    call ReNewInitializationArray(SiversTMDPDF_lambdaNP_init,SiversTMDPDF_lambdaLength)! initialization values of parameters
-    SiversTMDPDF_tolerance=0.0001d0	!tolerance (i.e. relative integration tolerance -- in convolution integrals)
+    SiversTMDPDF_BMAX_ABS=100.d0
+    SiversTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
+    SiversTMDPDF_toleranceGEN=1.d-6!general tolerance
     SiversTMDPDF_maxIteration=10000	!maxIteration for adaptive integration
-    SiversTMDPDF_grid_xMin=0.00001d0
-    SiversTMDPDF_grid_bMax=100d0
-    SiversTMDPDF_grid_SizeX=250
-    SiversTMDPDF_grid_SizeB=750
-    SiversTMDPDF_grid_slope=10d0
-    number_of_SiversTMDPDFs=0
-    if(allocated(enumeration_of_SiversTMDPDFs)) deallocate(enumeration_of_SiversTMDPDFs)
-    allocate(enumeration_of_SiversTMDPDFs(1:1))
-    enumeration_of_SiversTMDPDFs=(/-1/)
     
     !-------------------- parameters for wgtTMDPDF
     include_wgtTMDPDF=.false.
-    wgtTMDPDF_order=trim('LO')
-    wgtTMDPDF_IsComposite=.false.
+    wgtTMDPDF_order=trim("LO")
     wgtTMDPDF_makeGrid=.true.
-    wgtTMDPDF_withGluon=.false.
-    wgtTMDPDF_lambdaLength=1
-    call ReNewInitializationArray(wgtTMDPDF_lambdaNP_init,wgtTMDPDF_lambdaLength)! initialization values of parameters
-    wgtTMDPDF_tolerance=0.0001d0	!tolerance (i.e. relative integration tolerance -- in convolution integrals)
+    wgtTMDPDF_withGluon=.false. !!! this is true by default
+    wgtTMDPDF_runGridTest=.false.
+    wgtTMDPDF_lambdaLength=2
+    wgtTMDPDF_BMAX_ABS=100.d0
+    wgtTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
+    wgtTMDPDF_toleranceGEN=1.d-6!general tolerance
     wgtTMDPDF_maxIteration=10000	!maxIteration for adaptive integration
     wgtTMDPDF_grid_xMin=0.001d0
-    wgtTMDPDF_grid_bMax=100d0
-    wgtTMDPDF_grid_SizeX=250
-    wgtTMDPDF_grid_SizeB=500
-    wgtTMDPDF_grid_slope=10d0
-    number_of_wgtTMDPDFs=0
-    if(allocated(enumeration_of_wgtTMDPDFs)) deallocate(enumeration_of_wgtTMDPDFs)
-    allocate(enumeration_of_wgtTMDPDFs(1:1))
-    enumeration_of_wgtTMDPDFs=(/-1/)
+    wgtTMDPDF_grid_parX=2.d0
+    wgtTMDPDF_grid_bMin=1.d-6
+    wgtTMDPDF_grid_bMax=25.d0
+    wgtTMDPDF_grid_SizeX=200
+    wgtTMDPDF_grid_SizeB=200
+    wgtTMDPDF_order_tw3=trim("NA")
+    wgtTMDPDF_makeGrid_tw3=.false.
+    wgtTMDPDF_withGluon_tw3=.false. !!! this is true by default
+    wgtTMDPDF_runGridTest_tw3=.false.
+    number_of_tw3_wgtPDF=0
     
     
 
@@ -727,44 +728,46 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*5   :')")
     write(51,"('*p1  : initialize uTMDFF module')")
     write(51,*) include_uTMDFF
-    write(51,"(' ')")
-    write(51,"('*A   : ---- Main definitions ----')")
+        write(51,"(' ')")
+    write(51,"('*A   : ---- OPE main definitions ----')")
     write(51,"('*p1  : Order of coefficient function')")
     write(51,*) trim(uTMDFF_order)
-    write(51,"('*p2  : Use composite TMD-function definition')")
-    write(51,*) uTMDFF_IsComposite
+    write(51,"('*p2  : Prepare grid')")
+    write(51,*) uTMDFF_makeGrid
+    write(51,"('*p3  : Include gluon TMDs into the grid')")
+    write(51,*) uTMDFF_withGluon
+    write(51,"('*p4  : total number of PDFs added to the grid (by default it coincides with number of initialized FFs)')")
+    write(51,*) number_of_uFFs
+    write(51,"('*p5  : run the test of the grid (takes some time)')")
+    write(51,*) uTMDFF_runGridTest
+    write(51,"(' ')")
     write(51,"('*B   : ---- Parameters of NP model ----')")
     write(51,"('*p1  : Length of lambdaNP')")
     write(51,*) uTMDFF_lambdaLength
-    write(51,"('*p2  : Initialization parameters (in column)')")
-    do i=1,uTMDFF_lambdaLength
-        write(51,*) uTMDFF_lambdaNP_init(i)
-    end do
+    write(51,"('*p2  : Absolute maximum b (for larger b, TMD=0)')")
+    write(51,*) uTMDFF_BMAX_ABS
+    write(51,"(' ')")
     write(51,"('*C   : ---- Numerical evaluation parameters ----')")
     write(51,"('*p1  : Tolerance (relative tolerance of convolution integral)')")
-    write(51,*) uTMDFF_tolerance
-    write(51,"('*p2  : Maximum number of iterations (for adaptive integration)')")
+    write(51,*) uTMDFF_toleranceINT
+    write(51,"('*p2  : Tolerance general (used for various comparisons)')")
+    write(51,*) uTMDFF_toleranceGEN
+    write(51,"('*p3  : Maximum number of iterations (for adaptive integration)')")
     write(51,*) uTMDFF_maxIteration
-    write(51,"('*D   : ---- Grid preparation options ----')")
-    write(51,"('*p1  : Prepare grid')")
-    write(51,*) uTMDFF_makeGrid
-    write(51,"('*p2  : Include gluon TMDs into the grid')")
-    write(51,*) uTMDFF_withGluon
-    write(51,"('*p3  : total number of FFs added to the grid (by default it coincides with number of initialized FFs)')")
-    write(51,*) number_of_uFFs
-    write(51,"('*p4  : reference numbers for hadrons (by default it coincides with references for FFs)')")
-    call writeShortIntegerList(51,enumeration_of_uFFs)
-    write(51,"('*E   : ---- Parameters of grid ----')")
+    write(51,"(' ')")
+    write(51,"('*D   : ---- (OPE) Parameters of grid ----')")
     write(51,"('*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)')")
     write(51,*) uTMDFF_grid_xMin
-    write(51,"('*p2  : the maximum bT in grid (min=0), for larger approximate extrapolation is done')")
+    write(51,"('*p2  : Parameter for x-griding function (better not to change it)')")
+    write(51,*) uTMDFF_grid_parX
+    write(51,"('*p3  : the minimum bT in grid, for smaller value the result is constant')")
+    write(51,*) uTMDFF_grid_bMin
+    write(51,"('*p4  : the maximum bT in grid, for larger b the approximate extrapolation is done')")
     write(51,*) uTMDFF_grid_bMax
-    write(51,"('*p3  : GridSizeX (250 is enough for 10^-8 presicion, for grid up to 10^-5)')")
+    write(51,"('*p5  : Grid Size over X')")
     write(51,*) uTMDFF_grid_SizeX
-    write(51,"('*p4  : GridSizeB (750 is enough for ~10^-6 presicion, 500 for 10^-5 presicion)')")
+    write(51,"('*p6  : Grid Size over B ')")
     write(51,*) uTMDFF_grid_SizeB
-    write(51,"('*p5  : slope scale of griding at smaller b (better not to change it :) )')")
-    write(51,*) uTMDFF_grid_slope
 
 
     write(51,"(' ')")
@@ -887,43 +890,45 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p1  : initialize lpTMDPDF module')")
     write(51,*) include_lpTMDPDF
     write(51,"(' ')")
-    write(51,"('*A   : ---- Main definitions ----')")
+    write(51,"('*A   : ---- OPE main definitions ----')")
     write(51,"('*p1  : Order of coefficient function')")
     write(51,*) trim(lpTMDPDF_order)
-    write(51,"('*p2  : Use composite TMD-function definition')")
-    write(51,*) lpTMDPDF_IsComposite
+    write(51,"('*p2  : Prepare grid')")
+    write(51,*) lpTMDPDF_makeGrid
+    write(51,"('*p3  : Include gluon TMDs into the grid [=T, because it is GLUON TMDPDF]')")
+    write(51,*) lpTMDPDF_withGluon
+    write(51,"('*p4  : total number of PDFs added to the grid (by default it coincides with number of initialized PDFs)')")
+    write(51,*) number_of_lpPDFs
+    write(51,"('*p5  : run the test of the grid (takes some time)')")
+    write(51,*) lpTMDPDF_runGridTest
+    write(51,"(' ')")
     write(51,"('*B   : ---- Parameters of NP model ----')")
     write(51,"('*p1  : Length of lambdaNP')")
     write(51,*) lpTMDPDF_lambdaLength
-    write(51,"('*p2  : Initialization parameters (in column)')")
-    do i=1,lpTMDPDF_lambdaLength
-        write(51,*) lpTMDPDF_lambdaNP_init(i)
-    end do
+    write(51,"('*p2  : Absolute maximum b (for larger b, TMD=0)')")
+    write(51,*) lpTMDPDF_BMAX_ABS
+    write(51,"(' ')")
     write(51,"('*C   : ---- Numerical evaluation parameters ----')")
     write(51,"('*p1  : Tolerance (relative tolerance of convolution integral)')")
-    write(51,*) lpTMDPDF_tolerance
-    write(51,"('*p2  : Maximum number of iterations (for adaptive integration)')")
+    write(51,*) lpTMDPDF_toleranceINT
+    write(51,"('*p2  : Tolerance general (used for various comparisons)')")
+    write(51,*) lpTMDPDF_toleranceGEN
+    write(51,"('*p3  : Maximum number of iterations (for adaptive integration)')")
     write(51,*) lpTMDPDF_maxIteration
-    write(51,"('*D   : ---- Grid preparation options ----')")
-    write(51,"('*p1  : Prepare grid')")
-    write(51,*) lpTMDPDF_makeGrid
-    write(51,"('*p2  : Include gluon TMDs into the grid')")
-    write(51,*) lpTMDPDF_withGluon
-    write(51,"('*p3  : total number of PDFs added to the grid (by default it coincides with number of initialized PDFs)')")
-    write(51,*) number_of_lpPDFs
-    write(51,"('*p4  : reference numbers for hadrons (by default it coincides with references for PDFs)')")
-    call writeShortIntegerList(51,enumeration_of_lpPDFs)
-    write(51,"('*E   : ---- Parameters of grid ----')")
+    write(51,"(' ')")
+    write(51,"('*D   : ---- (OPE) Parameters of grid ----')")
     write(51,"('*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)')")
     write(51,*) lpTMDPDF_grid_xMin
-    write(51,"('*p2  : the maximum bT in grid (min=0), for larger approximate extrapolation is done')")
+    write(51,"('*p2  : Parameter for x-griding function (better not to change it)')")
+    write(51,*) lpTMDPDF_grid_parX
+    write(51,"('*p3  : the minimum bT in grid, for smaller value the result is constant')")
+    write(51,*) lpTMDPDF_grid_bMin
+    write(51,"('*p4  : the maximum bT in grid, for larger b the approximate extrapolation is done')")
     write(51,*) lpTMDPDF_grid_bMax
-    write(51,"('*p3  : GridSizeX (250 is enough for 10^-8 presicion, for grid up to 10^-5)')")
+    write(51,"('*p5  : Grid Size over X')")
     write(51,*) lpTMDPDF_grid_SizeX
-    write(51,"('*p4  : GridSizeB (750 is enough for ~10^-6 presicion, 500 for 10^-5 presicion)')")
+    write(51,"('*p6  : Grid Size over B ')")
     write(51,*) lpTMDPDF_grid_SizeB
-    write(51,"('*p5  : slope scale of griding at smaller b (better not to change it :) )')")
-    write(51,*) lpTMDPDF_grid_slope
     
     write(51,"(' ')")
     write(51,"(' ')")
@@ -934,43 +939,31 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p1  : initialize SiversTMDPDF module')")
     write(51,*) include_SiversTMDPDF
     write(51,"(' ')")
-    write(51,"('*A   : ---- Main definitions ----')")
+    write(51,"('*A   : ---- OPE[tw3] main definitions ----')")
     write(51,"('*p1  : Order of coefficient function')")
     write(51,*) trim(SiversTMDPDF_order)
-    write(51,"('*p2  : Use composite TMD-function definition')")
-    write(51,*) SiversTMDPDF_IsComposite
+    write(51,"('*p2  : Prepare grid')")
+    write(51,*) SiversTMDPDF_makeGrid
+    write(51,"('*p3  : Include gluon TMDs into the grid [=T, because it is GLUON TMDPDF]')")
+    write(51,*) SiversTMDPDF_withGluon
+    write(51,"('*p4  : total number of PDFs added to the grid (by default it coincides with number of initialized PDFs)')")
+    write(51,*) number_of_SiversTMDPDFs
+    write(51,"('*p5  : run the test of the grid (takes some time)')")
+    write(51,*) SiversTMDPDF_runGridTest
+    write(51,"(' ')")
     write(51,"('*B   : ---- Parameters of NP model ----')")
     write(51,"('*p1  : Length of lambdaNP')")
     write(51,*) SiversTMDPDF_lambdaLength
-    write(51,"('*p2  : Initialization parameters (in column)')")
-    do i=1,SiversTMDPDF_lambdaLength
-        write(51,*) SiversTMDPDF_lambdaNP_init(i)
-    end do
+    write(51,"('*p2  : Absolute maximum b (for larger b, TMD=0)')")
+    write(51,*) SiversTMDPDF_BMAX_ABS
+    write(51,"(' ')")
     write(51,"('*C   : ---- Numerical evaluation parameters ----')")
     write(51,"('*p1  : Tolerance (relative tolerance of convolution integral)')")
-    write(51,*) SiversTMDPDF_tolerance
-    write(51,"('*p2  : Maximum number of iterations (for adaptive integration)')")
+    write(51,*) SiversTMDPDF_toleranceINT
+    write(51,"('*p2  : Tolerance general (used for various comparisons)')")
+    write(51,*) SiversTMDPDF_toleranceGEN
+    write(51,"('*p3  : Maximum number of iterations (for adaptive integration)')")
     write(51,*) SiversTMDPDF_maxIteration
-    write(51,"('*D   : ---- Grid preparation options ----')")
-    write(51,"('*p1  : Prepare grid')")
-    write(51,*) SiversTMDPDF_makeGrid
-    write(51,"('*p2  : Include gluon TMDs into the grid')")
-    write(51,*) SiversTMDPDF_withGluon
-    write(51,"('*p3  : total number of PDFs added to the grid')")
-    write(51,*) number_of_SiversTMDPDFs
-    write(51,"('*p4  : reference numbers for hadrons')")
-    call writeShortIntegerList(51,enumeration_of_SiversTMDPDFs)
-    write(51,"('*E   : ---- Parameters of grid ----')")
-    write(51,"('*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)')")
-    write(51,*) SiversTMDPDF_grid_xMin
-    write(51,"('*p2  : the maximum bT in grid (min=0), for larger approximate extrapolation is done')")
-    write(51,*) SiversTMDPDF_grid_bMax
-    write(51,"('*p3  : GridSizeX (250 is enough for 10^-8 presicion, for grid up to 10^-5)')")
-    write(51,*) SiversTMDPDF_grid_SizeX
-    write(51,"('*p4  : GridSizeB (750 is enough for ~10^-6 presicion, 500 for 10^-5 presicion)')")
-    write(51,*) SiversTMDPDF_grid_SizeB
-    write(51,"('*p5  : slope scale of griding at smaller b (better not to change it :) )')")
-    write(51,*) SiversTMDPDF_grid_slope
     
     write(51,"(' ')")
     write(51,"(' ')")
@@ -981,44 +974,57 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p1  : initialize wgtTMDPDF module')")
     write(51,*) include_wgtTMDPDF
     write(51,"(' ')")
-    write(51,"('*A   : ---- Main definitions ----')")
-    write(51,"('*p1  : Order of coefficient function (for tw-2 part only)')")
+    write(51,"('*A   : ---- OPE[tw2] main definitions ----')")
+    write(51,"('*p1  : Order of coefficient function')")
     write(51,*) trim(wgtTMDPDF_order)
-    write(51,"('*p2  : Use composite TMD-function definition')")
-    write(51,*) wgtTMDPDF_IsComposite
+    write(51,"('*p2  : Prepare grid')")
+    write(51,*) wgtTMDPDF_makeGrid
+    write(51,"('*p3  : Include gluon TMDs into the grid [=T, because it is GLUON TMDPDF]')")
+    write(51,*) wgtTMDPDF_withGluon
+    write(51,"('*p4  : total number of PDFs added to the grid (by default it coincides with number of initialized PDFs)')")
+    write(51,*) number_of_hPDFs
+    write(51,"('*p5  : run the test of the grid (takes some time)')")
+    write(51,*) wgtTMDPDF_runGridTest
+    write(51,"(' ')")
     write(51,"('*B   : ---- Parameters of NP model ----')")
-    write(51,"('*p1  : Length of lambdaNP (used in fNP and tw-3 part)')")
+    write(51,"('*p1  : Length of lambdaNP')")
     write(51,*) wgtTMDPDF_lambdaLength
-    write(51,"('*p2  : Initialization parameters (in column)')")
-    do i=1,wgtTMDPDF_lambdaLength
-        write(51,*) wgtTMDPDF_lambdaNP_init(i)
-    end do
+    write(51,"('*p2  : Absolute maximum b (for larger b, TMD=0)')")
+    write(51,*) wgtTMDPDF_BMAX_ABS
+    write(51,"(' ')")
     write(51,"('*C   : ---- Numerical evaluation parameters ----')")
     write(51,"('*p1  : Tolerance (relative tolerance of convolution integral)')")
-    write(51,*) wgtTMDPDF_tolerance
-    write(51,"('*p2  : Maximum number of iterations (for adaptive integration)')")
+    write(51,*) wgtTMDPDF_toleranceINT
+    write(51,"('*p2  : Tolerance general (used for various comparisons)')")
+    write(51,*) wgtTMDPDF_toleranceGEN
+    write(51,"('*p3  : Maximum number of iterations (for adaptive integration)')")
     write(51,*) wgtTMDPDF_maxIteration
-    write(51,"('*D   : ---- Grid preparation options ----')")
-    write(51,"('*p1  : Prepare grid')")
-    write(51,*) wgtTMDPDF_makeGrid
-    write(51,"('*p2  : Include gluon TMDs into the grid')")
-    write(51,*) wgtTMDPDF_withGluon
-    write(51,"('*p3  : total number of PDFs added to the grid')")
-    write(51,*) number_of_wgtTMDPDFs
-    write(51,"('*p4  : reference numbers for hadrons')")
-    call writeShortIntegerList(51,enumeration_of_wgtTMDPDFs)
-    write(51,"('*E   : ---- Parameters of grid ----')")
+    write(51,"(' ')")
+    write(51,"('*D   : ---- OPE[tw2] Parameters of grid ----')")
     write(51,"('*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)')")
     write(51,*) wgtTMDPDF_grid_xMin
-    write(51,"('*p2  : the maximum bT in grid (min=0), for larger approximate extrapolation is done')")
+    write(51,"('*p2  : Parameter for x-griding function (better not to change it)')")
+    write(51,*) wgtTMDPDF_grid_parX
+    write(51,"('*p3  : the minimum bT in grid, for smaller value the result is constant')")
+    write(51,*) wgtTMDPDF_grid_bMin
+    write(51,"('*p4  : the maximum bT in grid, for larger b the approximate extrapolation is done')")
     write(51,*) wgtTMDPDF_grid_bMax
-    write(51,"('*p3  : GridSizeX (250 is enough for 10^-8 presicion, for grid up to 10^-5)')")
+    write(51,"('*p5  : Grid Size over X')")
     write(51,*) wgtTMDPDF_grid_SizeX
-    write(51,"('*p4  : GridSizeB (750 is enough for ~10^-6 presicion, 500 for 10^-5 presicion)')")
+    write(51,"('*p6  : Grid Size over B ')")
     write(51,*) wgtTMDPDF_grid_SizeB
-    write(51,"('*p5  : slope scale of griding at smaller b (better not to change it :) )')")
-    write(51,*) wgtTMDPDF_grid_slope
-
+    write(51,"(' ')")
+    write(51,"('*E   : ---- OPE[tw3] main definitions ----')")
+    write(51,"('*p1  : Order of coefficient function')")
+    write(51,*) trim(wgtTMDPDF_order_tw3)
+    write(51,"('*p2  : Prepare grid')")
+    write(51,*) wgtTMDPDF_makeGrid_tw3
+    write(51,"('*p3  : Include gluon TMDs into the grid [=T, because it is GLUON TMDPDF]')")
+    write(51,*) wgtTMDPDF_withGluon_tw3
+    write(51,"('*p4  : total number of PDFs added to the grid (by default it coincides with number of initialized PDFs)')")
+    write(51,*) number_of_tw3_wgtPDF
+    write(51,"('*p5  : run the test of the grid (takes some time)')")
+    write(51,*) wgtTMDPDF_runGridTest_tw3
     CLOSE (51, STATUS='KEEP') 
 
     if(outputLevel>1) write(*,*) 'aTMDe_setup: Constans file is made.'
@@ -1317,55 +1323,53 @@ subroutine ReadConstantsFile(file,prefix)
     end if
 
     !# ----                           PARAMETERS OF uTMDFF                   -----
+    if(FILEversion>=30) then
     call MoveTO(51,'*5   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_uTMDFF
     call MoveTO(51,'*A   ')
     call MoveTO(51,'*p1  ')
     read(51,*) uTMDFF_order
-    if(FILEversion>=12) then
-        call MoveTO(51,'*p2  ')
-        read(51,*) uTMDFF_IsComposite
-    end if
-    call MoveTO(51,'*B   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) uTMDFF_lambdaLength
-    call ReNewInitializationArray(uTMDFF_lambdaNP_init,uTMDFF_lambdaLength)!!!!we need to redo (and reallocate) the initialization of the NP-array
-    if(FILEversion>=10) then
-        call MoveTO(51,'*p2  ')      
-        do i=1,uTMDFF_lambdaLength
-    read(51,*) uTMDFF_lambdaNP_init(i)
-        end do
-    end if
-    call MoveTO(51,'*C   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) uTMDFF_tolerance
     call MoveTO(51,'*p2  ')
-    read(51,*) uTMDFF_maxIteration
-    call MoveTO(51,'*D   ')
-    call MoveTO(51,'*p1  ')
     read(51,*) uTMDFF_makeGrid
-    call MoveTO(51,'*p2  ')
-    read(51,*) uTMDFF_withGluon
     call MoveTO(51,'*p3  ')
+    read(51,*) uTMDFF_withGluon
+    call MoveTO(51,'*p4  ')
     read(51,*) i
     if(i/=number_of_uFFs) then
         if(outputLevel>0) write(*,*) ' '
-        if(outputLevel>0) write(*,*) color('ESSENTIAL INCONSITENCY: number of uFFs unequal uTMDFFs',c_red)
-        if(outputLevel>0) write(*,*) color('                        information on number of uTMDFFs ignored',c_red)
+        if(outputLevel>0) write(*,*) color('ESSENTIAL INCONSITENCY: the number of uPDFs is unequal to the number of uTMDFFs',c_red)
+        if(outputLevel>0) write(*,*) color('                        information on the number of uTMDFFs is ignored',c_red)
         if(outputLevel>0) write(*,*) ' '
     end if
-    call MoveTO(51,'*E   ')
+    call MoveTO(51,'*p5  ')
+    read(51,*) uTMDFF_runGridTest
+    call MoveTO(51,'*B   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) uTMDFF_lambdaLength
+    call MoveTO(51,'*p2  ')
+    read(51,*) uTMDFF_BMAX_ABS
+    call MoveTO(51,'*C   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) uTMDFF_toleranceINT
+    call MoveTO(51,'*p2  ')
+    read(51,*) uTMDFF_toleranceGEN
+    call MoveTO(51,'*p3  ')
+    read(51,*) uTMDFF_maxIteration
+    call MoveTO(51,'*D   ')
     call MoveTO(51,'*p1  ')
     read(51,*) uTMDFF_grid_xMin
     call MoveTO(51,'*p2  ')
-    read(51,*) uTMDFF_grid_bMax
+    read(51,*) uTMDFF_grid_parX
     call MoveTO(51,'*p3  ')
-    read(51,*) uTMDFF_grid_SizeX
+    read(51,*) uTMDFF_grid_bMin
     call MoveTO(51,'*p4  ')
-    read(51,*) uTMDFF_grid_SizeB
+    read(51,*) uTMDFF_grid_bMax
     call MoveTO(51,'*p5  ')
-    read(51,*) uTMDFF_grid_slope
+    read(51,*) uTMDFF_grid_SizeX
+    call MoveTO(51,'*p6  ')
+    read(51,*) uTMDFF_grid_SizeB
+    end if
 
 
     !# ----                            PARAMETERS OF TMDs                    -----
@@ -1474,158 +1478,148 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p1  ')
     read(51,*) TMDX_SIDIS_numProc
 
-    if(FILEversion>=3) then
     !# ----                           PARAMETERS OF lpTMDPDF                  -----
-        call MoveTO(51,'*11  ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) include_lpTMDPDF
-        call MoveTO(51,'*A   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) lpTMDPDF_order
-        if(FILEversion>=12) then
-            call MoveTO(51,'*p2  ')
-            read(51,*) lpTMDPDF_IsComposite
-        end if
-        call MoveTO(51,'*B   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) lpTMDPDF_lambdaLength
-        call ReNewInitializationArray(lpTMDPDF_lambdaNP_init,lpTMDPDF_lambdaLength)!!!!we need to redo (and reallocate) the initialization of the NP-array
-        if(FILEversion>=10) then
-            call MoveTO(51,'*p2  ')      
-            do i=1,lpTMDPDF_lambdaLength
-        read(51,*) lpTMDPDF_lambdaNP_init(i)
-            end do
-        end if
-        call MoveTO(51,'*C   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) lpTMDPDF_tolerance
-        call MoveTO(51,'*p2  ')
-        read(51,*) lpTMDPDF_maxIteration
-        call MoveTO(51,'*D   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) lpTMDPDF_makeGrid
-        call MoveTO(51,'*p2  ')
-        read(51,*) lpTMDPDF_withGluon
-        call MoveTO(51,'*p3  ')
-        read(51,*) i
-        if(i/=number_of_lpPDFs) then
-            if(outputLevel>0) write(*,*) ' '
-            if(outputLevel>0) write(*,*) color(&
-                                        'ESSENTIAL INCONSITENCY: the number of lpPDFs is unequal to the number of lpTMDPDFs',c_red)
-            if(outputLevel>0) write(*,*) color('                        information on the number of lpTMDPDFs is ignored',c_red)
-            if(outputLevel>0) write(*,*) ' '
-        end if
-        call MoveTO(51,'*E   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) lpTMDPDF_grid_xMin
-        call MoveTO(51,'*p2  ')
-        read(51,*) lpTMDPDF_grid_bMax
-        call MoveTO(51,'*p3  ')
-        read(51,*) lpTMDPDF_grid_SizeX
-        call MoveTO(51,'*p4  ')
-        read(51,*) lpTMDPDF_grid_SizeB
-        call MoveTO(51,'*p5  ')
-        read(51,*) lpTMDPDF_grid_slope
-    else
-        write(*,*) 'aTMDe_setup: parameters of lin.pol.gluons set default. (const-ver. < 3)'
+    if(FILEversion>=30) then
+    call MoveTO(51,'*11   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_lpTMDPDF
+    call MoveTO(51,'*A   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) lpTMDPDF_order
+    call MoveTO(51,'*p2  ')
+    read(51,*) lpTMDPDF_makeGrid
+    call MoveTO(51,'*p3  ')
+    read(51,*) lpTMDPDF_withGluon
+    if(.not. lpTMDPDF_withGluon) then
+        if(outputLevel>0) write(*,*) color('MINOR INCONSITENCY: gluon must be included in lpTMDPDFs. Switched to T',c_yellow)
+    end if
+    call MoveTO(51,'*p4  ')
+    read(51,*) i
+    if(i/=number_of_lpPDFs) then
+        if(outputLevel>0) write(*,*) ' '
+        if(outputLevel>0) write(*,*) &
+        color('ESSENTIAL INCONSITENCY: the number of lpPDFs is unequal to the number of lpTMDPDFs',c_red)
+        if(outputLevel>0) write(*,*) color('                        information on the number of lpTMDPDFs is ignored',c_red)
+        if(outputLevel>0) write(*,*) ' '
+    end if
+    call MoveTO(51,'*p5  ')
+    read(51,*) lpTMDPDF_runGridTest
+    call MoveTO(51,'*B   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) lpTMDPDF_lambdaLength
+    call MoveTO(51,'*p2  ')
+    read(51,*) lpTMDPDF_BMAX_ABS
+    call MoveTO(51,'*C   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) lpTMDPDF_toleranceINT
+    call MoveTO(51,'*p2  ')
+    read(51,*) lpTMDPDF_toleranceGEN
+    call MoveTO(51,'*p3  ')
+    read(51,*) lpTMDPDF_maxIteration
+    call MoveTO(51,'*D   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) lpTMDPDF_grid_xMin
+    call MoveTO(51,'*p2  ')
+    read(51,*) lpTMDPDF_grid_parX
+    call MoveTO(51,'*p3  ')
+    read(51,*) lpTMDPDF_grid_bMin
+    call MoveTO(51,'*p4  ')
+    read(51,*) lpTMDPDF_grid_bMax
+    call MoveTO(51,'*p5  ')
+    read(51,*) lpTMDPDF_grid_SizeX
+    call MoveTO(51,'*p6  ')
+    read(51,*) lpTMDPDF_grid_SizeB
     end if
     
-    if(FILEversion>=15) then
     !# ----                           PARAMETERS OF SiversTMDPDF                  -----
-        call MoveTO(51,'*12  ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) include_SiversTMDPDF
-        call MoveTO(51,'*A   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) SiversTMDPDF_order        
-        call MoveTO(51,'*p2  ')
-        read(51,*) SiversTMDPDF_IsComposite
-        call MoveTO(51,'*B   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) SiversTMDPDF_lambdaLength
-        call ReNewInitializationArray(SiversTMDPDF_lambdaNP_init,SiversTMDPDF_lambdaLength)!!!!we need to redo (and reallocate) the initialization of the NP-array        
-        call MoveTO(51,'*p2  ')      
-        do i=1,SiversTMDPDF_lambdaLength
-            read(51,*) SiversTMDPDF_lambdaNP_init(i)
-        end do
-        call MoveTO(51,'*C   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) SiversTMDPDF_tolerance
-        call MoveTO(51,'*p2  ')
-        read(51,*) SiversTMDPDF_maxIteration
-        call MoveTO(51,'*D   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) SiversTMDPDF_makeGrid
-        call MoveTO(51,'*p2  ')
-        read(51,*) SiversTMDPDF_withGluon
-        call MoveTO(51,'*p3  ')
-        read(51,*) number_of_SiversTMDPDFs        
-        if(allocated(enumeration_of_SiversTMDPDFs)) deallocate(enumeration_of_SiversTMDPDFs)
-        allocate(enumeration_of_SiversTMDPDFs(1:number_of_SiversTMDPDFs))
-        call MoveTO(51,'*p4  ')
-        read(51,*) enumeration_of_SiversTMDPDFs
-        call MoveTO(51,'*E   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) SiversTMDPDF_grid_xMin
-        call MoveTO(51,'*p2  ')
-        read(51,*) SiversTMDPDF_grid_bMax
-        call MoveTO(51,'*p3  ')
-        read(51,*) SiversTMDPDF_grid_SizeX
-        call MoveTO(51,'*p4  ')
-        read(51,*) SiversTMDPDF_grid_SizeB
-        call MoveTO(51,'*p5  ')
-        read(51,*) SiversTMDPDF_grid_slope
-    else
-        write(*,*) 'aTMDe_setup: parameters of Sivers functions set default. (const-ver. < 15)'
+    if(FILEversion>=30) then
+    call MoveTO(51,'*12   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_SiversTMDPDF
+    call MoveTO(51,'*A   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) SiversTMDPDF_order
+    call MoveTO(51,'*p2  ')
+    read(51,*) SiversTMDPDF_makeGrid
+    call MoveTO(51,'*p3  ')
+    read(51,*) SiversTMDPDF_withGluon
+    call MoveTO(51,'*p4  ')
+    read(51,*) number_of_SiversTMDPDFs
+    call MoveTO(51,'*p5  ')
+    read(51,*) SiversTMDPDF_runGridTest
+    call MoveTO(51,'*B   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) SiversTMDPDF_lambdaLength
+    call MoveTO(51,'*p2  ')
+    read(51,*) SiversTMDPDF_BMAX_ABS
+    call MoveTO(51,'*C   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) SiversTMDPDF_toleranceINT
+    call MoveTO(51,'*p2  ')
+    read(51,*) SiversTMDPDF_toleranceGEN
+    call MoveTO(51,'*p3  ')
+    read(51,*) SiversTMDPDF_maxIteration
     end if
     
-    if(FILEversion>=19) then
     !# ----                           PARAMETERS OF wgtTMDPDF                  -----
-        call MoveTO(51,'*13  ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) include_wgtTMDPDF
-        call MoveTO(51,'*A   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) wgtTMDPDF_order        
-        call MoveTO(51,'*p2  ')
-        read(51,*) wgtTMDPDF_IsComposite
-        call MoveTO(51,'*B   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) wgtTMDPDF_lambdaLength
-        call ReNewInitializationArray(wgtTMDPDF_lambdaNP_init,wgtTMDPDF_lambdaLength)!!!!we need to redo (and reallocate) the initialization of the NP-array        
-        call MoveTO(51,'*p2  ')      
-        do i=1,wgtTMDPDF_lambdaLength
-            read(51,*) wgtTMDPDF_lambdaNP_init(i)
-        end do
-        call MoveTO(51,'*C   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) wgtTMDPDF_tolerance
-        call MoveTO(51,'*p2  ')
-        read(51,*) wgtTMDPDF_maxIteration
-        call MoveTO(51,'*D   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) wgtTMDPDF_makeGrid
-        call MoveTO(51,'*p2  ')
-        read(51,*) wgtTMDPDF_withGluon
-        call MoveTO(51,'*p3  ')
-        read(51,*) number_of_wgtTMDPDFs        
-        if(allocated(enumeration_of_wgtTMDPDFs)) deallocate(enumeration_of_wgtTMDPDFs)
-        allocate(enumeration_of_wgtTMDPDFs(1:number_of_wgtTMDPDFs))
-        call MoveTO(51,'*p4  ')
-        read(51,*) enumeration_of_wgtTMDPDFs     
-        call MoveTO(51,'*E   ')
-        call MoveTO(51,'*p1  ')
-        read(51,*) wgtTMDPDF_grid_xMin
-        call MoveTO(51,'*p2  ')
-        read(51,*) wgtTMDPDF_grid_bMax
-        call MoveTO(51,'*p3  ')
-        read(51,*) wgtTMDPDF_grid_SizeX
-        call MoveTO(51,'*p4  ')
-        read(51,*) wgtTMDPDF_grid_SizeB
-        call MoveTO(51,'*p5  ')
-        read(51,*) wgtTMDPDF_grid_slope
-    else
-        write(*,*) 'aTMDe_setup: parameters of worm-geat T functions set default. (const-ver. < 19)'
+    if(FILEversion>=30) then
+    call MoveTO(51,'*13   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_wgtTMDPDF
+    call MoveTO(51,'*A   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) wgtTMDPDF_order
+    call MoveTO(51,'*p2  ')
+    read(51,*) wgtTMDPDF_makeGrid
+    call MoveTO(51,'*p3  ')
+    read(51,*) wgtTMDPDF_withGluon
+    call MoveTO(51,'*p4  ')
+    read(51,*) i
+    if(i/=number_of_hPDFs) then
+        if(outputLevel>0) write(*,*) ' '
+        if(outputLevel>0) write(*,*) &
+        color('ESSENTIAL INCONSITENCY: the number of hPDFs is unequal to the number of wgtTMDPDFs',c_red)
+        if(outputLevel>0) write(*,*) color('                        information on the number of wgtTMDPDFs is ignored',c_red)
+        if(outputLevel>0) write(*,*) ' '
+    end if
+    call MoveTO(51,'*p5  ')
+    read(51,*) wgtTMDPDF_runGridTest
+    call MoveTO(51,'*B   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) wgtTMDPDF_lambdaLength
+    call MoveTO(51,'*p2  ')
+    read(51,*) wgtTMDPDF_BMAX_ABS
+    call MoveTO(51,'*C   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) wgtTMDPDF_toleranceINT
+    call MoveTO(51,'*p2  ')
+    read(51,*) wgtTMDPDF_toleranceGEN
+    call MoveTO(51,'*p3  ')
+    read(51,*) wgtTMDPDF_maxIteration
+    call MoveTO(51,'*D   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) wgtTMDPDF_grid_xMin
+    call MoveTO(51,'*p2  ')
+    read(51,*) wgtTMDPDF_grid_parX
+    call MoveTO(51,'*p3  ')
+    read(51,*) wgtTMDPDF_grid_bMin
+    call MoveTO(51,'*p4  ')
+    read(51,*) wgtTMDPDF_grid_bMax
+    call MoveTO(51,'*p5  ')
+    read(51,*) wgtTMDPDF_grid_SizeX
+    call MoveTO(51,'*p6  ')
+    read(51,*) wgtTMDPDF_grid_SizeB
+    call MoveTO(51,'*E   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) wgtTMDPDF_order_tw3
+    call MoveTO(51,'*p2  ')
+    read(51,*) wgtTMDPDF_makeGrid_tw3
+    call MoveTO(51,'*p3  ')
+    read(51,*) wgtTMDPDF_withGluon_tw3
+    call MoveTO(51,'*p4  ')
+    read(51,*) number_of_tw3_wgtPDF
+    call MoveTO(51,'*p5  ')
+    read(51,*) wgtTMDPDF_runGridTest_tw3
     end if
 
 

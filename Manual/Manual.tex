@@ -1610,6 +1610,59 @@ Entry &~~Type~~& Description
 \end{tabular}
 \end{center}
 
+\newpage
+\subsection{\texttt{\_model} modules}
+\begin{center}
+\blue{\textbf{same for}} \texttt{uTMDFF\_model} and \texttt{lpTMDPDF\_model}.
+\end{center}
+
+\begin{tcolorbox}
+\begin{center}
+\textbf{This module gives the expression for $f_{NP}$, $\mu_{\text{OPE}}$ and $b^*$. It could be written by user, and one of modules that form a TMD model (together with models for TMD-evolution).}
+\\
+\textbf{\blue{Making this module follow the interface}}
+\end{center}
+\texttt{public:: ModelInitialization}
+\\
+\texttt{public:: ModelUpdate}
+\\
+\texttt{real(dp),public,dimension(-5:5):: FNP}
+\\
+\texttt{real(dp),public:: bSTAR}
+\\
+\texttt{real(dp),public:: muOPE}
+\\
+If there is a twist-3 part of small-b matching, there are extra functions
+\\
+\texttt{real(dp),public,dimension(-5:5):: FNP\_tw3}
+\\
+\texttt{real(dp),public:: bSTAR\_tw3}
+\\
+\texttt{real(dp),public:: muOPE\_tw3}
+\\
+which contribute to the twist-3 term.
+\end{tcolorbox}
+
+\texttt{ModelInitialization(NParray)}: this subroutine is called during the initialization of \texttt{XX} module. The \texttt{integer,intent(in)::NPlength(:)} is the size of the array of NP-parameters. Use this subroutine to make preparation of the model.
+
+\vspace{2mm}
+
+\texttt{ModelUpdate(NParray)}: this subroutine is called during the \texttt{XX\_setNPparameters(NParray)}. The \texttt{real(dp),intent(in)::NParray(:)} is the array of NP-parameters passed to \texttt{TMDR\_setNPparameters}. Use this subroutine to recompute model parameters (if needed), save NP-parameters (if needed), etc.
+
+\vspace{2mm}
+
+\texttt{FNP(x,b,hadron,lambdaNP)}: the function returns $f^{f,h}_{NP}(x,b,\lambda)$. 
+
+\vspace{2mm}
+
+\texttt{bSTAR(b,x,y)}: the function returns $b^*(b)$ function.
+
+\vspace{2mm}
+
+\texttt{mu\_OPE(b,x,y,c4)}: the function returns $\mu_\text{OPE}(z,b)$ function.
+
+\textbf{Important:} the module \texttt{XX\_model} is compiled before \texttt{XX}, and thus can use only lower-level modules: \texttt{TMD\_AD, QCDinput,} etc.
+
 \subsection{\texttt{\_OPE} modules (tw2)}
 \label{TMD_OPE}
 
@@ -1828,323 +1881,7 @@ I.e. the average accuracy for very large $x$ is $\sim 0.1\%$ (3 digits), for lar
 \item Grid is computed by parallel do (if OMP is enabled).
 \end{itemize}
 
-\subsection{\texttt{\_OPE} modules (tw2)}
-\label{TMD_OPE_tw3}
-
-OPE modules compute the following convolution
-\begin{eqnarray}\label{OPE:tw3:main}
-[C\times T](x)&=&\int [dy] C_{\text{tw3}}(y_{1,2,3}),\mathbf{L})T\(y_{1,2,3},\mu_{\text{OPE}}\),
-\end{eqnarray}
-where $T$ is a twist-three function (qgq-correlator) and
-\begin{eqnarray}
-\mathbf{L}=\ln\(\frac{\mu^2_{\text{OPE}}b^2}{4e^{-2\gamma_E}}\).
-\end{eqnarray}
-
-\begin{tcolorbox}
-\begin{center}
-OPE modules are initialized automatically from the corresponding TMD module.
-\end{center}
-\end{tcolorbox}
-
-\begin{tcolorbox}
-\begin{center}
-\red{
-\textbf{Twist-3 convolution is not implemented yet. All function are placeholders. The only working order is NA.}}
-\end{center}
-\end{tcolorbox}
-
-\subsubsection{Functions}
-
-\begin{center}
-\texttt{XX}=name of module (e.g. \texttt{uTMDPDF}, \texttt{uTMDFF}, etc.)
-\\
-\begin{tabular}{||p{5.5cm}||c||p{8.5cm}||}
-\hline\hline
-Entry &~~Type~~& Description
-\\\hline
-\texttt{XX\_OPE\_Initialize(file,prefix)} & subroutine & Initialize the module from INI-file. (common with tw2-part)
-\\\hline
-\texttt{XX\_tw3\_resetGrid()} & subroutine & Force recomputation of the grid. Only if griding is ON.
-\\\hline
-\texttt{XX\_OPE\_tw3\_testGrid()} & subroutine & Run the test of grid (see sec.\ref{sec:OPE:grid1}).  Only if griding is ON.
-\\\hline
-\texttt{XX\_OPE\_tw3\_SetPDFreplica(rep,h)} & subroutine & Switch the PDF replica to \texttt{rep}(int) for hadron \texttt{h} (int). Recompute the grid (if griding is ON). If the new replica is as before nothing is done.
-\\\hline
-\texttt{XX\_OPE\_tw3\_SetScaleVariation(c4)} & subroutine & Change the scale variation parameter $c_4$ (it enters the definition of $\mu_{\text{OPE}}$). Recompute the grid (if griding is ON). The parameter (real)\texttt{c4} is restricted to $0.1<c_4<10$.
-\\\hline\hline
-\texttt{XX\_OPE\_tw3\_convolution(x,b,h,G)} & dp\_real(-5:5) & Returns (\ref{OPE:tw3:main}) for (x,b)=((real)\texttt{x}, (real)\texttt{b}), and hadron number (int)\texttt{h}. In the case of \texttt{NA} returns 1. If grid is computed restore from the grid. The flag (T/F)\texttt{G} is optional. It indicates the inclusion of gluon into the result. Note, that if gluons were not included into the grid they are zero.
-\\\hline\hline
-\end{tabular}
-\end{center}
-
-\subsubsection{Model parameters.} 
-
-The OPE is fully deterministic formula, but it contains the free scale, and often one implement $b^*$-modification. These parameters are written in \texttt{model}-module. Namely:
-\begin{itemize}
-\item \texttt{bSTAR(bT,x,y)} = is the function used instead of $b$ in  $\mathbf{L}$ in eqn.(\ref{OPE:tw2:main}).
-\item \texttt{muOPE(bt,x,y,c4)} = is the function used for $\mu_{\text{OPE}}$.
-\end{itemize}
-In both cases, the variables $x$ and $y$ are defined as in eqn.(\ref{OPE:tw2:main}). The parameter $c_4$ is the scale variation parameter.
-
-\subsubsection{Scale variation.} 
-
-\textbf{Not implemented yet}
-
-\subsubsection{Grid}
-\label{sec:OPEtw3:grid1}
-
-\textbf{Not implemented yet}
-
-\newpage
-\section{\texttt{uTMDPDF\_model}}
-\begin{center}
-\blue{\textbf{same for}} \texttt{uTMDFF\_model} and \texttt{lpTMDPDF\_model}.
-\end{center}
-
-\begin{tcolorbox}
-\begin{center}
-\textbf{This module gives the expression for $f_{NP}$, $\mu_{\text{OPE}}$ and $b^*$. It could be written by user, and one of modules that form a TMD model (together with models for TMD-evolution).}
-\\
-\textbf{\blue{Making this module follow the interface}}
-\end{center}
-\texttt{public:: ModelInitialization(NParray)}
-\\
-\texttt{public:: ModelUpdate(NParray)}
-\\
-\texttt{real(dp),public,dimension(-5:5):: FNP}
-\\
-\texttt{real(dp),public:: bSTAR}
-\\
-\texttt{real(dp),public:: mu\_OPE}
-\\
-\texttt{public:: GetCompositionArray}
-\\
-\texttt{public:: GetReplicaParameters}
-\end{tcolorbox}
-
-\texttt{ModelInitialization(NParray)}: this subroutine is called during the initialization of \texttt{TMDR}. The \texttt{real(dp),intent(in)::NParray(:)} is the array of initial NP-parameters. Use this subroutine to make preparation of the model.
-
-\vspace{2mm}
-
-\texttt{ModelUpdate(NParray)}: this subroutine is called during the \texttt{TMDR\_setNPparameters(NParray)}. The \texttt{real(dp),intent(in)::NParray(:)} is the array of NP-parameters passed to \texttt{TMDR\_setNPparameters}. Use this subroutine to recompute model parameters (if needed), save NP-parameters (if needed), etc.
-
-\vspace{2mm}
-
-\texttt{FNP(x,z,b,hadron,lambdaNP)}: the function returns $f^{f,h}_{NP}(x,z,b)$. See (\ref{uTMDPDF:mainformula})
-
-\vspace{2mm}
-
-\texttt{bSTAR(b,lambdaNP)}: the function returns $b^*(b)$ function.See (\ref{uTMDPDF:mainformula})
-
-\vspace{2mm}
-
-\texttt{mu\_OPE(z,bt)}: the function returns $\mu_\text{OPE}(z,b)$ function.See (\ref{uTMDPDF:mainformula})
-
-\vspace{2mm}
-
-\texttt{GetCompositionArray(h,lambdaNP,includeArray,CA)}: subroutine returns \texttt{real(dp),allocatable,intent(out)::CA(:)} and \texttt{logical,allocatable,intent(out)::includeArray(:)} which define the matrix $A_{hr}$ (see sec.\ref{uTMDPDF:composite}). Particularly, \texttt{CA(i)}=$A_{hi}$. The logical array \texttt{includeArray} indicates which terms should be included in the sum (\texttt{.true.}=include, \texttt{.false.}=do not include).
-
-\vspace{2mm}
-
-\texttt{GetReplicaParameters(num,NParray)}: subroutine returns \texttt{real(dp),allocatable,intent(out)::NParray(:)} associated with \texttt{integer::num}. In such way, one could call replicas of a model.
-
-\vspace{2mm}
-
-
-
-\textbf{Important:} the module \texttt{uTMDPDF\_model} is compiled before \texttt{uTMDPDF}, and thus can use only lower-level modules: \texttt{TMD\_AD, QCDinput,} etc.
-
-\newpage
-\section{\texttt{uTMDPDF} module}
-\label{uTMDPDF}
-
-The module \texttt{uTMDPDF} performs the evaluation of the unpolarized TMD PDF at low scale $\mu_i$ in $\zeta$-prescription. It is given by the following integral
-\begin{eqnarray}\label{uTMDPDF:mainformula}
-F_f(x,b)=\int_x^1 \frac{dz}{z}C_{f\ot f'}(z,b^*(b),c_4\mu_\text{OPE}(z,b))f_{f'}(\frac{z}{x},c_4\mu_\text{OPE}(z,b))f^f_{NP}(x,z,b,\{\lambda\}),
-\end{eqnarray}
-where $f_f(x,\mu)$ is PDF of flavor $f$, $C$ is the coefficient function in $\zeta$-prescription, $f_{NP}$ is the non-perturbative function. The variable $c_4$ is used to test the scale variation sensitivity of the TMD PDF. The NNLO coefficient functions used in the module were evaluated in \cite{Echevarria:2016scs} (please, cite it if use).
-
-\begin{center}
-List of available commands \blue{optional parameters are shown in blue.}
-\\
-\begin{tabular}{||p{5.5cm}||c|c||p{8.5cm}||}
-\hline\hline
-Command &~~Type~~& ~~Sec.~~ & Short description
-\\\hline
-\texttt{uTMDPDF{\_}Initialize(file,\blue{prefix}) } & subrout. &\ref{uTMDPDF:init} & Initialization of module. (string) \texttt{file} is the name of \texttt{constants-file}, which contains initialization information. (string)\texttt{prefix} is appended to \texttt{file} if provided.
-\\\hline
-\texttt{uTMDPDF{\_}SetLambdaNP(lambda,} \texttt{\blue{buildGrid, gluonRequared})}
-\texttt{uTMDPDF{\_}SetLambdaNP(num,} \texttt{\blue{buildGrid, gluonRequared})}
-& subrout & \ref{uTMDPDF:fNP}& Set new NP parameters used in \texttt{FNP} and \texttt{bSTAR}. The option with (real*8 array)\texttt{lambda} set the parameters directly. The option with (int)\texttt{num} set the parameters according to \texttt{ReplicaParameters} defined in model. Optional (logical) parameter \texttt{buildGrid, gluonRequared} override the options for grid contraction.
-\\\hline
-\texttt{uTMDPDF\_CurrentNPparameters(var)} & subrout. &\ref{uTMDPDF:fNP} & Return the (real*8) array of current values of $\lambda_{NP}$.
-\\\hline
-\texttt{uTMDPDF{\_}lowScale5(x,b,h)} &(real*8(-5:5)) & \ref{uTMDPDF:TMDPDF} & Returns unpolarized TMD PDF at $x$, $b$ and hadron $h$. Gluon flavour undefined.
-\\\hline
-\texttt{uTMDPDF{\_}lowScale50(x,b,h)} &(real*8(-5:5)) & \ref{uTMDPDF:TMDPDF}&  Returns unpolarized TMD PDF at $x$, $b$ and hadron $h$.
-\\\hline
-\texttt{uTMDPDF{\_}SetScaleVariation(c4))}& subrout &  & Set new value of $c_4$ (default value $c_4=1$).
-\\\hline
-\texttt{uTMDPDF{\_}resetGrid(bG,g)}& subrout & \ref{uTMDPDF:grid}& Force reset or deconstruct the grid.
-\\\hline
-\texttt{uTMDPDF{\_}SetPDFreplica(num,h)}& subrout & -- & Call \texttt{QCDinput} to change the PDF replica number for hadron \texttt{h}, deconstructs grid.
-\\
-\hline\hline
-\end{tabular}
-\\
-~
-\\
-List of functions which must be provided by a model code
-\\
-\begin{tabular}{||l|c|p{9cm}||}
-\hline\hline
-Input & Short description
-\\\hline
-\texttt{ModelInitialization()}  & Necessary predefinitions by user. E.g. some precalculations for \texttt{FNP}. Can be black.
-\\\hline
-\texttt{FNP(x,z,b,hadron)}  & NP-model for $f_{NP}(x,z,b,\{\lambda\})$ depends on the hadron. See sec.\ref{uTMDPDF:fNP}
-\\\hline
-\texttt{mu{\_}OPE(x,bt)} & The value of $\mu_{\text{OPE}}$. 
-\\\hline
-\texttt{bSTAR(bT,lambdaNP)} & The value of $b^*$, can be just \texttt{bSTAR=bT}.
-\\\hline
-\texttt{ReplicaParameters(rep)} & Returns a presaved array of $\lambda_{NP}$ corresponding to integer \texttt{rep}. Can be black.
-\\\hline\hline
-\end{tabular}
-\end{center}
-
-\subsection{Initialization}
-\label{uTMDPDF:init}
-
-Prior the usage module is to be initialized (once per run). By
-
-\texttt{call uTMDPDF{\_}Initialize(file)}
-
-In \texttt{constants-file} the order of the perturbative input is defined by 
-$$
-\text{\texttt{LO,LO+}}=a_s^0,\qquad
-\text{\texttt{NLO,NLO+}}=a_s^1,\qquad
-\text{\texttt{NNLO,NNLO+}}=a_s^2.
-$$
-
-\begin{tcolorbox}
-There is also a special option \texttt{NA}. In this case no matching to perturbation theory is done and the TMD distribution is replaced by $f_{NP}(x,1,b)$. I.e. 
-\begin{eqnarray}
-F_f(x,b)=f^f_{NP}(x,1,b,\{\lambda\}).
-\end{eqnarray}
-In this case, the griding options are ignored. The composition option works as usual.
-\\
-\textbf{\blue{Within the $\zeta$-prescription this option is theory-save. I.e. it can be used together with any-order evolution without theory tensions.}}
-\end{tcolorbox}
-
-
-\subsection{Definition of TMD model, $f_{NP}$ and parameters}
-\label{uTMDPDF:fNP}
-
-The model for TMD is given by $f_{NP}$, $b^*$, and in smaller amount by $\mu_{OPE}$. The definitions of these functions is provided by user in the file \texttt{uTMDPDF\_model.f90}, which is located in the \texttt{scr/model} directory.
-
-\begin{itemize}
-\item The function \texttt{FNP} is dependent on $x$, $z$, $b$ and $\lambda$ (and the hadron flavor). It is an array for all flavors (-5:5). It uses the parameters $\lambda_{1,2....}$ which are passed to it by main module. The total number of NP parameters \texttt{LambdaNPLength}, is declared in the \texttt{constants}-file.
-\item User provides the value of $\mu_\text{OPE}$ (or use the default one) in the function \texttt{mu{\_}OPE(x,b)}. This scale is used inside the convolution $F(x,b)=C(x,b;\mu_\text{OPE})\otimes q(x,\mu_\text{OPE})$. The function could depend on $x$ (the one which enter $f(x)$ in the convolution).
-\item User provides the value of $b^*$ (or use the default one) in the function \texttt{bSTAR(b,lambdaNP)}. This function is used withing the coefficient function $C(x,b^*;\mu)$. Generally, the (twist-2) coefficient function depends only on logarithms $\ln(\mu_{OPE}b^*)$. The function could depend on $\lambda$.
-\item Together with the model user can provide the function \texttt{ReplicaParameters(n)}, which returns NP parameters in accordance to input integer number $n$. These parameters will be set as be current $\lambda_{1,2..}$, upon the call \texttt{uTMDPDF{\_}SetLambdaNP(n)}, where \texttt{n} is integer number of the replica. It is convenient to specify initializing values here, or indeed, the values for fit replicas.
-\end{itemize}
-
-
-
-To set the values for array \texttt{lambdaNP} use the subroutine
-
-\texttt{call uTMDPDF{\_}SetLambdaNP((/}$\lambda_1,\lambda_2$,...\texttt{/))}
-
-\textbf{Optional:} There exist the overloaded version of \texttt{uTMDPDF{\_}SetLambdaNP}, with two additional boolean parameters
-
-\texttt{call uTMDPDF{\_}SetLambdaNP((/}$\lambda_1,\lambda_2$,...\texttt{/),makeGrid,includeGluons)}
-
-If parameter \texttt{makeGrid=.true.} then for \textit{this} run of non-perturbative parameters the grid for TMD will be evaluated. Then until new NP parameters set the TMDs are reconstructed from the grid, see sec.\ref{uTMDPDF:grid}.
-
-If parameter \texttt{includeGluons=.true.}, the grid is calculated with gluons. If parameter \texttt{includeGluons=.false.}, the grid is calculated without gluons (but the mixture of quark with gluon is taken into account. The difference is the same as, e.g. between \texttt{uTMDPDF{\_}lowScale5} and
-\texttt{uTMDPDF{\_}lowScale50} functions (see next section).
-
-Default version has \texttt{makeGrid=.false.},\texttt{includeGluons=.false.}. Note, that this command compare new values of parameters to the old one. If they coincides, the grid is not renewed. 
-
-\textbf{Optional:} There exist the overloaded version of \texttt{uTMDPDF{\_}SetLambdaNP(n)}, with \texttt{n} being an integer. It attempt to load user defined set of NP parameters associated with number $n$.
-
-\subsection{Evaluating unpolarized TMD PDFs}
-\label{uTMDPDF:TMDPDF}
-
-The expression for unpolarized TMD PDFs is given by the function 
-
-\texttt{uTMDPDF{\_}lowScale??(x,b,h)}
-
-where 
-\begin{itemize}
-\item [\texttt{x}] (real*8) Bjorken-$x$ ($0<x<1$)
-\item [\texttt{b}] (real*8) Transverse distance ($b>0$) in GeV
-\item [\texttt{h}] (integer) The number that indicates the hadron. Since coefficient function is hadron independent, this number influence the PDF that used, and \texttt{FNP}.
-\end{itemize}
-The questions marks stand for a flavor content of TMD-vector. The functions evaluate the TMD PDFs of different flavours simultaneously.
-\begin{itemize}
-\item[] \texttt{uTMDPDF{\_}lowScale5(x,b,h)} returns (real*8) array(-5:5) for $\bar b,\bar c,\bar s,\bar u,\bar d ,?,d,u,s,c,b$. Gluon contribution is undefined, but taken into account in the mixing contribution. 
-\item[] \texttt{uTMDPDF{\_}lowScale50(x,b,h)} returns (real*8) array(-5:5) for $\bar b,\bar c,\bar s,\bar u,\bar d ,g,d,u,s,c,b$. This procedure is slower  ($\sim 10-50\%$ depending on parameters, mainly on $x$) in comparison to the previous command. The slowdown is presented since the gluon coefficient function has $1/x$ behavior, and requires more iteration to reach the demanded precision. If gluons are not needed use previous.
-\end{itemize}
-
-\begin{tcolorbox}
-\textbf{Important note:} there is no arguments $\mu$ and $\zeta$, because the \texttt{artemide} uses the $\zeta$-prescription, where a TMD distribution is scaleless. The scale of matching procedure $\mu_\text{OPE}$ is set in the function \texttt{mu\_OPE} (see previous subsection). Note, that the TMD at different then $\zeta$-prescription point can be evaluated within \texttt{TMDs} package (which uses \texttt{uTMDPDF} in turn).
-\end{tcolorbox}
-
-\textbf{Additional points:}
-\begin{itemize}
-\item In order to avoid possible problems at $b=0$, at $b<10^{-6}$ the value of $b$ is set to $b=10^{-6}$. This region is numerically non-important, since in any cross-section it is suppressed by $b^n$ ($n\geqslant 1$) within the Fourier integral.
-\item The convolution procedure $C\otimes f$ is the most costly procedure in the package. Its timing seriously increases from NLO to NNLO coefficient function (about 10 times). In the current version we implement the Gauss-Kronrod adaptive algorithm, with estimation of accuracy as $|(G7-K15)/(f(x)f_{NP}(1))|<\epsilon $, where the default value of $\epsilon$ is $10^{-3}$. According to our checks default estimation guaranties the 4-digit precision of the evaluation. If integrand does not converge fast enough at $z\to 1$ (e.g. for gluon contribution at NNLO, where $\ln^3 \bar z$ is presented), the integral at $(x_0,1)$ is replaced by exact integral with constant $f(x)f_{NP}$. The value of $x_0$ is determined by $f'(x_0)<\epsilon$ and $x_0>1-\epsilon$. This additional procedure is needed to ensure convergence of the integral. However, in our experience (which uses only quark TMDs), this extra procedure is not used at all.
-\end{itemize}
-
-\subsection{Composite TMD}
-\label{uTMDPDF:composite}
-
-Starting from the ver.2.03 there is an option ``composite TMD'' (constants-file A.p2). This option overrides the definition of hadrons $F_h$. 
-
-\textbf{If the option is False}, the evaluation goes in the transitional way, i.e. the enumeration of hadrons $h$ corresponds to the enumeration of the PDFs. So,
-\begin{eqnarray}\nn
-\text{\texttt{IsComposite=.false.}}\Rightarrow\qquad F_{h\ot q}=f_{h\ot q'}\otimes C_{q'\ot q}f_{NP;h,q}=\mathbf{F}_{h\ot q}.
-\end{eqnarray}
-
-\textbf{If the option is True}, the enumeration of hadrons $h$ does not correspond to the enumeration of the PDFs. In this case, a TMD is evaluated by the expressions
-\begin{eqnarray}\nn
-\text{\texttt{IsComposite=.true.}}\Rightarrow\qquad F_{h\ot q}=\sum_{r}A_{h r} f_{r\ot q'}\otimes C_{q'\ot q}f_{NP;r,q}=\sum_r A_{hr}\mathbf{F}_{r\ot q}.
-\end{eqnarray}
-The arrays $A_h$ are defined in the model-file within subroutine \texttt{GetCompositionArray}, and could depend on NP-parameters.
-
-The composite TMD are useful in some cases. For example, the charged hadron TMDFF (the composition of pion+kaon+...), the estimation of PDF uncertanty band in with eigen-vectors PDF, and others.
-
-\subsection{Grid construction}
-\label{uTMDPDF:grid}
-
-For fitting procedure one often needs to evaluate TMDs multiple times. For example, for fit performed in \cite{Scimemi:2017etj} the evaluation of singe $\chi^2$ entry requires $\sim 16\times 10^6$ calls of \texttt{uTMDPDF{\_}..}. I recall that a TMD is given by the expression
-\begin{eqnarray}
-F(x,\vec b)\simeq\int dy C(x/y,\ln(\vec b^2)) f(y)f_{NP}(x,y,\vec b,\lambda).
-\end{eqnarray}
-So, every call of \texttt{uTMDPDF{\_}..} at NNLO order, requires $\sim 200$ calls of pdfs, depending on $x$, $b$ and $\lambda$'s, in order to evaluate the integral over $y$. In such situations, it is much faster to make a grid of TMD distributions for a given set of non-pertrubative parameters (i.e. the grid is in $x$ and $b$), and then use this grid for the interpolation of TMD values. The calculation of a grid is not a very fast procedure, nonetheless, for large computation (number of TMD calls $>10^4-10^5$) is more efficient.
-
-The griding is turned on by the call of overloaded version of \texttt{uTMDPDF{\_}SetLambdaNP(lambda,makeGrid,includeGluons)}  with \texttt{makeGrid=.true.} (see also sec.\ref{uTMDPDF:fNP}). After this call the grid will be built (the corresponding massage will be shown on the screen, if output level is $>1$). This grid is used for the interpolation of TMD distribution until the next call of \texttt{uTMDPDF{\_}SetLambdaNP}, which resets/cancels grid. To speed up the multiple changes of parameters, the packages checks the function $f_{NP}(x,y)$ onto the $y$-dependence, and $b^*$ on $\lambda$-dependence. If any of them is observed, it implies that the convolution integral depends on $\lambda$. If convolution integral does not depend on $\lambda$, then the grid is not renewed (unless it is forcibly reseted) but reweighted with new $f_{NP}$.
-
-The interpolation is cubic. The grid is build for the finite domain of $x\in(x_{\min},1)$ and $b\in(0,b_M)$. For $x<x_{\min}$ the program will be terminated (with an error). In the default set we have
-$$x_{\min}=10^{-5},\qquad b_M=100.$$
-The default grid is 250$\times$750 (the grid is logarithmic in both $x$ and $b$, small $x$ and $b\to0$), we have found that it gives in average 5-6 digit precision. All this parameter can be changed in \texttt{constants} file in the section 3.D. These parameters have been used to fit a large domain of energies and $q_T$. However, we recommend, to check the obtained result by exact evaluation without a grid to ensure the precision in particular cases.
-
-
-For $b>b_M$ we use the following approximate formula
-\begin{eqnarray}
-\text{for $b>b_M$}:~~~F(x,b)=f_{NP}(x,x,b)\frac{F(x,b_M)}{f_{NP}(x,x,b_M)}.
-\end{eqnarray}
-This formula is an approximation which is exact only in the case: $b$(in convolution) freezes at large values, and $f_{NP}$ is $y$-independent. For the overwhelming part of models it is the case. Otherwise, there is a numerical error. However, I have checked this error is typically not large (for smooth models) $\sim 0.1-10\%$ at $b=1.5 b_M$ (at $b_M=100$). Numerically, such error is absolutely negligible, since typical values at $b_M=100$ of $F$ is $10^{-50}$, and thus it gives unobserved correction to the Fourier integral. This approximation has been interoduced in ver.1.5, in previous versions an interpolation procedure has been used, which produced seriously higher error, that actually affected small-$q_T$ bins in small but visible amount $\sim 0.1\%$.
-
-The subroutine \texttt{uTMDPDF\_resetGrid(makeGrid,includeGluons)} changes the current behaviour (for the meaning of arguments see  \texttt{uTMDPDF{\_}SetLambdaNP}). If \texttt{makeGrid=.true.} the grid will be recalculated.
-
-\subsection{Theoretical uncertainties}
-
-\texttt{uTMDPDF\_SetScaleVariation(c4)} changes the scale multiplicative factor $c_4$ (see \cite{Scimemi:2017etj}, eqn.(2.46)). 
-
-\subsection{Technical notes}
+\subsubsection{Technical notes}
 \label{sec:technicalNote_1}
 
 \begin{center}
@@ -2228,74 +1965,72 @@ Decomposed in this basis the coefficient functions are very presice. The typical
 
 Similar ansatz is used for uTMDFF, with some term removed (which are sensitive to small-x region). Precision in the case of TMDFF is slightly worse $10^{-6}-10^{-8}$. The worst precision is for N$^3$LO $q\to q'$ channel, where it is $\sim 10^{-4}-10^{-6}$. However, it is very good precision which guaranties about 10-12 presice digits for the physical convolution.
 
-\newpage
+\subsection{\texttt{\_OPE} modules (tw3)}
+\label{TMD_OPE_tw3}
 
-\section{\texttt{uTMDFF} module}
-\label{uTMDFF}
-
-The TMDFF functions structurally repeats the TMDPDF functions. Therefore, the module is practically the same as \texttt{uTMDPDF}. Command are the same as for \texttt{uTMDPDF} with replacement \texttt{uTMDPDF\_...} to \texttt{uTMDFF\_...}. The NNLO coefficient functions used in the module were evaluated in \cite{Echevarria:2016scs,Echevarria:2015usa} (please, cite it if use).
-
-\textbf{The definition of TMDFF does not perfectly match the definition of collinear FF. There is a relative factor $1/z^2$.} So the convolution reads
-\begin{eqnarray}
-D(z,b)=\int_z^1 \frac{dy}{y}\mathbb{C}\(\frac{z}{y},\mathbf{L}_\mu\)\frac{d(y,\mu)}{y^2}D_{NP}(z,\frac{z}{y},b)=
-\frac{1}{z^2}\int_z^1 \frac{dy}{y}C\(y,\mathbf{L}_\mu\)(y^2d(y,\mu))D_{NP}(z,y,b),
+OPE modules compute the following convolution
+\begin{eqnarray}\label{OPE:tw3:main}
+[C\times T](x)&=&\int [dy] C_{\text{tw3}}(y_{1,2,3}),\mathbf{L})T\(y_{1,2,3},\mu_{\text{OPE}}\),
 \end{eqnarray}
-where $\mathbb{C}$ starts from $\delta(\bar y)$.
-
-In the case of \texttt{NA} the TMDFF is replaced by $D_{NP}$ entirely. I.e. $D(z,b)=D_{NP}(z,1,b)$.
-
-\section{\texttt{lpTMDPDF} module}
-\label{lpTMDPDF}
-
-The module is practically the same as \texttt{uTMDPDF}. Command are the same as for \texttt{uTMDPDF} with replacement \texttt{uTMDPDF\_...} to \texttt{lpTMDPDF\_...}. The NNLO coefficient functions used in the module were evaluated in \cite{Gutierrez-Reyes:2019rug} (please, cite it if use).
+where $T$ is a twist-three function (qgq-correlator) and
+\begin{eqnarray}
+\mathbf{L}=\ln\(\frac{\mu^2_{\text{OPE}}b^2}{4e^{-2\gamma_E}}\).
+\end{eqnarray}
 
 \begin{tcolorbox}
-\textbf{NOTE:} Since linearly polarized gluon TMD PDF contains only gluon all options related to gluons are ignored (although the argument is preserved to keep common interface). E.g. \texttt{gluonRequared} (in \texttt{lpTMDPDF \_SetLambdaNP} is automatically replaced by \texttt{.true.}. Also the function \texttt{lpTMDPDF lowScale5} is absent, since it is identically equal to zero.
+\begin{center}
+OPE modules are initialized automatically from the corresponding TMD module.
+\end{center}
 \end{tcolorbox}
 
-\section{\texttt{SiversTMDPDF} module}
-\label{lpTMDPDF}
-
-The module implements the Sivers function $f_{1T}^\perp(x,b)$ defined as
-\begin{eqnarray}
-\Phi^{[\gamma^+]}(x,b)=f_1(x,b)+i\epsilon^{\mu\nu}_T b_\mu s_\nu M f_{1T}^\perp(x,b),
-\end{eqnarray}
-where $\Phi^{[\gamma^+]}(x,b)$ is ordinary TMD operators with coordinates $\bar q(b)...q(0)$, and $f_1$ is unpolarized distribution. The Wilson line in this operator is taken pointing to $+\infty$. \textbf{This definition corresponds to SIDIS definition of $f_{1T}^\perp$.} For DY definition one should multiply it by (-1). This sign is explictely carried out in definitions of structure functions for DY processes. The variable $M$ is uniformly taken as mass of proton.
-
-The function is computed by the form
-\begin{eqnarray}
-f_{1T}^\perp(x,b)=C\otimes T(x,\ln(b)) f_{\text{NP}}(x,b),
-\end{eqnarray}
-where $T$ are twist-3 distributions.  The function $f_{\text{NP}}$ is defined in the \texttt{SiverTMDPDF\_model} module.
 \begin{tcolorbox}
-For the moment (v2.05) there is no perturbative matching. Therefore, the usage of \texttt{NA}-order is advisable. The main reason is absence of phenomenological Qui-Sterman function. The NLO perturbative matching is known \cite{Scimemi:2019gge}, and will be implemented in future versions.
+\begin{center}
+\red{
+\textbf{Twist-3 convolution is not implemented yet. All function are placeholders. The only working order is NA.}}
+\end{center}
 \end{tcolorbox}
 
-The module is practically the same as \texttt{uTMDPDF}. Command are the same as for \texttt{uTMDPDF} with replacement \texttt{uTMDPDF\_...} to \texttt{SiversTMDPDF\_...}.
+\subsubsection{Functions}
 
+\begin{center}
+\texttt{XX}=name of module (e.g. \texttt{uTMDPDF}, \texttt{uTMDFF}, etc.)
+\\
+\begin{tabular}{||p{5.5cm}||c||p{8.5cm}||}
+\hline\hline
+Entry &~~Type~~& Description
+\\\hline
+\texttt{XX\_OPE\_Initialize(file,prefix)} & subroutine & Initialize the module from INI-file. (common with tw2-part)
+\\\hline
+\texttt{XX\_tw3\_resetGrid()} & subroutine & Force recomputation of the grid. Only if griding is ON.
+\\\hline
+\texttt{XX\_OPE\_tw3\_testGrid()} & subroutine & Run the test of grid (see sec.\ref{sec:OPE:grid1}).  Only if griding is ON.
+\\\hline
+\texttt{XX\_OPE\_tw3\_SetPDFreplica(rep,h)} & subroutine & Switch the PDF replica to \texttt{rep}(int) for hadron \texttt{h} (int). Recompute the grid (if griding is ON). If the new replica is as before nothing is done.
+\\\hline
+\texttt{XX\_OPE\_tw3\_SetScaleVariation(c4)} & subroutine & Change the scale variation parameter $c_4$ (it enters the definition of $\mu_{\text{OPE}}$). Recompute the grid (if griding is ON). The parameter (real)\texttt{c4} is restricted to $0.1<c_4<10$.
+\\\hline\hline
+\texttt{XX\_OPE\_tw3\_convolution(x,b,h,G)} & dp\_real(-5:5) & Returns (\ref{OPE:tw3:main}) for (x,b)=((real)\texttt{x}, (real)\texttt{b}), and hadron number (int)\texttt{h}. In the case of \texttt{NA} returns 1. If grid is computed restore from the grid. The flag (T/F)\texttt{G} is optional. It indicates the inclusion of gluon into the result. Note, that if gluons were not included into the grid they are zero.
+\\\hline\hline
+\end{tabular}
+\end{center}
 
-\section{\texttt{wgtTMDPDF} module}
-\label{lpTMDPDF}
+\subsubsection{Model parameters.} 
 
-The module implements the worm-gear T (it explains the name \texttt{wgt}) function $g_{1T}(x,b)$ defined as
-\begin{eqnarray}
-\Phi^{[\gamma^+\gamma^5]}(x,b)=\lambda g_{1L}(x,b)+ib_\mu s^\mu M g_{1T}(x,b),
-\end{eqnarray}
-where $\Phi^{[\gamma^+]}(x,b)$ is ordinary TMD operators with coordinates $\bar q(b)...q(0)$, and $g_{1L}$ is the helicity TMDPDF. The variable $M$ is uniformly taken as mass of proton.
+The OPE is fully deterministic formula, but it contains the free scale, and often one implement $b^*$-modification. These parameters are written in \texttt{model}-module. Namely:
+\begin{itemize}
+\item \texttt{bSTAR(bT,x,y)} = is the function used instead of $b$ in  $\mathbf{L}$ in eqn.(\ref{OPE:tw2:main}).
+\item \texttt{muOPE(bt,x,y,c4)} = is the function used for $\mu_{\text{OPE}}$.
+\end{itemize}
+In both cases, the variables $x$ and $y$ are defined as in eqn.(\ref{OPE:tw2:main}). The parameter $c_4$ is the scale variation parameter.
 
-The function is computed by the form
-\begin{eqnarray}
-g_{1T}(x,b)=\(C_{\text{tw2}}\otimes g_1(x,\ln(b))+C_{\text{tw3}}\otimes T\) f_{\text{NP}}(x,b),
-\end{eqnarray}
-where $g_1$ is the helicity PDF, $T$ are twist-3 distributions and coefficients $C$ are small-b matching coefficients. The leading term for twsit-t part is
-\begin{eqnarray}
-C_{\text{tw2}}\otimes g_1=x\int_x^1 \frac{du}{u}g_1(u)+\mathcal{O}(\alpha_s).
-\end{eqnarray}
-Since the functions $T$ are not known the twist-3 convolution term is replaced by a single NP function. It is defined in \texttt{wgtTMDPDF\_model} with \texttt{g1T\_tw3NP(x,hadron,lambdaNP)} function (depending only on x). The function $f_{\text{NP}}$ is defined in addition. Note, that both functions use the same NP-input vector.
+\subsubsection{Scale variation.} 
 
-The order =\texttt{NA} corresponds to $g_{1T}(x,b)=f_{\text{NP}}(x,b)$ (without NP-tw3 contribution).
+\textbf{Not implemented yet}
 
-The module is practically the same as \texttt{uTMDPDF}. Command are the same as for \texttt{uTMDPDF} with replacement \texttt{uTMDPDF\_...} to \texttt{wgtTMDPDF\_...}.
+\subsubsection{Grid}
+\label{sec:OPEtw3:grid1}
+
+\textbf{Not implemented yet}
 
 \renewcommand{\arraystretch}{1.5}
 \newpage
