@@ -1,6 +1,8 @@
 # artemide-development
 The public repository of artemide package for TMD-physics (transverse momentum dependent).
-Here you can find the current unstable version of artemide. The stable version is in artemide-public repository
+Here you can find the current unstable version of artemide.
+The stable version is in VladimirovAlexey/artemide-public repository.
+The artemide version2 is in VladimirovAlexey/artemide2 repository.
 
 ------------------------------------------------------------------------------------------------------
 	CHECK:
