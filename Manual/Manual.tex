@@ -1523,6 +1523,21 @@ List of available orders for different distributions
 \texttt{SiversTMDPDF}[tw3]&:& \texttt{NA}
 \end{eqnarray*}
 
+The functions are computed by the following rule
+\begin{eqnarray}
+\texttt{uTMDPDF}&=&[C\times f]_{\text{tw2}}(x,b)F_{\text{NP}}(x,b),
+\\
+\texttt{uTMDFF}&=&[C\times d]_{\text{tw2}}(x,b)F_{\text{NP}}(x,b),
+\\
+\texttt{lpTMDPDF}&=&[C\times f]_{\text{tw2}}(x,b)F_{\text{NP}}(x,b),
+\\
+\texttt{wgtTMDPDF}&=&[C\times h]_{\text{tw2}}(x,b)F_{\text{NP}}(x,b)+[C\times T]_{\text{tw3}}(x,b)F^{\text{tw3}}_{\text{NP}}(x,b),
+\\
+\texttt{SiversTMDPDF}&=&[C\times T]_{\text{tw3}}(x,b)F^{\text{tw3}}_{\text{NP}}(x,b),
+\end{eqnarray}
+where $f$, $d$, $h$ are collinear distributions of twist-2, and $[C\times h]_{\text{tw2}}$ is corresponding convolution;
+$T$ are collinear distributions of twist-3, and $[C\times T]_{\text{tw3}}$ is corresponding convolution; $F_{\text{NP}}(x,b)$ and $F^{\text{tw3}}_{\text{NP}}(x,b)$ are non-perturbative functions to be fit. NP functions are defined in the \texttt{XX\_model} modules, and share the same $\lambda_{\text{NP}}$ (array of parameters). This structure correctly reproduces the small-b properties of TMD-distributions. The convolutions are computed in separate modules see sec.\ref{TMD_OPE}, \ref{TMD_OPE_tw3}.
+
 \subsubsection{INI-parameters}
 
 \begin{center}
@@ -1567,6 +1582,10 @@ D.p6 & integer & Number of nodes in the b-grid
 \hline\hline
 \end{tabular}
 \end{center}
+\begin{itemize}
+\item \texttt{wgtTMDPDF} has extra section E, which has the same fields as the section A, but responsible for twist-3 convolution.
+\item For \texttt{SiversTMDPDF} the convolution is twist-3. The section C, is absence since it is not yet implemented.
+\end{itemize}
 
 \subsubsection{Functions}
 
@@ -1585,9 +1604,7 @@ Entry &~~Type~~& Description
 \\\hline
 \texttt{XX\_SetLambdaNP(lambda)} & subroutine & Set a new vector of NP parameters $\lambda_{\text{NP}}$. The new vector must be same size as declared at the setup.
 \\\hline
-\texttt{XX\_uTMDPDF_CurrentLambdaNP()} & real(:) & Returns the current vector fo $\lambda_{\text{NP}}$.
-\\\hline\hline
-\texttt{XX\_OPE\_convolution(x,b,h,G)} & dp\_real(-5:5) & Returns (\ref{OPE:tw2:main}) for (x,b)=((real)\texttt{x}, (real)\texttt{b}), and hadron number (int)\texttt{h}. In the case of \texttt{NA} returns 1. If grid is computed restore from the grid. The flag (T/F)\texttt{G} is optional. It indicates the inclusion of gluon into the result. Note, that if gluons were not included into the grid they are zero.
+\texttt{XX\_uTMDPDF\_CurrentLambdaNP()} & real(:) & Returns the current vector for $\lambda_{\text{NP}}$.
 \\\hline\hline
 \texttt{XX\_lowScale5(x,bT,h)} & real(-5:5) & Returns the value of TMD distributions for given (x,b) (reals) and hadron h. The value is the vector over flavors.
 \end{tabular}
@@ -1631,7 +1648,7 @@ The first term is computed by the adaptive algorithm. The second term is compute
 && \int_{y_C}^1 dy f(x/y)g(y)=f(x)\int_{y_C}^1 dy g(y),
 \end{eqnarray*}
 where $g(y)$ is integrable, and the last integral is taken explicitly.
-\item The parameter $y_C=1-10^{-4}$ (\textbf{red}) for a moment is fixed. It provides the accuracy of the last integral (6-7 digits), which is far better than.
+\item The parameter $y_C=1-10^{-4}$ (\textbf{\red{for a moment}}) is fixed. It provides the accuracy of the last integral (6-7 digits), which is far better than.
 \item For $x\sim y_C$ the accuracy drops. In this case, the values of $y_C$ is recomputed by formula $y_C=(100+x)/101$ (i.e. it is 2-digits closer to 1 than $x$).
 \item \textbf{The definition of TMDFF does not perfectly match the definition of collinear FF. There is a relative factor $1/z^2$.} So the convolution reads
 \begin{eqnarray}
@@ -1695,7 +1712,7 @@ This grid is alike logarithmic at small-x, but has extra points at $x\to 1$. The
 
 \textbf{Exponential grid with $b_{\text{min}}$} 
 \begin{eqnarray}\label{OPE:b-grid}
-b_i=B_{\text{min}} e^{-i \Delta_b},\qquad \Delta_b=\frac{1}{N_b}\ln\(\frac{b_{\text{min}}}{B_{\text{max}}},\qquad \text{inv}[b]=\frac{1}{\Delta_b}\ln\(\frac{b_{\text{min}}}{b}\).
+b_i=B_{\text{min}} e^{-i \Delta_b},\qquad \Delta_b=\frac{1}{N_b}\ln\(\frac{b_{\text{min}}}{B_{\text{max}}}\),\qquad \text{inv}[b]=\frac{1}{\Delta_b}\ln\(\frac{b_{\text{min}}}{b}\).
 \end{eqnarray}
 This grid has a lot of points at small-b. and for $b<b_\text{min}$ one could freeze the value.
 
@@ -1716,7 +1733,7 @@ This extrapolation is not very bad, because the convolution behave logarithmical
 All these parameters can be changed in \texttt{constants} file.  However, we recommend to use default values, since they were checked. The check could be performed by the call \texttt{TestGrid()} subroutine of corresponding module. It computes values for central points of grids-cells from grid and from direct computation, and returns the average of $(f_{\text{exract}}/f_{\text{compued}}-1)$. This check can be also called by option in the \texttt{constants} file.
 
 
-I have found that for uTMDPDF the grid with ($N_x=400$, $p_x=2$, $x_{\min}=10^{-5}$) and ($N_b=200$, $b_{\min}=10^{-6}$, $b_{\max}=25$) produce the interpolation quality as shown (test made at NNLO nnpdf31\_\nnlo)
+I have found that for uTMDPDF the grid with ($N_x=400$, $p_x=2$, $x_{\min}=10^{-5}$) and ($N_b=200$, $b_{\min}=10^{-6}$, $b_{\max}=25$) produce the interpolation quality as shown (test made at NNLO nnpdf31\_nnlo)
 \begin{lstlisting}[{style=DOS}]
  |              |     sBar    |     uBar    |     dBar    |   gluon     |      d      |      u      |      s      |
  |----------------------------------------------------------------------------------------------------------------|
@@ -1801,6 +1818,7 @@ I.e. the average accuracy for very large $x$ is $\sim 0.1\%$ (3 digits), for lar
 \begin{figure}
 \begin{center}
 \includegraphics[width=\textwidth]{Figures/uTMDPDF_OPE.pdf}
+\caption{\label{fig:OPE1} Example of convolution (vs.b). Upper row is the convolution. Lower row is the ratio of extraction vs. computaion. The peak in vicinity $b\sim 0.4$ is the quark threshold.}
 \end{center}
 \end{figure}
 
@@ -1808,10 +1826,74 @@ I.e. the average accuracy for very large $x$ is $\sim 0.1\%$ (3 digits), for lar
 \textbf{Extra Notes:}
 \begin{itemize}
 \item Grid is computed by parallel do (if OMP is enabled).
-\caption{\label{fig:OPE1} Example of convolution (vs.b). Upper row is the convolution. Lower row is the ratio of extraction vs. computaion. The peak in vicinity $b\sim 0.4$ is the quark threshold.}
 \end{itemize}
 
+\subsection{\texttt{\_OPE} modules (tw2)}
+\label{TMD_OPE_tw3}
 
+OPE modules compute the following convolution
+\begin{eqnarray}\label{OPE:tw3:main}
+[C\times T](x)&=&\int [dy] C_{\text{tw3}}(y_{1,2,3}),\mathbf{L})T\(y_{1,2,3},\mu_{\text{OPE}}\),
+\end{eqnarray}
+where $T$ is a twist-three function (qgq-correlator) and
+\begin{eqnarray}
+\mathbf{L}=\ln\(\frac{\mu^2_{\text{OPE}}b^2}{4e^{-2\gamma_E}}\).
+\end{eqnarray}
+
+\begin{tcolorbox}
+\begin{center}
+OPE modules are initialized automatically from the corresponding TMD module.
+\end{center}
+\end{tcolorbox}
+
+\begin{tcolorbox}
+\begin{center}
+\red{
+\textbf{Twist-3 convolution is not implemented yet. All function are placeholders. The only working order is NA.}}
+\end{center}
+\end{tcolorbox}
+
+\subsubsection{Functions}
+
+\begin{center}
+\texttt{XX}=name of module (e.g. \texttt{uTMDPDF}, \texttt{uTMDFF}, etc.)
+\\
+\begin{tabular}{||p{5.5cm}||c||p{8.5cm}||}
+\hline\hline
+Entry &~~Type~~& Description
+\\\hline
+\texttt{XX\_OPE\_Initialize(file,prefix)} & subroutine & Initialize the module from INI-file. (common with tw2-part)
+\\\hline
+\texttt{XX\_tw3\_resetGrid()} & subroutine & Force recomputation of the grid. Only if griding is ON.
+\\\hline
+\texttt{XX\_OPE\_tw3\_testGrid()} & subroutine & Run the test of grid (see sec.\ref{sec:OPE:grid1}).  Only if griding is ON.
+\\\hline
+\texttt{XX\_OPE\_tw3\_SetPDFreplica(rep,h)} & subroutine & Switch the PDF replica to \texttt{rep}(int) for hadron \texttt{h} (int). Recompute the grid (if griding is ON). If the new replica is as before nothing is done.
+\\\hline
+\texttt{XX\_OPE\_tw3\_SetScaleVariation(c4)} & subroutine & Change the scale variation parameter $c_4$ (it enters the definition of $\mu_{\text{OPE}}$). Recompute the grid (if griding is ON). The parameter (real)\texttt{c4} is restricted to $0.1<c_4<10$.
+\\\hline\hline
+\texttt{XX\_OPE\_tw3\_convolution(x,b,h,G)} & dp\_real(-5:5) & Returns (\ref{OPE:tw3:main}) for (x,b)=((real)\texttt{x}, (real)\texttt{b}), and hadron number (int)\texttt{h}. In the case of \texttt{NA} returns 1. If grid is computed restore from the grid. The flag (T/F)\texttt{G} is optional. It indicates the inclusion of gluon into the result. Note, that if gluons were not included into the grid they are zero.
+\\\hline\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Model parameters.} 
+
+The OPE is fully deterministic formula, but it contains the free scale, and often one implement $b^*$-modification. These parameters are written in \texttt{model}-module. Namely:
+\begin{itemize}
+\item \texttt{bSTAR(bT,x,y)} = is the function used instead of $b$ in  $\mathbf{L}$ in eqn.(\ref{OPE:tw2:main}).
+\item \texttt{muOPE(bt,x,y,c4)} = is the function used for $\mu_{\text{OPE}}$.
+\end{itemize}
+In both cases, the variables $x$ and $y$ are defined as in eqn.(\ref{OPE:tw2:main}). The parameter $c_4$ is the scale variation parameter.
+
+\subsubsection{Scale variation.} 
+
+\textbf{Not implemented yet}
+
+\subsubsection{Grid}
+\label{sec:OPEtw3:grid1}
+
+\textbf{Not implemented yet}
 
 \newpage
 \section{\texttt{uTMDPDF\_model}}
