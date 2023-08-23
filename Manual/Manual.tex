@@ -108,7 +108,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{document}
+.\begin{document}
 \title{artemide ver.3.00}
 \author{Alexey A. Vladimirov \\ \today}
 \noaffiliation
@@ -1205,10 +1205,132 @@ where $m_{th}$ are all threasholds from $\mu$ till $M_Z$. The constant $\bar \be
 
 \newpage
 
-\section{\texttt{TMD\_AD} module}
+\section{TMD evolution modules}
+
+The TMD evolution has several implementation. The artemide v3 (and higher) is hard-coded to use the fixed-$\mu$ evolution (see ref.\cite{Scimemi:2018xaf}). This choice is made after many test performed in earlier versions or artemide (where the type of evolution was selected by user), and the demonstration that they are equivalent within perturbative uncertainty.
+
+The fixed-$\mu$ scale corresponds to evolution along $\zeta$ is with fixed-$\mu$ solution to the special equi-potential line, and evolution along $\mu$ along equi-potential line (this part is unity by definition). The evolution factor reads
+\begin{eqnarray}
+R[b,(\mu_1,\zeta_1)\to(\mu_2,\zeta_2)]&=&\frac{R[b,(\mu_1,\zeta_1)\to(\mu_1,\zeta_{\mu_1})]}{R[b,(\mu_2,\zeta_2)\to(\mu_2,\zeta_{\mu_2})]},
+\\
+R[b,(\mu,\zeta)\to(\mu,\zeta_{\mu})]&=&\exp\(-\mathcal{D}(\mu,b)\ln\(\frac{\zeta}{\zeta_\mu(b)}\)\),
+\end{eqnarray}
+where $\mathcal{D}$ is the Collins-Soper kernel, and $\zeta_\mu(b)$ is the special $\zeta$-line.
+
+The Collins-Soper kernel is defined as
+\begin{eqnarray}
+\mathcal{D}^f(\mu,b)=\mathcal{D}^f_{\text{pert}}(\mu_{\text{OPE}},b)+\int_{\mu_{\text{OPE}}}^{\mu} \frac{d\mu'}{\mu'}\Gamma^f(\mu')+\mathcal{D}^f_{\text{NP}}(b),
+\end{eqnarray}
+where $\mathcal{D}^f_{\text{pert}}$ is the high-scale perturbative part, and $\mathcal{D}_{\text{NP}}$ is the non-perturbative model (e.g. $g_Kb^2$)
+
+The module for evolution includes three modules
+\begin{itemize}
+\item \texttt{TMD\_AD} this module contains collection of all anomalous dimensions and related quantities. Logically it is equivalent to \texttt{\_OPE} modules.
+\item \texttt{TMDR\_model} this module contains the user-defined non-perturbative input.
+\item \texttt{TMDR} this module interface \texttt{TMD\_AD} and \texttt{TMDR\_model} into the evolution factor, and perform the general control.
+\end{itemize}
+The initialization is happened thorough the \texttt{TMDR}-module.
+
+At small values of parameter $Q=Q_0$ the point $(Q,Q^2)$ crosses the $\zeta$-lines. The value of $Q_0$ depends on $b$. The dangerous situation is then hard scale of the process $Q$ is smaller then $Q_0$ at large $b=b_\infty$. In this case the evolution kernel $R[b_\infty,(Q,Q^2)\to \zeta_\mu]>1$, which is generally implies that it grows to infinity. However, it happens only at small values of $Q$. E.g. at NNLO the typical value of $Q_0$ is $\sim 1.5$GeV. That should be taken into account during consideration of low-energy experiment and especially their error-band, since the point $(c_2Q,Q^2)$ could cross the point at larger values of $Q$.
+
+The function \texttt{LowestQ()} returns the values (real*8(1:3)) $\{Q_{-1},Q_0,Q_{+1}\}$, which are solution of equation $Q^2=\zeta_{c Q}(b)$, for (fixed bu) large values of $b$. $Q_{-1}$ corresponds to $c=0.5$, $Q_0$ corresponds to $c=1$ and $Q_{+1}$ corresponds to $c=2$.
+
+\subsubsection{INI-parameters}
+
+\begin{center}
+\textbf{Parameters for TMD-evolution modules (section \texttt{*3}).} 
+\\
+\begin{tabular}{||p{1.5cm}||c||p{12.5cm}||}
+\hline\hline
+Entry &~~Type~~& Description
+\\\hline
+A.p1 & str & Order of the evolution \textit{standardized}. Could be LO, NLO,.. (see table below for details)
+\\\hline
+A.p2 & T/F & The flag to override the \textit{standard} evolution definition. If T, than instead of A.p1 the orders defined in A.p3 -- A.p6 are used.
+\\\hline
+A.p3 & str & Order of $\Gamma_{\text{cusp}}$. LO=$a_s \Gamma_0$, NLO=$a_s \Gamma_0+a_s^2\Gamma_1$, etc.
+\\\hline
+A.p4 & str & Order of $\gamma_{V}$. LO=0, NLO=$a_s \gamma_1$, etc.
+\\\hline
+A.p5 & str & Order of $\mathcal{D}_{\text{pert}}$. LO=0, NLO=$a_s \mathbf{L}+d^{(1,0)}$, etc.
+\\\hline
+A.p6 & str & Order of $\zeta_\mu$ (exact solution). LO=$a_s^0$*(exact solution),  etc.
+\\\hline\hline
+B.p1 & int & Number of NP parameters.
+\\\hline\hline
+C.p1 & real & Tolerance general (used for check of variable modifications, etc. Does not affect integration precision). (default =$10^{-6}$)
+\\\hline
+C.p2 & real & Small-b value at which the evolution is frozen (default =$10^{-6}$)
+\\\hline
+C.p3 & real & Parameter for smoothing the small-b value of exact $\zeta$-line (see below) (default =$0.01$).
+\\\hline\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+The table of correspondence between \texttt{standard} definition and particular definitions
+\begin{tabular}{|l||c|c|c||c|| c|}
+\texttt{order}~~~ & ~~$\Gamma_{\text{cusp}}$~~ & ~~$\gamma_V$~~ & ~~$\mathcal{D}$~*~ & ~~$\mathcal{D}_{\text{resum}}$~~ & ~~$\zeta_\mu$~**~
+\\\hline\hline
+\texttt{LO} & $a_s^1$ & $a_s^0$ & $a_s^0$ & $a_s^0$ & $a_s^0$ 
+\\\hline
+\texttt{NLO} & $a_s^2$ & $a_s^1$ & $a_s^1$ & $a_s^1$ & $a_s^2$ 
+\\\hline
+\texttt{NNLO}=\texttt{N2LO} & $a_s^3$ & $a_s^2$ & $a_s^2$ & $a_s^2$ & $a_s^3$ 
+\\\hline
+\texttt{NNNLO}=\texttt{N3LO} & $a_s^4$ & $a_s^3$ & $a_s^3$ & $a_s^2$ & $a_s^4$ 
+\\\hline
+\texttt{N4LO} & $a_s^5$ & $a_s^4$ & $a_s^4$ & $a_s^3$ & ${a_s^5}^{***}$ 
+\\\hline
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+\item[*] $\mathcal{D}_{\text{resum}}$ starts from $a_s^0$, it already contains $\Gamma_0$.
+\item[**] Definition of $\zeta_\mu$ is correct only in the natural ordering, i.e. \texttt{LO},\texttt{NLO},\texttt{NNLO}. Proper definition in \texttt{+} orders would make the function too heavy. The resumed version has the same counting.
+\item[***] The finite part =0, since $d^{(5,0)}$ is unknown.
+\end{itemize}
+
+\textbf{Notes:}
+\begin{itemize}
+\item For very small-values of $b$ the value of $b$ is fixed.
+\item For very large positive values of $\mathcal{D}$ (i.e. for $b>25$GeV$^{-1}$ or so), the exact solution for $\zeta$-line diverges exponentially at 3- and 4- loops. It is because the coefficient infront of rising terms is negative. To prevent the divergence, the corresponding terms are expanded in $a_s$ up to needed power ($\alpha_s^6$).
+\end{itemize}
+
+\subsubsection{Functions}
+
+\begin{center}
+\texttt{XX}=name of module (e.g. \texttt{uTMDPDF}, \texttt{uTMDFF}, etc.)
+\\
+\begin{tabular}{||p{5.5cm}||c||p{8.5cm}||}
+\hline\hline
+Entry &~~Type~~& Description
+\\\hline
+\texttt{TMDR\_Initialize(file,prefix)} & subroutine & Initialize the module from INI-file.
+\\\hline
+\texttt{TMDR\_SetScaleVariation(c1)} & subroutine & Sets globally a new value for constant $c_1$.
+\\\hline
+\texttt{TMDR\_SetNPparameters(lambda)} & subroutine & Set a new vector of NP parameters $\lambda_{\text{NP}}$. The new vector must be same size as declared at the setup.
+\\\hline
+\texttt{TMDR\_CurrentNPparameters()} & real(:) & Returns the current vector for $\lambda_{\text{NP}}$.
+\\\hline\hline
+\texttt{CS\_kernel(mu,b,f)} & real & Returns the value Collins-Soper kernel at scale $\mu$, point $b$ for flavor $f$.
+\\\hline
+\texttt{zetaNP(mu,b,f)} & real & Returns the value $\zeta_\mu$ for give CS kernel at scale $\mu$, point $b$ for flavor $f$.
+\\\hline
+\texttt{TMDR\_Rzeta(b,muf,zetaf,f)} & real & Return the factor $R$ for evolution from the point $(\mu,\zeta)$ down to the special evolution line.
+\\\hline
+\texttt{TMDR\_R(b,muf,zetaf,mui,zetai,f)} & real & Return the factor $R$ for evolution from the point $(\mu_f,\zeta_f)$ to $(\mu_i,\zeta_i)$.
+\\\hline
+\texttt{LowestQ()} & real & Attempts to compute the lowest available scale $Q$, for which the evolution converges.
+\\\hline\hline
+\end{tabular}
+\end{center}
+
+\subsection{\texttt{TMD\_AD} module}
 \label{TMD_AD}
 
-The module \texttt{TMD\_AD} give access to various perturbative anomalous dimensions needed for TMD evolution. This module is essential part of \texttt{TMDR} module, and thus initialized by it.
+The module \texttt{TMD\_AD} give access to various perturbative anomalous dimensions needed for TMD evolution. This module is essential part of \texttt{TMDR} module, and thus initialized by it. 
 
 \begin{center}
 List of available commands
@@ -1237,27 +1359,36 @@ Command & ~~Sec.~~ & Short description
 \end{tabular}
 \end{center}
 
-\newpage
-\section{\texttt{TMDR\_model}}
+\textbf{Notes:}
+\begin{itemize}
+\item The integral over $\mu$ is done using exact analytical formula by decomposition of $\beta$-function over roots. 
+\item The exact expression for $\zeta$-line is numerically unstable at very small-$b$. It is due to its double-exponential nature which requires exponentiation and cancellation of large-numbers. However, it could be computed analytically in this regime as expansion. Thus, to stabilize the computation of expression the following formula is used
+\begin{eqnarray}
+\zeta_\mu = e^{-b^2/S}\zeta_\text{pert}+(1-e^{-b^2/S})\zeta_\text{exact}.
+\end{eqnarray}
+Here, $S$ is the smoothing parameter. It should be small enough to guaranty non-impact of approximation (approx. $S<0.05$).
+\end{itemize}
+
+\subsection{\texttt{TMDR\_model}}
 
 \begin{tcolorbox}
 \begin{center}
-\textbf{This module gives the expression for $\mathcal{D}$ and $\zeta_\mu$. It could be written by user, and one of modules that form a TMD model (together with models for TMD-distributions).}
+\textbf{This module gives the expression for $\mathcal{D}$. It could be modified by user, and one of modules that form a TMD model (together with models for TMD-distributions).}
 \\
 \textbf{\blue{Making this module follow the interface}}
 \end{center}
-\texttt{public:: ModelInitialization(NParray)}
+\texttt{public:: ModelInitialization(NPlength)}
 \\
 \texttt{public:: ModelUpdate(NParray)}
 \\
-\texttt{real(dp),public:: DNP(mu,b,f)}
+\texttt{real(dp),public:: DNP(b,f)}
 \\
-\texttt{real(dp),public:: zetaNP(mu,b,f)}
+\texttt{real(dp),public:: bSTAR(b)}
 \\
-\texttt{public:: GetReplicaParameters(num,NParray)}
+\texttt{real(dp),public:: muOPE(b,c1)}
 \end{tcolorbox}
 
-\texttt{ModelInitialization(NParray)}: this subroutine is called during the initialization of \texttt{TMDR}. The \texttt{real(dp),intent(in)::NParray(:)} is the array of initial NP-parameters. Use this subroutine to make preparation of the model.
+\texttt{ModelInitialization(NPlength)}: this subroutine is called during the initialization of \texttt{TMDR}. The \texttt{integer,intent(in)::NParray(:)} is the length of array of NP-parameters. Use this subroutine to make preparation of the model.
 
 \vspace{2mm}
 
@@ -1265,210 +1396,20 @@ Command & ~~Sec.~~ & Short description
 
 \vspace{2mm}
 
-\texttt{DNP(mu,b,f)}: the function returns the value of RAD, $\mathcal{D}^f(\mu,b)$. It contains both perturbative and NP parts. The perturbative expressions could be get from \texttt{TMD\_AD}, see \texttt{Dpert} and \texttt{Dresum}.
+\texttt{DNP(b,f)}: the function returns the value, $\mathcal{D}^f_{\text{NP}}(b)$. It contains only NP part. 
 
 \vspace{2mm}
 
-\texttt{zetaNP(mu,b,f)}: the function returns the value of the special equipotential line, $\zeta^f(\mu,b)$. To define it, you can use perturbative and exact expressions from \texttt{TMD\_AD}, see \texttt{zetaMUpert} and \texttt{zetaSL}.
+\texttt{bSTAR(b)}: the function returns the value, $b^*(b)$ used instead of $b$ within $\mathcal{D}_{\text{pert}}$
 
 \vspace{2mm}
 
-\texttt{GetReplicaParameters(num,NParray)}: subroutine returns \texttt{real(dp),allocatable,intent(out)::NParray(:)} associated with \texttt{integer::num}. In such way, one could call replicas of a model.
+\texttt{muOPE(b,c1)}: the function returns the value, $\mu_{\text{OPE}}$ used as reference scale of $\mathcal{D}_{\text{pert}}$. The parameter $c_1$ is the prescription used during the scale variation.
 
 \vspace{2mm}
 
 \textbf{Important:} the module \texttt{TMDR\_model} is compiled before \texttt{TMDR}, and thus can use only lower-level modules: \texttt{TMD\_AD, QCDinput,} etc.
 
-\newpage
-
-\section{\texttt{TMDR} module}
-\label{TMDR}
-
-The module \texttt{TMDR} performs the evaluation of the TMD evolution kernel in the $(\mu,\zeta)$-plane. 
-
-\begin{center}
-List of available commands
-\\
-\begin{tabular}{||l|c|p{10cm}||}
-\hline\hline
-Command & ~~Sec.~~ & Short description
-\\\hline
-\texttt{TMDR{\_}Initialize(file,\blue{prefix}) } & \ref{TMDR:init} & Initialization of module. (string) \texttt{file} is the name of \texttt{constants-file}, which contains initialization information. (string)\texttt{prefix} is appended to \texttt{file} if provided.
-\\\hline
-\texttt{TMDR{\_}setNPparameter(...) } & \ref{TMDR:NP}& Set new NP parameters used in \texttt{DNP} and \texttt{zetaNP}.
-\\\hline
-\texttt{TMDR\_CurrentNPparameters(var)} & \ref{TMDR:NP} & Return the (real*8) array of current values of NP parameters.
-\\\hline
-\texttt{TMDR{\_}R(...)} & \ref{TMDR:R} &Evolution kernel from $(\mu_f,\zeta_f)$ to $(\mu_i,\zeta_i)$.
-\\\hline
-\texttt{TMDR{\_}Rzeta(...)} & \ref{TMDR:R}&  Evolution kernel from $(\mu_f,\zeta_f)$ to $(\mu_i,\zeta^{\text{NP}}_{\mu_i})$ (Special Line is defined by \texttt{zetaNP}).
-\\\hline
-\texttt{LowestQ()} & \ref{TMDR:Q}&  Returns the values of Q (and the band) for which the evolution inverts.
-\\
-\hline\hline
-\end{tabular}
-\\
-~
-\\
-List of inputs
-\\
-\begin{tabular}{||l|c|p{10cm}||}
-\hline\hline
-Input & ~~Setup by~~ & Short description
-\\\hline
-\texttt{DNP(mu,b,f)} & write-in & NP-model for $\mathcal{D}_{\text{NP}}$. Should follow $\mathcal{D}^{\text{pert}}$ at small values of $b$ and satisfy evolution equation (\ref{th:dDD=G}).
-\\\hline
-\texttt{zetaNP(mu,b,f)} & write-in & NP-model for $\zeta_{\mu}$. Should follow equipotential at small values of $b$.
-\\\hline
-\texttt{NPparam} & \texttt{TMDR{\_}setNPparameter(input)} & NP parameters used in \texttt{DNP} and \texttt{zetaNP}.
-\\\hline
-$a_s$ & defined in \texttt{QCDinput} & Strong coupling. See sec.\ref{QCDinput}
-\\
-\hline\hline
-\end{tabular}
-\end{center}
-There are functions to help with definitions of \texttt{DNP} and \texttt{zetaNP}: \texttt{Dpert(mu,bT,f)}, \texttt{Dresum(mu,b,f)}, \texttt{zetaMUpert(mu,bt,f)},\texttt{zetaMUresum(mu,b,f)}, \texttt{zetaMUresum4(mu,b,f)}. \red{ADD EXPLANATION ON FUNCTIONS}
-
-\subsection{Types of evolution}
-
-There are plenty of implementation of TMD evolution. In exact perturbation theory they are equivalent, however, in truncated there are tiny differences. In \texttt{artemide} there are following types (for detailed definitions see \cite{Scimemi:2018xaf})
-\begin{itemize}
-\item \textbf{Type 1}: The improved-$\mathcal{D}$evolution. Exactly equivalent to CSS evolution. Requires (model-)definition of scales $\mu_0$ and $\mu_{\text{LOW}}$. Requires definition of $\zeta_\mu$-line.
-\begin{eqnarray}
-\text{\red{FORMULA TO BE WRITTEN}}
-\end{eqnarray}
-\item \textbf{Type 2}: The improved-$\gamma$ evolution. Requires (model-)definition of scale $\mu_{\text{LOW}}$. Requires definition of $\zeta_\mu$-line.
-\begin{eqnarray}
-\text{\red{FORMULA TO BE WRITTEN}}
-\end{eqnarray}
-\item \textbf{Type 3}: Evolution along $\zeta$ is with fixed-$\mu$ solution, evolution along $\mu$ along equi-potential line. Requires definition of $\zeta_\mu$-line.
-\begin{eqnarray}
-R[b,(\mu_1,\zeta_1)\to(\mu_2,\zeta_2)]&=&\frac{R[b,(\mu_1,\zeta_1)\to(\mu_1,\zeta_{\mu_1})]}{R[b,(\mu_2,\zeta_2)\to(\mu_2,\zeta_{\mu_2})]},
-\\
-R[b,(\mu,\zeta)\to(\mu,\zeta_{\mu})]&=&\exp\(-\mathcal{D}(\mu,b)\ln\(\frac{\zeta}{\zeta_\mu(b)}\)\)
-\end{eqnarray}
-\end{itemize}
-
-\subsection{Assumptions and approximations}
-
-\begin{itemize}
-\item The small values of $b$ are frizzed, at $10^{-6}$.
-\item \texttt{TMDR{\_}Rzeta}, for the evolution of type 4. For $b>20$GeV$^{-1}$ the check of $g\mathcal{D}(\zeta_\mu)>g\mathcal{D}(\zeta_\mu^{\text{NP}})$ is performed. If it fails then $g\mathcal{D}(\zeta_\mu)=g\mathcal{D}(\zeta_\mu^{\text{NP}})$. It is done is order to avoid possible ambiguities $0/0$, since at very large $b$ evolution factor is very small, and change of sign in $g\mathcal{D}(\zeta_\mu)-g\mathcal{D}(\zeta_\mu^{\text{NP}})$ could lead to infinite values of the function.
-\item For very large positive values of $\mathcal{D}$ (i.e. for $b>25$GeV$^{-1}$ or so), the exact solution for $\zeta$-line diverges exponentially at 3- and 4- loops. It is because the coefficient infront of rising terms is negative. To prevent the divergence, the corresponding terms are expanded in $a_s$ up to needed power ($\alpha_s^6$).
-\end{itemize}
-
-\subsection{Initialization}
-\label{TMDR:init}
-
-Prior the usage module is to be initialized (once per run prior to any other module-related command). By
-
-\texttt{call TMDR{\_}Initialize(order)}
-
-This command read the input from the \texttt{constants}-file, and set the other parameters according to 
-\begin{itemize}
-
-\item[\texttt{order}] (string) declaration of order for the evolution kernel. Typically, one set $\Gamma_{\text{cusp}}$ one order higher then the rest of anomalous dimensions. There are following set of orders
-\end{itemize}
-
-\begin{center}
-
-\begin{tabular}{|l||c|c|c||c|| c}
-\texttt{order}~~~ & ~~$\Gamma_{\text{cusp}}$~~ & ~~$\gamma_V$~~ & ~~$\mathcal{D}$~*~ & ~~$\mathcal{D}_{\text{resum}}$~~ & ~~$\zeta_\mu$~**~
-\\\hline\hline
-\texttt{LO} & $a_s^1$ & $a_s^0$ & $a_s^0$ & $a_s^0$ & $a_s^0$ 
-\\\hline
-\texttt{LO+} & $a_s^1$ & $a_s^1$ & $a_s^1$ & $a_s^0$ & $a_s^1$ 
-\\\hline
-\texttt{NLO} & $a_s^2$ & $a_s^1$ & $a_s^1$ & $a_s^1$ & $a_s^2$ 
-\\\hline
-\texttt{NLO+} & $a_s^2$ & $a_s^2$ & $a_s^2$ & $a_s^1$ & $a_s^2$ 
-\\\hline
-\texttt{NNLO} & $a_s^3$ & $a_s^2$ & $a_s^2$ & $a_s^2$ & $a_s^3$ 
-\\\hline
-\texttt{NNLO+} & $a_s^3$ & $a_s^3$ & $a_s^3$ & $a_s^2$ & $a_s^3$ 
-\\\hline
-\texttt{N3LO} & $a_s^4$ & $a_s^3$ & $a_s^3$ & $a_s^2$ & $a_s^4$ 
-\\\hline
-\texttt{N3LO+} & $a_s^4$ & $a_s^4$ & $a_s^4$ & $a_s^3$ & $a_s^4$ 
-\\\hline
-\texttt{N4LO} & $a_s^5$ & $a_s^4$ & $a_s^4$ & $a_s^3$ & ${a_s^5}^{***}$ 
-\\\hline
-\end{tabular}
-\end{center}
-
-\begin{itemize}
-\item[*] $\mathcal{D}_{\text{resum}}$ starts from $a_s^0$, it already contains $\Gamma_0$.
-\item[**] Definition of $\zeta_\mu$ is correct only in the natural ordering, i.e. \texttt{LO},\texttt{NLO},\texttt{NNLO}. Proper definition in \texttt{+} orders would make the function too heavy. The resumed version has the same counting.
-\item[***] The finite part =0, since $d^{(5,0)}$ is unknown.
-\end{itemize}
-
-\subsection{NP input and NP parameters}
-\label{TMDR:NP}
-
-The NP parameters are used in the definition of the function $\mathcal{D}_\text{NP}$. Their number is read from the \texttt{constants}-file, and allocated (and set $=0$) during the initialization procedure. Their values are set by command
-
-\texttt{call TMDR{\_}setNPparameter(input)}
-
-where \texttt{input} is real*8 list NP parameters, with the length equals to the number of NP parameters.
-
-\begin{center}
--- ~\texttt{DNP}~--
-\end{center}
-
-The important part of TMD evolution is the rapidity anomalous dimension. It has a NP part which is to be parameterized by user. It should be done in the function \texttt{DNP(mu,b,f)} in the end of the file, where \texttt{mu} is (real*8) scale, \texttt{b} is (real*8) parameter b, \texttt{f} is (integer) flavor. \textbf{This functions is used for all evolution kernels.} Specifying it, you can use build-in functions \texttt{Dpert(mu,b,f)} and \texttt{Dresum(mu,b,f)} for the perturbative expressions of $\mathcal{D}$. Also the NP parameters from the set which are given by variables \texttt{NPparam(i)}.
-
-\begin{center}
---~\texttt{zetaNP}~--
-\end{center}
-
-The artemide is founded on the notion of $\zeta$-prescription, therefore, the $\zeta_\mu$ line plays essential role. For $\mathcal{D}\neq \mathcal{D}_{\text{NP}}$ (which is standard situation), the $\zeta_\mu$ line is different from the perturbative. It should be set within the artemide. It is done by user in the function \texttt{zetaNP(mu,b,f)}, with the same arguments as for \texttt{DNP}. Note, that \textbf{it MUST approach $\zeta_\mu$ perturbation in small-$b$ regeme. Otherwise, the evolution is calculated incorrectly.} E.g. if $\mathcal{D}_{\text{NP}}=\mathcal{D}_{\text{pert}}(b^*)+g_Kb^2$ the $\zeta_{\text{NP}}=\zeta_{perp}(b^*)+..$, where dots are power suppressed, and thus can be dropped. Defining this function you can use \texttt{zetaMUpert} and \texttt{zetaMUresum} for perturbative and resumed versions of $\zeta_\mu$, as well as, \texttt{NPparam(i)}.
-
-In the model code user can provide the \texttt{ReplicaParameters(n)}, which returns the array of NP parameters corresponding to integer number \texttt{n}. It is convenient to specify initializing values here, or indeed, the values for fit replicas. i
-
-
-\subsection{Evaluating TMD evolution kernel}
-\label{TMDR:R}
-
-The evolution kernel are presented in two types for the evolution from arbitrary point to arbitrary, and for the evolution from the arbitrary point to the $\zeta$-line. Since various types of evolution have different number of arguments, the routines for different types are overloaded with different number of variables.
-
-\begin{center}
-
-\begin{tabular}{|l||c|l|}
-Function & Evol.type & Comments
-\\\hline\hline
-\multicolumn{3}{|c|}{Evolution from ($\mu_f,\zeta_f$) to ($\mu_i,\zeta_i$)}
-\\\hline
-\texttt{TMDR{\_}R(b,muf,zetaf,mui,zetai,mu0,f)}~~~~ & 1,2,3& For type=2,3,4 parameter $\mu_0$ is ignored
-\\\hline
-\texttt{TMDR{\_}R(b,muf,zetaf,mui,zetai,f)}~~~~ & 1,2,3& For type=1 evaluated at $\mu_0=\mu_i$
-\\\hline\hline
-\multicolumn{3}{|c|}{Evolution from ($\mu_f,\zeta_f$) to ($\mu_i,\zeta_{\mu_i}$)}
-\\\hline
-\texttt{TMDR{\_}Rzeta(b,muf,zetaf,mui,mu0,f)}~~~~ &  1& 
-\\\hline
-\texttt{TMDR{\_}Rzeta(b,muf,zetaf,mui,f)}~~~~ &  2& 
-\\\hline
-\texttt{TMDR{\_}Rzeta(b,muf,zetaf,f)}~~~~ & 3& Absolutely fastest.
-\end{tabular}
-\end{center}
-
-where 
-\begin{itemize}
-\item [\texttt{b}] (real*8) Transverse distance ($b>0$) in GeV
-\item [\texttt{zetaf,muf }] (real*8) hard-factorization scales ($\zeta_f,\mu_f$) in GeV. Typically, =$(Q^2,Q)$
-\item [\texttt{zetai,mui }] (real*8) low-factorization scales ($\zeta_i,\mu_i$) in GeV.
-\item [\texttt{mu0}] (real*8) The scale of perturbative definition of rapidity anomalous dimension $\mathcal{D}$ $\mu_0$ in GeV. 
-\item [\texttt{f}] (integer) parton flavor. $0$ for gluon, $\neq 0$ for quarks.
-\end{itemize}
-
-The parameter evolution type is set in \texttt{constants}-file and is used by \texttt{TMDs} to call particular version of evolution. Within only the \texttt{TMDR}-module it is not needed.
-
-\subsection{Inverted evolution and the lowest available Q}
-\label{TMDR:Q}
-
-At small values of parameter $Q=Q_0$ the point $(Q,Q^2)$ crosses the $\zeta$-lines. The value of $Q_0$ dependents on $b$. The dangerous situation is then hard scale of the process $Q$ is smaller then $Q_0$ at large $b=b_\infty$. In this case the evolution kernel $R[b_\infty,(Q,Q^2)\to \zeta_\mu]>1$, which is generally implies that it grows to infinity. However, it happens only at small values of $Q$. E.g. at NNLO the typical value of $Q_0$ is $\sim 1.5$GeV. That should be taken into account during consideration of low-energy experiment and especially their error-band, since the point $(c_2Q,Q^2)$ could cross the point at larger values of $Q$.
-
-The function \texttt{LowestQ()} returns the values (real*8(1:3)) $\{Q_{-1},Q_0,Q_{+1}\}$, which are solution of equation $Q^2=\zeta_{c Q}(b)$, for (fixed bu) large values of $b$. $Q_{-1}$ corresponds to $c=0.5$, $Q_0$ corresponds to $c=1$ and $Q_{+1}$ corresponds to $c=2$.
 
 \newpage
 
@@ -1547,7 +1488,7 @@ $T$ are collinear distributions of twist-3, and $[C\times T]_{\text{tw3}}$ is co
 \hline\hline
 Entry &~~Type~~& Description
 \\\hline
-A.p1 & T/F & Order of the coefficient function. Could be N/A, LO, NLO,.. (see table below for details)
+A.p1 & str & Order of the coefficient function. Could be N/A, LO, NLO,.. (see table below for details)
 \\\hline
 A.p2 & T/F & Trigger to prepare the grid (T=prepare). Preparation is done on the initialization stage.
 \\\hline
@@ -1604,9 +1545,10 @@ Entry &~~Type~~& Description
 \\\hline
 \texttt{XX\_SetLambdaNP(lambda)} & subroutine & Set a new vector of NP parameters $\lambda_{\text{NP}}$. The new vector must be same size as declared at the setup.
 \\\hline
-\texttt{XX\_uTMDPDF\_CurrentLambdaNP()} & real(:) & Returns the current vector for $\lambda_{\text{NP}}$.
+\texttt{XX\_CurrentLambdaNP()} & real(:) & Returns the current vector for $\lambda_{\text{NP}}$.
 \\\hline\hline
 \texttt{XX\_lowScale5(x,bT,h)} & real(-5:5) & Returns the value of TMD distributions for given (x,b) (reals) and hadron h. The value is the vector over flavors.
+\\\hline\hline
 \end{tabular}
 \end{center}
 

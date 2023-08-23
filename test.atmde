@@ -132,20 +132,28 @@
 *A   : ---- Main definitions ----
 *p1  : Order of evolution
  N3LO
-*p2  : Type of evolution solution (1 = improved D solution ,2 = improved gamma solution, 3 = fixed mu)
-           3
+*p2  : Override the general definition of the pertrubative order (in this case orders are defined by the list below)
+   F
+*p3  : Order of Gamma-cusp (LO=1-loop, NLO=2-loop, ...)
+   N2LO
+*p4  : Order of Gamma-V (LO=0-loop=0, NLO=1-loop, ...)
+   N2LO
+*p5  : Order of perturbative RAD (LO=0-loop=0, NLO=1-loop, ...)
+   N2LO
+*p6  : Order of (exact) zeta-line (LO=a^1.., NLO=a^2..., ...)
+   N2LO
+
 *B   : ---- Parameters of NP model ----
 *p1  : Length of lambdaNP
            4
-*p2  : Initialization parameters (in column)
-   1.8204110000000003     
-   5.0300000000000001E-002
-   1.0400000000000001E-002
-   1.0000000000000000
 
 *C   : ---- Numerical evaluation parameters ----
-*p1  : Tolerance (relative tolerance of convolution integral)
-   1.0000000000000000E-004
+*p1  : Tolerance (tolerance used for comparisons)
+   1.0000000000000000E-006
+*p2  : The smallest value of b (for smaller OPE is frozen)
+   0.000001
+*p3  : The smoothing parmaeters for small-b stabilization
+   0.01
  
  
 # ---------------------------------------------------------------------------

@@ -17,19 +17,8 @@ function uTMDPDF_5_Ev(x,bt,muf,zetaf,hadron)
     real(dp),intent(in):: x,bt,muf,zetaf    
     integer,intent(in)::hadron
     real(dp):: mui,Rkernel
-    SELECT CASE(EvolutionType)
-    CASE(1)!!!! improved D
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),1)
-    CASE(2)!!!! improved gamma
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-    CASE(3)!!!! fixed mu
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
-    CASE(4)!!!! exact solution via zeta-line
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-    END SELECT
+    Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
+
     uTMDPDF_5_Ev=Rkernel*uTMDPDF_lowScale5(x,bT,hadron)
 
     !!! forcefully set =0 below threshold
@@ -52,25 +41,9 @@ function uTMDPDF_50_Ev(x,bt,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: mui,Rkernel ,RkernelG       
 
-    SELECT CASE(EvolutionType)
-    CASE(1)!!!! improved D
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),0)
-    CASE(2)!!!! improved gamma
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
-    CASE(3)!!!! fixed mu
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
-    CASE(4)!!!! exact solution via zeta-line
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bT,muf,zetaf,mui,1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
-    END SELECT
-    !uTMDPDF_50_Ev=Rkernel*uTMDPDF_lowScale5(x,bT,hadron)
-    !uTMDPDF_50_Ev(0)=uTMDPDF_50_Ev(0)*RkernelG/Rkernel
+    Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
+    RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
+
     uTMDPDF_50_Ev=uTMDPDF_lowScale5(x,bT,hadron)*&
         (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
 
@@ -115,19 +88,9 @@ function uPDF_uPDF(x1,x2,bt,muf,zetaf,hadron1,hadron2)
     integer,intent(in)::hadron1,hadron2
     real(dp):: mui,Rkernel
     real(dp),dimension(-5:5)::tmd1,tmd2
-    SELECT CASE(EvolutionType)
-    CASE(1)!!!! improved D
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),1)
-    CASE(2)!!!! improved gamma
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-    CASE(3)!!!! fixed mu
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
-    CASE(4)!!!! exact solution via zeta-line
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-    END SELECT
+
+    Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
+
     tmd1=uTMDPDF_lowScale5(x1,bT,hadron1)
     tmd2=uTMDPDF_lowScale5(x2,bT,hadron2)
     uPDF_uPDF=(Rkernel**2)*tmd1*(tmd2(5:-5:-1))
@@ -152,19 +115,8 @@ function uPDF_anti_uPDF(x1,x2,bt,muf,zetaf,hadron1,hadron2)
     real(dp):: mui,Rkernel
     real(dp),dimension(-5:5)::tmd1,tmd2
 
-    SELECT CASE(EvolutionType)
-    CASE(1)!!!! improved D
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),1)
-    CASE(2)!!!! improved gamma
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-    CASE(3)!!!! fixed mu
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
-    CASE(4)!!!! exact solution via zeta-line
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-    END SELECT
+    Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
+
     tmd1=uTMDPDF_lowScale5(x1,bT,hadron1)
     tmd2=uTMDPDF_lowScale5(x2,bT,hadron2)
     uPDF_anti_uPDF=(Rkernel**2)*tmd1*tmd2
@@ -190,19 +142,8 @@ function uTMDFF_5_Ev(x,bt,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: mui,Rkernel
 
-    SELECT CASE(EvolutionType)
-    CASE(1)!!!! improved D
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),1)
-    CASE(2)!!!! improved gamma
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-    CASE(3)!!!! fixed mu
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
-    CASE(4)!!!! exact solution via zeta-line
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-    END SELECT
+    Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
+
     uTMDFF_5_Ev=Rkernel*uTMDFF_lowScale5(x,bT,hadron)
 
     !!! forcefully set =0 below threshold
@@ -225,25 +166,9 @@ function uTMDFF_50_Ev(x,bt,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: mui,Rkernel ,RkernelG   
 
-    SELECT CASE(EvolutionType)
-    CASE(1)!!!! improved D
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),0)
-    CASE(2)!!!! improved gamma
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
-    CASE(3)!!!! fixed mu
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
-    CASE(4)!!!! exact solution via zeta-line
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
-    END SELECT
-    !uTMDFF_50_Ev=Rkernel*uTMDFF_lowScale5(x,bT,hadron)
-    !uTMDFF_50_Ev(0)=uTMDFF_50_Ev(0)*RkernelG/Rkernel
+    Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
+    RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
+
     uTMDFF_50_Ev=uTMDFF_lowScale5(x,bT,hadron)*&
         (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
 
@@ -291,32 +216,9 @@ function lpTMDPDF_50_Ev(x,bt,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: mui,RkernelG   
 
-    SELECT CASE(EvolutionType)
-    CASE(1)!!!! improved D
-        mui=c3_global*mu_LOW(bt)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),0)
-    CASE(2)!!!! improved gamma
-        mui=c3_global*mu_LOW(bt)      
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
-    CASE(3)!!!! fixed mu
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
-    CASE(4)!!!! exact solution via zeta-line
-        mui=c3_global*mu_LOW(bt)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
-    END SELECT
-    lpTMDPDF_50_Ev=RkernelG*lpTMDPDF_lowScale5(x,bT,hadron)
+    RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
 
-    !!! forcefully set=0 all quarks
-    !     glTMDPDF_50_Ev(5)=0_dp
-    !     glTMDPDF_50_Ev(4)=0_dp
-    !     glTMDPDF_50_Ev(3)=0_dp
-    !     glTMDPDF_50_Ev(2)=0_dp
-    !     glTMDPDF_50_Ev(1)=0_dp
-    !     glTMDPDF_50_Ev(-1)=0_dp
-    !     glTMDPDF_50_Ev(-2)=0_dp
-    !     glTMDPDF_50_Ev(-3)=0_dp
-    !     glTMDPDF_50_Ev(-4)=0_dp
-    !     glTMDPDF_50_Ev(-5)=0_dp
+    lpTMDPDF_50_Ev=RkernelG*lpTMDPDF_lowScale5(x,bT,hadron)
 
 end function lpTMDPDF_50_Ev
 
@@ -342,19 +244,8 @@ function SiversTMDPDF_5_Ev(x,bt,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: mui,Rkernel
 
-    SELECT CASE(EvolutionType)
-    CASE(1)!!!! improved D
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),1)
-    CASE(2)!!!! improved gamma
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-    CASE(3)!!!! fixed mu
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
-    CASE(4)!!!! exact solution via zeta-line
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-    END SELECT
+    Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
+
     SiversTMDPDF_5_Ev=Rkernel*SiversTMDPDF_lowScale5(x,bT,hadron)
 
     !!! forcefully set =0 below threshold
@@ -377,25 +268,9 @@ function SiversTMDPDF_50_Ev(x,bt,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: mui,Rkernel ,RkernelG   
 
-    SELECT CASE(EvolutionType)
-    CASE(1)!!!! improved D
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),0)
-    CASE(2)!!!! improved gamma
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
-    CASE(3)!!!! fixed mu
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
-    CASE(4)!!!! exact solution via zeta-line
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
-    END SELECT
-    !SiversTMDPDF_50_Ev=Rkernel*SiversTMDPDF_lowScale5(x,bT,hadron)
-    !SiversTMDPDF_50_Ev(0)=SiversTMDPDF_50_Ev(0)*RkernelG/Rkernel
+    Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
+    RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
+
     SiversTMDPDF_50_Ev=SiversTMDPDF_lowScale5(x,bT,hadron)*&
         (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
 
@@ -442,19 +317,8 @@ function wgtTMDPDF_5_Ev(x,bt,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: mui,Rkernel
 
-    SELECT CASE(EvolutionType)
-    CASE(1)!!!! improved D
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),1)
-    CASE(2)!!!! improved gamma
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-    CASE(3)!!!! fixed mu
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
-    CASE(4)!!!! exact solution via zeta-line
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-    END SELECT
+    Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
+
     wgtTMDPDF_5_Ev=Rkernel*wgtTMDPDF_lowScale5(x,bT,hadron)
 
     !!! forcefully set =0 below threshold
@@ -477,25 +341,9 @@ function wgtTMDPDF_50_Ev(x,bt,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: mui,Rkernel ,RkernelG   
 
-    SELECT CASE(EvolutionType)
-    CASE(1)!!!! improved D
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,c1_global*mu0(bt),0)
-    CASE(2)!!!! improved gamma
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
-    CASE(3)!!!! fixed mu
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
-    CASE(4)!!!! exact solution via zeta-line
-        mui=c3_global*mu_LOW(bt)
-        Rkernel=TMDR_Rzeta(bt,muf,zetaf,mui,1)
-        RkernelG=TMDR_Rzeta(bt,muf,zetaf,mui,0)
-    END SELECT
-    !wgtTMDPDF_50_Ev=Rkernel*wgtTMDPDF_lowScale5(x,bT,hadron)
-    !wgtTMDPDF_50_Ev(0)=wgtTMDPDF_50_Ev(0)*RkernelG/Rkernel
+    Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
+    RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
+
     wgtTMDPDF_50_Ev=wgtTMDPDF_lowScale5(x,bT,hadron)*&
         (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
 

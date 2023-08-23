@@ -129,10 +129,6 @@ subroutine artemide_Initialize(file,prefix,order)
     !allocate lambda's and read initialization NP-array
     if(include_TMDR) then
         allocate(lambdaNP_TMDR(1:NPlength_TMDR))
-        call MoveTO(51,'*p2  ')
-        do i=1,NPlength_TMDR
-            read(51,*) lambdaNP_TMDR(i)
-        end do
     end if
 
 
@@ -668,26 +664,6 @@ subroutine artemide_SetNPparameters_wgtTMDPDF(lambdaNP)
 
 end subroutine artemide_SetNPparameters_wgtTMDPDF
  
-subroutine artemide_SetReplica_TMDR(num)
-    integer,intent(in)::num
-
-    if(.not.include_TMDR) then
-        if(outputLevel>0) &
-        write(*,*) ErrorString('attempt to set a replica for TMDR,&
-                while TMDR module is not included in the current setup',moduleName)
-        if(outputLevel>0) write(*,*) color('NOTHING IS DONE',c_red)
-        return
-    end if
-
-    call TMDR_setNPparameters(num)
-    call TMDR_CurrentNPparameters(lambdaNP_TMDR)
-
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
-
-end subroutine artemide_SetReplica_TMDR
   
 !------------------------------------------------------- Other routines ---------------------------------
 subroutine artemide_ShowStatistics()
@@ -755,7 +731,7 @@ subroutine artemide_SetScaleVariations(c1,c2,c3,c4)
     if(include_lpTMDPDF) call lpTMDPDF_SetScaleVariation(c4)
     if(include_SiversTMDPDF) call SiversTMDPDF_SetScaleVariation_tw3(c4)
     if(include_wgtTMDPDF) call wgtTMDPDF_SetScaleVariation(c4)
-    if(include_TMDs) call TMDs_SetScaleVariations(c1,c3)
+    if(include_TMDR) call TMDR_SetScaleVariation(c1)
     if(include_TMDX_DY) call TMDX_DY_SetScaleVariation(c2)
     if(include_TMDX_SIDIS) call TMDX_SIDIS_SetScaleVariation(c2)
 

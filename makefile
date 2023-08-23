@@ -76,9 +76,7 @@ $(SOURCEDIR)/Code/TMD_AD/exactZetaLine.f90 \
 $(SOURCEDIR)/Code/TMD_AD/AD_Integral.f90 
 
 TMDRFiles=\
-$(SOURCEDIR)/Code/TMDR/type1.f90 \
-$(SOURCEDIR)/Code/TMDR/type2.f90 \
-$(SOURCEDIR)/Code/TMDR/type3.f90
+$(SOURCEDIR)/Code/TMDR/placeHolder.f90
 
 uTMDPDFFiles=\
 $(SOURCEDIR)/Code/uTMDPDF/coeffFunc.f90
@@ -99,7 +97,7 @@ TMDsFiles=\
 $(SOURCEDIR)/Code/TMDs/TMD-calls.f90 
 
 aTMDeSetupFiles=\
-$(SOURCEDIR)/Code/aTMDe_setup/const-modification.f90 
+$(SOURCEDIR)/Code/aTMDe_setup/placeHolder.f90
 
 ExtraFiles=\
 $(SOURCEDIR)/DYcoeff-func.f90
@@ -196,7 +194,25 @@ $(OBJ)/EWinput.o: $(SOURCEDIR)/EWinput.f90 $(aTMDeUTILITY)
 	$(FC) -c $(SOURCEDIR)/EWinput.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
-	
+
+$(OBJ)/TMD_AD.o: $(SOURCEDIR)/TMD_AD.f90 $(aTMDeUTILITY) $(TMD_ADFiles)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/TMD_AD.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/TMDR_model.o: $(SOURCEDIR)/Model/TMDR_model.f90 $(aTMDeUTILITY) $(TMD_ADFiles) $(OBJ)/TMD_AD.o
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/Model/TMDR_model.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/TMDR.o: $(SOURCEDIR)/TMDR.f90 $(SOURCEDIR)/Model/TMDR_model.f90 $(OBJ)/QCDinput.o $(OBJ)/TMD_AD.o $(aTMDeUTILITY) $(TMDRFiles)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/TMDR.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
 $(OBJ)/uTMDPDF_model.o: $(SOURCEDIR)/Model/uTMDPDF_model.f90 $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/Model/uTMDPDF_model.f90 -I$(MOD)
@@ -284,24 +300,6 @@ $(OBJ)/wgtTMDPDF_OPE.o: $(SOURCEDIR)/wgtTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $(SOURC
 $(OBJ)/wgtTMDPDF.o: $(SOURCEDIR)/wgtTMDPDF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/wgtTMDPDF_model.f90 $(SOURCEDIR)/wgtTMDPDF_OPE.f90 $(Twist2Files) $(aTMDeUTILITY) $(wgtTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/wgtTMDPDF.f90 -I$(MOD)
-	mv *.o $(OBJ)
-	mv *.mod $(MOD)
-	
-$(OBJ)/TMD_AD.o: $(SOURCEDIR)/TMD_AD.f90 $(aTMDeUTILITY) $(TMD_ADFiles)
-#	mkdir -p obj
-	$(FC) -c $(SOURCEDIR)/TMD_AD.f90 -I$(MOD)
-	mv *.o $(OBJ)
-	mv *.mod $(MOD)
-	
-$(OBJ)/TMDR_model.o: $(SOURCEDIR)/Model/TMDR_model.f90 $(aTMDeUTILITY) $(TMD_ADFiles) $(OBJ)/TMD_AD.o
-#	mkdir -p obj
-	$(FC) -c $(SOURCEDIR)/Model/TMDR_model.f90 -I$(MOD)
-	mv *.o $(OBJ)
-	mv *.mod $(MOD)
-	
-$(OBJ)/TMDR.o: $(SOURCEDIR)/TMDR.f90 $(SOURCEDIR)/Model/TMDR_model.f90 $(OBJ)/QCDinput.o $(OBJ)/TMD_AD.o $(aTMDeUTILITY) $(TMDRFiles)
-#	mkdir -p obj
-	$(FC) -c $(SOURCEDIR)/TMDR.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 	

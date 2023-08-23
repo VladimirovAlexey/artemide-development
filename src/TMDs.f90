@@ -42,8 +42,7 @@ logical::started=.false.
 integer::outputLevel=2
 integer::messageTrigger=5
 
-!!!! The TMD evolution can be tritted differently
-integer::EvolutionType
+logical::include_TMDR
 logical::include_uTMDPDF
 logical::include_uTMDFF
 logical::include_lpTMDPDF
@@ -51,11 +50,8 @@ logical::include_SiversTMDPDF
 logical::include_wgtTMDPDF
 
 
-!!!parameters for the uncertanty estimation
-real(dp)::c1_global,c3_global
-
 !-----------------------------------------Public interface--------------------------------------------------------------
-public::TMDs_SetScaleVariations,TMDs_Initialize,TMDs_IsInitialized
+public::TMDs_Initialize,TMDs_IsInitialized
 real(dp),dimension(-5:5),public:: uTMDPDF_5,uTMDPDF_50
 real(dp),dimension(-5:5),public:: uTMDFF_5,uTMDFF_50
 real(dp),dimension(-5:5),public:: lpTMDPDF_50
@@ -164,10 +160,15 @@ subroutine TMDs_Initialize(file,prefix)
 
     !! TMDR
     call MoveTO(51,'*3   ')
-    call MoveTO(51,'*A   ')
-    call MoveTO(51,'*p2  ')
-    read(51,*) EvolutionType
-    if(outputLevel>2) write(*,'(A,I3)') ' Evolution type =',EvolutionType
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_TMDR
+    if(.not.include_TMDR) then
+        write(*,*) ErrorString('TMDR module MUST be included.',moduleName)
+        write(*,*) ErrorString('Check initialization-file. Evaluation stop.',moduleName)
+        CLOSE (51, STATUS='KEEP')
+        stop
+    end if
+
 
     !! uTMDPDF
     call MoveTO(51,'*4   ')
@@ -259,49 +260,10 @@ subroutine TMDs_Initialize(file,prefix)
         end if
     end if
 
-    c1_global=1d0
-    c3_global=1d0
-    
     
     started=.true.
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.TMDs '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) 
 end subroutine TMDs_Initialize
-
-!!!! this routine set the variations of scales
-!!!! it is used for the estimation of errors
-subroutine TMDs_SetScaleVariations(c1_in,c3_in)
-    real(dp),intent(in)::c1_in,c3_in
-
-    If(EvolutionType==1) then
-        if(c1_in<0.1d0 .or. c1_in>10.d0) then
-            if(outputLevel>0) write(*,*) WarningString('variation in c1 is enourmous. c1 is set to 2',moduleName)
-            c1_global=2d0
-        else
-            c1_global=c1_in
-        end if
-    else
-        if(ABS(c1_in-1d0)>0.00001d0) then
-            if(outputLevel>0) write(*,*) WarningString('variation of c1 is sensless. &
-            There is no such constant within current evolution scheme. Nothing is done',moduleName)
-        end if
-    end if
-
-    if(EvolutionType==3) then
-        if(ABS(c3_in-1d0)>0.00001d0) then
-            if(outputLevel>0) write(*,*) WarningString("variation of c3 is sensless. &
-            There is no such constant within current evolution scheme. Nothing is done",moduleName)
-        end if
-    else
-    if(c3_in<0.1d0 .or. c3_in>10.d0) then
-        if(outputLevel>0) write(*,*) WarningString('variation in c3 is enourmous. c3 is set to 2',moduleName)
-            c3_global=2d0
-        else
-            c3_global=c3_in
-        end if
-    end if
-
-    if(outputLevel>1) write(*,*) 'TMDs: set scale variations constants (c1,c3) as:',c1_global,c3_global
-end subroutine TMDs_SetScaleVariations 
 
 end module TMDs

@@ -57,9 +57,13 @@ character(len=100),allocatable::sets_of_hPDFs(:)
 !-------------------- TMDR options
 logical::include_TMDR
 character*8::TMDR_order
-integer::TMDR_evolutionType,TMDR_lambdaLength
+logical::TMDR_override
+character*8::TMDR_orderGAMMA,TMDR_orderV,TMDR_orderD,TMDR_orderZETA
+integer::TMDR_lambdaLength
 real(dp)::TMDR_tolerance
-real(dp),allocatable::TMDR_lambdaNP_init(:)
+real(dp)::TMDR_bFREEZE
+real(dp)::TMDR_smooth
+
 
 !-------------------- uTMDPDF parameters
 logical::include_uTMDPDF
@@ -159,16 +163,10 @@ real(dp)::TMDX_SIDIS_toleranceZ,TMDX_SIDIS_toleranceX
 character(len=4)::TMDX_SIDIS_methodZ,TMDX_SIDIS_methodX
 
 !---------------------------------------------------
-public::artemide_Setup_fromFile,artemide_include,CreateConstantsFile,ReadConstantsFile,CheckConstantsFile
-public::Set_uPDF,Set_uFF,Set_lpPDF,Set_quarkMasses,Set_EWparameters
-public::Set_TMDR_order,Set_TMDR_evolutionType,Set_TMDR_lengthNParray
-public::Set_uTMDPDF,Set_uTMDPDF_order,Set_uTMDPDF_gridEvaluation,Set_uTMDPDF_lengthNParray
-public::Set_uTMDFF,Set_uTMDFF_order,Set_uTMDFF_gridEvaluation,Set_uTMDFF_lengthNParray
-public::Set_lpTMDPDF,Set_lpTMDPDF_order,Set_lpTMDPDF_gridEvaluation,Set_lpTMDPDF_lengthNParray
-!public::Set_hTMDPDF,Set_hTMDPDF_order,Set_hTMDPDF_gridEvaluation,Set_hTMDPDF_lengthNParray
+public::artemide_Setup_fromFile,CreateConstantsFile,ReadConstantsFile,CheckConstantsFile
+
 contains
 
-INCLUDE 'Code/aTMDe_setup/const-modification.f90'
   
 subroutine artemide_Setup_fromFile(file,prefix,order)
     character(len=*)::file
@@ -300,10 +298,15 @@ subroutine SetupDefault(order)
     !-------------------- parameters for TMDR
     include_TMDR=.true.
     TMDR_order=trim(order)
-    TMDR_evolutionType=3 !1 = improved D solution ,2 = improved gamma solution, 3 = fixed mu
+    TMDR_override=.false.
+    TMDR_orderGAMMA=trim(order)
+    TMDR_orderV=trim(order)
+    TMDR_orderD=trim(order)
+    TMDR_orderZETA=trim(order)
     TMDR_lambdaLength=2
-    call ReNewInitializationArray(TMDR_lambdaNP_init,TMDR_lambdaLength)! initialization values of parameters
-    TMDR_tolerance=0.0001d0	!tolerance of searching for saddle point, numerical integration etc.
+    TMDR_tolerance=0.000001d0	!tolerance of searching for saddle point, numerical integration etc.
+    TMDR_bFREEZE=0.000001d0
+    TMDR_smooth=0.01d0
 
     !-------------------- parameters for UTMDPDF
     include_uTMDPDF=.true.
@@ -656,19 +659,31 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*A   : ---- Main definitions ----')")
     write(51,"('*p1  : Order of evolution')")
     write(51,*) trim(TMDR_order)
-    write(51,"('*p2  : Type of evolution solution (1 = improved D solution ,2 = improved gamma solution, 3 = fixed mu)')")
-    write(51,*) TMDR_evolutionType
+    write(51,"('*p2  : Override the general definition of the pertrubative order &
+    (in this case orders are defined by the list below))')")
+    write(51,*) TMDR_override
+    write(51,"('*p3  : Order of Gamma-cusp (LO=1-loop, NLO=2-loop, ...)')")
+    write(51,*) trim(TMDR_orderGAMMA)
+    write(51,"('*p4  : Order of Gamma-V (LO=0-loop=0, NLO=1-loop, ...)n')")
+    write(51,*) trim(TMDR_orderV)
+    write(51,"('*p5  : Order of perturbative RAD (LO=0-loop=0, NLO=1-loop, ...)')")
+    write(51,*) trim(TMDR_orderD)
+    write(51,"('*p6  : Order of (exact) zeta-line (LO=a^1.., NLO=a^2..., ...)')")
+    write(51,*) trim(TMDR_orderZETA)
+    write(51,"(' ')")
     write(51,"('*B   : ---- Parameters of NP model ----')")
     write(51,"('*p1  : Length of lambdaNP')")
     write(51,*) TMDR_lambdaLength
-    write(51,"('*p2  : Initialization parameters (in column)')")
-    do i=1,TMDR_lambdaLength
-        write(51,*) TMDR_lambdaNP_init(i)
-    end do
+    write(51,"(' ')")
     write(51,*)
     write(51,"('*C   : ---- Numerical evaluation parameters ----')")
-    write(51,"('*p1  : Tolerance (relative tolerance of convolution integral)')")
+    write(51,"('*p1  : Tolerance (tolerance used for comparisons)')")
     write(51,*) TMDR_tolerance
+    write(51,"('*p2  : The smallest value of b (for smaller OPE is frozen)')")
+    write(51,*) TMDR_bFREEZE
+    write(51,"('*p3  : The smoothing parmaeters for small-b stabilization')")
+    write(51,*) TMDR_smooth
+
 
     write(51,"(' ')")
     write(51,"(' ')")
@@ -1248,25 +1263,27 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p1  ')
     read(51,*) TMDR_order
     call MoveTO(51,'*p2  ')
-    read(51,*) TMDR_evolutionType
-    if((inputVer<2 .and. TMDR_evolutionType>=4) .or. (inputVer>=14 .and. TMDR_evolutionType>=4)) then
-        if(outputLevel>0) write(*,*) color('aTMDe_setup: mismatch in TMDR_evolutionType (3-A-p2). Set to 3',c_red)
-        TMDR_evolutionType=3
-    end if
+    read(51,*) TMDR_override
+    call MoveTO(51,'*p3  ')
+    read(51,*) TMDR_orderGAMMA
+    call MoveTO(51,'*p4  ')
+    read(51,*) TMDR_orderV
+    call MoveTO(51,'*p5  ')
+    read(51,*) TMDR_orderD
+    call MoveTO(51,'*p6  ')
+    read(51,*) TMDR_orderZETA
 
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
     read(51,*) TMDR_lambdaLength
-    call ReNewInitializationArray(TMDR_lambdaNP_init,TMDR_lambdaLength)!!!!we need to redo (and reallocate) the initialization of the NP-array
-    if(FILEversion>=10) then
-        call MoveTO(51,'*p2  ')      
-        do i=1,TMDR_lambdaLength
-            read(51,*) TMDR_lambdaNP_init(i)
-        end do
-    end if
+
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')
     read(51,*) TMDR_tolerance
+    call MoveTO(51,'*p2  ')
+    read(51,*) TMDR_bFREEZE
+    call MoveTO(51,'*p3  ')
+    read(51,*) TMDR_smooth
 
 
     !# ----                           PARAMETERS OF uTMDPDF                  -----
@@ -1599,18 +1616,5 @@ subroutine ReadConstantsFile(file,prefix)
     if(outputLevel>1) write(*,*) color('aTMDe_setup: constants-file loaded sucessfully.',c_green_bold)
 
 end subroutine ReadConstantsFile
-  
-  !--------------------------------------------------------------
-  !!!! this subtroutine kill re allocate the array, and sets its values as (2,0,0,0,...)
-  !!!! used for empty initialization arrays
-  subroutine ReNewInitializationArray(arr,n)
-    real(dp),allocatable,intent(out)::arr(:)
-    integer::n,i
-    if(allocated(arr)) deallocate(arr)
-    allocate(arr(1:n))
-    arr(1)=2d0
-    do i=2,n
-	arr(i)=0d0
-    end do
-  end subroutine ReNewInitializationArray
+
 end module aTMDe_Setup
