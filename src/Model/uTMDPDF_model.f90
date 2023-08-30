@@ -114,8 +114,6 @@ function FNP(x,bT,hadron,lambdaNP)
       FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
       
   end if
-    
-    FNP=1._dp
 end function FNP
   
 !!!! This is the function b* that enters the logarithms of coefficient function

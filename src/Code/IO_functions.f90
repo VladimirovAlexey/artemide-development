@@ -70,7 +70,6 @@ contains
  integer::streem,i
  integer,intent(in)::list(:)
 
-  write(*,*) ">>>",size(list),"--",list
   if(size(list)==0) then
     write(*,*) ErrorString("Core-error: Passed 0-size array","IO")
     stop

@@ -36,7 +36,7 @@ end subroutine TMDGrid_XB_Initialize
 subroutine MakeGrid()
   real(dp):: x_local,b_local
   integer:: iX,iB,h,i
-  real(dp)::b1,b2,time1,time2,f1,f2,aE
+  real(dp)::b1,b2,time1,time2,f1,f2
   !$ real*8::omp_get_wtime
 
   call cpu_time(time1)
@@ -68,8 +68,8 @@ subroutine MakeGrid()
   !!!!!!!!!!!!!**************************************************************************************************************
 
   !!! the large-b is interpolated by the power tale.
-  !!! the interpolation is done by f=f0*(b)**aE, where f0, and aE computed with two last points
-  !!! for it we compute 2 parameters interpolationParameters(1)=aE, interpolationParameters(2)=f0
+  !! the interpolation is done by f=a1/b+a2/ln(b), where a1,a2 are computed with two last points
+  !!! for it we compute 2 parameters interpolationParameters(1)=a1, interpolationParameters(2)=a2
 
   do h=1,numberOfHadrons
    b1=BatNode(Nb-1)
@@ -80,23 +80,28 @@ subroutine MakeGrid()
    do i=-5,5
     f1=gridMain(iX,Nb-1,i,h)
     f2=gridMain(iX,Nb,i,h)
+
+!     if((f1>0 .and. f2<0) .or. (f1<0 .and. f2>0)) then
+!       write(*,*) ErrorString("Cannot build extrapolation table, due to the sign alternation",moduleName)
+!       write(*,*) ErrorString("Shift the size of the grid to exclude sign-alternation on the boundary",moduleName)
+!       write(*,*) "Details of the call"
+!       write(*,*) "x=",XatNode(ix), "f=",i, "h=",h
+!       write(*,*) "F(b=",BatNode(Nb-1),")=",f1
+!       write(*,*) "F(b=",BatNode(Nb),")=",f2
+!       stop
+!     end if
+
     if(abs(f1)>1d-12 .and. abs(f2)>1d-12) then
-      aE=log(f2/f1)/log(b2/b1)
-      interpolationParameters(1,iX,i,h)=aE
-      interpolationParameters(2,iX,i,h)=f1/b1**aE
-!       if(interpolationParameters(2,iX,i,h)>1d10) then
-!         write(*,*) b1,f1,b2,f2
-!         write(*,*) interpolationParameters(1:2,iX,i,h)
-!         stop
-!       end if
+      interpolationParameters(1,iX,i,h)=b1*b2*(f2*log(b2)-f1*log(b1))/(b1*log(b2)-b2*log(b1))
+      interpolationParameters(2,iX,i,h)=-log(b1)*log(b2)*(f1*b1-f2*b2)/(b1*log(b2)-b2*log(b1))
     else
-      interpolationParameters(1,iX,i,h)=1._dp
+      interpolationParameters(1,iX,i,h)=0._dp
       interpolationParameters(2,iX,i,h)=0._dp
     end if
   end do
   end do
   !!! for i=Nx, the value is 0
-  interpolationParameters(1,Nx,-5:5,h)=1._dp
+  interpolationParameters(1,Nx,-5:5,h)=0._dp
   interpolationParameters(2,Nx,-5:5,h)=0._dp
 
   end do
@@ -173,13 +178,13 @@ function ExtractFromGrid(x,bT,h)
    if(bT>bMax) then
 
       !! 1) extrapolate
-      interI(0,-5:5)=interpolationParameters(2,iX-1,-5:5,h)*bT**(interpolationParameters(1,iX-1,-5:5,h))
-      interI(1,-5:5)=interpolationParameters(2,iX,-5:5,h)*bT**(interpolationParameters(1,iX,-5:5,h))
-      interI(2,-5:5)=interpolationParameters(2,iX+1,-5:5,h)*bT**(interpolationParameters(1,iX+1,-5:5,h))
+      interI(0,-5:5)=interpolationParameters(1,iX-1,-5:5,h)/bT+interpolationParameters(2,iX-1,-5:5,h)/log(bT)
+      interI(1,-5:5)=interpolationParameters(1,iX,-5:5,h)/bT+interpolationParameters(2,iX,-5:5,h)/log(bT)
+      interI(2,-5:5)=interpolationParameters(1,iX+1,-5:5,h)/bT+interpolationParameters(2,iX+1,-5:5,h)/log(bT)
       if(iX+2==Nx) then
       interI(3,-5:5)=(/0_dp,0_dp,0_dp,0_dp,0_dp,0_dp,0_dp,0_dp,0_dp,0_dp,0_dp/)
       else
-      interI(3,-5:5)=interpolationParameters(2,iX+2,-5:5,h)*bT**(interpolationParameters(1,iX+2,-5:5,h))
+      interI(3,-5:5)=interpolationParameters(1,iX+2,-5:5,h)/bT+interpolationParameters(2,iX+2,-5:5,h)/log(bT)
       end if
 
    else if(bT<bMIN) then

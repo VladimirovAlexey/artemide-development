@@ -108,7 +108,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-.\begin{document}
+\begin{document}
 \title{artemide ver.3.00}
 \author{Alexey A. Vladimirov \\ \today}
 \noaffiliation
@@ -1717,13 +1717,9 @@ The interpolation is cubic. The grid is build for the finite domain of $x\in(x_{
 \item For $b<b_{\min}$ the code returns the value at $b_{\min}$ (default $b_{\min}=10^{-6}$). 
 \item For $b>b_{\max}$, the extrapolation is used:
 \begin{eqnarray}
-f(b)=\(\frac{b}{b_E}\)^{\alpha_E}.
+f(b)=\frac{a_1}{b}+\frac{a_2}{\ln b}
 \end{eqnarray}
-The values $b_E$ and $\alpha_E$ are found from the last two points of the grid $\{b_1,f_1\}$ and $\{b_2,f_2\}$
-\begin{eqnarray}
-\alpha_E=\frac{\ln(f_2/f_1)}{\ln(b_2/b_1)},\qquad b_E=b_1 (f_1)^{-1/\alpha_E}.
-\end{eqnarray}
-This extrapolation is not very bad, because the convolution behave logarithmically at large-b. In particular it preserve the sign of the last point.
+The values $a_{1,2}$ are found from the last two points of the grid $\{b_1,f_1\}$ and $\{b_2,f_2\}$. 
 \end{itemize}
 All these parameters can be changed in \texttt{constants} file.  However, we recommend to use default values, since they were checked. The check could be performed by the call \texttt{TestGrid()} subroutine of corresponding module. It computes values for central points of grids-cells from grid and from direct computation, and returns the average of $(f_{\text{exract}}/f_{\text{compued}}-1)$. This check can be also called by option in the \texttt{constants} file.
 
