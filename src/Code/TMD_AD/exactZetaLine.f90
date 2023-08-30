@@ -58,6 +58,7 @@ end function zetaSL
         
     if(orderZETA>=1) then
         val=val+alpha*(z1*OMEGA_q(1,1,Nf)+OMEGA_q(1,2,Nf)+p*OMEGA_q(1,3,Nf))
+
         if(orderZETA>=2) then
             zm1=zFUNC(p,-1)
             val=val+(alpha**2)*(z1*OMEGA_q(2,1,Nf)+zm1*OMEGA_q(2,2,Nf)+OMEGA_q(2,3,Nf))

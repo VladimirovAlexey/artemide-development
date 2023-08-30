@@ -123,35 +123,38 @@ subroutine artemide_Initialize(file,prefix,order)
     call MoveTO(51,'*3   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_TMDR
-    call MoveTO(51,'*B   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) NPlength_TMDR
-    !allocate lambda's and read initialization NP-array
     if(include_TMDR) then
+        call MoveTO(51,'*B   ')
+        call MoveTO(51,'*p1  ')
+        read(51,*) NPlength_TMDR
         allocate(lambdaNP_TMDR(1:NPlength_TMDR))
+    else
+        NPlength_TMDR=0
     end if
 
 
     call MoveTO(51,'*4   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_uTMDPDF
-    call MoveTO(51,'*B   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) NPlength_uTMDPDF
-    !allocate lambda's and read initialization NP-array
     if(include_uTMDPDF) then
+        call MoveTO(51,'*B   ')
+        call MoveTO(51,'*p1  ')
+        read(51,*) NPlength_uTMDPDF
         allocate(lambdaNP_uTMDPDF(1:NPlength_uTMDPDF))
+    else
+        NPlength_uTMDPDF=0
     end if
 
     call MoveTO(51,'*5   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_uTMDFF
-    call MoveTO(51,'*B   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) NPlength_uTMDFF
-    !allocate lambda's and read initialization NP-array
     if(include_uTMDFF) then
+        call MoveTO(51,'*B   ')
+        call MoveTO(51,'*p1  ')
+        read(51,*) NPlength_uTMDFF
         allocate(lambdaNP_uTMDFF(1:NPlength_uTMDFF))
+    else
+        NPlength_uTMDFF=0
     end if
 
     call MoveTO(51,'*6   ')
@@ -177,34 +180,37 @@ subroutine artemide_Initialize(file,prefix,order)
     call MoveTO(51,'*11   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_lpTMDPDF
-    call MoveTO(51,'*B   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) NPlength_lpTMDPDF
-    !allocate lambda's and read initialization NP-array
     if(include_lpTMDPDF) then
+        call MoveTO(51,'*B   ')
+        call MoveTO(51,'*p1  ')
+        read(51,*) NPlength_lpTMDPDF
         allocate(lambdaNP_lpTMDPDF(1:NPlength_lpTMDPDF))
+    else
+        NPlength_lpTMDPDF=0
     end if
     
     call MoveTO(51,'*12   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_SiversTMDPDF
-    call MoveTO(51,'*B   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) NPlength_SiversTMDPDF
-    !allocate lambda's and read initialization NP-array
-    if(include_SiversTMDPDF) then
+        if(include_SiversTMDPDF) then
+        call MoveTO(51,'*B   ')
+        call MoveTO(51,'*p1  ')
+        read(51,*) NPlength_SiversTMDPDF
         allocate(lambdaNP_SiversTMDPDF(1:NPlength_SiversTMDPDF))
+    else
+        NPlength_SiversTMDPDF=0
     end if
     
     call MoveTO(51,'*13   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_wgtTMDPDF
-    call MoveTO(51,'*B   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) NPlength_wgtTMDPDF
-    !allocate lambda's and read initialization NP-array
     if(include_wgtTMDPDF) then
+        call MoveTO(51,'*B   ')
+        call MoveTO(51,'*p1  ')
+        read(51,*) NPlength_wgtTMDPDF
         allocate(lambdaNP_wgtTMDPDF(1:NPlength_wgtTMDPDF))
+    else
+        NPlength_wgtTMDPDF=0
     end if
 
     CLOSE (51, STATUS='KEEP')

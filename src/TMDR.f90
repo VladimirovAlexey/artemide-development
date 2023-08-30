@@ -426,7 +426,7 @@ function TMDR_Rzeta(b,muf,zetaf,f)
   integer,intent(in)::f
   real(dp)::TMDR_Rzeta,bLocal
 
-  real(dp)::Dvalue,muValue,zetaP
+  real(dp)::Dvalue,zetaP
 
   if(b<bFREEZE) then
     bLocal=bFREEZE
@@ -442,12 +442,12 @@ function TMDR_Rzeta(b,muf,zetaf,f)
 
   if(TMDR_Rzeta>1d6) then
     write(*,*) ErrorString('Evolution factor is TOO HUGE check the formula',moduleName)
-    write(*,*) 'b=',bLocal,'zetaf=',zetaf,'muf=',muf,'zetaP=',zetaP
+    write(*,*) 'b=',bLocal,'zetaf=',zetaf,'muf=',muf,'zetaEXACT=',zetaP
     write(*,*) 'c1=',c1_global,'log(zeta/zetamu)=',Log(zetaf/zetaP)
     write(*,*) 'NPparameters= (',NPparam,')'
-    write(*,*) 'muOPE=',muValue, 'b*=',bSTAR(bLocal)
-    write(*,*) 'Dpert=',Dpert(muValue,bSTAR(bLocal),f),&
-    '\int G =',RADEvolution(muValue,muf,f), 'DNP=',DNP(bLocal,f)
+    write(*,*) 'muOPE=',muOPE(b,c1_global), 'b*=',bSTAR(bLocal)
+    write(*,*) 'Dpert=',Dpert(muOPE(b,c1_global),bSTAR(bLocal),f),&
+    '\int G =',RADEvolution(muOPE(b,c1_global),muf,f), 'DNP=',DNP(bLocal,f)
     write(*,*) 'Evaluation stop'
     stop
   end if

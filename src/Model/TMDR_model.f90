@@ -77,10 +77,12 @@ end subroutine ModelUpdate
 function DNP(b,f)
     real(dp),intent(in)::b
     integer,intent(in)::f
-    real(dp)::bS
+    real(dp)::bS,bSS
     bS=bSTAR(b)
 
-    DNP=NPparam(2)*b*bS+NPparam(3)*b*bS*Log(bS/NPparam(1))
+    bSS=b/(1_dp+b**6/20**6)**(1.d0/6.d0)
+
+    DNP=NPparam(2)*bSS*bS+NPparam(3)*bSS*bS*Log(bS/NPparam(1))
 end function DNP
 
 !!! the function which is used insted of in the expression for perturbative RAD

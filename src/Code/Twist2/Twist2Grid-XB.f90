@@ -35,10 +35,8 @@ end subroutine TMDGrid_XB_Initialize
 !!! and also the lists for large-b extrapolation
 subroutine MakeGrid()
   real(dp):: x_local,b_local
-  integer:: iX,iB,h
-  
-  real(dp),dimension(0:Nx-1,-5:5)::f1,f2,aE!! for interpolation computation
-  real(dp)::b1,b2,time1,time2
+  integer:: iX,iB,h,i
+  real(dp)::b1,b2,time1,time2,f1,f2,aE
   !$ real*8::omp_get_wtime
 
   call cpu_time(time1)
@@ -70,20 +68,39 @@ subroutine MakeGrid()
   !!!!!!!!!!!!!**************************************************************************************************************
 
   !!! the large-b is interpolated by the power tale.
-  !!! for it we compute 2 parameters aE=interpolationParameters(1), and bE=interpolationParameters(2)
-  !!! the interpolation is done by f=(b/bE)**aE
+  !!! the interpolation is done by f=f0*(b)**aE, where f0, and aE computed with two last points
+  !!! for it we compute 2 parameters interpolationParameters(1)=aE, interpolationParameters(2)=f0
+
   do h=1,numberOfHadrons
    b1=BatNode(Nb-1)
-   f1=gridMain(0:Nx-1,Nb-1,-5:5,h)
    b2=BatNode(Nb)
-   f2=gridMain(0:Nx-1,Nb,-5:5,h)
-   aE=log(f2/f1)/log(b2/b1)
-   interpolationParameters(1,0:Nx-1,-5:5,h)=aE
-   interpolationParameters(2,0:Nx-1,-5:5,h)=b1*(f1)**(-1_dp/aE)
+
+   !!! it could happen that some values are 0. then I set 1/bE=0 and aE=1
+   do iX=0,Nx-1
+   do i=-5,5
+    f1=gridMain(iX,Nb-1,i,h)
+    f2=gridMain(iX,Nb,i,h)
+    if(abs(f1)>1d-12 .and. abs(f2)>1d-12) then
+      aE=log(f2/f1)/log(b2/b1)
+      interpolationParameters(1,iX,i,h)=aE
+      interpolationParameters(2,iX,i,h)=f1/b1**aE
+!       if(interpolationParameters(2,iX,i,h)>1d10) then
+!         write(*,*) b1,f1,b2,f2
+!         write(*,*) interpolationParameters(1:2,iX,i,h)
+!         stop
+!       end if
+    else
+      interpolationParameters(1,iX,i,h)=1._dp
+      interpolationParameters(2,iX,i,h)=0._dp
+    end if
   end do
-  !!! for i=Nx, ae=1000, and b1=10d-6 (so the result is 0)
-  interpolationParameters(1,Nx,-5:5,h)=1000_dp
-  interpolationParameters(2,Nx,-5:5,h)=0.000000001_dp
+  end do
+  !!! for i=Nx, the value is 0
+  interpolationParameters(1,Nx,-5:5,h)=1._dp
+  interpolationParameters(2,Nx,-5:5,h)=0._dp
+
+  end do
+
   call cpu_time(time2)
   !$ time2=omp_get_wtime()
 
@@ -156,14 +173,15 @@ function ExtractFromGrid(x,bT,h)
    if(bT>bMax) then
 
       !! 1) extrapolate
-      interI(0,-5:5)=(bT/interpolationParameters(2,iX-1,-5:5,h))**(interpolationParameters(1,iX-1,-5:5,h))
-      interI(1,-5:5)=(bT/interpolationParameters(2,iX,-5:5,h))**(interpolationParameters(1,iX,-5:5,h))
-      interI(2,-5:5)=(bT/interpolationParameters(2,iX+1,-5:5,h))**(interpolationParameters(1,iX+1,-5:5,h))
+      interI(0,-5:5)=interpolationParameters(2,iX-1,-5:5,h)*bT**(interpolationParameters(1,iX-1,-5:5,h))
+      interI(1,-5:5)=interpolationParameters(2,iX,-5:5,h)*bT**(interpolationParameters(1,iX,-5:5,h))
+      interI(2,-5:5)=interpolationParameters(2,iX+1,-5:5,h)*bT**(interpolationParameters(1,iX+1,-5:5,h))
       if(iX+2==Nx) then
       interI(3,-5:5)=(/0_dp,0_dp,0_dp,0_dp,0_dp,0_dp,0_dp,0_dp,0_dp,0_dp,0_dp/)
       else
-      interI(3,-5:5)=(bT/interpolationParameters(2,iX+2,-5:5,h))**(interpolationParameters(1,iX+2,-5:5,h))
+      interI(3,-5:5)=interpolationParameters(2,iX+2,-5:5,h)*bT**(interpolationParameters(1,iX+2,-5:5,h))
       end if
+
    else if(bT<bMIN) then
      !! 1) freezed value (at IB=0)
       interI(0,-5:5)=gridMain(iX-1,0,-5:5,h)
@@ -228,8 +246,19 @@ function ExtractFromGrid(x,bT,h)
 
     write(*,*) ErrorString('grid extraction produced NaN. EVALUATION STOP',moduleName)
     write(*,*) '----- information on last call -----'
-    write(*,*) 'bT=',bT,' i=',i, ' extraction=',ExtractFromGrid(i)
+    write(*,*) 'x=',x,'iX=',iX
+    write(*,*) 'bT=',bT,' f=',i, ' extraction=',ExtractFromGrid(i)
     write(*,*) 'interI=',interI(0:3,i)
+    if(bT>bMax) then
+      write(*,*) "Intepolation parameters 1: ", interpolationParameters(1,iX-1,i,h),&
+                                              interpolationParameters(1,iX,i,h),&
+                                              interpolationParameters(1,iX+1,i,h),&
+                                              interpolationParameters(1,iX+2,i,h)
+      write(*,*) "Intepolation parameters 2: ", interpolationParameters(2,iX-1,i,h),&
+                                              interpolationParameters(2,iX,i,h),&
+                                              interpolationParameters(2,iX+1,i,h),&
+                                              interpolationParameters(2,iX+2,i,h)
+    end if
 
     stop
    end if
