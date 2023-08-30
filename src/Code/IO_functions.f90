@@ -69,10 +69,18 @@ contains
  subroutine writeShortIntegerList(streem, list)
  integer::streem,i
  integer,intent(in)::list(:)
+
+  write(*,*) ">>>",size(list),"--",list
+  if(size(list)==0) then
+    write(*,*) ErrorString("Core-error: Passed 0-size array","IO")
+    stop
+  end if
+  if(size(list)>1) then
     do i=1,size(list)-1
       write(streem,"(I5,', ')",advance='no') list(i)
     end do
-    write(streem,"(I5)") list(size(list))
+  end if
+  write(streem,"(I5)") list(size(list))
  end subroutine writeShortIntegerList
  
  !--------------------convertation

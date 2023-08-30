@@ -66,7 +66,7 @@ function FNP(x,bT,hadron,lambdaNP)
   real(dp),intent(in)::lambdaNP(:)
   real*8::FNP0,FNPu,FNPd,FNPubar,FNPdbar,FNPr
 
-   real*8::bb,w1,w2,w3,wu,wd,wubar,wdbar,wr,wcommon
+   real*8::bb,w1,w2,wu,wd,wubar,wdbar,wr
    
    if(hadron==1) then
    
@@ -77,10 +77,9 @@ function FNP(x,bT,hadron,lambdaNP)
     wubar=lambdaNP(5)*(1-x)+x*lambdaNP(6)
     wdbar=lambdaNP(7)*(1-x)+x*lambdaNP(8)
     wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)
-    !wcommon=(lambdaNP(11)*x**2+lambdaNP(12))
 
 
-    if(wu<0d0 .or. wd<0d0 .or. wubar<0d0 .or. wdbar<0d0 .or. wr<0d0 .or. wcommon<0d0) then
+    if(wu<0d0 .or. wd<0d0 .or. wubar<0d0 .or. wdbar<0d0 .or. wr<0d0) then
         FNPu=Exp(-10d0*bb)
         FNPd=Exp(-10d0*bb)
         FNPubar=Exp(-10d0*bb)

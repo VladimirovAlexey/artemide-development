@@ -177,7 +177,7 @@
 
 *B   : ---- Parameters of NP model ----
 *p1  : Length of lambdaNP
-           2
+           12
 *p2  : Absolute maximum b (for larger b, TMD=0)
    100.00000000000000
 
@@ -440,7 +440,7 @@
 # ---------------------------------------------------------------------------
 *13  :
 *p1  : initialize wgtTMDPDF module
- T
+ F
 
 *A   : ---- OPE[tw2] main definitions ----
 *p1  : Order of coefficient function

@@ -555,7 +555,7 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped)')")
     write(51,*) number_of_uPDFs
     write(51,"('*p2  : reference number for hadrons')")
-    call writeShortIntegerList(51,enumeration_of_uPDFs)    
+    call writeShortIntegerList(51,enumeration_of_uPDFs)
     write(51,"('*p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
     do i=1,number_of_uPDFs
         write(51,*) trim(sets_of_uPDFs(i))
@@ -1155,21 +1155,24 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p1  ')
     read(51,*) number_of_uFFs
 
-    if(allocated(enumeration_of_uFFs)) deallocate(enumeration_of_uFFs)
-    if(allocated(replicas_of_uFFs)) deallocate(replicas_of_uFFs)
-    if(allocated(sets_of_uFFs)) deallocate(sets_of_uFFs)
-    allocate(enumeration_of_uFFs(1:number_of_uFFs))
-    allocate(sets_of_uFFs(1:number_of_uFFs))
-    allocate(replicas_of_uFFs(1:number_of_uFFs))    
+    if(number_of_uFFs>0) then
+        if(allocated(enumeration_of_uFFs)) deallocate(enumeration_of_uFFs)
+        if(allocated(replicas_of_uFFs)) deallocate(replicas_of_uFFs)
+        if(allocated(sets_of_uFFs)) deallocate(sets_of_uFFs)
 
-    call MoveTO(51,'*p2  ')
-    read(51,*) enumeration_of_uFFs
-    call MoveTO(51,'*p3  ')
-    do i=1,number_of_uFFs
-        read(51,*) sets_of_uFFs(i)
-    end do
-    call MoveTO(51,'*p4  ')
-    read(51,*) replicas_of_uFFs
+        allocate(enumeration_of_uFFs(1:number_of_uFFs))
+        allocate(sets_of_uFFs(1:number_of_uFFs))
+        allocate(replicas_of_uFFs(1:number_of_uFFs))
+
+        call MoveTO(51,'*p2  ')
+        read(51,*) enumeration_of_uFFs
+        call MoveTO(51,'*p3  ')
+        do i=1,number_of_uFFs
+            read(51,*) sets_of_uFFs(i)
+        end do
+        call MoveTO(51,'*p4  ')
+        read(51,*) replicas_of_uFFs
+    end if
 
 
     !-------PDF for lpTMDPDF
@@ -1177,21 +1180,24 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p1  ')
 
     read(51,*) number_of_lpPDFs
-    if(allocated(enumeration_of_lpPDFs)) deallocate(enumeration_of_lpPDFs)
-    if(allocated(replicas_of_lpPDFs)) deallocate(replicas_of_lpPDFs)
-    if(allocated(sets_of_lpPDFs)) deallocate(sets_of_lpPDFs)
-    allocate(enumeration_of_lpPDFs(1:number_of_lpPDFs))
-    allocate(sets_of_lpPDFs(1:number_of_lpPDFs))
-    allocate(replicas_of_lpPDFs(1:number_of_lpPDFs))
 
-    call MoveTO(51,'*p2  ')
-    read(51,*) enumeration_of_lpPDFs
-    call MoveTO(51,'*p3  ')
-    do i=1,number_of_lpPDFs
-        read(51,*) sets_of_lpPDFs(i)
-    end do
-    call MoveTO(51,'*p4  ')
-    read(51,*) replicas_of_lpPDFs
+    if(number_of_lpPDFs>0) then
+        if(allocated(enumeration_of_lpPDFs)) deallocate(enumeration_of_lpPDFs)
+        if(allocated(replicas_of_lpPDFs)) deallocate(replicas_of_lpPDFs)
+        if(allocated(sets_of_lpPDFs)) deallocate(sets_of_lpPDFs)
+        allocate(enumeration_of_lpPDFs(1:number_of_lpPDFs))
+        allocate(sets_of_lpPDFs(1:number_of_lpPDFs))
+        allocate(replicas_of_lpPDFs(1:number_of_lpPDFs))
+
+        call MoveTO(51,'*p2  ')
+        read(51,*) enumeration_of_lpPDFs
+        call MoveTO(51,'*p3  ')
+        do i=1,number_of_lpPDFs
+            read(51,*) sets_of_lpPDFs(i)
+        end do
+        call MoveTO(51,'*p4  ')
+        read(51,*) replicas_of_lpPDFs
+    end if
     
 
     !-------helicity PDF
@@ -1199,21 +1205,23 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p1  ')
 
     read(51,*) number_of_hPDFs
-    if(allocated(enumeration_of_hPDFs)) deallocate(enumeration_of_hPDFs)
-    if(allocated(replicas_of_hPDFs)) deallocate(replicas_of_hPDFs)
-    if(allocated(sets_of_hPDFs)) deallocate(sets_of_hPDFs)
-    allocate(enumeration_of_hPDFs(1:number_of_hPDFs))
-    allocate(sets_of_hPDFs(1:number_of_hPDFs))
-    allocate(replicas_of_hPDFs(1:number_of_hPDFs))
+    if(number_of_hPDFs>0) then
+        if(allocated(enumeration_of_hPDFs)) deallocate(enumeration_of_hPDFs)
+        if(allocated(replicas_of_hPDFs)) deallocate(replicas_of_hPDFs)
+        if(allocated(sets_of_hPDFs)) deallocate(sets_of_hPDFs)
+        allocate(enumeration_of_hPDFs(1:number_of_hPDFs))
+        allocate(sets_of_hPDFs(1:number_of_hPDFs))
+        allocate(replicas_of_hPDFs(1:number_of_hPDFs))
 
-    call MoveTO(51,'*p2  ')
-    read(51,*) enumeration_of_hPDFs
-    call MoveTO(51,'*p3  ')
-    do i=1,number_of_hPDFs
-        read(51,*) sets_of_hPDFs(i)
-    end do
-    call MoveTO(51,'*p4  ')
-    read(51,*) replicas_of_hPDFs
+        call MoveTO(51,'*p2  ')
+        read(51,*) enumeration_of_hPDFs
+        call MoveTO(51,'*p3  ')
+        do i=1,number_of_hPDFs
+            read(51,*) sets_of_hPDFs(i)
+        end do
+        call MoveTO(51,'*p4  ')
+        read(51,*) replicas_of_hPDFs
+    end if
 
     !# ----                           PARAMETERS OF EWinput                  -----
     call MoveTO(51,'*2   ')

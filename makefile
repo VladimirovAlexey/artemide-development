@@ -8,7 +8,7 @@ aTMDeHOME       = $(PWD)
 #PUT YOUR FORTRAN COMPILER
 FCompilator=f95 
 #PUT HERE extra flags for compilator (put "space" if not flags requared)
-Fflags= -fopenmp -g -fbacktrace -Wall
+Fflags= -fopenmp
 #Fflags=  
 #path to fortran compilator (needed for f2py)
 Fpath=/usr/bin/f95
@@ -17,7 +17,7 @@ Fpath=/usr/bin/f95
 #FOPT=$(shell lhapdf-config --ldflags)
 FOPT=$(shell lhapdf-config --ldflags)
 
-#### for debuging -g -fbacktrace -ffpe-trap=zero,overflow,underflow
+#### for debuging -g -fbacktrace -fcheck=all
 #FOPT=-L/home/vla18041/LinkData2/LHAPDF/Installation/lib -lLHAPDF -lstdc++
 #FOPT=-L/home/alexey/WorkingFiles/LHAPDF/Intallation/lib -lLHAPDF -lstdc++
 
