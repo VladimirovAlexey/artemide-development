@@ -1,11 +1,11 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 1.4
+!            arTeMiDe 1.4
 !
 ! The module defining various QED and electro weak parameters
-!	
-!	14.02.2019 values of ckm matrix are added AV.
 !
-!						AV.  10.06.2018
+!    14.02.2019 values of ckm matrix are added AV.
+!
+!                        AV.  10.06.2018
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
@@ -84,7 +84,7 @@ contains
     read(51,*) FILEver
     if(FILEver<inputver) then
       write(*,*) 'artemide.'//trim(moduleName)//': const-file version is too old.'
-      write(*,*) '		     Update the const-file with artemide.setup'
+      write(*,*) '             Update the const-file with artemide.setup'
       write(*,*) '  '
       stop
     end if
@@ -109,8 +109,8 @@ contains
     alphaZ=1d0/alphaZinv
     
     call MoveTO(51,'*p2   ')
-    read(51,*) sW2	!!!!!!!!!!sin^2 theta_W
-    cw2=1d0-sw2		!!!!!!!!!!cos^2 theta_W
+    read(51,*) sW2    !!!!!!!!!!sin^2 theta_W
+    cw2=1d0-sw2        !!!!!!!!!!cos^2 theta_W
     
     call MoveTO(51,'*p3   ')!!!!CKM matrix
     read(51,*) Vckm_UD,Vckm_US,Vckm_UB
@@ -149,9 +149,9 @@ contains
     call MoveTO(51,'*p1  ')
     read(51,*) massELECTRON     !!!!!!!!!!electron mass in GEV
     call MoveTO(51,'*p2  ')
-    read(51,*) massMUON	 	!!!!!!!!!!muon mass in GEV
+    read(51,*) massMUON         !!!!!!!!!!muon mass in GEV
     call MoveTO(51,'*p3  ')
-    read(51,*) massTAU	 	!!!!!!!!!!tau-lepton mass in GEV
+    read(51,*) massTAU         !!!!!!!!!!tau-lepton mass in GEV
     
     CLOSE (51, STATUS='KEEP')
     
@@ -288,7 +288,7 @@ contains
   
   if(outputLevel>2) write(*,*) "    Effective QED beta fuction in fractions of LO:",deltaB
   if(abs(deltaB-1d0)>0.05) &
-	write(*,*)  WarningString(' Effective QED beta function 5% deviate from LO. Check boundary setup.',modulename)
+    write(*,*)  WarningString(' Effective QED beta function 5% deviate from LO. Check boundary setup.',modulename)
   
   alphaTOPinv=alphaZinv+2d0*betaQED*20d0/3d0*log(massTOP/massZ)
   alphaBOTTOMinv=alphaZinv+2d0*betaQED*20d0/3d0*log(massBOTTOM/massZ)
@@ -299,8 +299,8 @@ contains
   
   if(outputLevel>2) write(*,*) "    Theashold values of alpha^(-1) QED (mE,mMU,mC,mTAU,mB,mT):"
   if(outputLevel>2) write(*,"('    ',F7.3,',',F7.3,',',F7.3,',',F7.3,',',F7.3,',',F7.3)") &
-	      alphaELECTRONinv,alphaMUONinv,alphaCHARMinv,alphaTAUinv,alphaBOTTOMinv,alphaTOPinv
-	      
+          alphaELECTRONinv,alphaMUONinv,alphaCHARMinv,alphaTAUinv,alphaBOTTOMinv,alphaTOPinv
+
  end subroutine Set_betaQED
  
 end module EWinput

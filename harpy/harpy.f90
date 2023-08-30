@@ -39,44 +39,7 @@ contains
   subroutine ShowStatistics()
    call artemide_ShowStatistics()
   end  subroutine ShowStatistics
-  
-  !! call for parameters from the model
-  subroutine SetReplica_TMDR(num)
-  integer:: num
-  call artemide_SetReplica_TMDR(num)
-  end subroutine SetReplica_TMDR
-  
-  !!
-  subroutine SetReplica_uTMDPDF(num)
-  integer:: num
-  call artemide_SetReplica_uTMDPDF(num)
-  end subroutine SetReplica_uTMDPDF
-  
-  !!
-  subroutine SetReplica_uTMDFF(num)
-  integer:: num
-  call artemide_SetReplica_uTMDFF(num)
-  end subroutine SetReplica_uTMDFF
-  
-!!
-  subroutine SetReplica_lpTMDPDF(num)
-  integer:: num
-  call artemide_SetReplica_lpTMDPDF(num)
-  end subroutine SetReplica_lpTMDPDF
-  
-  !!
-  subroutine SetReplica_SiversTMDPDF(num)
-  integer:: num
-  call artemide_SetReplica_SiversTMDPDF(num)
-  end subroutine SetReplica_SiversTMDPDF
-  
-    !!
-  subroutine SetReplica_wgtTMDPDF(num)
-  integer:: num
-  call artemide_SetReplica_wgtTMDPDF(num)
-  end subroutine SetReplica_wgtTMDPDF
-  
-  
+
   !!!Sets the non-pertrubative parameters lambda
   subroutine SetLambda_Main(lambdaIN)
     real*8,intent(in)::lambdaIN(:)
@@ -138,7 +101,7 @@ contains
     !! reset the number for PDF replica for uTMDFF
   subroutine SetFFreplica(rep,hadron)
     integer::rep,hadron
-    call uTMDFF_SetFFreplica(rep,hadron)
+    call uTMDFF_SetPDFreplica(rep,hadron)
   end subroutine SetFFreplica
   
     !! reset the number for PDF replica for lpTMDPDF
@@ -160,7 +123,7 @@ contains
     real*8::b,mu
     integer::f
     
-    getDNP=DNP(mu,b,f)
+    getDNP=CS_kernel(mu,b,f)
   end function getDNP
 
   !!!!! optimal R

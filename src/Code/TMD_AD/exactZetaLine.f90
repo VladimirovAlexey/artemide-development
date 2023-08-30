@@ -103,7 +103,7 @@ end function valueOfGD_type4_Q
  function valueOfGD_type4_G(dd,alpha,mu)
     real(dp)::valueOfGD_type4_G,dd,alpha,mu
     integer::Nf
-    real(dp)::p,pFF,z1,zm1,zm2,val
+    real(dp)::p,pFF,z1,zm1,val
     
     if (orderZETA<0) then
         valueOfGD_type4_G=0d0

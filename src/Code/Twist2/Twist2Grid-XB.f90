@@ -1,21 +1,21 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 3.0
+!            arTeMiDe 3.0
 !
-!	This file contains the part of the code, which is common for all TMD-evaluation modules
-!	Such idiotic structure is needed since, FORTRAN does not allow inheritance.
-!	Be AWARE of possible clash of variable names.
+!    This file contains the part of the code, which is common for all TMD-evaluation modules
+!    Such idiotic structure is needed since, FORTRAN does not allow inheritance.
+!    Be AWARE of possible clash of variable names.
 !
 !   Significant part of this code migrated from the artemide 2.01
-!	This part is devoted to the Grid evaluation
+!    This part is devoted to the Grid evaluation
 !
-!				A.Vladimirov (16.08.2023)
+!                A.Vladimirov (16.08.2023)
 !---------------------------------------------------------------------------------------
 ! To the code of main module ADD
 ! !!!------------------------- SPECIAL VARIABLES FOR GRID (used by TMDGrid-XB)------------------
 ! real(dp), dimension(:,:,:,:), allocatable :: gridMain !!!! THIS IS HUGE(!) matrix for the grid
 ! real(dp), dimension(:,:,:,:), allocatable :: interpolationParameters !!!! for b>bGrid_Max we
 ! integer, dimension(:), allocatable:: hadronsInGRID  !!! table that saves the number of hadons into plain list
-! integer::numberOfHadrons=1				!!!total number of hadrons to be stored
+! integer::numberOfHadrons=1                !!!total number of hadrons to be stored
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Griding functions  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -35,7 +35,7 @@ end subroutine TMDGrid_XB_Initialize
 !!! and also the lists for large-b extrapolation
 subroutine MakeGrid()
   real(dp):: x_local,b_local
-  integer:: iX,iB,j,h
+  integer:: iX,iB,h
   
   real(dp),dimension(0:Nx-1,-5:5)::f1,f2,aE!! for interpolation computation
   real(dp)::b1,b2,time1,time2
@@ -209,19 +209,19 @@ function ExtractFromGrid(x,bT,h)
       end if
     !
     !      !!! linear interpolation procedure
-    ! ! 	interI(0,-5:5)=fB*gridMain(iX-1,iB,-5:5,h)+(1d0-fB)*gridMain(iX-1,iB+1,-5:5,h)
-    ! ! 	interI(1,-5:5)=fB*gridMain(iX,iB,-5:5,h)+(1d0-fB)*gridMain(iX,iB+1,-5:5,h)
-    ! ! 	interI(2,-5:5)=fB*gridMain(iX+1,iB,-5:5,h)+(1d0-fB)*gridMain(iX+1,iB+1,-5:5,h)
-    ! ! 	interI(3,-5:5)=fB*gridMain(iX+2,iB,-5:5,h)+(1d0-fB)*gridMain(iX+2,iB+1,-5:5,h)
+    ! !     interI(0,-5:5)=fB*gridMain(iX-1,iB,-5:5,h)+(1d0-fB)*gridMain(iX-1,iB+1,-5:5,h)
+    ! !     interI(1,-5:5)=fB*gridMain(iX,iB,-5:5,h)+(1d0-fB)*gridMain(iX,iB+1,-5:5,h)
+    ! !     interI(2,-5:5)=fB*gridMain(iX+1,iB,-5:5,h)+(1d0-fB)*gridMain(iX+1,iB+1,-5:5,h)
+    ! !     interI(3,-5:5)=fB*gridMain(iX+2,iB,-5:5,h)+(1d0-fB)*gridMain(iX+2,iB+1,-5:5,h)
     end if
 
     !! 2) intepolation procedure over X (from values computed at B)
-	var1=-fX*(fX-1d0)*(fX-2d0)
-	var2=3d0*(fX+1d0)*(fX-1d0)*(fX-2d0)
-	var3=-3d0*(fX+1d0)*fX*(fX-2d0)
-	var4=(fX+1d0)*fX*(fX-1d0)
-	ExtractFromGrid=(var1*interI(0,-5:5)+var2*interI(1,-5:5)&
-			  +var3*interI(2,-5:5)+var4*interI(3,-5:5))/6d0
+    var1=-fX*(fX-1d0)*(fX-2d0)
+    var2=3d0*(fX+1d0)*(fX-1d0)*(fX-2d0)
+    var3=-3d0*(fX+1d0)*fX*(fX-2d0)
+    var4=(fX+1d0)*fX*(fX-1d0)
+    ExtractFromGrid=(var1*interI(0,-5:5)+var2*interI(1,-5:5)&
+              +var3*interI(2,-5:5)+var4*interI(3,-5:5))/6d0
 
   do i=-5,5
    if(ISNAN(ExtractFromGrid(i))) then

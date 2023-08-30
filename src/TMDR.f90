@@ -1,18 +1,18 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 2.00
+!            arTeMiDe 2.00
 !
-!	Evaluation of the TMD evolution kernel
-!	Here we use the improved gamma-solution, and the universal TMD definition.
-!	
-!	if you use this module please, quote 1803.11089
+!    Evaluation of the TMD evolution kernel
+!    Here we use the improved gamma-solution, and the universal TMD definition.
 !
-!				A.Vladimirov (17.04.2018)
-!			v1.32   A.Vladimirov (30.08.2018)
-!				b-freeze at 1d-6 A.Vladimirov (16.09.2018)
-!			v1.41   transpose-issue fixed A.Vladimirov (11.03.2019)
-!				29.03.2019  Update to version 2.00 (AV).
-!			v2.01 	Added zeta-line with non-pertrubative D A.Vladimirov (06.06.2019)
-!				Added gluon evolution A.Vladimirov (12.06.2019)
+!    if you use this module please, quote 1803.11089
+!
+!                A.Vladimirov (17.04.2018)
+!            v1.32   A.Vladimirov (30.08.2018)
+!                b-freeze at 1d-6 A.Vladimirov (16.09.2018)
+!            v1.41   transpose-issue fixed A.Vladimirov (11.03.2019)
+!                29.03.2019  Update to version 2.00 (AV).
+!            v2.01     Added zeta-line with non-pertrubative D A.Vladimirov (06.06.2019)
+!                Added gluon evolution A.Vladimirov (12.06.2019)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module TMDR
 use aTMDe_Numerics
@@ -87,11 +87,11 @@ end function TMDR_IsInitialized
 subroutine TMDR_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
-    character(len=300)::path,line
+    character(len=300)::path
     logical::initRequired
     character(len=8)::orderMain,orderI
     logical::overrideORDER=.false.
-    integer::i,FILEver
+    integer::FILEver
     
     if(started) return
     
@@ -109,7 +109,7 @@ subroutine TMDR_Initialize(file,prefix)
     read(51,*) FILEver
     if(FILEver<inputver) then
       write(*,*) 'artemide.'//trim(moduleName)//': const-file version is too old.'
-      write(*,*) '		     Update the const-file with artemide.setup'
+      write(*,*) '             Update the const-file with artemide.setup'
       write(*,*) '  '
       stop
       CLOSE (51, STATUS='KEEP')
@@ -142,63 +142,63 @@ subroutine TMDR_Initialize(file,prefix)
     !!!!! Gamma cusp start from Gamma0, i.e. orderCusp=0 = as^1    
     SELECT CASE(orderMain)
       CASE ("LO")
-	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: LO'
-	orderCusp=0
-	orderV=0
-	orderD=0
-	orderDresum=0
-	orderZETA=0
+    if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: LO'
+    orderCusp=0
+    orderV=0
+    orderD=0
+    orderDresum=0
+    orderZETA=0
       CASE ("NLO")
-	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NLO'
-	orderCusp=1
-	orderV=1
-	orderD=1
-	orderDresum=1
-	orderZETA=1
+    if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NLO'
+    orderCusp=1
+    orderV=1
+    orderD=1
+    orderDresum=1
+    orderZETA=1
       CASE ("NNLO")
-	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO'
-	orderCusp=2
-	orderV=2
-	orderD=2
-	orderDresum=2
-	orderZETA=2
+    if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO'
+    orderCusp=2
+    orderV=2
+    orderD=2
+    orderDresum=2
+    orderZETA=2
       CASE ("N2LO")
-	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO'
-	orderCusp=2
-	orderV=2
-	orderD=2
-	orderDresum=2
-	orderZETA=2
+    if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNLO'
+    orderCusp=2
+    orderV=2
+    orderD=2
+    orderDresum=2
+    orderZETA=2
       CASE ("NNNLO")
-	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNNLO'
-	orderCusp=3
-	orderV=3
-	orderD=3
-	orderDresum=3
-	orderZETA=3
+    if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: NNNLO'
+    orderCusp=3
+    orderV=3
+    orderD=3
+    orderDresum=3
+    orderZETA=3
       CASE ("N3LO") !!! same as NNNLO
-	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N3LO'
-	orderCusp=3
-	orderV=3
-	orderD=3
-	orderDresum=3
-	orderZETA=3
+    if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N3LO'
+    orderCusp=3
+    orderV=3
+    orderD=3
+    orderDresum=3
+    orderZETA=3
       CASE ("N4LO")
-	if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N4LO'
-	orderCusp=4
-	orderV=4
-	orderD=4
-	orderDresum=4
-	orderZETA=4
+    if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: N4LO'
+    orderCusp=4
+    orderV=4
+    orderD=4
+    orderDresum=4
+    orderZETA=4
       CASE DEFAULT
-	if(outputLevel>0) write(*,*) &
+    if(outputLevel>0) write(*,*) &
                 WarningString(' Initialize:try to set unknown ADs orders. Switch to NLO.',modulename)
-	if(outputLevel>1) write(*,*)  trim(moduleName)//' Order set: NLO'
-	orderCusp=1
-	orderV=1
-	orderD=1
-	orderDresum=1
-	orderZETA=1
+    if(outputLevel>1) write(*,*)  trim(moduleName)//' Order set: NLO'
+    orderCusp=1
+    orderV=1
+    orderD=1
+    orderDresum=1
+    orderZETA=1
     END SELECT
 
       if(outputLevel>2) then
@@ -285,9 +285,9 @@ subroutine TMDR_Initialize(file,prefix)
     if(.not.QCDinput_IsInitialized()) then
       if(outputLevel>1) write(*,*) '.. initializing QCDinput (from ',moduleName,')'
       if(present(prefix)) then
-      	call QCDinput_Initialize(file,prefix)
+          call QCDinput_Initialize(file,prefix)
       else
-	call QCDinput_Initialize(file)
+    call QCDinput_Initialize(file)
       end if
     end if
     
@@ -336,15 +336,15 @@ subroutine TMDR_setNPparameters(lambdaIN)
     ll=size(lambdaIN)
     if(ll<NPlength) then 
       if(outputLevel>0) write(*,"(A,I3,A,I3,')')")&
-	      WarningString('length of lambdaNP(',moduleName),ll,&
-	      color(') is less then requred (',c_red),NPlength
+          WarningString('length of lambdaNP(',moduleName),ll,&
+          color(') is less then requred (',c_red),NPlength
       if(outputLevel>0) write(*,*)color('                Rest parameters are replaced by zeros!',c_red)
       NPparam=0d0*NPparam
       NPparam(1:ll)=lambdaIN(1:ll)
     else if (ll>NPlength) then
       if(outputLevel>0) write(*,"(A,I3,A,I3,')')")&
-	      WarningString('length of lambdaNP(',moduleName),ll,&
-	      color(') is greater then requred (',c_red),NPlength
+          WarningString('length of lambdaNP(',moduleName),ll,&
+          color(') is greater then requred (',c_red),NPlength
       if(outputLevel>0) write(*,*)color('                Array is truncated!',c_red)
       NPparam(1:NPlength)=lambdaIN(1:NPlength)
      else
@@ -401,7 +401,7 @@ function zetaNP_rad(mu,rad,b,f)
     real(dp)::zetaNP_rad
     real(dp),intent(in)::mu,b,rad
     integer,intent(in)::f
-    real(dp)::zz,w1,w2
+    real(dp)::zz
 
     !! this ofset is required to guaranty a good numerical bahavior at b->0.
     !! In principle, zz=0 also works
@@ -502,11 +502,11 @@ end subroutine TMDR_SetScaleVariation
       Qs2=(Qs3+Qs1)/2d0
       V2=Qs2**2-zetaNP(Qs2,b,f)
       if(V2>0d0) then 
-	Qs3=Qs2
-	V3=V2
+    Qs3=Qs2
+    V3=V2
       else
-	Qs1=Qs2
-	V1=V2
+    Qs1=Qs2
+    V1=V2
       end if
       if(Qs3-Qs1<tolerance) exit
     end do
@@ -530,11 +530,11 @@ end subroutine TMDR_SetScaleVariation
       Qs2=(Qs3+Qs1)/2d0
       V2=Qs2**2-zetaNP(0.5d0*Qs2,b,f)
       if(V2>0d0) then 
-	Qs3=Qs2
-	V3=V2
+    Qs3=Qs2
+    V3=V2
       else
-	Qs1=Qs2
-	V1=V2
+    Qs1=Qs2
+    V1=V2
       end if
       if(Qs3-Qs1<tolerance) exit
     end do
@@ -558,11 +558,11 @@ end subroutine TMDR_SetScaleVariation
       Qs2=(Qs3+Qs1)/2d0
       V2=Qs2**2-zetaNP(2d0*Qs2,b,f)
       if(V2>0d0) then 
-	Qs3=Qs2
-	V3=V2
+    Qs3=Qs2
+    V3=V2
       else
-	Qs1=Qs2
-	V1=V2
+    Qs1=Qs2
+    V1=V2
       end if
       if(Qs3-Qs1<tolerance) exit
     end do

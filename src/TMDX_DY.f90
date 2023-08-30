@@ -1,16 +1,16 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 2.01
+!            arTeMiDe 2.01
 !
-!	Evaluation of the TMD cross-section for DY-like cross-sections
-!	
-!	if you use this module please, quote 1706.01473
+!    Evaluation of the TMD cross-section for DY-like cross-sections
 !
-!	ver 1.0: release (AV, 10.05.2017)
-!	ver 1.1: multiple updates (AV, 5.10.2017)
-!	ver 1.2: module is renamed, and multiple renaming of functions (AV, 15.10.2017)
-!	ver 1.31: part of functions migrated to TMDF, rest updated (AV, 1.06.2018)
-!	ver 1.4: encapsulation of cuts, and process,+ multiple updates (AV, 18.01.2019)
-!	ver 2.01: Added Higgs xSec, piresum option, and coefficient function moved to separate file (AV, 17.06.2019)
+!    if you use this module please, quote 1706.01473
+!
+!    ver 1.0: release (AV, 10.05.2017)
+!    ver 1.1: multiple updates (AV, 5.10.2017)
+!    ver 1.2: module is renamed, and multiple renaming of functions (AV, 15.10.2017)
+!    ver 1.31: part of functions migrated to TMDF, rest updated (AV, 1.06.2018)
+!    ver 1.4: encapsulation of cuts, and process,+ multiple updates (AV, 18.01.2019)
+!    ver 2.01: Added Higgs xSec, piresum option, and coefficient function moved to separate file (AV, 17.06.2019)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module TMDX_DY
 use aTMDe_Numerics
@@ -105,12 +105,12 @@ implicit none
 
  interface CalcXsec_DY_PTint_Qint_Yint
     module procedure xSecSingle_PTint_Qint_Yint, xSecList_PTint_Qint_Yint, &
-	    xSecSingle_PTint_Qint_Ycomplete, xSecList_PTint_Qint_Ycomplete,&
-	    xSecSingle_PTintN_Qint_Yint, xSecList_PTintN_Qint_Yint,&
-	    xSecSingle_PTintN_Qint_Ycomplete, xSecList_PTintN_Qint_Ycomplete,&
-	    xSecListList_PTint_Qint_Yint,xSecListList_PTint_Qint_Ycomplete,&
-	    xSecListList_PTintN_Qint_Yint,xSecListList_PTintN_Qint_Ycomplete,&
-	    xSecListPY_PTint_Qint_Yint,xSecListPY_PTintN_Qint_Yint
+        xSecSingle_PTint_Qint_Ycomplete, xSecList_PTint_Qint_Ycomplete,&
+        xSecSingle_PTintN_Qint_Yint, xSecList_PTintN_Qint_Yint,&
+        xSecSingle_PTintN_Qint_Ycomplete, xSecList_PTintN_Qint_Ycomplete,&
+        xSecListList_PTint_Qint_Yint,xSecListList_PTint_Qint_Ycomplete,&
+        xSecListList_PTintN_Qint_Yint,xSecListList_PTintN_Qint_Ycomplete,&
+        xSecListPY_PTint_Qint_Yint,xSecListPY_PTintN_Qint_Yint
     
  end interface
  
@@ -129,8 +129,8 @@ contains
   subroutine TMDX_DY_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
-    character(len=300)::path,line
-    logical::initRequired,dummyLogical,TMDPDFgrid
+    character(len=300)::path
+    logical::initRequired,dummyLogical
     character(len=8)::orderMain
     integer::i,FILEver
     !$ integer:: omp_get_thread_num
@@ -151,7 +151,7 @@ contains
     read(51,*) FILEver
     if(FILEver<inputver) then
       write(*,*) 'artemide.'//trim(moduleName)//': const-file version is too old.'
-      write(*,*) '		     Update the const-file with artemide.setup'
+      write(*,*) '             Update the const-file with artemide.setup'
       write(*,*) '  '
       stop
     end if
@@ -181,32 +181,32 @@ contains
     read(51,*) orderMain
     SELECT CASE(orderMain)
       CASE ("LO")
-	orderH_global=0
+    orderH_global=0
       CASE ("LO+")
-	orderH_global=0
+    orderH_global=0
       CASE ("NLO")
-	orderH_global=1
+    orderH_global=1
       CASE ("NLO+")
-	orderH_global=1
+    orderH_global=1
       CASE ("NNLO")
-	orderH_global=2
+    orderH_global=2
       CASE ("N2LO")
-	orderH_global=2
+    orderH_global=2
       CASE ("NNLO+")
-	orderH_global=2
+    orderH_global=2
       CASE ("NNNLO")
-	orderH_global=3
+    orderH_global=3
       CASE ("N3LO") !!! same as NNNLO
-	orderH_global=3
+    orderH_global=3
       CASE ("N3LO+")
-	orderH_global=3
+    orderH_global=3
       CASE ("N4LO")
-	orderH_global=4
+    orderH_global=4
       CASE DEFAULT
-	if(outputLevel>0) write(*,*)  WarningString('try to set unknown order. Switch to NLO.',moduleName)
-	orderH_global=1
+    if(outputLevel>0) write(*,*)  WarningString('try to set unknown order. Switch to NLO.',moduleName)
+    orderH_global=1
      END SELECT
-     if(outputLevel>1) write(*,*) '	artemide.TMDX_DY: the used order is ',trim(orderMain)
+     if(outputLevel>1) write(*,*) '    artemide.TMDX_DY: the used order is ',trim(orderMain)
      
      !!exact values of x1x2
      call MoveTO(51,'*p2   ')
@@ -216,11 +216,11 @@ contains
      else
       exactX1X2=0
      end if
-     if(outputLevel>2 .and. dummyLogical) write(*,*) '	artemide.TMDX_DY: qT/Q corrections for x1 and x2 variables are included.'
+     if(outputLevel>2 .and. dummyLogical) write(*,*) '    artemide.TMDX_DY: qT/Q corrections for x1 and x2 variables are included.'
      !! pi2 resummation
      call MoveTO(51,'*p3   ')
      read(51,*) usePIresum
-     if(outputLevel>2 .and. usePIresum) write(*,*) '	artemide.TMDX_DY: pi-resummation in coef.function included.'
+     if(outputLevel>2 .and. usePIresum) write(*,*) '    artemide.TMDX_DY: pi-resummation in coef.function included.'
      !!exact values for scales
      call MoveTO(51,'*p4   ')
      read(51,*) dummyLogical
@@ -229,7 +229,7 @@ contains
      else
       exactScales=0
      end if
-     if(outputLevel>2 .and. dummyLogical) write(*,*) '	artemide.TMDX_DY: qT/Q correction for scales variables are included.'
+     if(outputLevel>2 .and. dummyLogical) write(*,*) '    artemide.TMDX_DY: qT/Q correction for scales variables are included.'
      
      call MoveTO(51,'*B   ')
      call MoveTO(51,'*p1  ')
@@ -238,12 +238,12 @@ contains
      read(51,*) NumPTdefault
      call MoveTO(51,'*p3  ')
      read(51,*) maxQbinSize
-!$    if(outputLevel>1) write(*,*) '	artemide.TMDX_DY: parallel evaluation of cross-sections is to be used'
+!$    if(outputLevel>1) write(*,*) '    artemide.TMDX_DY: parallel evaluation of cross-sections is to be used'
 !$    call MoveTO(51,'*C   ')
 !$    call MoveTO(51,'*p1  ')
 !$    read(51,*) i
 !$    call OMP_set_num_threads(i)
-!$    if(outputLevel>1) write(*,*) '	artemide.TMDX_DY: number of threads for parallel evaluation is set to ', i	
+!$    if(outputLevel>1) write(*,*) '    artemide.TMDX_DY: number of threads for parallel evaluation is set to ', i
 
 !$     if(outputLevel>2) write(*,*) '------TEST OF PARALLEL PROCESSING ----------'
 !$OMP PARALLEL
@@ -252,21 +252,21 @@ contains
     CLOSE (51, STATUS='KEEP')
     
      if(.not.EWinput_IsInitialized()) then
-	if(outputLevel>1) write(*,*) '.. initializing EWinput (from ',moduleName,')'
-	if(present(prefix)) then
-	  call EWinput_Initialize(file,prefix)
-	else
-	  call EWinput_Initialize(file)
-	end if
+    if(outputLevel>1) write(*,*) '.. initializing EWinput (from ',moduleName,')'
+    if(present(prefix)) then
+      call EWinput_Initialize(file,prefix)
+    else
+      call EWinput_Initialize(file)
+    end if
       end if
       
       if(.not.TMDF_IsInitialized()) then
-	if(outputLevel>1) write(*,*) '.. initializing TMDF (from ',moduleName,')'
-	if(present(prefix)) then
-	  call TMDF_Initialize(file,prefix)
-	else
-	  call TMDF_Initialize(file)
-	end if
+    if(outputLevel>1) write(*,*) '.. initializing TMDF (from ',moduleName,')'
+    if(present(prefix)) then
+      call TMDF_Initialize(file,prefix)
+    else
+      call TMDF_Initialize(file)
+    end if
       end if
     
      includeCuts_global=.false.
@@ -298,7 +298,7 @@ contains
   
   !!!!Call this after TMD initializetion but before NP, and X parameters
   subroutine TMDX_DY_SetScaleVariation(c2_in)
-    real(dp)::c1_in,c2_in,c3_in,c4_in
+    real(dp)::c2_in
     
     if(outputLevel>1) write(*,*) 'TMDX_DY: c2 scale reset:',c2_in
     
@@ -345,19 +345,19 @@ contains
     integer,dimension(1:3)::processArrayFromInteger
     SELECT CASE(p)
       case(1)
-	processArrayFromInteger=(/1,1,5/) !!! p + p -> Z + gamma^*   (e.g. ATLAS, CMS, LHCb)
+    processArrayFromInteger=(/1,1,5/) !!! p + p -> Z + gamma^*   (e.g. ATLAS, CMS, LHCb)
       case(2)
-	processArrayFromInteger=(/1,1,6/) !!! p + pbar -> Z + gamma^*   (e.g. CDF,D0)
+    processArrayFromInteger=(/1,1,6/) !!! p + pbar -> Z + gamma^*   (e.g. CDF,D0)
       case(4)
-	processArrayFromInteger=(/1,2,1001/)
+    processArrayFromInteger=(/1,2,1001/)
       case(5)
-	processArrayFromInteger=(/1,1,5/)
+    processArrayFromInteger=(/1,1,5/)
       case(7)
-	processArrayFromInteger=(/1,1,6/)
+    processArrayFromInteger=(/1,1,6/)
       case default
-	write(*,*) 'ERROR: arTeMiDe_DY: unknown process is called. p=',p
-	write(*,*) 'Evaluation stop'
-	stop
+    write(*,*) 'ERROR: arTeMiDe_DY: unknown process is called. p=',p
+    write(*,*) 'Evaluation stop'
+    stop
       end SELECT
   end function processArrayFromInteger
   
@@ -473,7 +473,7 @@ contains
        !!! here include cuts onf lepton tensor
        cutPrefactor=CutFactor4(qT=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam)
     else
-	!!! this is uncut lepton tensor
+    !!! this is uncut lepton tensor
        cutPrefactor=(1+0.5d0*(kin(1)/kin(3))**2)
     end if  
   
@@ -483,40 +483,40 @@ contains
     
   SELECT CASE(process(2))
     case(-10221191)
-	uniPart=1d0
-	cutPrefactor=1d0
+    uniPart=1d0
+    cutPrefactor=1d0
     CASE(1)
-	!4 pi aEm^2/3 /Nc/Q^2/s
-	uniPart=pix4/9d0*(alphaEM(scaleMu)**2)/(kin(2)*kin(4))*&
-	    HardCoefficientDY(scaleMu)*&
-	    hc2*1d9!from GeV to pb
-	!!! IsySymmetric=.true.  !!! state is IsySymmetric-function
+    !4 pi aEm^2/3 /Nc/Q^2/s
+    uniPart=pix4/9d0*(alphaEM(scaleMu)**2)/(kin(2)*kin(4))*&
+        HardCoefficientDY(scaleMu)*&
+        hc2*1d9!from GeV to pb
+    !!! IsySymmetric=.true.  !!! state is IsySymmetric-function
     CASE(2)
-	!4 pi aEm^2/3 /Nc/Q^2/s
-	uniPart=pix4/9d0*(alphaEM(scaleMu)**2)/(kin(2)*kin(4))*&
-	    HardCoefficientDY(scaleMu)*&
-	    hc2*1d9!from GeV to pb
-	!!!IsySymmetric=.false.	!!! state is IsySymmetric-function
+    !4 pi aEm^2/3 /Nc/Q^2/s
+    uniPart=pix4/9d0*(alphaEM(scaleMu)**2)/(kin(2)*kin(4))*&
+        HardCoefficientDY(scaleMu)*&
+        hc2*1d9!from GeV to pb
+    !!!IsySymmetric=.false.    !!! state is IsySymmetric-function
     CASE (3) !Zboson in the narrow-width approximation
-	!4 pi^2 aem/Nc/s Br(z->ee+mumu)
-	uniPart=pi2x4/3d0*alphaEM(scaleMu)/kin(2)*&
-	    HardCoefficientDY(scaleMu)*&
-	    hc2*1d9*&!from GeV to pb
-	    0.03645d0!Br from PDG, ee+mumu
+    !4 pi^2 aem/Nc/s Br(z->ee+mumu)
+    uniPart=pi2x4/3d0*alphaEM(scaleMu)/kin(2)*&
+        HardCoefficientDY(scaleMu)*&
+        hc2*1d9*&!from GeV to pb
+        0.03645d0!Br from PDG, ee+mumu
     CASE (4) !Wboson in the narrow-width approximation
-	!4 pi^2 aem/Nc/s Br(z->ee+mumu)
-	uniPart=pi2x4/3d0**alphaEM(scaleMu)/kin(2)*&
-	    HardCoefficientDY(scaleMu)*&
-	    hc2*1d9*&!from GeV to pb
-	    0.1086d0!Br from PDG, ee+mumu
+    !4 pi^2 aem/Nc/s Br(z->ee+mumu)
+    uniPart=pi2x4/3d0**alphaEM(scaleMu)/kin(2)*&
+        HardCoefficientDY(scaleMu)*&
+        hc2*1d9*&!from GeV to pb
+        0.1086d0!Br from PDG, ee+mumu
     CASE (5) !exclusive HIGGSboson production
-	! (2\pi) *pi Mh^2 as(mu)/36/s/vev^2 * H*cT^2
-	! (1.033)^2 is correction for mT mass in Ct at LO.
-	uniPart=(1d0/18d0)*MH2*(As(c2_global*scaleMu)/VEVH)**2/kin(2)*&
-	   HardCoefficientHIGGS(scaleMu)*(EffCouplingHFF(scaleMu)**2)*1.0677023627519822d0*&
-	    hc2*1d9!from GeV to pb
-	    
-	cutPrefactor=1d0 !!! cut-prefactor is different in this case! 
+    ! (2\pi) *pi Mh^2 as(mu)/36/s/vev^2 * H*cT^2
+    ! (1.033)^2 is correction for mT mass in Ct at LO.
+    uniPart=(1d0/18d0)*MH2*(As(c2_global*scaleMu)/VEVH)**2/kin(2)*&
+       HardCoefficientHIGGS(scaleMu)*(EffCouplingHFF(scaleMu)**2)*1.0677023627519822d0*&
+        hc2*1d9!from GeV to pb
+
+    cutPrefactor=1d0 !!! cut-prefactor is different in this case!
     CASE DEFAULT 
       write(*,*) 'ERROR: arTeMiDe.TMDX_DY: unknown process p2=',process(2),' .Evaluation stop.'
       stop
@@ -540,9 +540,9 @@ contains
   integer::p1
   SELECT CASE(p1)
     CASE(1)
-	PreFactor1=1d0
+    PreFactor1=1d0
     CASE(2)
-	PreFactor1=1d0
+    PreFactor1=1d0
     CASE DEFAULT 
       write(*,*) 'ERROR: arTeMiDe.TMDX_DY: unknown process p1=',p1,' .Evaluation stop.'
       stop
@@ -619,8 +619,8 @@ contains
         end do
     end if
     if(outputlevel>1) then
-	write(*,*) WarningString('Fail to automatically determine number of Pt-section for a bin.',moduleName)
-	write(*,*) '  ... Possibly Pt-bin is too large', dPT
+    write(*,*) WarningString('Fail to automatically determine number of Pt-section for a bin.',moduleName)
+    write(*,*) '  ... Possibly Pt-bin is too large', dPT
     end if
     NumPT_auto=NumPTdefault+12
     
@@ -670,15 +670,15 @@ contains
       
     else !!!non-symmetric integral!!!!!!!!
       if(ymax<ymin_check .or. ymin>ymax_check) then !!! the case then y is outside physicsl region
-	Xsec_Yint=0d0
+    Xsec_Yint=0d0
       else
-	if(ymax > ymax_check) then
-	  ymax=yMax_check
-	end if!!!!! else case: automatically taken into account
-	if(ymin < ymin_check) then
-	  ymin=ymin_check
-	end if!!!!! else case: automatically taken into account
-	
+    if(ymax > ymax_check) then
+      ymax=yMax_check
+    end if!!!!! else case: automatically taken into account
+    if(ymin < ymin_check) then
+      ymin=ymin_check
+    end if!!!!! else case: automatically taken into account
+
       Xsec_Yint=integralOverYpoint_S(var,process,incCut,CutParam,ymin,ymax)
       
       end if
@@ -722,7 +722,7 @@ contains
    valueMax=deltay*(X1+4d0*X2+2d0*X3+4d0*X4+X5)/12d0
    
    integralOverYpoint_S=IntegralOverYpoint_S_Rec(var,process,incCut,CutParam,yMin_in,y3,X1,X2,X3,valueMax)+&
-	  IntegralOverYpoint_S_Rec(var,process,incCut,CutParam,y3,yMax_in,X3,X4,X5,valueMax)
+      IntegralOverYpoint_S_Rec(var,process,incCut,CutParam,y3,yMax_in,X3,X4,X5,valueMax)
   end function integralOverYpoint_S
   
   !!!! X1,X3,X5 are cross-sections at end (X1,X5) and central (X3) points of integraitons
@@ -757,7 +757,7 @@ contains
    
    If(ABS((valueACB-valueAB)/valueMax)>tolerance) then
     interX=integralOverYpoint_S_Rec(var,process,incCut,CutParam,yMin_in,y3,X1,X2,X3,valueMax)&
-	  +integralOverYpoint_S_Rec(var,process,incCut,CutParam,y3,yMax_in,X3,X4,X5,valueMax)
+      +integralOverYpoint_S_Rec(var,process,incCut,CutParam,y3,yMax_in,X3,X4,X5,valueMax)
    else
     interX=valueACB
    end if
@@ -839,7 +839,7 @@ contains
    valueMax=deltaQ*(X1+4d0*X2+2d0*X3+4d0*X4+X5)/12d0
    
    integralOverQpoint_S=IntegralOverQpoint_S_Rec(var,process,incCut,CutParam,QMin_in,Q3,X1,X2,X3,valueMax)+&
-	IntegralOverQpoint_S_Rec(var,process,incCut,CutParam,Q3,QMax_in,X3,X4,X5,valueMax)
+    IntegralOverQpoint_S_Rec(var,process,incCut,CutParam,Q3,QMax_in,X3,X4,X5,valueMax)
   end function integralOverQpoint_S
   
   !!!! X1,X3,X5 are cross-sections at end (X1,X5) and central (X3) points of integraitons
@@ -869,7 +869,7 @@ contains
    
    If(ABS((valueACB-valueAB)/valueMax)>tolerance) then
     interX=integralOverQpoint_S_Rec(var,process,incCut,CutParam,QMin_in,Q3,X1,X2,X3,valueMax)&
-	  +integralOverQpoint_S_Rec(var,process,incCut,CutParam,Q3,Qmax_in,X3,X4,X5,valueMax)
+      +integralOverQpoint_S_Rec(var,process,incCut,CutParam,Q3,Qmax_in,X3,X4,X5,valueMax)
    else
     interX=valueACB
    end if
@@ -954,12 +954,12 @@ contains
    valueMax=deltaQ*(X1+4d0*X2+2d0*X3+4d0*X4+X5)/12d0
    
    Xsec_Qint_Yint_in=IntegralOverQYpoint_S_Rec(var,process,incCut,CutParam,QMin_in,Q3,yMin_in,yMax_in,X1,X2,X3,valueMax)+&
-	IntegralOverQYpoint_S_Rec(var,process,incCut,CutParam,Q3,QMax_in,yMin_in,yMax_in,X3,X4,X5,valueMax)
+    IntegralOverQYpoint_S_Rec(var,process,incCut,CutParam,Q3,QMax_in,yMin_in,yMax_in,X3,X4,X5,valueMax)
   end function Xsec_Qint_Yint_in
   
   !!!! X1,X3,X5 are cross-sections at end (X1,X5) and central (X3) points of integraitons
   recursive function integralOverQYpoint_S_Rec(var,process,incCut,CutParam,&
-			      QMin_in,QMax_in,yMin_in,yMax_in,X1,X3,X5,valueMax) result(interX)
+                  QMin_in,QMax_in,yMin_in,yMax_in,X1,X3,X5,valueMax) result(interX)
    real(dp),dimension(1:7)::var
    logical,intent(in)::incCut
    real(dp),dimension(1:4),intent(in)::CutParam
@@ -985,7 +985,7 @@ contains
    
    If(ABS((valueACB-valueAB)/valueMax)>tolerance) then
     interX=integralOverQYpoint_S_Rec(var,process,incCut,CutParam,QMin_in,Q3,yMin_in,yMax_in,X1,X2,X3,valueMax)&
-	  +integralOverQYpoint_S_Rec(var,process,incCut,CutParam,Q3,Qmax_in,yMin_in,yMax_in,X3,X4,X5,valueMax)
+      +integralOverQYpoint_S_Rec(var,process,incCut,CutParam,Q3,Qmax_in,yMin_in,yMax_in,X3,X4,X5,valueMax)
    else
     interX=valueACB
    end if
@@ -1117,7 +1117,7 @@ contains
     CallCounter=CallCounter+length
     !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(var)
      do i=1,length
-	var=kinematicArray(qt_List(i),s_global,Q_global,y_global)
+    var=kinematicArray(qt_List(i),s_global,Q_global,y_global)
        X_List(i)=PreFactor1(process_global(1))*Xsec_Yint(var,process_global,includeCuts_global,CutParameters_global,yMin_in,yMax_in)
      end do
      !$OMP END PARALLEL DO
@@ -1147,7 +1147,7 @@ contains
      do i=1,length
        var=kinematicArray(qt_List(i),s_global,Q_global,y_global)
        X_List(i)=PreFactor1(process_global(1))*Xsec_Yint(var,process_global,includeCuts_global,CutParameters_global,&
-		    log(var(5)),-log(var(5)))
+            log(var(5)),-log(var(5)))
      end do
      !$OMP END PARALLEL DO
   end subroutine xSecList_Ycomplete
@@ -1208,7 +1208,7 @@ contains
      do i=1,length
        var=kinematicArray(qt_List(i),s_global,Q_global,y_global)
        X_List(i)=PreFactor1(process_global(1))*Xsec_Qint_Yint(var,process_global,includeCuts_global,CutParameters_global,&
-		Q_min,Q_max,yMin_in,yMax_in)
+        Q_min,Q_max,yMin_in,yMax_in)
      end do
      !$OMP END PARALLEL DO
   end subroutine xSecList_Qint_Yint
@@ -1221,7 +1221,7 @@ contains
    CallCounter=CallCounter+1
    var=kinematicArray(qt,s_global,Q_global,y_global)
    X=PreFactor1(process_global(1))*Xsec_Qint_Yint(var,process_global,includeCuts_global,CutParameters_global,&
-	Q_min,Q_max,yMin_in,yMax_in)
+    Q_min,Q_max,yMin_in,yMax_in)
   end subroutine xSecSingle_Qint_Yint
   
       !!qt_list is the list of requred qt -point,
@@ -1238,7 +1238,7 @@ contains
      do i=1,length
        var=kinematicArray(qt_List(i),s_global,Q_global,y_global)
        X_List(i)=PreFactor1(process_global(1))*Xsec_Qint_Yint(var,process_global,includeCuts_global,CutParameters_global,&
-			      Q_min,Q_max,log(var(5)),-log(var(5)))
+                  Q_min,Q_max,log(var(5)),-log(var(5)))
      end do
      !$OMP END PARALLEL DO
   end subroutine xSecList_Qint_Ycomplete
@@ -1251,7 +1251,7 @@ contains
    CallCounter=CallCounter+1
    var=kinematicArray(qt,s_global,Q_global,y_global)
    X=PreFactor1(process_global(1))*Xsec_Qint_Yint(var,process_global,includeCuts_global,CutParameters_global,&
-	      Q_min,Q_max,log(var(5)),-log(var(5)))
+          Q_min,Q_max,log(var(5)),-log(var(5)))
   end subroutine xSecSingle_Qint_Ycomplete
   
   !---------------------------------INTEGRATED over Y over Q  over PT----------------------------------------------------------
@@ -1267,7 +1267,7 @@ contains
     !$OMP PARALLEL DO DEFAULT(SHARED)
      do i=1,length
        X_List(i)=PreFactor1(process_global(1))*Xsec_PTint_Qint_Yint(process_global,includeCuts_global,CutParameters_global,&
-				s_global,qtMIN_List(i),qtMAX_list(i),Q_min,Q_max,yMin_in,yMax_in,num)
+                s_global,qtMIN_List(i),qtMAX_list(i),Q_min,Q_max,yMin_in,yMax_in,num)
      end do
      !$OMP END PARALLEL DO
   end subroutine xSecList_PTintN_Qint_Yint
@@ -1306,7 +1306,7 @@ contains
     X0=2d0*qt_list(1)*Xsec_Qint_Yint(var,process_global,includeCuts_global,CutParameters_global,Q_min,Q_max,yMin_in,yMax_in)
     do i=1,length
        call Xsec_PTint_Qint_Yint_0(process_global,includeCuts_global,CutParameters_global,&
-		    s_global,qt_list(i),qt_list(i+1),Q_min,Q_max,yMin_in,yMax_in,Num,Xfin,X0)
+            s_global,qt_list(i),qt_list(i+1),Q_min,Q_max,yMin_in,yMax_in,Num,Xfin,X0)
        X_List(i)=PreFactor1(process_global(1))*Xfin
      end do
   end subroutine xSecListList_PTintN_Qint_Yint
@@ -1328,14 +1328,14 @@ contains
     
    CallCounter=CallCounter+1
    X=PreFactor1(process_global(1))*Xsec_PTint_Qint_Yint(process_global,includeCuts_global,CutParameters_global,&
-				  s_global,qt_Min,qt_Max,Q_min,Q_max,yMin_in,yMax_in,num)
+                  s_global,qt_Min,qt_Max,Q_min,Q_max,yMin_in,yMax_in,num)
   end subroutine xSecSingle_PTintN_Qint_Yint
   
   subroutine xSecSingle_PTint_Qint_Yint(X,qt_Min,qt_Max,Q_min,Q_max,yMin_in,yMax_in)
     real(dp)::X,qt_Min,qt_Max
     real(dp)::yMin_in,yMax_in,Q_min,Q_max
    X=PreFactor1(process_global(1))*Xsec_PTint_Qint_Yint(process_global,includeCuts_global,CutParameters_global,&
-			    s_global, qt_Min,qt_Max,Q_min,Q_max,yMin_in,yMax_in,NumPTdefault)
+                s_global, qt_Min,qt_Max,Q_min,Q_max,yMin_in,yMax_in,NumPTdefault)
   end subroutine xSecSingle_PTint_Qint_Yint
   
   subroutine xSecListPY_PTint_Qint_Yint(X_list,qtMIN_List,qtMAX_list,Q_min,Q_max,yMin_List,yMax_List,num)
@@ -1367,7 +1367,7 @@ contains
     !$OMP PARALLEL DO DEFAULT(SHARED)
      do i=1,length
        X_List(i)=PreFactor1(process_global(1))*Xsec_PTint_Qint_Yint(process_global,includeCuts_global,CutParameters_global,&
-			  s_global,qtMIN_List(i),qtMAX_list(i),Q_min,Q_max,yMin_List(i),yMax_List(i),num)
+              s_global,qtMIN_List(i),qtMAX_list(i),Q_min,Q_max,yMin_List(i),yMax_List(i),num)
      end do
      !$OMP END PARALLEL DO
   end subroutine xSecListPY_PTint_Qint_Yint
@@ -1394,7 +1394,7 @@ contains
     !$OMP PARALLEL DO DEFAULT(SHARED)
      do i=1,length
        X_List(i)=PreFactor1(process_global(1))*Xsec_PTint_Qint_Yint(process_global,includeCuts_global,CutParameters_global,&
-				s_global,qtMIN_list(i),qtMAX_list(i),Q_min,Q_max,-1000d0,1000d0,num)
+                s_global,qtMIN_list(i),qtMAX_list(i),Q_min,Q_max,-1000d0,1000d0,num)
      end do
     !$OMP END PARALLEL DO
   end subroutine xSecList_PTintN_Qint_Ycomplete
@@ -1406,7 +1406,7 @@ contains
     
    CallCounter=CallCounter+1
    X=PreFactor1(process_global(1))*Xsec_PTint_Qint_Yint(process_global,includeCuts_global,CutParameters_global,&
-			    s_global,qt_min,qt_max,Q_min,Q_max,-1000d0,1000d0,num)
+                s_global,qt_min,qt_max,Q_min,Q_max,-1000d0,1000d0,num)
   end subroutine xSecSingle_PTintN_Qint_Ycomplete
   
   subroutine xSecListList_PTintN_Qint_Ycomplete(X_list,qt_List,Q_min,Q_max,num)
@@ -1435,7 +1435,7 @@ contains
     X0=2d0*qt_list(1)*Xsec_Qint_Yint(var,process_global,includeCuts_global,CutParameters_global,Q_min,Q_max,-1000d0,1000d0)
     do i=1,length
        call Xsec_PTint_Qint_Yint_0(process_global,includeCuts_global,CutParameters_global,&
-		      s_global, qt_list(i),qt_list(i+1),Q_min,Q_max,-1000d0,1000d0,Num,Xfin,X0)
+              s_global, qt_list(i),qt_list(i+1),Q_min,Q_max,-1000d0,1000d0,Num,Xfin,X0)
        X_List(i)=PreFactor1(process_global(1))*Xfin
      end do
   end subroutine xSecListList_PTintN_Qint_Ycomplete
@@ -1454,7 +1454,7 @@ contains
     
    CallCounter=CallCounter+1
    X=PreFactor1(process_global(1))*Xsec_PTint_Qint_Yint(process_global,includeCuts_global,CutParameters_global,&
-			    s_global,qt_min,qt_max,Q_min,Q_max,-1000d0,1000d0,NumPTdefault)
+                s_global,qt_min,qt_max,Q_min,Q_max,-1000d0,1000d0,NumPTdefault)
   end subroutine xSecSingle_PTint_Qint_Ycomplete
   
   subroutine xSecListList_PTint_Qint_Ycomplete(X_list,qt_List,Q_min,Q_max)
@@ -1471,14 +1471,14 @@ contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!! interface for integer,s,array,array,array,logical,optional, optional
   subroutine MainInterface_isAAAloo(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)
-    integer,intent(in)::process					!the number of process
-    real(dp),intent(in)::s					!Mandelshtam s
-    real(dp),intent(in),dimension(1:2)::qT			!(qtMin,qtMax)
-    real(dp),intent(in),dimension(1:2)::Q				!(Qmin,Qmax)
-    real(dp),intent(in),dimension(1:2)::y				!(ymin,ymax)
-    logical,intent(in)::includeCuts				!include cuts
-    real(dp),intent(in),dimension(1:4),optional::CutParameters	!(p1,p2,eta1,eta2)
-    integer,intent(in),optional::Num				!number of sections
+    integer,intent(in)::process                    !the number of process
+    real(dp),intent(in)::s                    !Mandelshtam s
+    real(dp),intent(in),dimension(1:2)::qT            !(qtMin,qtMax)
+    real(dp),intent(in),dimension(1:2)::Q                !(Qmin,Qmax)
+    real(dp),intent(in),dimension(1:2)::y                !(ymin,ymax)
+    logical,intent(in)::includeCuts                !include cuts
+    real(dp),intent(in),dimension(1:4),optional::CutParameters    !(p1,p2,eta1,eta2)
+    integer,intent(in),optional::Num                !number of sections
     
     real(dp)::X
   
@@ -1511,21 +1511,21 @@ contains
   !!!! evaluation
   CallCounter=CallCounter+1
   X=PreFactor1(ppp(1))*Xsec_PTint_Qint_Yint(ppp,includeCuts,CutParameters,&
-				  s,qT(1),qT(2),Q(1),Q(2),y(1),y(2),nn)
+                  s,qT(1),qT(2),Q(1),Q(2),y(1),y(2),nn)
   
   end subroutine MainInterface_isAAAloo
   
   !!!! interface for array,s,array,array,array,logical,optional, optional
   subroutine MainInterface_AsAAAloo(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)
 !   function xSec_DY(process,s,qT,Q,y,includeCuts,CutParameters,Num)
-    integer,intent(in),dimension(1:3)::process			!the number of process
-    real(dp),intent(in)::s					!Mandelshtam s
-    real(dp),intent(in),dimension(1:2)::qT			!(qtMin,qtMax)
-    real(dp),intent(in),dimension(1:2)::Q				!(Qmin,Qmax)
-    real(dp),intent(in),dimension(1:2)::y				!(ymin,ymax)
-    logical,intent(in)::includeCuts				!include cuts
-    real(dp),intent(in),dimension(1:4),optional::CutParameters	!(p1,p2,eta1,eta2)
-    integer,intent(in),optional::Num				!number of sections
+    integer,intent(in),dimension(1:3)::process            !the number of process
+    real(dp),intent(in)::s                    !Mandelshtam s
+    real(dp),intent(in),dimension(1:2)::qT            !(qtMin,qtMax)
+    real(dp),intent(in),dimension(1:2)::Q                !(Qmin,Qmax)
+    real(dp),intent(in),dimension(1:2)::y                !(ymin,ymax)
+    logical,intent(in)::includeCuts                !include cuts
+    real(dp),intent(in),dimension(1:4),optional::CutParameters    !(p1,p2,eta1,eta2)
+    integer,intent(in),optional::Num                !number of sections
     
     real(dp)::X
   
@@ -1556,19 +1556,19 @@ contains
   !!!! evaluation
   CallCounter=CallCounter+1
   X=PreFactor1(process(1))*Xsec_PTint_Qint_Yint(process,includeCuts,CutParameters,&
-				  s,qT(1),qT(2),Q(1),Q(2),y(1),y(2),nn)
+                  s,qT(1),qT(2),Q(1),Q(2),y(1),y(2),nn)
   
   end subroutine MainInterface_AsAAAloo
   
   subroutine xSec_DY_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)
-    integer,intent(in),dimension(:,:)::process			!the number of process
-    real(dp),intent(in),dimension(:)::s				!Mandelshtam s
-    real(dp),intent(in),dimension(:,:)::qT			!(qtMin,qtMax)
-    real(dp),intent(in),dimension(:,:)::Q				!(Qmin,Qmax)
-    real(dp),intent(in),dimension(:,:)::y				!(ymin,ymax)
-    logical,intent(in),dimension(:)::includeCuts		!include cuts
-    real(dp),intent(in),dimension(:,:)::CutParameters	        !(p1,p2,eta1,eta2)
-    integer,intent(in),dimension(:),optional::Num		!number of sections
+    integer,intent(in),dimension(:,:)::process            !the number of process
+    real(dp),intent(in),dimension(:)::s                !Mandelshtam s
+    real(dp),intent(in),dimension(:,:)::qT            !(qtMin,qtMax)
+    real(dp),intent(in),dimension(:,:)::Q                !(Qmin,Qmax)
+    real(dp),intent(in),dimension(:,:)::y                !(ymin,ymax)
+    logical,intent(in),dimension(:)::includeCuts        !include cuts
+    real(dp),intent(in),dimension(:,:)::CutParameters            !(p1,p2,eta1,eta2)
+    integer,intent(in),dimension(:),optional::Num        !number of sections
     real(dp),dimension(:),intent(out)::X
     integer :: i,length
     integer,allocatable::nn(:)
@@ -1638,11 +1638,11 @@ contains
     allocate(nn(1:length))
     if(present(Num)) then
         if(size(Num,1)/=length) then
-	  write(*,*) 'ERROR: arTeMiDe_DY: xSec_DY_List: sizes of Num and s lists are not equal.'
-	  write(*,*) 'Evaluation stop'
-	  stop
-	end if
-	nn=Num
+      write(*,*) 'ERROR: arTeMiDe_DY: xSec_DY_List: sizes of Num and s lists are not equal.'
+      write(*,*) 'Evaluation stop'
+      stop
+    end if
+    nn=Num
     else
         do i=1,length
             nn=NumPT_auto(qT(i,2)-qT(i,1),(Q(i,2)+Q(i,1))/2d0)
@@ -1652,20 +1652,20 @@ contains
     
      do i=1,length
        X(i)=PreFactor1(process(i,1))*Xsec_PTint_Qint_Yint(process(i,1:3),includeCuts(i),CutParameters(i,1:4),&
-				s(i),qT(i,1),qT(i,2),Q(i,1),Q(i,2),y(i,1),y(i,2),nn(i))
+                s(i),qT(i,1),qT(i,2),Q(i,1),Q(i,2),y(i,1),y(i,2),nn(i))
      end do
     !$OMP END PARALLEL DO
     deallocate(nn)
   end subroutine xSec_DY_List
   
   subroutine xSec_DY_List_BINLESS(X,process,s,qT,Q,y,includeCuts,CutParameters)
-    integer,intent(in),dimension(:,:)::process			!the number of process
-    real(dp),intent(in),dimension(:)::s				!Mandelshtam s
-    real(dp),intent(in),dimension(:)::qT			!(qtMin,qtMax)
-    real(dp),intent(in),dimension(:)::Q				!(Qmin,Qmax)
-    real(dp),intent(in),dimension(:)::y				!(ymin,ymax)
-    logical,intent(in),dimension(:)::includeCuts		!include cuts
-    real(dp),intent(in),dimension(:,:)::CutParameters	        !(p1,p2,eta1,eta2)
+    integer,intent(in),dimension(:,:)::process            !the number of process
+    real(dp),intent(in),dimension(:)::s                !Mandelshtam s
+    real(dp),intent(in),dimension(:)::qT            !(qtMin,qtMax)
+    real(dp),intent(in),dimension(:)::Q                !(Qmin,Qmax)
+    real(dp),intent(in),dimension(:)::y                !(ymin,ymax)
+    logical,intent(in),dimension(:)::includeCuts        !include cuts
+    real(dp),intent(in),dimension(:,:)::CutParameters            !(p1,p2,eta1,eta2)
     real(dp),dimension(:),intent(out)::X
     
     real(dp),allocatable,dimension(:,:)::vv

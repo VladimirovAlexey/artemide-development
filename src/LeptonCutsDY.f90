@@ -46,11 +46,11 @@ subroutine SetCutParameters_sym(pT_in,etaMin_in,etaMax_in)
   real(dp)::pT_in,etaMax_in,etaMin_in
   
   cutParam_global=(/ pT_in**2,&
-	      pT_in**2,&
-	      etaMin_in,&
-	      etaMax_in,&
-	      EXP(2*etaMin_in),&
-	      EXP(2*etaMax_in) /)
+          pT_in**2,&
+          etaMin_in,&
+          etaMax_in,&
+          EXP(2*etaMin_in),&
+          EXP(2*etaMax_in) /)
   
 end subroutine SetCutParameters_sym
 
@@ -62,18 +62,18 @@ subroutine SetCutParameters_asym(pT1_in,pT2_in,etaMin_in,etaMax_in)
   !! for definetines we order pt1>pt2
   if(pT1_in>=pT2_in) then 
   cutParam_global=(/ pT1_in**2,&
-	      pT2_in**2,&
-	      etaMin_in,&
-	      etaMax_in,&
-	      EXP(2d0*etaMin_in),&
-	      EXP(2d0*etaMax_in) /)
+          pT2_in**2,&
+          etaMin_in,&
+          etaMax_in,&
+          EXP(2d0*etaMin_in),&
+          EXP(2d0*etaMax_in) /)
   else
   cutParam_global=(/ pT2_in**2,&
-	      pT1_in**2,&
-	      etaMin_in-tolerance,&
-	      etaMax_in+tolerance,&
-	      EXP(2d0*etaMin_in),&
-	      EXP(2d0*etaMax_in) /)
+          pT1_in**2,&
+          etaMin_in-tolerance,&
+          etaMax_in+tolerance,&
+          EXP(2d0*etaMin_in),&
+          EXP(2d0*etaMax_in) /)
   end if
   
 end subroutine SetCutParameters_asym
@@ -197,9 +197,8 @@ function IntegralOverEtaFixedPhiEXACT(var,varC,phi)
   !write(*,*) eta1,eta2
   
   IntegralOverEtaFixedPhiEXACT=var(4)/(16d0*pi)*(&
-	integralEtaExactUNDEFINED(var(1)*cos(phi),var(6),var(3)-eta2,var(4))&
-	-integralEtaExactUNDEFINED(var(1)*cos(phi),var(6),var(3)-eta1,var(4)))
-	
+    integralEtaExactUNDEFINED(var(1)*cos(phi),var(6),var(3)-eta2,var(4))&
+    -integralEtaExactUNDEFINED(var(1)*cos(phi),var(6),var(3)-eta1,var(4)))
   end if
 end function IntegralOverEtaFixedPhiEXACT
 
@@ -225,9 +224,8 @@ function IntegralOverEtaFixedPhiEXACT_A(var,varC,phi)
   !write(*,*) eta1,eta2
   
   IntegralOverEtaFixedPhiEXACT_A=var(4)/(16d0*pi)*(&
-	integralEtaExactUNDEFINED_A(var(1)*cos(phi),var(6),var(3)-eta2,var(4))&
-	-integralEtaExactUNDEFINED_A(var(1)*cos(phi),var(6),var(3)-eta1,var(4)))
-	
+    integralEtaExactUNDEFINED_A(var(1)*cos(phi),var(6),var(3)-eta2)&
+    -integralEtaExactUNDEFINED_A(var(1)*cos(phi),var(6),var(3)-eta1))
   end if
 end function IntegralOverEtaFixedPhiEXACT_A
 
@@ -259,8 +257,8 @@ end function integralEtaExactUNDEFINED
 !! b = Sqrt{Q^2+qT^2}
 !! uu = y-eta
 !!! ANTI SYMMETRIC ONE!
-function integralEtaExactUNDEFINED_A(a,b,uu,Q2)
-  real(dp)::a,b,uu,integralEtaExactUNDEFINED_A,Q2
+function integralEtaExactUNDEFINED_A(a,b,uu)
+  real(dp)::a,b,uu,integralEtaExactUNDEFINED_A
   
   
   integralEtaExactUNDEFINED_A=-6d0/(a-b*Cosh(uu))**2
@@ -341,9 +339,9 @@ function FindBoundary(var,varC,eta1_in,eta2_in,phi)
       eta3=(eta1+eta2)/2d0
       v3=Integrand2THETA(var,varC,eta3,phi)
       if(v3==v1) then 
-	eta1=eta3
-      else	
-	eta2=eta3
+        eta1=eta3
+      else
+        eta2=eta3
       end if
       i=i+1
       if (ABS(eta1-eta2)<tolerance) exit

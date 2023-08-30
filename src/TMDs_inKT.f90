@@ -1,14 +1,14 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 1.4
+!            arTeMiDe 1.4
 !
-!	Evaluation of the TMDs in KT space
-!	
-!	if you use this module please, quote 1902.08474
+!    Evaluation of the TMDs in KT space
 !
-!	ver 1.0: release (AV, 23.12.2018)
-!	ver 2.00: release (AV, 29.03.2019)
+!    if you use this module please, quote 1902.08474
 !
-!				A.Vladimirov (23.12.2018)
+!    ver 1.0: release (AV, 23.12.2018)
+!    ver 2.00: release (AV, 29.03.2019)
+!
+!                A.Vladimirov (23.12.2018)
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module TMDs_inKT
@@ -39,9 +39,9 @@ real(dp),dimension(1:hSegmentationNumber),parameter::qTSegmentationBoundary=(/0.
 
 real(dp)::hOGATA,tolerance
 !!!weights of ogata quadrature
-real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::ww,ww0
+real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::ww
 !!!nodes of ogata quadrature
-real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::bb,bb0
+real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::bb
 
 integer::GlobalCounter
 integer::CallCounter
@@ -109,7 +109,7 @@ end function TMDs_inKT_IsInitialized
 subroutine TMDs_inKT_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
-    character(len=300)::path,line
+    character(len=300)::path
     logical::initRequired
     integer::FILEver
 
@@ -129,7 +129,7 @@ subroutine TMDs_inKT_Initialize(file,prefix)
     read(51,*) FILEver
     if(FILEver<inputver) then
         write(*,*) 'artemide.'//trim(moduleName)//': const-file version is too old.'
-        write(*,*) '		     Update the const-file with artemide.setup'
+        write(*,*) '             Update the const-file with artemide.setup'
         write(*,*) '  '
         stop
     end if
@@ -155,14 +155,14 @@ subroutine TMDs_inKT_Initialize(file,prefix)
     call MoveTO(51,'*p2  ')
     read(51,*) hOGATA
         
-    if(outputLevel>2) write(*,'(A,ES8.2)') ' | h for Ogata quadrature	: ',hOGATA
-    if(outputLevel>2) write(*,'(A,ES8.2)') ' | tolerance			: ',tolerance
+    if(outputLevel>2) write(*,'(A,ES8.2)') ' | h for Ogata quadrature    : ',hOGATA
+    if(outputLevel>2) write(*,'(A,ES8.2)') ' | tolerance            : ',tolerance
         
     CLOSE (51, STATUS='KEEP') 
         
     if(outputLevel>1) write(*,*) 'arTeMiDe.TMDs-inKT: preparing Ogata tables'
     call PrepareTables()
-    if(outputLevel>2) write(*,'(A,I4)') ' | Maximum number of nodes	:',Nmax
+    if(outputLevel>2) write(*,'(A,I4)') ' | Maximum number of nodes    :',Nmax
     if(outputLevel>1) write(*,*) 'arTeMiDe.TMDs-inKT: Ogata tables prepared'
     
     GlobalCounter=0
@@ -228,7 +228,7 @@ end subroutine TMDs_inKT_ShowStatistic
 subroutine PrepareTables()
     integer::i,k,j
     real(dp)::hS!=h*hSegmentationWeight
-    real(dp)::xi,qqq
+    real(dp)::xi
 
     do j=1,hSegmentationNumber
     do k=0,3
@@ -238,7 +238,7 @@ subroutine PrepareTables()
     xi=JZero(k,i)
 
     !     ww(j,k,i)=BESSEL_JN(k,bb(j,k,i))/xi/(BESSEL_JN(k+1,xi)**2)&
-    ! 	    *(pi*xi*hS*Cosh(xi*hS)+Sinh(pi*Sinh(xi*hS)))/(1d0+Cosh(pi*Sinh(xi*hS)))
+    !         *(pi*xi*hS*Cosh(xi*hS)+Sinh(pi*Sinh(xi*hS)))/(1d0+Cosh(pi*Sinh(xi*hS)))
 
     !!! if we too far away in xI*hS, the double exponential grow rapidly.
     !!! and for >6, it generates term 10^{300} and exceed the presision
@@ -423,8 +423,8 @@ function Fourier(x,qT_in,mu,zeta,num,hadron)
     end if
 
     !!!in the case of lost convergence we return huge number (divergent xSec)
-    if(TMDs_inKT_IsconvergenceLost()) then	
-        Fourier=integral+1d10		
+    if(TMDs_inKT_IsconvergenceLost()) then
+        Fourier=integral+1d10
     else
 
     v1=(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
@@ -476,8 +476,9 @@ function Fourier(x,qT_in,mu,zeta,num,hadron)
             
     end do
 
-    if(k>=Nmax) then	
-        if(outputlevel>0) WRITE(*,*) WarningString('OGATA quadrature diverge. TMD decaing too slow?',moduleName)
+    if(k>=Nmax) then
+        if(outputlevel>0) call Warning_Raise('OGATA quadrature diverge. TMD decaing too slow?',&
+            messageCounter,messageTrigger,moduleName)
             if(outputlevel>2) then
             write(*,*) 'Information over the last call ----------'
             write(*,*) partDone

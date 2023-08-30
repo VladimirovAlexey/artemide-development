@@ -1,13 +1,13 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 3.00
+!            arTeMiDe 3.00
 !
-!	Evaluation of the small-b OPE for uTMDPDF
-!	
-!	if you use this module please, quote ????.????
+!    Evaluation of the small-b OPE for uTMDPDF
 !
-!	ver 3.00: release (AV, 18.07.2023)
+!    if you use this module please, quote ????.????
 !
-!				A.Vladimirov (18.07.2023)
+!    ver 3.00: release (AV, 18.07.2023)
+!
+!                A.Vladimirov (18.07.2023)
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -95,7 +95,7 @@ logical :: gridReady!!!!indicator that grid is ready to use. If it is .true., th
 !!!------------------------- SPECIAL VARIABLES FOR GRID (used by TMDGrid-XB)------------------
 real(dp), dimension(:,:,:,:), allocatable :: gridMain !!!! THIS IS HUGE(!) matrix for the grid
 real(dp), dimension(:,:,:,:), allocatable :: interpolationParameters !!!! for b>bGrid_Max we interpolate
-integer::numberOfHadrons=1				!!!total number of hadrons to be stored
+integer::numberOfHadrons=1                !!!total number of hadrons to be stored
 
 !!--------------------------------------Public interface-----------------------------------------
 public::uTMDPDF_OPE_IsInitialized,uTMDPDF_OPE_Initialize,uTMDPDF_OPE_convolution
@@ -128,10 +128,9 @@ end function uTMDPDF_OPE_IsInitialized
 subroutine uTMDPDF_OPE_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
-    character(len=300)::path,line
+    character(len=300)::path
     logical::initRequired
     character(len=8)::order_global
-    logical::bSTAR_lambdaDependent
     integer::i,FILEver
 
     if(started) return
@@ -160,7 +159,7 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     read(51,*) FILEver
     if(FILEver<inputver) then
         write(*,*) 'artemide.'//trim(moduleName)//': const-file version is too old.'
-        write(*,*) '		     Update the const-file with artemide.setup'
+        write(*,*) '             Update the const-file with artemide.setup'
         write(*,*) '  '
         CLOSE (51, STATUS='KEEP')
         stop

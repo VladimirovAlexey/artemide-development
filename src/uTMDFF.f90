@@ -43,7 +43,7 @@ real(dp),dimension(:),allocatable::lambdaNP
 real(dp)::BMAX_ABS=100._dp !!! for large values of b returns 0
 real(dp)::toleranceGEN !!! tolerance general
 
-integer :: counter,messageCounter
+integer :: messageCounter
 
 !!-----------------------------------------------Public interface---------------------------------------------------
 
@@ -64,9 +64,9 @@ end function uTMDFF_IsInitialized
 subroutine uTMDFF_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
-    character(len=300)::path,line
+    character(len=300)::path
     logical::initRequired
-    integer::i,FILEver
+    integer::FILEver
 
     if(started) return
 
@@ -118,8 +118,8 @@ subroutine uTMDFF_Initialize(file,prefix)
 
 
     if(lambdaNPlength<=0) then
-    write(*,*) ErrorString('Initialize: number of non-pertrubative &
-            parameters should be >=1. Check the constants-file. Evaluation STOP',moduleName)
+    write(*,*) ErrorString(&
+    'Initialize: number of non-pertrubative parameters should be >=1. Check the constants-file. Evaluation STOP',moduleName)
             CLOSE (51, STATUS='KEEP')
     stop
     end if

@@ -1,11 +1,11 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe-setup 2.0
+!            arTeMiDe-setup 2.0
 !
-!	Module that read, create and modify constants-files
-!	
-!	if you use this module please, quote 1803.11089
+!    Module that read, create and modify constants-files
 !
-!				A.Vladimirov (27.05.2019)
+!    if you use this module please, quote 1803.11089
+!
+!                A.Vladimirov (27.05.2019)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module aTMDe_Setup
 use aTMDe_Numerics
@@ -203,30 +203,30 @@ subroutine SetupDefault(order)
 
     include_EWinput=.true.
     !-----------------------physic parameters
-    mCHARM=1.2700d0	!threashold mass for charm quark
-    mBOTTOM=4.180d0	!threashold mass for bottom quark
-    mTOP=172.90d0	!threashold mass for top quark
+    mCHARM=1.2700d0    !threashold mass for charm quark
+    mBOTTOM=4.180d0    !threashold mass for bottom quark
+    mTOP=172.90d0    !threashold mass for top quark
 
-    mZ=91.1876d0	!pole mass for Z-boson
-    GammaZ=2.4952d0	!width of Z-boson
+    mZ=91.1876d0    !pole mass for Z-boson
+    GammaZ=2.4952d0    !width of Z-boson
 
-    mW=80.379d0		!pole mass for W-boson
-    GammaW=2.085d0	!width of W-boson
+    mW=80.379d0        !pole mass for W-boson
+    GammaW=2.085d0    !width of W-boson
 
-    mH=125.1d0		!pole mass for Higgs-boson
-    GammaH=0.0042d0	!width of Higgs-boson [GeV]
-    vevH=246.d0		!Higgs Vev
+    mH=125.1d0        !pole mass for Higgs-boson
+    GammaH=0.0042d0    !width of Higgs-boson [GeV]
+    vevH=246.d0        !Higgs Vev
 
-    mELECTRON=0.0005109989461d0	!mass of electron[GeV]
-    mMUON=0.1056583745d0	!mass of muon[GeV]
-    mTAU=1.77686d0		!mass of tau
+    mELECTRON=0.0005109989461d0    !mass of electron[GeV]
+    mMUON=0.1056583745d0    !mass of muon[GeV]
+    mTAU=1.77686d0        !mass of tau
 
-    hc2=0.389379338d0	!transformation constant (hc)^2   GeV->mbarn
+    hc2=0.389379338d0    !transformation constant (hc)^2   GeV->mbarn
 
-    alphaQED_MZ=127.955d0	!inverse alpha_QED at Z-boson mass
-    alphaQED_MTAU=133.476d0	!inverse alpha_QED at TAU-lepton mass
+    alphaQED_MZ=127.955d0    !inverse alpha_QED at Z-boson mass
+    alphaQED_MTAU=133.476d0    !inverse alpha_QED at TAU-lepton mass
 
-    sW2=0.23122d0	!sin^2 theta_Weinberg
+    sW2=0.23122d0    !sin^2 theta_Weinberg
 
     !CKM matrix
     Vckm_UD=0.97420d0
@@ -304,7 +304,7 @@ subroutine SetupDefault(order)
     TMDR_orderD=trim(order)
     TMDR_orderZETA=trim(order)
     TMDR_lambdaLength=2
-    TMDR_tolerance=0.000001d0	!tolerance of searching for saddle point, numerical integration etc.
+    TMDR_tolerance=0.000001d0    !tolerance of searching for saddle point, numerical integration etc.
     TMDR_bFREEZE=0.000001d0
     TMDR_smooth=0.01d0
 
@@ -318,7 +318,7 @@ subroutine SetupDefault(order)
     uTMDPDF_BMAX_ABS=100.d0
     uTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     uTMDPDF_toleranceGEN=1.d-6!general tolerance
-    uTMDPDF_maxIteration=10000	!maxIteration for adaptive integration
+    uTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     uTMDPDF_grid_xMin=0.00001d0
     uTMDPDF_grid_parX=2.d0
     uTMDPDF_grid_bMin=1.d-6
@@ -336,7 +336,7 @@ subroutine SetupDefault(order)
     uTMDFF_BMAX_ABS=100.d0
     uTMDFF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     uTMDFF_toleranceGEN=1.d-6!general tolerance
-    uTMDFF_maxIteration=10000	!maxIteration for adaptive integration
+    uTMDFF_maxIteration=10000    !maxIteration for adaptive integration
     uTMDFF_grid_xMin=0.05d0
     uTMDFF_grid_parX=2.d0
     uTMDFF_grid_bMin=1.d-6
@@ -354,7 +354,7 @@ subroutine SetupDefault(order)
     lpTMDPDF_BMAX_ABS=100.d0
     lpTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     lpTMDPDF_toleranceGEN=1.d-6!general tolerance
-    lpTMDPDF_maxIteration=10000	!maxIteration for adaptive integration
+    lpTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     lpTMDPDF_grid_xMin=0.00001d0
     lpTMDPDF_grid_parX=2.d0
     lpTMDPDF_grid_bMin=1.d-6
@@ -373,7 +373,7 @@ subroutine SetupDefault(order)
     SiversTMDPDF_BMAX_ABS=100.d0
     SiversTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     SiversTMDPDF_toleranceGEN=1.d-6!general tolerance
-    SiversTMDPDF_maxIteration=10000	!maxIteration for adaptive integration
+    SiversTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     
     !-------------------- parameters for wgtTMDPDF
     include_wgtTMDPDF=.false.
@@ -385,7 +385,7 @@ subroutine SetupDefault(order)
     wgtTMDPDF_BMAX_ABS=100.d0
     wgtTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     wgtTMDPDF_toleranceGEN=1.d-6!general tolerance
-    wgtTMDPDF_maxIteration=10000	!maxIteration for adaptive integration
+    wgtTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     wgtTMDPDF_grid_xMin=0.001d0
     wgtTMDPDF_grid_parX=2.d0
     wgtTMDPDF_grid_bMin=1.d-6
@@ -405,19 +405,19 @@ subroutine SetupDefault(order)
 
     !------------------ parameters for TMDF
     include_TMDF=.true.
-    TMDF_tolerance=0.0001d0	!tolerance (i.e. relative integration tolerance)
-    TMDF_OGATAh=0.001d0		!Ogata quadrature integration step 
+    TMDF_tolerance=0.0001d0    !tolerance (i.e. relative integration tolerance)
+    TMDF_OGATAh=0.001d0        !Ogata quadrature integration step
     TMDF_mass=0.938272      !mass parameter that is used as reference dimension
 
     !------------------ parameters for TMDs-inKT
     include_TMDs_inKT=.false.
-    TMDs_inKT_tolerance=0.0001d0	!tolerance (i.e. relative integration tolerance)
-    TMDs_inKT_OGATAh=0.001d0		!Ogata quadrature integration step 
+    TMDs_inKT_tolerance=0.0001d0    !tolerance (i.e. relative integration tolerance)
+    TMDs_inKT_OGATAh=0.001d0        !Ogata quadrature integration step
 
     !------------------ parameters for TMDX-DY
     include_TMDX_DY=.true.
-    TMDX_DY_tolerance=0.001d0	!tolerance (i.e. relative integration tolerance -- in kinematic integrals;)
-    TMDX_DY_ptSECTION=4		!default number of sections for pt-bin integration
+    TMDX_DY_tolerance=0.001d0    !tolerance (i.e. relative integration tolerance -- in kinematic integrals;)
+    TMDX_DY_ptSECTION=4        !default number of sections for pt-bin integration
     TMDX_DY_maxQbinSize=30. !default maximum size of the Q-bin integration
     TMDX_DY_order=trim(order)
     TMDX_DY_exactX1X2=.true.
@@ -427,8 +427,8 @@ subroutine SetupDefault(order)
 
     !------------------ parameters for TMDX-SIDIS
     include_TMDX_SIDIS=.false.
-    TMDX_SIDIS_tolerance=0.001d0	!tolerance (i.e. relative integration tolerance -- in kinematic integrals;)
-    TMDX_SIDIS_ptSECTION=4		!default number of sections for pt-bin integration
+    TMDX_SIDIS_tolerance=0.001d0    !tolerance (i.e. relative integration tolerance -- in kinematic integrals;)
+    TMDX_SIDIS_ptSECTION=4        !default number of sections for pt-bin integration
     TMDX_SIDIS_order=trim(order)
     TMDX_SIDIS_qTcorr=.true.
     TMDX_SIDIS_M1corr=.true.
@@ -437,11 +437,11 @@ subroutine SetupDefault(order)
     TMDX_SIDIS_exactScale=.false.
     TMDX_SIDIS_numProc=8
     TMDX_SIDIS_toleranceZ=TMDX_SIDIS_tolerance
-    TMDX_SIDIS_methodZ='SA'		!SA=Simpson adaptive, S5=Simpson 5-point
+    TMDX_SIDIS_methodZ='SA'        !SA=Simpson adaptive, S5=Simpson 5-point
     TMDX_SIDIS_toleranceX=TMDX_SIDIS_tolerance
-    TMDX_SIDIS_methodX='SA'		!SA=Simpson adaptive, S5=Simpson 5-point
+    TMDX_SIDIS_methodX='SA'        !SA=Simpson adaptive, S5=Simpson 5-point
 
-end subroutine SetupDefault	
+end subroutine SetupDefault
 
 !!! theck the file for compatibility with the current version
 !!! true= ver.FILE>=current version

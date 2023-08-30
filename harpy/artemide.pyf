@@ -23,24 +23,6 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
     end subroutine initialize
     subroutine showstatistics ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
     end subroutine showstatistics
-    subroutine setreplica_tmdr(num) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
-        integer :: num
-    end subroutine setreplica_tmdr
-    subroutine setreplica_utmdpdf(num) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
-        integer :: num
-    end subroutine setreplica_utmdpdf
-    subroutine setreplica_utmdff(num) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
-        integer :: num
-    end subroutine setreplica_utmdff
-    subroutine setreplica_lptmdpdf(num) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
-        integer :: num
-    end subroutine setreplica_lptmdpdf
-    subroutine setreplica_siverstmdpdf(num) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
-        integer :: num
-    end subroutine setreplica_siverstmdpdf
-    subroutine setreplica_wgttmdpdf(num) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
-        integer :: num
-    end subroutine setreplica_wgttmdpdf
     subroutine setlambda_main(lambdain) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         real*8 dimension(:),intent(in) :: lambdain
     end subroutine setlambda_main

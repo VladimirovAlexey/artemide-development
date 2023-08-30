@@ -113,7 +113,7 @@ end function TMDs_IsInitialized
 subroutine TMDs_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
-    character(len=300)::path,line
+    character(len=300)::path
     logical::initRequired
     integer::FILEver
 

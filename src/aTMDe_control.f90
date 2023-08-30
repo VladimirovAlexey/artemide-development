@@ -1,12 +1,12 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe-control 2.0
+!            arTeMiDe-control 2.0
 !
-!	Module that control the flow of artemide package.
-!	Initialize and reset submodules
-!	
-!	if you use this module please, quote 1803.11089
+!    Module that control the flow of artemide package.
+!    Initialize and reset submodules
 !
-!				A.Vladimirov (30.05.2019)
+!    if you use this module please, quote 1803.11089
+!
+!                A.Vladimirov (30.05.2019)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module aTMDe_control
 use aTMDe_Numerics
@@ -72,7 +72,7 @@ subroutine artemide_Initialize(file,prefix,order)
     character(len=*),optional::prefix
     character(len=*),optional::order
     character(len=300)::path
-    integer::FILEver,i
+    integer::FILEver
     !-----------------------------------------------------------
     if(present(prefix).and.present(order)) then
         call artemide_Setup_fromFile(file,prefix=prefix,order=order)
@@ -105,7 +105,7 @@ subroutine artemide_Initialize(file,prefix,order)
     read(51,*) FILEver
     if(FILEver<inputver) then
         write(*,*) color('artemide.'//trim(moduleName)//': const-file version is too old.',c_red_bold)
-        write(*,*) color('		     Update the const-file with artemide.setup',c_red_bold)
+        write(*,*) color('             Update the const-file with artemide.setup',c_red_bold)
         write(*,*) '  '
         stop
     end if
@@ -541,8 +541,8 @@ subroutine artemide_SetNPparameters_lpTMDPDF(lambdaNP)
 
     if(.not.include_lpTMDPDF) then
         if(outputLevel>0) &
-            write(*,*) ErrorString('attempt to set NP-parameters for lpTMDPDF, &
-        while lpTMDPDF module is not included in the current setup',moduleName)
+            write(*,*) ErrorString(&
+        'attempt to set NP-parameters for lpTMDPDF, while lpTMDPDF module is not included in the current setup',moduleName)
         if(outputLevel>0) write(*,*) color('NOTHING IS DONE',c_red)
         return
     end if
@@ -584,8 +584,8 @@ subroutine artemide_SetNPparameters_SiversTMDPDF(lambdaNP)
 
     if(.not.include_SiversTMDPDF) then
         if(outputLevel>0) &
-            write(*,*) ErrorString('attempt to set NP-parameters for SiversTMDPDF, &
-        while SiversTMDPDF module is not included in the current setup',moduleName)
+            write(*,*) ErrorString(&
+        'attempt to set NP-parameters for SiversTMDPDF, while SiversTMDPDF module is not included in the current setup',moduleName)
         if(outputLevel>0) write(*,*) color('NOTHING IS DONE',c_red)
         return
     end if
@@ -627,8 +627,8 @@ subroutine artemide_SetNPparameters_wgtTMDPDF(lambdaNP)
 
     if(.not.include_wgtTMDPDF) then
         if(outputLevel>0) &
-            write(*,*) ErrorString('attempt to set NP-parameters for wgtTMDPDF, &
-        while wgtTMDPDF module is not included in the current setup',moduleName)
+            write(*,*) ErrorString( &
+        'attempt to set NP-parameters for wgtTMDPDF, while wgtTMDPDF module is not included in the current setup',moduleName)
         if(outputLevel>0) write(*,*) color('NOTHING IS DONE',c_red)
         return
     end if
@@ -899,17 +899,17 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
     call MoveTO(51,'*C   ')
     read(51,*) numR!!! full number of replicas
     !! read the replicas
-    if(rep<1) then			! case of technical replicas
+    if(rep<1) then            ! case of technical replicas
         call MoveTO(51,'*D   ')
         read(51,*) ParametersTOread
-        if(rep==-1) then				! replica -1
+        if(rep==-1) then                ! replica -1
             if(Int(ParametersTOread(1))==-1) then
                 repString=ParametersTOread(2:lenArray)
             else
                 write(*,*) ERRORstring('error in the reading the replica (-1)',moduleName)
                 repString=BaseNPString()
             end if
-        else if(rep==0) then			! replica 0
+        else if(rep==0) then        ! replica 0
             read(51,*) ParametersTOread
             if(Int(ParametersTOread(1))==0) then
                 repString=ParametersTOread(2:lenArray)
@@ -917,12 +917,12 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
                 write(*,*) ERRORstring('error in the reading the replica (0)',moduleName)
                 repString=BaseNPString()
             end if
-        else					! ! replica unknown
+        else                        ! ! replica unknown
             write(*,*) ERRORstring('there is no such replica',moduleName),rep
             repString=BaseNPString()
         end if
 
-    else if(rep<=numR) then				! main pull of replicas
+    else if(rep<=numR) then         ! main pull of replicas
     call MoveTO(51,'*R   ')
         do i=1,numR
             read(51,*) ParametersTOread

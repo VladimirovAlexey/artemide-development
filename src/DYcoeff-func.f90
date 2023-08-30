@@ -1,10 +1,10 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!		Part of code that contains hard coefficient functions for Drell-Yan-like x-Sections
-!!					is a part of artemide.TMDX_DY
+!!        Part of code that contains hard coefficient functions for Drell-Yan-like x-Sections
+!!                    is a part of artemide.TMDX_DY
 !!
-!!			16.06.2019	created A.Vladimirov
+!!            16.06.2019    created A.Vladimirov
 !!
-!!								A.Vladimirov
+!!                                A.Vladimirov
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
@@ -28,7 +28,7 @@ function HardCoefficientDY(mu)
     if(orderH_global>=2) then
       HardCoefficientDY=HardCoefficientDY+alpha**2*&
       (-25.413248632430818d0 -208.56946563098907d0*LQ +28.103117631243492d0*LQ**2&
-	- 14.518518518518519d0*LQ**3 + 3.5555555555555554d0*LQ**4)
+    - 14.518518518518519d0*LQ**3 + 3.5555555555555554d0*LQ**4)
     if(orderH_global>=3) then
       HardCoefficientDY=HardCoefficientDY+alpha**3*&
       (7884.91043450197d0 -3916.5246445256016d0*LQ +58.76188412075794d0*LQ**2&
@@ -51,7 +51,7 @@ function HardCoefficientDY(mu)
     if(orderH_global>=2) then
       HardCoefficientDY=HardCoefficientDY+alpha**2*&
       (359.39087353234015d0 + 1.9820949255839224d0*LQ - 42.08073588761418d0*LQ**2&
-	- 14.518518518518519d0*LQ**3 + 3.5555555555555554d0*LQ**4)
+    - 14.518518518518519d0*LQ**3 + 3.5555555555555554d0*LQ**4)
     if(orderH_global>=3) then
       HardCoefficientDY=HardCoefficientDY+alpha**3*&
       (8935.66841729192d0 - 2759.2358438992906d0*LQ - 1417.132743244908d0*LQ**2&
@@ -195,7 +195,7 @@ function HardCoefficientHIGGS(mu)
     if(orderH_global>=2) then
       HardCoefficientHIGGS=HardCoefficientHIGGS+alpha**2*&
       (-23.720599432600856d0 -56.83020488600443d0*LQ -100.66666666666666d0*LQ**2&
-	+ 15.333333333333334d0*LQ**3 + 18d0*LQ**4)
+    + 15.333333333333334d0*LQ**3 + 18d0*LQ**4)
     if(orderH_global>=3) then
         call Warning_Raise(&
             'no NNNLO implementation of Higgs coefficient function (so far). Continue NNLO',&
@@ -216,7 +216,7 @@ function HardCoefficientHIGGS(mu)
     if(orderH_global>=2) then
       HardCoefficientHIGGS=HardCoefficientHIGGS+alpha**2*&
       (2723.1832155557718d0 -510.83200733611494d0*LQ - 455.9724251058836d0*LQ**2&
-	+ 15.333333333333334d0*LQ**3 + 18d0*LQ**4)
+    + 15.333333333333334d0*LQ**3 + 18d0*LQ**4)
     if(orderH_global>=3) then
      call Warning_Raise(&
             'no NNNLO implementation of Higgs coefficient function (so far). Continue NNLO',&

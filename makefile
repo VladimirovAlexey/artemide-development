@@ -8,13 +8,15 @@ aTMDeHOME       = $(PWD)
 #PUT YOUR FORTRAN COMPILER
 FCompilator=f95 
 #PUT HERE extra flags for compilator (put "space" if not flags requared)
-Fflags= -fopenmp
+Fflags= -fopenmp -g -fbacktrace -Wall
 #Fflags=  
 #path to fortran compilator (needed for f2py)
 Fpath=/usr/bin/f95
 
 #options for COMILATOR to compile QCDinput. e.g. link to LHA
+#FOPT=$(shell lhapdf-config --ldflags)
 FOPT=$(shell lhapdf-config --ldflags)
+
 #### for debuging -g -fbacktrace -ffpe-trap=zero,overflow,underflow
 #FOPT=-L/home/vla18041/LinkData2/LHAPDF/Installation/lib -lLHAPDF -lstdc++
 #FOPT=-L/home/alexey/WorkingFiles/LHAPDF/Intallation/lib -lLHAPDF -lstdc++
@@ -95,6 +97,9 @@ $(SOURCEDIR)/Code/wgtTMDPDF/coeffFunc.f90
 
 TMDsFiles=\
 $(SOURCEDIR)/Code/TMDs/TMD-calls.f90 
+
+TMDFFiles=\
+$(SOURCEDIR)/Code/TMDF/Ogata.f90
 
 aTMDeSetupFiles=\
 $(SOURCEDIR)/Code/aTMDe_setup/placeHolder.f90
@@ -315,7 +320,7 @@ $(OBJ)/TMDs_inKT.o: $(SOURCEDIR)/TMDs_inKT.f90 $(OBJ)/TMDs.o $(aTMDeUTILITY)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 	
-$(OBJ)/TMDF.o: $(SOURCEDIR)/TMDF.f90 $(OBJ)/TMDs.o $(aTMDeUTILITY)
+$(OBJ)/TMDF.o: $(SOURCEDIR)/TMDF.f90 $(TMDFFiles) $(OBJ)/TMDs.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/TMDF.f90 -I$(MOD)
 	mv *.o $(OBJ)

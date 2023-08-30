@@ -3,7 +3,7 @@ use aTMDe_control
 use TMDX_DY
 implicit none
 
- real*8,dimension(1:3)::xSec,pt,ptmin,ptmax
+ real*8,dimension(1:3)::pt,ptmin,ptmax
  real*8,dimension(1:4)::ptPLUS
  integer :: j
  real*8 :: time1, time2,xx

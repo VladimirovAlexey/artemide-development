@@ -16,7 +16,7 @@ function uTMDPDF_5_Ev(x,bt,muf,zetaf,hadron)
     real(dp)::uTMDPDF_5_Ev(-5:5)
     real(dp),intent(in):: x,bt,muf,zetaf    
     integer,intent(in)::hadron
-    real(dp):: mui,Rkernel
+    real(dp):: Rkernel
     Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
 
     uTMDPDF_5_Ev=Rkernel*uTMDPDF_lowScale5(x,bT,hadron)
@@ -39,7 +39,7 @@ function uTMDPDF_50_Ev(x,bt,muf,zetaf,hadron)
     real(dp)::uTMDPDF_50_Ev(-5:5)
     real(dp),intent(in):: x,bt,muf,zetaf
     integer,intent(in)::hadron
-    real(dp):: mui,Rkernel ,RkernelG       
+    real(dp):: Rkernel ,RkernelG
 
     Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
     RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
@@ -86,7 +86,7 @@ function uPDF_uPDF(x1,x2,bt,muf,zetaf,hadron1,hadron2)
     real(dp),dimension(-5:5)::uPDF_uPDF
     real(dp),intent(in):: x1,x2,bt,muf,zetaf    
     integer,intent(in)::hadron1,hadron2
-    real(dp):: mui,Rkernel
+    real(dp):: Rkernel
     real(dp),dimension(-5:5)::tmd1,tmd2
 
     Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
@@ -112,7 +112,7 @@ function uPDF_anti_uPDF(x1,x2,bt,muf,zetaf,hadron1,hadron2)
     real(dp),dimension(-5:5)::uPDF_anti_uPDF
     real(dp),intent(in):: x1,x2,bt,muf,zetaf
     integer,intent(in)::hadron1,hadron2
-    real(dp):: mui,Rkernel
+    real(dp):: Rkernel
     real(dp),dimension(-5:5)::tmd1,tmd2
 
     Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
@@ -140,7 +140,7 @@ function uTMDFF_5_Ev(x,bt,muf,zetaf,hadron)
     real(dp)::uTMDFF_5_Ev(-5:5)
     real(dp),intent(in):: x,bt,muf,zetaf
     integer,intent(in)::hadron
-    real(dp):: mui,Rkernel
+    real(dp):: Rkernel
 
     Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
 
@@ -164,7 +164,7 @@ function uTMDFF_50_Ev(x,bt,muf,zetaf,hadron)
     real(dp)::uTMDFF_50_Ev(-5:5)
     real(dp),intent(in):: x,bt,muf,zetaf
     integer,intent(in)::hadron
-    real(dp):: mui,Rkernel ,RkernelG   
+    real(dp):: Rkernel ,RkernelG
 
     Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
     RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
@@ -214,7 +214,7 @@ function lpTMDPDF_50_Ev(x,bt,muf,zetaf,hadron)
     real(dp)::lpTMDPDF_50_Ev(-5:5)
     real(dp),intent(in):: x,bt,muf,zetaf
     integer,intent(in)::hadron
-    real(dp):: mui,RkernelG   
+    real(dp):: RkernelG
 
     RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
 
@@ -242,7 +242,7 @@ function SiversTMDPDF_5_Ev(x,bt,muf,zetaf,hadron)
     real(dp)::SiversTMDPDF_5_Ev(-5:5)
     real(dp),intent(in):: x,bt,muf,zetaf
     integer,intent(in)::hadron
-    real(dp):: mui,Rkernel
+    real(dp):: Rkernel
 
     Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
 
@@ -266,7 +266,7 @@ function SiversTMDPDF_50_Ev(x,bt,muf,zetaf,hadron)
     real(dp)::SiversTMDPDF_50_Ev(-5:5)
     real(dp),intent(in):: x,bt,muf,zetaf
     integer,intent(in)::hadron
-    real(dp):: mui,Rkernel ,RkernelG   
+    real(dp):: Rkernel ,RkernelG
 
     Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
     RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
@@ -315,7 +315,7 @@ function wgtTMDPDF_5_Ev(x,bt,muf,zetaf,hadron)
     real(dp)::wgtTMDPDF_5_Ev(-5:5)
     real(dp),intent(in):: x,bt,muf,zetaf
     integer,intent(in)::hadron
-    real(dp):: mui,Rkernel
+    real(dp):: Rkernel
 
     Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
 
@@ -339,7 +339,7 @@ function wgtTMDPDF_50_Ev(x,bt,muf,zetaf,hadron)
     real(dp)::wgtTMDPDF_50_Ev(-5:5)
     real(dp),intent(in):: x,bt,muf,zetaf
     integer,intent(in)::hadron
-    real(dp):: mui,Rkernel ,RkernelG   
+    real(dp):: Rkernel ,RkernelG
 
     Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
     RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)

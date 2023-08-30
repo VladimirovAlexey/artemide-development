@@ -2,7 +2,7 @@
  subroutine PrepareTables()
   integer::i,k,j
   real(dp)::hS!=h*hSegmentationWeight
-  real(dp)::xi,qqq
+  real(dp)::xi
    
   do j=1,hSegmentationNumber
   do k=0,3
@@ -12,7 +12,7 @@
     xi=JZero(k,i)
     
 !     ww(j,k,i)=BESSEL_JN(k,bb(j,k,i))/xi/(BESSEL_JN(k+1,xi)**2)&
-! 	    *(pi*xi*hS*Cosh(xi*hS)+Sinh(pi*Sinh(xi*hS)))/(1d0+Cosh(pi*Sinh(xi*hS)))
+!         *(pi*xi*hS*Cosh(xi*hS)+Sinh(pi*Sinh(xi*hS)))/(1d0+Cosh(pi*Sinh(xi*hS)))
     
     !!! if we too far away in xI*hS, the double exponential grow rapidly.
     !!! and for >6, it generates term 10^{300} and exceed the presision
@@ -49,9 +49,9 @@
   
   if(qT<0.0000001d0 .or. x1>=1d0 .or. x2>=1d0) then  
   integral=0d0
-  else if(TMDF_IsconvergenceLost()) then	
+  else if(TMDF_IsconvergenceLost()) then
   !!!in the case of lost convergence we return huge number (divergent xSec)
-	TMDF_F=1d10		
+    TMDF_F=1d10
   else
   
   v1=1d0
@@ -97,12 +97,12 @@
     !!! Here is potential bug. If the first 10 points give zero (whereas some later points do not), the integral will be zero
     if((delta<tolerance*abs(integral) .or. abs(integral)<1d-32) .and. k>=10) exit
   end do
-  if(k>=Nmax) then	
+  if(k>=Nmax) then
     if(outputlevel>0) WRITE(*,*) WarningString('OGATA quadrature diverge. TMD decaing too slow? ',moduleName)
       if(outputlevel>1) then
       write(*,*) 'Information over the last call ----------'
       write(*,*) 'bt/qT= ',bb(Nsegment,n,Nmax)/qT, 'qT=',qT, '| segmentation zone=',Nsegment,&
-	      ' ogata h=',hOGATA*hSegmentationWeight(Nsegment)
+          ' ogata h=',hOGATA*hSegmentationWeight(Nsegment)
       write(*,*) 'W=',Integrand(Q2,bb(Nsegment,n,Nmax)/qT,x1,x2,mu,zeta1,zeta2,process), 'eps/integral =', eps/integral
       write(*,*) 'residual term=',delta, '>',tolerance
       write(*,*) '(x1,x2)=(',x1,',',x2,')'

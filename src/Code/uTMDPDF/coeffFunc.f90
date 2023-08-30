@@ -47,15 +47,15 @@ pure function parametrizationStringAt1(z)
      parametrizationStringAt1=(/ &
           zz*(l1z-1d0), & !Log[1-x]
           zz*(2d0-2d0*l1z+l1z**2),&  ! Log^2[1-x]
-	      zz*(-6d0+6d0*l1z-3d0*l1z**2+l1z**3),& !Log^3[1-x]
-	      zz*(24d0 - 24d0*l1z + 12d0*l1z**2 - 4d0*l1z**3 + l1z**4),& !Log^4[1-x]
-	      zz*(-120d0 + 120d0*l1z - 60d0*l1z**2 + 20d0*l1z**3 - 5d0*l1z**4 + l1z**5),& !Log^5[1-x]
-	      zz,& !1/x
-	      0d0, 0d0, &! log[x]/x, log[x]^2/x
-	      0d0,0d0,0d0,0d0,0d0,& !!log[x],Log[x]^2,Log[x]^3,Log[x]^4,Log[x]^5
-	      zz, zz, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, &
-	      0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, &
-	      0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0 /) !!! rest
+          zz*(-6d0+6d0*l1z-3d0*l1z**2+l1z**3),& !Log^3[1-x]
+          zz*(24d0 - 24d0*l1z + 12d0*l1z**2 - 4d0*l1z**3 + l1z**4),& !Log^4[1-x]
+          zz*(-120d0 + 120d0*l1z - 60d0*l1z**2 + 20d0*l1z**3 - 5d0*l1z**4 + l1z**5),& !Log^5[1-x]
+          zz,& !1/x
+          0d0, 0d0, &! log[x]/x, log[x]^2/x
+          0d0,0d0,0d0,0d0,0d0,& !!log[x],Log[x]^2,Log[x]^3,Log[x]^4,Log[x]^5
+          zz, zz, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, &
+          0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, &
+          0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0 /) !!! rest
   
 end function parametrizationStringAt1
 
@@ -256,17 +256,17 @@ pure function Coeff_q_q_reg(alpha,Nf,Lmu)
 
     !!! checked AV(24.06.22) !!!!!
     Coeff_q_q_reg=Coeff_q_q_reg+alpha*(/&
-	0d0,0d0,0d0,0d0,0d0,& !log(1-x),log(1-x)^2,log(1-x)^3,log(1-x)^4,log(1-x)^5
-	0d0,0d0,0d0,&     !1/x, Log(x)/x,Log(x)^2/x
-	0d0,0d0,0d0,0d0,0d0, & !Log(x),Log^2(x),Log^3(x), Log^4(x),Log^5(x)
-	8d0/3d0*(1d0+Lmu),8d0/3d0*(Lmu-1d0),0d0,& !1,x,x(1-x)
-	0d0,0d0,0d0,& !!
-	0d0,0d0,0d0,& !!
-	0d0,0d0,0d0,& !!
-	0d0,0d0,0d0,& !!
-	0d0,0d0,0d0,& !!
-	0d0,0d0,0d0,& !!
-	0d0,0d0,0d0/) !!
+    0d0,0d0,0d0,0d0,0d0,& !log(1-x),log(1-x)^2,log(1-x)^3,log(1-x)^4,log(1-x)^5
+    0d0,0d0,0d0,&     !1/x, Log(x)/x,Log(x)^2/x
+    0d0,0d0,0d0,0d0,0d0, & !Log(x),Log^2(x),Log^3(x), Log^4(x),Log^5(x)
+    8d0/3d0*(1d0+Lmu),8d0/3d0*(Lmu-1d0),0d0,& !1,x,x(1-x)
+    0d0,0d0,0d0,& !!
+    0d0,0d0,0d0,& !!
+    0d0,0d0,0d0,& !!
+    0d0,0d0,0d0,& !!
+    0d0,0d0,0d0,& !!
+    0d0,0d0,0d0,& !!
+    0d0,0d0,0d0/) !!
 
   !------The kernels are calculated in mathematica
     if(orderMain>=2) then
@@ -446,18 +446,18 @@ pure function Coeff_q_g_reg(alpha,Nf,Lmu)
   !!! checked AV(24.06.22) !!!!!
   if(orderMain>=1) then
     Coeff_q_g_reg=Coeff_q_g_reg+alpha*(/&
-	0d0,0d0,0d0,0d0,0d0,& !log(1-x),log(1-x)^2,log(1-x)^3,log(1-x)^4,log(1-x)^5
-	0d0,0d0,0d0,&     !1/x, Log(x)/x,Log(x)^2/x
-	0d0,0d0,0d0,& !Log(x),Log^2(x),Log^3(x)
-	0d0,0d0,& !Log^4(x),Log^5(x)
-	-Lmu,0d0,2d0*(Lmu+1d0),& !1,x,x(1-x)
-	0d0,0d0,0d0,& !..
-	0d0,0d0,0d0,& !..
-	0d0,0d0,0d0,& !..
-	0d0,0d0,0d0,& !..
-	0d0,0d0,0d0,& !..
-	0d0,0d0,0d0,& !..
-	0d0,0d0,0d0/) !..
+    0d0,0d0,0d0,0d0,0d0,& !log(1-x),log(1-x)^2,log(1-x)^3,log(1-x)^4,log(1-x)^5
+    0d0,0d0,0d0,&     !1/x, Log(x)/x,Log(x)^2/x
+    0d0,0d0,0d0,& !Log(x),Log^2(x),Log^3(x)
+    0d0,0d0,& !Log^4(x),Log^5(x)
+    -Lmu,0d0,2d0*(Lmu+1d0),& !1,x,x(1-x)
+    0d0,0d0,0d0,& !..
+    0d0,0d0,0d0,& !..
+    0d0,0d0,0d0,& !..
+    0d0,0d0,0d0,& !..
+    0d0,0d0,0d0,& !..
+    0d0,0d0,0d0,& !..
+    0d0,0d0,0d0/) !..
 
   if(orderMain>=2) then
   !!! checked AV(24.06.22) !!!!!
@@ -606,26 +606,26 @@ pure function Coeff_g_q_reg(alpha,Nf,Lmu)
       -16d0/3d0*Lmu,0d0,0d0,&     !1/x, Log(x)/x,Log[x]^2/x
       0d0,0d0,0d0,0d0,0d0,& !Log(x),Log^2(x),Log^3(x),Log^4(x),Log^5(x)
       16d0/3d0*Lmu,8d0/3d0*(1d0-Lmu),0d0,& !1,x,x(1-x)
-	0d0,0d0,0d0,& !...
-	0d0,0d0,0d0,& !...
-	0d0,0d0,0d0,& !...
-	0d0,0d0,0d0,& !...
-	0d0,0d0,0d0,& !...
-	0d0,0d0,0d0,& !...
-	0d0,0d0,0d0/) !...
+    0d0,0d0,0d0,& !...
+    0d0,0d0,0d0,& !...
+    0d0,0d0,0d0,& !...
+    0d0,0d0,0d0,& !...
+    0d0,0d0,0d0,& !...
+    0d0,0d0,0d0,& !...
+    0d0,0d0,0d0/) !...
 
   !------The kernels are calculated in mathematica
     if(orderMain>=2) then
     !!! checked AV(24.06.22) !!!!!
     inter(1:13)=(/ &!!Exact part
       -184d0/9d0 + 208d0*Lmu**2/9d0 + 32d0*Nf/27d0 + Lmu*(-208d0/3d0 + 32d0*Nf/9d0), & !log(1-x),
-	  -44d0/9d0 - 80d0*Lmu/9d0 + 8d0*Nf/9d0, &!log(1-x)^2
-	  -40d0/27d0,& !log(1-x)^3
-	  0d0,0d0, & !log[1-x]^4, Log[1-x]^5
+      -44d0/9d0 - 80d0*Lmu/9d0 + 8d0*Nf/9d0, &!log(1-x)^2
+      -40d0/27d0,& !log(1-x)^3
+      0d0,0d0, & !log[1-x]^4, Log[1-x]^5
       -12640d0/27d0 - 248d0*Lmu**2/3d0 + 896d0*Nf/81d0 + 352d0*zeta2/3d0 + Lmu*(-16d0 + 320d0*Nf/27d0 + 16d0*zeta2)&
-	  + 192d0*zeta3, & ! 1/x
-	  -32d0*Lmu**2,&     !Log(x)/x
-	  0d0, & ! log[x]^2/x
+      + 192d0*zeta3, & ! 1/x
+      -32d0*Lmu**2,&     !Log(x)/x
+      0d0, & ! log[x]^2/x
       -200d0/3d0 + 448d0*Lmu/9d0 - 224d0*Lmu**2/9d0,& ! log[x]
       112d0/9d0 - 224d0*Lmu/9d0, & !log[x]^2
       -112d0/27d0,& !Log^3(x)
@@ -665,9 +665,9 @@ pure function Coeff_g_q_reg(alpha,Nf,Lmu)
      1152.4124598008452d0, 26.348519296850707d0, 1.9731271688088206d0, 11838.586361348272d0, &
      5670.649765218949d0, -286.7508347433035d0, -3920.619711189592d0, 1269.1159656155107d0/)
 
-	Coeff_g_q_reg=Coeff_g_q_reg+alpha*alpha*inter
+    Coeff_g_q_reg=Coeff_g_q_reg+alpha*alpha*inter
 
-	if(orderMain>=3) then
+    if(orderMain>=3) then
 
     inter(1:13)=(/ &!!Exact part
       -2606752d0/729d0 + Lmu**3*(1904d0/27d0 - (544d0*Nf)/81d0) - (224d0*Nf**2)/27d0 &
@@ -792,7 +792,7 @@ pure function Coeff_g_q_reg(alpha,Nf,Lmu)
     2271353.975985237d0, 133169.94967082897d0, 28841.22591650202d0, -3198342.1864987523d0, &
     779457.2094747808d0, -1090149.6774086975d0, 941888.7159622173d0, -994158.7838174688d0/)
 
-	Coeff_g_q_reg=Coeff_g_q_reg+alpha**3*inter
+    Coeff_g_q_reg=Coeff_g_q_reg+alpha**3*inter
 
   end if
   end if
@@ -827,12 +827,12 @@ pure function Coeff_g_g_reg(alpha,Nf,Lmu)
       !!! checked AV(24.06.22) !!!
      inter(1:13)=(/ &!!Exact part
       6d0 - 144d0*Lmu - 144d0*Lmu**2 - 2d0*Nf, & !log(1-x),
-	  -36d0, &!log(1-x)^2
-	  0d0, 0d0,0d0, & !log[1-x]^3, log[1-x]^4, Log[1-x]^5
+      -36d0, &!log(1-x)^2
+      0d0, 0d0,0d0, & !log[1-x]^3, log[1-x]^4, Log[1-x]^5
       -3160d0/3d0 + Lmu**2*(-198d0 - (4d0*Nf)/9d0) + (226d0*Nf)/9d0 + 264d0*zeta2 + &
       Lmu*((244d0*Nf)/9d0 + 36d0*zeta2) + 432d0*zeta3, & ! 1/x
-	  -72d0*Lmu**2,&     !Log(x)/x
-	  0d0, & ! log[x]^2/x
+      -72d0*Lmu**2,&     !Log(x)/x
+      0d0, & ! log[x]^2/x
       -293d0 + (74d0*Nf)/3d0 + Lmu**2*(-72d0 + (16d0*Nf)/3d0) + Lmu*(12d0 + 24d0*Nf),& ! log[x]
        3d0 + 6d0*Nf + Lmu*(-72d0 + (16d0*Nf)/3d0), & !log[x]^2
       -12d0 + (8d0*Nf)/9d0,& !Log^3(x)
@@ -1288,7 +1288,7 @@ end function Coeff_q_qp_reg
 !    call Set_Coeff_g_q(as,Nf,Lmu)
 !    write(*,*) SUM(Coeff_g_q*func)
 
-!	!!G->G
+!    !!G->G
 !   call Set_CoeffSing1_g_g(as,Nf,Lmu)
 !   call Set_Coeff_g_g(as,Nf,Lmu)
 !   write(*,*) SUM(Coeff_g_g*func)!+SUM(CoeffSing1_g_g*func1)
