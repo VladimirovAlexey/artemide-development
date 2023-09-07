@@ -42,7 +42,6 @@ subroutine ModelInitialization(lengthNP)
     integer,intent(in)::lengthNP
     !!!!!! here are the initial parameters!!
     allocate(NPparam(1:lengthNP))
-    NPparam=0._dp
     
     write(*,*) color(">>>  The model for uTMDPDF for ART23   <<<",c_cyan)
     
@@ -114,6 +113,7 @@ function FNP(x,bT,hadron,lambdaNP)
       FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
       
   end if
+
 end function FNP
   
 !!!! This is the function b* that enters the logarithms of coefficient function

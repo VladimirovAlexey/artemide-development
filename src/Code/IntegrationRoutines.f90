@@ -23,9 +23,20 @@ implicit none
 private
 INCLUDE '../Tables/G7K15.f90'
 
-public::Integrate_S5,Integrate_SN,Integrate_SA
+public::Integrate_S5,Integrate_SN,Integrate_SA,Integrate_SA_2D
 public::Integrate_G7,Integrate_K15,Integrate_GK
 public::Integrate_GK_array5
+
+
+real(dp),dimension(1:3,1:3),parameter::SA3_2D_w=reshape((/1._dp,4._dp,1._dp,&
+                                                  4._dp,16._dp,4._dp,&
+                                                  1._dp,4._dp,1._dp/)/36._dp,shape(SA3_2D_w))
+
+real(dp),dimension(1:5,1:5),parameter::SA5_2D_w=reshape((/1._dp,4._dp,2._dp,4._dp,1._dp,&
+                                                  4._dp,16._dp,8._dp,16._dp,4._dp,&
+                                                  2._dp,8._dp,4._dp,8._dp,2._dp,&
+                                                  4._dp,16._dp,8._dp,16._dp,4._dp,&
+                                                  1._dp,4._dp,2._dp,4._dp,1._dp/)/144._dp,shape(SA5_2D_w))
 
 !!! this is interface for function (-5:5) in the integration
 abstract interface 
@@ -38,6 +49,8 @@ end interface
   
 contains
 
+
+!------------------------------------------- S5 --------------------------------------------
 
 !!! Simpson by 5 points
 !!! Use it for estimations only!
@@ -63,6 +76,7 @@ function Integrate_S5(f,xMin,xMax)
     
 end function Integrate_S5
 
+!------------------------------------------- SN --------------------------------------------
 
 !!! Simpson by N points
 !!! f::  function of 1 variable
@@ -95,10 +109,13 @@ function Integrate_SN(f,xMin,xMax,N)
     
 end function Integrate_SN
 
+
+!------------------------------------------- SA --------------------------------------------
+
 !!! Simpson adaptive
 !!! f::  function of 1 variable
 !!! xMin, and xMax boundaries of the integral. xMax>xMin !!
-!!! tolerance is relative (it is wieghted by approximate value of integral)
+!!! tolerance is relative (it is weighted by approximate value of integral)
 function Integrate_SA(f,xMin,xMax,tolerance)
     real(dp)::f,Integrate_SA,tolerance,eps
     real(dp),intent(in)::xMin,xMax
@@ -144,6 +161,85 @@ recursive function SA_Rec(f,x1,x3,x5,f1,f3,f5,eps) result(res)
     
 end function SA_Rec
 
+!------------------------------------------- SA 2D--------------------------------------------
+
+!!! Simpson adaptive
+!!! f::  function of 1 variable
+!!! xMin, and xMax boundaries of the integral. xMax>xMin !!
+!!! tolerance is relative (it is weighted by approximate value of integral)
+function Integrate_SA_2D(f,xMin,xMax,yMin,yMax,tolerance)
+    real(dp)::f,Integrate_SA_2D,tolerance,eps
+    real(dp),intent(in)::xMin,xMax,yMin,yMax
+    real(dp)::deltaX,deltaY,x2,x3,x4,y2,y3,y4,rInt
+    real(dp),dimension(1:5,1:5)::ff
+
+    !write(*,*) "INTEGRATE_SA_2D: this routine is not tested"
+
+    deltaX=(xMax-xMin)/4._dp
+    x2=xMin+deltaX
+    x3=xMin+deltaX*2._dp
+    x4=xMax-deltaX
+
+    deltaY=(yMax-yMin)/4._dp
+    y2=yMin+deltaY
+    y3=yMin+deltaY*2._dp
+    y4=yMax-deltaY
+
+    ff=reshape((/&
+    f(xMin,yMin),f(xMin,y2),f(xMin,y3),f(xMin,y4),f(xMin,yMax),&
+    f(x2,yMin),f(x2,y2),f(x2,y3),f(x2,y4),f(x2,yMax),&
+    f(x3,yMin),f(x3,y2),f(x3,y3),f(x3,y4),f(x3,yMax),&
+    f(x4,yMin),f(x4,y2),f(x4,y3),f(x4,y4),f(x4,yMax),&
+    f(xMax,yMin),f(xMax,y2),f(xMax,y3),f(xMax,y4),f(xMax,yMax)/),shape(SA5_2D_w))
+
+    rInt=sum(ff*SA5_2D_w)
+
+    !!! the error parameter is weighted with the approximate integral size
+    eps=tolerance*abs(deltaX*deltaY*rInt)
+
+    Integrate_SA_2D=SA2D_Rec(f,xMin,x2,x3,yMin,y2,y3,ff(1:3,1:3),eps)&
+                    +SA2D_Rec(f,x3,x4,xMax,yMin,y2,y3,ff(3:5,1:3),eps)&
+                    +SA2D_Rec(f,xMin,x2,x3,y3,y4,yMax,ff(1:3,3:5),eps)&
+                    +SA2D_Rec(f,x3,x4,xMax,y3,y4,yMax,ff(3:5,3:5),eps)
+
+end function Integrate_SA_2D
+
+recursive function SA2D_Rec(f,x1,x3,x5,y1,y3,y5,fIn,eps) result(res)
+    real(dp),dimension(1:3,1:3)::fIn
+    real(dp)::f,x1,x2,x3,x4,x5,y1,y2,y3,y4,y5
+    real(dp)::eps,res
+    real(dp)::value3,value5
+    real(dp),dimension(1:5,1:5)::ff
+
+    x2=(x1+x3)/2._dp
+    x4=(x3+x5)/2._dp
+    y2=(y1+y3)/2._dp
+    y4=(y3+y5)/2._dp
+
+    ff=reshape((/&
+    fIn(1,1),f(x1,y2),fIn(1,2),f(x1,y4),fIn(1,3),&
+    f(x2,y1),f(x2,y2),f(x2,y3),f(x2,y4),f(x2,y5),&
+    fIn(2,1),f(x3,y2),fIn(2,2),f(x3,y4),fIn(2,3),&
+    f(x4,y1),f(x4,y2),f(x4,y3),f(x4,y4),f(x4,y5),&
+    fIn(3,1),f(x5,y2),fIn(3,2),f(x5,y4),fIn(3,3)/),shape(SA5_2D_w))
+
+    value3=(x5-x1)*(y5-y1)*sum(fIn*SA3_2D_w)
+    value5=(x5-x1)*(y5-y1)*sum(ff*SA5_2D_w)
+
+    If(ABS(value5-value3)>eps) then
+        res=SA2D_Rec(f,x1,x2,x3,y1,y2,y3,ff(1:3,1:3),eps)&
+                    +SA2D_Rec(f,x3,x4,x5,y1,y2,y3,ff(3:5,1:3),eps)&
+                    +SA2D_Rec(f,x1,x2,x3,y3,y4,y5,ff(1:3,3:5),eps)&
+                    +SA2D_Rec(f,x3,x4,x5,y3,y4,y5,ff(3:5,3:5),eps)
+    else
+        res=value5
+    end if
+
+end function SA2D_Rec
+
+
+!------------------------------------------- G7 --------------------------------------------
+
 !!! Gauss 7-points
 !!! f::  function of 1 variable
 !!! xMin, and xMax boundaries of the integral. xMax>xMin !!
@@ -164,6 +260,8 @@ function Integrate_G7(f,xMin,xMax)
     Integrate_G7=delta*inter
     
 end function Integrate_G7
+
+!------------------------------------------- K15 --------------------------------------------
 
 !!! Kronrod 15-points
 !!! f::  function of 1 variable
@@ -186,6 +284,7 @@ function Integrate_K15(f,xMin,xMax)
     
 end function Integrate_K15
 
+!------------------------------------------- GK7/15 --------------------------------------------
 
 !!! Gauss-Kronrod 7/15 adaptive
 !!! f::  function of 1 variable
@@ -242,6 +341,8 @@ recursive function GK_Rec(f,xMin,xMax,eps) result(res)
     end if
     
 end function GK_Rec
+
+!------------------------------------------- GK7/15 (-5:5) --------------------------------------------
 
 !!! Gauss-Kronrod 7/15 adaptive for array
 !!! f::  array(-5:5) function of 1 variable

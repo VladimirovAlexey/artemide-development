@@ -146,11 +146,10 @@ real(dp)::TMDs_inKT_OGATAh,TMDs_inKT_tolerance
 !-------------------- TMDX-DY parameters
 logical::include_TMDX_DY
 character*8::TMDX_DY_order
-real(dp)::TMDX_DY_tolerance
+real(dp)::TMDX_DY_toleranceINT, TMDX_DY_toleranceGEN
 integer::TMDX_DY_ptSECTION
 logical::TMDX_DY_exactX1X2,TMDX_DY_piResum,TMDX_DY_exactScale
-integer::TMDX_DY_numProc
-real::TMDX_DY_maxQbinSize
+real::TMDX_DY_maxQbinSize,TMDX_DY_minqTabs
 
 !-------------------- TMDX-SIDIS parameters
 logical::include_TMDX_SIDIS
@@ -416,14 +415,15 @@ subroutine SetupDefault(order)
 
     !------------------ parameters for TMDX-DY
     include_TMDX_DY=.true.
-    TMDX_DY_tolerance=0.001d0    !tolerance (i.e. relative integration tolerance -- in kinematic integrals;)
+    TMDX_DY_toleranceINT=0.0001d0    !tolerance for integration (i.e. relative integration tolerance -- in kinematic integrals;)
+    TMDX_DY_toleranceGEN=0.000001d0    !tolerance general (i.e. for comparison of variables)
     TMDX_DY_ptSECTION=4        !default number of sections for pt-bin integration
     TMDX_DY_maxQbinSize=30. !default maximum size of the Q-bin integration
+    TMDX_DY_minqTabs=0.0001 !default minimum value of qT
     TMDX_DY_order=trim(order)
     TMDX_DY_exactX1X2=.true.
     TMDX_DY_piResum=.false.
     TMDX_DY_exactScale=.false.
-    TMDX_DY_numProc=8
 
     !------------------ parameters for TMDX-SIDIS
     include_TMDX_SIDIS=.false.
@@ -845,15 +845,16 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p4  : Use the exact values for factorization scales (include qT/Q correction)')")
     write(51,*) TMDX_DY_exactScale
     write(51,"('*B   : ---- Numerical evaluation parameters ----')")
-    write(51,"('*p1  : Tolerance (relative tolerance for bin-integration routines, except pt-integration)')")
-    write(51,*) TMDX_DY_tolerance
-    write(51,"('*p2  : Minimal number of sections for pt-integration')")
+    write(51,"('*p1  : Tolerance general (variable comparision, etc.)')")
+    write(51,*) TMDX_DY_toleranceGEN
+    write(51,"('*p2  : Tolerance (relative tolerance for bin-integration routines, except pt-integration)')")
+    write(51,*) TMDX_DY_toleranceINT
+    write(51,"('*p3  : Minimal number of sections for pt-integration')")
     write(51,*) TMDX_DY_ptSECTION
-    write(51,"('*p3  : Maximum size of the Q-bin integration (larger bins are desected)')")
+    write(51,"('*p4  : Maximum size of the Q-bin integration (larger bins are desected)')")
     write(51,*) TMDX_DY_maxQbinSize
-    write(51,"('*C   : ---- Parameters for parallel evaluation (used only if compiled with openMP) ----')")
-    write(51,"('*p1  : Maximum number of processors to use')")
-    write(51,*) TMDX_DY_numProc
+    write(51,"('*p5  : Minimal value of qT (lower values are fixed to this number)')")
+    write(51,*) TMDX_DY_minqTabs
 
 
     write(51,"(' ')")
@@ -1436,15 +1437,15 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) TMDX_DY_exactScale
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) TMDX_DY_tolerance
+    read(51,*) TMDX_DY_toleranceGEN
     call MoveTO(51,'*p2  ')
-    read(51,*) TMDX_DY_ptSECTION
+    read(51,*) TMDX_DY_toleranceINT
     call MoveTO(51,'*p3  ')
+    read(51,*) TMDX_DY_ptSECTION
+    call MoveTO(51,'*p4  ')
     read(51,*) TMDX_DY_maxQbinSize
-
-    call MoveTO(51,'*C   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) TMDX_DY_numProc
+    call MoveTO(51,'*p5  ')
+    read(51,*) TMDX_DY_minqTabs
 
 
     !# ----                          PARAMETERS OF TMDX-SIDIS                -----

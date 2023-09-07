@@ -305,15 +305,16 @@
 *p4  : Use the exact values for factorization scales (include qT/Q correction)
  F
 *B   : ---- Numerical evaluation parameters ----
-*p1  : Tolerance (relative tolerance for bin-integration routines, except pt-integration)
-   1.0000000000000000E-003
-*p2  : Minimal number of sections for pt-integration
-           4
-*p3  : Maximum size of the Q-bin integration (larger bins are desected)
-   30.0000000    
-*C   : ---- Parameters for parallel evaluation (used only if compiled with openMP) ----
-*p1  : Maximum number of processors to use
-           8
+*p1  : Tolerance general (variable comparision, etc.)
+   1.0000000000000000E-006
+*p2  : Tolerance (relative tolerance for bin-integration routines, except pt-integration)
+   1.0000000000000000E-004
+*p3  : Minimal number of sections for pt-integration
+           6
+*p4  : Maximum size of the Q-bin integration (larger bins are desected)
+   30.0000000
+*p5  : Minimal value of qT (lower values are fixed to this number)
+   0.0001
  
  
 # ---------------------------------------------------------------------------

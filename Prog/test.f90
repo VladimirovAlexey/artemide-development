@@ -1,6 +1,7 @@
 program example
 use aTMDe_control
 use TMDX_DY
+use uTMDPDF
 implicit none
 
  real*8,dimension(1:3)::pt,ptmin,ptmax
@@ -9,12 +10,12 @@ implicit none
  real*8 :: time1, time2,xx
  real*8,dimension(1:2):: p1,p2,p3
  real*8,dimension(1:4)::cc
- integer,dimension(1:3)::pp
+ integer,dimension(1:4)::pp
  
  real*8,dimension(1:3,1:2)::qtList,Qlist,yList
  real*8,dimension(1:3,1:4)::cutList
  logical,dimension(1:3)::inCutList
- integer,dimension(1:3,1:3)::pList
+ integer,dimension(1:3,1:4)::pList
  integer,dimension(1:3)::nnList
  real*8,dimension(1:3)::X,sList
  !$  real*8::OMP_get_wtime,t1,t2
@@ -33,6 +34,9 @@ implicit none
   end do
   ptPLUS(4)=ptMax(3)
   
+  call uTMDPDF_SetLambdaNP(&
+  (/0.874245d0, 0.913883d0, 0.991563d0, 6.05412d0, 0.353908d0,&
+  46.6064d0, 0.115161d0, 1.53235d0, 1.31966d0, 0.434833d0, 0.d0, 0.d0/))
   
   write(*,*) "Calculating some values for cross-section one-by-one (DY around Z-boson peak, ATLAS 8TeV kinematics)"
   write(*,*) "ptMin 	--	ptMax		xSec"
@@ -41,7 +45,8 @@ implicit none
       p2=(/66d0,116d0/)
       p3=(/-2.4d0,2.4d0/)
       cc=(/20d0,20d0,-2.4d0,2.4d0/)
-      pp=(/1,1,5/)
+      pp=(/1,5,1,1/)
+      !pp=(/1,1,5/)
       call xSec_DY(xx,pp,(8000d0)**2,p1,p2,p3,.true.,CutParameters=cc)
       write(*,*) ptmin(j),'--',ptmax(j),xx
    end do
@@ -55,12 +60,13 @@ implicit none
     yList(j,:)=(/-2.4d0,2.4d0/)
     inCutList(j)=.true.
     cutList(j,:)=(/20d0,20d0,-2.4d0,2.4d0/)
-    pList(j,:)=(/1,1,5/)
+    pList(j,:)=(/1,5,1,1/)
+    !pList(j,:)=(/1,1,5/)
     nnList(j)=4
     sList(j)=(8000d0)**2
    end do
    
-   call xSec_Dy_List(X,pList,sList,qtList,Qlist,yList,inCutList,cutList,nnList)
+   call xSec_Dy_List(X,pList,sList,qtList,Qlist,yList,inCutList,cutList)
    
    write(*,*) "result:", X
    

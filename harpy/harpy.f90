@@ -534,26 +534,10 @@ contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DY CROSS-SECTION
-  
-    function DY_xSec_SingleN(process,s,qT,Q,y,includeCuts,CutParameters,Num)
-    integer,intent(in),dimension(1:3)::process		!the number of process
-    real*8,intent(in)::s				!Mandelshtam s
-    real*8,intent(in),dimension(1:2)::qT		!(qtMin,qtMax)
-    real*8,intent(in),dimension(1:2)::Q			!(Qmin,Qmax)
-    real*8,intent(in),dimension(1:2)::y			!(ymin,ymax)
-    logical,intent(in)::includeCuts			!include cuts
-    real*8,intent(in),dimension(1:4)::CutParameters	!(p1,p2,eta1,eta2)
-    integer,intent(in)::Num				!number of sections
-    real*8::DY_xSec_Single
-    real*8::X
-    
-    call xSec_DY(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)
-    DY_xSec_SingleN=X
-  
-  end function DY_xSec_SingleN
+
   
   function DY_xSec_Single(process,s,qT,Q,y,includeCuts,CutParameters)
-    integer,intent(in),dimension(1:3)::process		!the number of process
+    integer,intent(in),dimension(1:4)::process		!the number of process
     real*8,intent(in)::s				!Mandelshtam s
     real*8,intent(in),dimension(1:2)::qT		!(qtMin,qtMax)
     real*8,intent(in),dimension(1:2)::Q			!(Qmin,Qmax)
@@ -593,7 +577,7 @@ contains
     logical,intent(in),dimension(:)::includeCuts		!include cuts
     real*8,intent(in),dimension(:,:)::CutParameters	!(p1,p2,eta1,eta2)
     real*8,dimension(1:ListLength)::DY_xSec_BINLESS_List
-    
+
     call xSec_DY_List_BINLESS(DY_xSec_BINLESS_List,process,s,qT,Q,y,includeCuts,CutParameters)
   
   end function DY_xSec_BINLESS_List
