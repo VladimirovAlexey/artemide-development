@@ -2566,13 +2566,13 @@ This module evaluates cross-sections with the Drell-Yan-like kinematics. I.e. it
 
 The general structure of the cross-section is
 \begin{eqnarray}
-\Delta\sigma(q_T)=prefactor1~\int_{bin} dX ~prefactor2~\times F,
+\Delta\sigma(q_T)=\int_{bin} dX ~prefactor2~\times F,
 \end{eqnarray}
 where $$dX=dQ^2 dy d q^2_T.$$ So, for a small bin
 \begin{eqnarray}
 \Delta\sigma(q_T)\approx\Delta X \frac{d\sigma}{dX},\qquad \Delta X=(Q_{\text{max}}^2-Q_{\text{min}}^2)(y_{\text{max}}-y_{\text{min}})(q_{T\text{max}}^2-q_{T\text{min}}^2).
 \end{eqnarray}
-\textit{Prefactor1} is related to the definition of the phase-space, while \textit{prefactor2} is about process and cross-section. Generally, the \textit{prefactor2} $\times F$ is
+\textit{Prefactor2} accumulates the definition of the phase-space, process and cross-section. Generally, the \textit{prefactor2} $\times F$ is
 \begin{eqnarray}
 prefactor2 \times F=(\text{cuts for lepton pair})\times H(Q,\mu_H)F(Q,q_T,x_1,x_2,\mu,\zeta_1,\zeta_),
 \end{eqnarray}
@@ -2602,19 +2602,15 @@ Command & ~~Type~~& ~~Sec.~~ & Short description
 \\\hline
 \texttt{TMDX{\_}DY{\_}ResetCounters()} & subrout. & -- & Reset intrinsic counters of the module.
 \\\hline
-\texttt{TMDX{\_}DY{\_}SetProcess(p)} & subrout. & \ref{TMDX:setup}& Set the process
-\\\hline
-\texttt{TMDX\_DY\_SetCuts(inc,pT,eta1,eta2)} & subrout. & \ref{TMDX:setup} & Set the current evaluation of cut for lepton pair.
-\\\hline
-\texttt{TMDX{\_}DY{\_}XSetup(s,Q,y)} & subrout. & \ref{TMDX:setup}& Set the kinematic variables
-\\\hline
 \texttt{TMDX{\_}DY{\_}SetScaleVariation(c2)} & subrout. & -- & Set new value for the scale-variation constant $c_2$.
 \\\hline
-\texttt{CalcXsec{\_}DY...} & subrout. &\ref{TMDX:xsec} & Evaluates cross-section. Many overloaded versions see sec.\ref{TMDX:xsec}.
+\texttt{xSec\_DY(X,proc,s,qT,Q,y,iC,CutP,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section completely integrated over the bin. 
 \\\hline
-\texttt{xSec\_DY(X,proc,s,qT,Q,y,iC,CutP,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section completely integrated over the bin. Can be called without preliminary \texttt{...Set...}'s.
+\texttt{xSec\_DY\_List(X,proc,s,qT,Q,y,iC,CutP,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section completely integrated over the bin over the list. 
 \\\hline
-\texttt{xSec\_DY\_List(X,proc,s,qT,Q,y,iC,CutP,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section completely integrated over the bin over the list. Can be called without preliminary \texttt{...Set...}'s.
+\texttt{xSec\_DY\_List(X,proc,s,qT,Q,y,iC,CutP,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section completely integrated over the bin over the list. 
+\\\hline
+\texttt{xSec\_DY\_List\_BINLESS(X,proc,s,qT,Q,y,iC,CutP,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section at the point over the list. 
 \\\hline\hline
 \end{tabular}
 \end{center}
@@ -2626,102 +2622,34 @@ Prior the usage module is to be initialized (once per run) by
 
 \texttt{call TMDX\_DY{\_}Initialize(file)}
 
-The order of used coefficient function is set in \texttt{constant-file} by \texttt{'LO'}, \texttt{'LO+'}, \texttt{'NLO'}, \texttt{'NLO+'},\texttt{'NNLO'} or \texttt{'NNLO+'}, that corresponds to $a_s^0$, $a_s^0$, $a_s^1$, $a_s^1$, $a_s^2$, or $a_s^2$.
+The order of used coefficient function is set in \texttt{constant-file} by \texttt{'LO'}($a_s^0$), \texttt{'NLO'}($a_s^1$),\texttt{'NNLO'} or \texttt{'N2LO'}($a_s^2$), \texttt{'N3LO'}($a_s^3$), \texttt{'N4LO'}($a_s^4$). The value in brackets shows the maximum included perturbative order in the hard coefficient function.
 
-\subsection{Setting up the parameters of cross-section}
+\subsection{The parameters of cross-section}
 \label{TMDX:setup}
 
-Prior to evaluation of cross-section one must declare which process is considered and to set up the kinematics. The declaration of the process is made by
 
-\texttt{call TMDX\_DY{\_}SetProcess(p1,p2,p3)}
-
-\texttt{call TMDX\_DY{\_}SetProcess(p0)}
-
-where \texttt{p0=(/p1,p2,p3/)} and
+\textbf{Process:} The process is encoded by 4 integer numbers \texttt{(/p1,p2,p3,p4/)} where
 \begin{itemize}
-\item[\texttt{p1}] (integer) Defines the $prefactor1$ that contains the phase space elements.
-\item[\texttt{p2}] (integer) Defines the $prefactor2$ that contains the universal part of factorization formula. 
-\item[\texttt{p3}] (integer) Defines the structure function $F$. See sec.\ref{TMDF:enum}.
+\item[\texttt{p1}] (integer) Defines the $prefactor2$ that contains the phase space elements and the universal part of factorization formula. 
+\item[\texttt{p2}] (integer) Defines the structure function $F$. See sec.\ref{TMDF:enum}.
+\item[\texttt{p3}] (integer) Defines the type of hadron 1.
+\item[\texttt{p4}] (integer) Defines the type of hadron 2.
 \end{itemize}
+\textbf{Note:} \red{In artemide v.2.07 and earlier} the process was encoded by 3 numbers, and did not contained the types of hadrons.
 
-Alternatively, process can be declared by a shorthand version (not updated any more, too many options)
+\textbf{Kinematics:} Each bin is defined by $s$ (Mandelstam variable, GeV$^2$), $Q$ (virtuality, GeV, [min,max]), $y$ (rapidity, [min,max]) and $q_T$ (transverse momentum, GeV, [min,max]). If the order of limits is inverted the result is 0.
 
-\texttt{call TMDX\_DY{\_}SetProcess(p)}
-
-where \texttt{p}(integer) corresponds to particular combinations of \texttt{p1,p2,p3}. See table \ref{tab:p=p1p2p3}.
-
-The kinematic of the process is declared by
-
-\texttt{call TMDX\_DY{\_}XSetup(s,Q,y)}
-
-where \texttt{s} is the Mandelshtam variable $s$, \texttt{Q} is hard virtuality $Q$, \texttt{y} is the rapidity parameter $y$. Note, that these values will be used for the evaluation of the cross-section. In the case, the integration over the bin is made these values are overridden. Also in the case of the parallel computation these variables are overridden. So, often there is little sense in this command, nonetheless it set initial values.
-
-All non-perturbative parameters are defined in the lower-level modules, and could be set via \texttt{artemide\_control} or directly in the module.
-
-Finally, one must specify the fiducial cuts on the lepton pair. It is made by calling
-
-\texttt{call SetCuts(inc,pT,eta1,eta2)}
-
-where parameter \texttt{inc} is (logical). If \texttt{inc=.true.} the evaluation of cuts will be done, otherwise it will be ignored. The cuts are defined as
+\textbf{Lepton cuts:} The fiducial cuts on the lepton pair are defined by two variables: logical \texttt{iC} (If \texttt{inc=.true.} the evaluation of cuts will be done, otherwise it will be ignored.). And the array of four reals \texttt{(p1,p2,eta1,eta2)}, such that the cuts are defined as
 \begin{eqnarray}
-|l_T|,|l'_T|<\text{\texttt{pT}},\qquad \text{\texttt{eta1}}<\eta,\eta',\text{\texttt{eta2}},
+|l_T|<\text{\texttt{p1}},\qquad |l'_T|<\text{\texttt{p2}},\qquad \text{\texttt{eta1}}<\eta,\eta',\text{\texttt{eta2}},
 \end{eqnarray}
-where $l$ and $l'$ are the momenta of produced leptons, with $l_T$'s being their transverse components and $\eta$'s being their rapidities. For accurate definition of the cut-function see sec.2.6 of \cite{Scimemi:2017etj} (particularly equations (2.40)-(2.42)). For asymmetric cuts use \texttt{call SetCuts(inc,pT1,pT2,eta1,eta2)}.
+where $l$ and $l'$ are the momenta of produced leptons, with $l_T$'s being their transverse components and $\eta$'s being their rapidities. For accurate definition of the cut-function see sec.2.6 of \cite{Scimemi:2017etj} (particularly equations (2.40)-(2.42)).
 
 \subsection{Cross-section evaluation}
 \label{TMDX:xsec}
 
-After the parameters of cross-section are set up, the values of the cross-section at different $q_T$ can be obtained by
-
-\texttt{call CalcXsec\_DY(X,qt)}
-
-where  \texttt{X} is real*8 variable where cross-section will be stored, \texttt{qt} is real*8 is the list of values of $q_T$'s at which the \texttt{X} is to be calculated. There exists an overloaded version with \texttt{X} (real*8)(1:N) and \texttt{qT}(real*8)(1:N), which evaluates the array of crossections over array of $q_T$.
-
-Typically, one needs to integrate over bin. There is a whole set of subroutines which evaluate various integrals over bin they are
-\begin{center}
-\begin{tabular}{||p{7cm}|l||p{4cm}||}
-\hline\hline
-Subroutine & ~~integral~~&  Comment
-\\\hline
-\texttt{CalcXsec\_DY(X,qt)} & - & Just cross-section at given point.
-\\\hline
-\texttt{CalcXsec\_DY{\_}Yint(X,qt)} & $\int_{-y_{0}}^{y_{0}}dy d\sigma(q_T)$ & $y_0$ is maximum allowed $y$ by kinematics, $y_0=\ln(s/Q^2)/2$.
-\\\hline
-\texttt{CalcXsec\_DY{\_}Yint(X,qt,yMin,yMax)} & $\int_{y_{\min}}^{y_{\max}}dy d\sigma(q_T)$ & $|y_{\text{max/min}}|<y_0$ 
-\\\hline
-\texttt{CalcXsec\_DY{\_}Qint} \texttt{(X,qt,Qmin,Qmax)} & $\int_{Q_\text{min}}^{Q_{\text{max}}} 2QdQ  d\sigma(q_T)$ & 
-\\\hline
-\texttt{CalcXsec\_DY{\_}Qint{\_}Yint} \texttt{(X,qt,Qmin,Qmax)} & $\int_{Q_\text{min}}^{Q_{\text{max}}} 2QdQ  \int_{-y_{0}}^{y_{0}}dy d\sigma(q_T)$ & 
-\\\hline
-\texttt{CalcXsec\_DY{\_}Qint{\_}Yint} \texttt{(X,qt,Qmin,Qmax,yMin,yMax)} & $\int_{Q_\text{min}}^{Q_{\text{max}}} 2QdQ \int_{y_{\min}}^{y_{\max}}dy d\sigma(q_T)$ & 
-\\\hline
-\texttt{CalcXsec\_DY{\_}PTint{\_}Qint{\_}Yint} \texttt{(X,qtmin,qtmax,Qmin,Qmax)} & $\int_{q_{T\min}}^{q_{T\max}}2q_Tdq_T\int_{Q_\text{min}}^{Q_{\text{max}}} 2QdQ  \int_{-y_{0}}^{y_{0}}dy d\sigma(q_T)$ & Integration over $q_T$ is Simpsons by default number of sections.
-\\\hline
-\texttt{CalcXsec\_DY{\_}PTint{\_}Qint{\_}Yint} \texttt{(X,qtmin,qtmax,Qmin,Qmax,yMin,yMax)} & $\int_{q_{T\min}}^{q_{T\max}}2q_Tdq_T\int_{Q_\text{min}}^{Q_{\text{max}}} 2QdQ \int_{y_{\min}}^{y_{\max}}dy d\sigma(q_T)$ & Integration over $q_T$ is Simpsons by default number of sections.
-\\\hline
-\texttt{CalcXsec\_DY{\_}PTint{\_}Qint{\_}Yint} \texttt{(X,qtmin,qtmax,Qmin,Qmax,N)} & $\int_{q_{T\min}}^{q_{T\max}}2q_Tdq_T\int_{Q_\text{min}}^{Q_{\text{max}}} 2QdQ  \int_{-y_{0}}^{y_{0}}dy d\sigma(q_T)$ & Integration over $q_T$ is Simpsons by $N$-section.
-\\\hline
-\texttt{CalcXsec\_DY{\_}PTint{\_}Qint{\_}Yint} \texttt{(X,qtmin,qtmax,Qmin,Qmax,yMin,yMax,N)} & $\int_{q_{T\min}}^{q_{T\max}}2q_Tdq_T\int_{Q_\text{min}}^{Q_{\text{max}}} 2QdQ \int_{y_{\min}}^{y_{\max}}dy d\sigma(q_T)$ & Integration over $q_T$ is Simpsons by $N$-section.
-\\\hline
-\red{More to be added} &&
-\\\hline\hline
-\end{tabular}
-\end{center}
 \begin{tcolorbox}
-\textbf{Note 1:} Each command has overloaded version with arrays for \text{X} and \text{qt}.
-\\
-\textbf{Note 2:} Cross-section integrated over $q_T$ bins have overloaded versions with \texttt{X}, \texttt{qtmin} and \texttt{qtmax} being arrays. Then the integral is done for $\texttt{X}(i)$ from \texttt{qtmin(i)} to \texttt{qtmax(i)}.
-\\
-\textbf{Note 2+:} There exists an overloaded version for \texttt{CalcXsec\_DY{\_}PTint{\_}Qint{\_}Yint} with \texttt{X}, \texttt{qtmin} and \texttt{qtmax}, \texttt{yMin}, \texttt{yMax} being arrays. Then the integral is done for $\texttt{X}(i)$ from \texttt{qtmin(i)} to \texttt{qtmax(i)}, \texttt{yMin(i)} to \texttt{yMax(i)}.
-\\
-\textbf{Note 3:} There exist special overloaded case for integrated over $q_T$-bins, with successive bins. I.e. for bins that adjust to each other. In this case only one argument \texttt{qtlist} is required (instead of \texttt{qtmin},\texttt{qtmax}). E.g. \texttt{CalcXsec\_DY{\_}PTint{\_}Qint{\_}Yint} \texttt{(X,qtList,Qmin,Qmax)}. The length of \texttt{qtlist} must be larger then the length of \texttt{X} by one. The integration for \texttt{X(i)} is done from \texttt{qtlist(i)} till \texttt{qtlist(i+1)}. This function saves boundary values and therefore somewhat faster than the usual evaluation. (Improvement takes a place is only for un-parallel calculation).
-\\\textbf{Note 4:} Integration over $p_T$ is numerically problematic at $p_T\to 0$. Thus, the integration over $p_T<0.1$MeV is cut out. Anyway, contribution of this region is negligible, due to prefactor $p_T$.
-\end{tcolorbox}
-
-Take care that every next function is heavier to evaluate then the previous one. The integrations over $Q$ and $y$ are adaptive Simpsons. We have found that it is the fastest (adaptive) method for typical cross-sections with tolerance $10^{-3}-10^{-4}$. Naturally, it is not suitable for higher precision, which however is not typically required. The integration over $p_T$ is not adaptive, since typically $p_T$-bins are rather smooth and integral is already accurate if approximated by 4-8 points (default minimal value is set in \texttt{constants}, which is automatically increased for larger bins). For unexceptionally large $q_T$-bins, or very rapid behavior we suggest to use overloaded versions with manual set of $N$ (number of integral sections).
-
-\begin{tcolorbox}
-\textbf{\blue{There is a subroutine that evaluate cross-section without preliminary call of \texttt{SetCuts},\texttt{TMDX\_DY{\_}SetProcess},\texttt{TMDX\_DY{\_}XSetup}}.} It is called \texttt{xSec\_DY} and it have the following interface:
+The main subroutine is called \texttt{xSec\_DY} and it have the following interface:
 
 \begin{center}
 \texttt{xSec\_DY(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)}
@@ -2730,7 +2658,7 @@ Take care that every next function is heavier to evaluate then the previous one.
 where
 \begin{itemize}
 \item \texttt{X} is (real*8) value of cross-section.
-\item \texttt{process} is integer \texttt{p}, or (integer)array \texttt{(p1,p2,p3)}.
+\item \texttt{process} is integer \texttt{p}, or (integer)array \texttt{(p1,p2,p3,p4)}.
 \item \texttt{s} is Mandelshtam variable $s$
 \item \texttt{qT} is (real*8)array \texttt{(qtmin,qtmax)}
 \item \texttt{Q} is (real*8)array \texttt{(Qmin,Qmax)}
@@ -2751,28 +2679,32 @@ Note, that optional variables could be omit during the call.
 \\
 \texttt{call CalcXsec\_DY{\_}PTint{\_}Qint{\_}Yint} \texttt{(X,qtmin,qtmax,Qmin,Qmax,yMin,yMax,Num)}
 
-However, there is an important difference: the values of \texttt{s, process, cutParameters} which are set by routines \texttt{..Set..}, are global. For that reason such approach could not be used in a parallel computation. Contrary, in the function \texttt{xSec\_DY} these variables are set locally and thus this function can be used in parallel computations.
-
-\red{?\textbf{BUG?:}} Take care that some Fortran compilers, do not understand the usage of arrays directly within function with optional arguments. E.g. \texttt{xSec\_DY(p,s,(/q1,q2/),Q,y,iC,CutParameters=cc)}. Although it compiles without problems but lead to a freeze during the calculation. In this case, it helps to define: \texttt{qT=(/q1,q2/)} and call \texttt{xSec\_DY(p,s,qT,Q,y,iC,CutParameters=cc)}. The same problem can appear if \texttt{xSec\_DY} is used as argument of another function. I guess there is some problem with memory references.
-
 \begin{tcolorbox}
-\textbf{\blue{There is also analogous subroutine that evaluate cross-section by list.}} It is called \texttt{xSec\_DY\_List} and it have the following interface:
+\textbf{\blue{There is also an analogous subroutine that evaluate cross-section by list.}} It is called \texttt{xSec\_DY\_List} and it have the following interface:
 
 \begin{center}
 \texttt{xSec\_DY\_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)}
 \end{center}
-All variables are analogues to those of \texttt{xSec\_DY}, but should come in lists, i.e. \texttt{X} is (1:n), \texttt{process} is (1:n,1:3), \texttt{s} is (1:n), \texttt{qT},\texttt{Q},\texttt{y} are (1:n,1:2), \texttt{includeCuts} is (1:n), \texttt{CutParameters} is (1:n,1:4), and \texttt{Num} is (1:n). \textbf{Only the \texttt{Num} argument is OPTIONAL arguments. The argument \texttt{CutParameters} must be presented}. This command compiled by OPENMP, so runs in parallel on multi-core computers.
+All variables are analogues to those of \texttt{xSec\_DY}, but should come in lists, i.e. \texttt{X} is (1:n), \texttt{process} is (1:n,1:4), \texttt{s} is (1:n), \texttt{qT},\texttt{Q},\texttt{y} are (1:n,1:2), \texttt{includeCuts} is (1:n), \texttt{CutParameters} is (1:n,1:4), and \texttt{Num} is (1:n). \textbf{Only the \texttt{Num} argument is OPTIONAL arguments. The argument \texttt{CutParameters} must be presented}. This command compiled by OPENMP, so runs in parallel on multi-core computers.
 \end{tcolorbox}
-
-\subsection{Parallel computation}
-
-Currently, the parallel evaluation is used within the commands \texttt{CalcXsec{\_}DY{\_}...} with \blue{array variable \texttt{qt}} (see \textbf{Note 1} in sec.{TMDX:xsec}). Basically, in this case, individual values for the list of cross-sections are evaluated in parallel. Unfortunately the parallel scaling-rate is not very high, on 8 processors it is about 400\%-500\% only.
-
-The parallelization is made with OPENMP library. To make the parallel computation possible, add \texttt{-fopenmp} option in the compilation instructions. The maximum number of allowed threads is set \texttt{constants-file}.
 
 \begin{tcolorbox}
-\red{\textbf{WARNING:}} the parallel operation is possible only together with grid option, otherwise it will cause a running condition in TMD modules (which typically results into the program crush). There is no check for grid option trigger, check it manually.
+\textbf{Finally, \blue{there is an also analogous subroutine that evaluate cross-section by list without bin-integration.}} It is called \texttt{xSec\_DY\_List\_BINLESS} and it have the following interface:
+
+\begin{center}
+\texttt{xSec\_DY\_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)}
+\end{center}
+All variables are analogues to those of \texttt{xSec\_DY\_List}, but should come in lists of central values, i.e. \texttt{X} is (1:n), \texttt{process} is (1:n,1:4), \texttt{s} is (1:n), \texttt{qT},\texttt{Q},\texttt{y} \blue{are (1:n)}, \texttt{includeCuts} is (1:n), \texttt{CutParameters} is (1:n,1:4), and \texttt{Num} is (1:n). \textbf{Only the \texttt{Num} argument is OPTIONAL arguments. The argument \texttt{CutParameters} must be presented}. This command compiled by OPENMP, so runs in parallel on multi-core computers.
 \end{tcolorbox}
+
+\textbf{Extra notes:}
+\begin{itemize}
+\item The integrations over $Q$ and $y$ are adaptive Simpsons. We have found that it is the fastest (adaptive) method for typical cross-sections with tolerance $10^{-3}-10^{-4}$. Naturally, it is not suitable for higher precision, which however is not typically required.
+\item The integration over $p_T$ is not adaptive, since typically $p_T$-bins are rather smooth and integral is already accurate if approximated by 4-8 points (default minimal value is set in INI-file, and is automatically increased for larger bins). For unexceptionally large $q_T$-bins, or very rapid behavior we suggest to use overloaded versions with manual set of $N$ (number of integral sections).
+\item For very small value of $q_T$ the cross-section is frozen at $q_{T(abs~min)}$, which is defined in INI-file ($10^{-4}$ by default). It is done to avoid badly converging integrals.
+\item The evaluation can be done in parallel. The list commands are parallel by default. Basically, in this case, individual values for the list of cross-sections are evaluated in parallel. Unfortunately the parallel scaling-rate is not very high, on 8 processors it is about 400\%-500\% only. The parallelization is made with OPENMP library. To make the parallel computation possible, add \texttt{-fopenmp} option in the compilation instructions. The maximum number of allowed threads is set \texttt{constants-file}.
+\end{itemize}
+
 
 \subsection{\texttt{LeptonCutsDY}}
 
@@ -2824,35 +2756,17 @@ Traditionally, the corrections $\sim q_T/Q$ are dropped, since they are power co
 \subsection{Enumeration of processes}
 
 \begin{center}
-List of enumeration for $prefactor1$
-\\
-\texttt{p1}
-\\
-\begin{tabular}{||l|c||p{12cm}||}
-\hline\hline
-\texttt{p1} & ~~$prefactor1$~~&  Short description 
-\\\hline
-1 & 1 & $dX=dy dQ^2 dq_T^2$.
-\\\hline
-2 & $\frac{2\sqrt{Q^2+\vec q_T^2}}{\sqrt{s}}\cosh y$ & $dX=dx_F dQ^2 dq_T^2$ where $x_F=\frac{2\sqrt{Q^2+\vec q_T^2}}{\sqrt{s}}\sinh y$ is Feynman $x$. \textbf{Important:} In this case the integration $y$ is preplaced by the integration over $x_F$. I.e. $\texttt{...\_Yint}(..., a,b,..)$ which usually evaluates $\int_a^b dy$ evaluates $\int_a^bdx_F$.
-\\\hline\hline
-\end{tabular}
-\end{center}
-
-\begin{center}
-List of enumeration for $prefactor2$
-\\
-\texttt{p2}
+List of enumeration for \texttt{p2}
 \\
 \begin{tabular}{||l|c||p{12cm}||}
 \hline\hline
 \texttt{p2} & ~~$prefactor2$~~&  Short description 
 \\\hline
-1 & $\frac{4\pi}{9}\frac{\alpha_{\text{em}}^2(Q)}{sQ^2}|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}). Corresponds to DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$. \textbf{Process declared $y\leftrightarrow -y$ symmetric.}  The result is in pb/GeV$^2$
+1 & $\frac{4\pi}{9}\frac{\alpha_{\text{em}}^2(Q)}{sQ^2}|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}). Corresponds to DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$.  The result is in pb/GeV$^2$
 \\\hline
-2 & $\frac{4\pi}{9}\frac{\alpha_{\text{em}}^2(Q)}{sQ^2}|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}). \textbf{Process declared $y\leftrightarrow -y$ non-symmetric.}  The result is in pb/GeV$^2$
+2 & $\frac{2\sqrt{Q^2+\vec q_T^2}}{\sqrt{s}}\cosh y$ $\frac{4\pi}{9}\frac{\alpha_{\text{em}}^2(Q)}{sQ^2}|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}).  The result is in pb/GeV$^2$. \textbf{Attention!:} this process corresponds to computation with the $dX=dx_F dQ^2 dq_T^2$ where $x_F=\frac{2\sqrt{Q^2+\vec q_T^2}}{\sqrt{s}}\sinh y$ is Feynman $x$. In this case the integration $y$ is preplaced by the integration over $x_F$ (i.e. limits of integration are treated as for $x_F$).
 \\\hline
-3 & $\frac{4\pi^2}{3}\frac{\alpha_{\text{em}}(Q)}{s}Br_Z|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$ for the Z-boson production in the narrow width approximation. $Br_Z=0.03645$ is Z-boson branching ration to leptons. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}). \textbf{Process declared $y\leftrightarrow -y$ symmetric.}  The result is in pb/GeV$^2$
+3 & $\frac{4\pi^2}{3}\frac{\alpha_{\text{em}}(Q)}{s}Br_Z|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$ for the Z-boson production in the narrow width approximation. $Br_Z=0.03645$ is Z-boson branching ration to leptons. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}). The result is in pb/GeV$^2$
 \\\hline
 4 & $\frac{4\pi^2}{3}\frac{\alpha_{\text{em}}(Q)}{s}Br_W|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$ for the W-boson production in the narrow width approximation. $Br_W=0.1086$ is W-boson branching ration to leptons. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}). Use together with \texttt{p3}=13,...,18. In this case, $Q$ is be $M_Z$. The result is in pb/GeV$^2$
 \\\hline
@@ -2860,21 +2774,6 @@ List of enumeration for $prefactor2$
 \\\hline\hline
 \end{tabular}
 Here $R=0.3893379\cdot 10^9$ the transformation factor from GeV to pb.
-\end{center}
-
-
-\begin{center}
-\label{tab:p=p1p2p3}List of shorthand enumeration for processes
-\\
-\begin{tabular}{||c||c|c|c||p{12cm}||}
-\hline\hline
-$\quad$\texttt{p}$\quad$ &$\quad$\texttt{p1}$\quad$ &$\quad$\texttt{p2}$\quad$ &$\quad$\texttt{p3}$\quad$&  Description 
-\\\hline
-1 & 1 & 1 & 5 & $p+p\to Z+\gamma^*\to ll$. Standard DY process measured in the vicinity of the $Z$-peak. E.g. for LHC measurements.
-\\\hline
-2 & 1 & 1 & 6 & $p+\bar p\to Z+\gamma^*\to ll$. Standard DY process measured in the vicinity of the $Z$-peak. E.g. for Tevatron measurements.
-\\\hline\hline
-\end{tabular}
 \end{center}
 
 
