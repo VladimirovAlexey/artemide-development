@@ -1,7 +1,6 @@
 program example
 use aTMDe_control
 use TMDX_DY
-use uTMDPDF
 implicit none
 
  real*8,dimension(1:3)::pt,ptmin,ptmax
@@ -33,10 +32,13 @@ implicit none
   ptmax(j)=pt(j)+1d0
   end do
   ptPLUS(4)=ptMax(3)
-  
-  call uTMDPDF_SetLambdaNP(&
+
+   call artemide_SetNPparameters_TMDR((/1.56d0, 0.0639d0, 0.0582d0,0d0/))
+
+  call artemide_SetNPparameters_uTMDPDF(&
   (/0.874245d0, 0.913883d0, 0.991563d0, 6.05412d0, 0.353908d0,&
   46.6064d0, 0.115161d0, 1.53235d0, 1.31966d0, 0.434833d0, 0.d0, 0.d0/))
+
   
   write(*,*) "Calculating some values for cross-section one-by-one (DY around Z-boson peak, ATLAS 8TeV kinematics)"
   write(*,*) "ptMin 	--	ptMax		xSec"

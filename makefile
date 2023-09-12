@@ -59,6 +59,7 @@ $(SOURCEDIR)/TMDF.f90 \
 $(SOURCEDIR)/TMDs_inKT.f90 \
 $(SOURCEDIR)/TMDX_DY.f90 \
 $(SOURCEDIR)/TMDX_SIDIS.f90 \
+$(SOURCEDIR)/TMDint_KPC_DY.f90 \
 $(SOURCEDIR)/aTMDe_control.f90
 
 Twist2Files=\
@@ -100,6 +101,9 @@ $(SOURCEDIR)/Code/TMDs/TMD-calls.f90
 
 TMDFFiles=\
 $(SOURCEDIR)/Code/TMDF/Ogata.f90
+
+TMDKPCFiles=\
+$(SOURCEDIR)/Code/TMDint_KPC/DYTMDpairs.f90
 
 aTMDeSetupFiles=\
 $(SOURCEDIR)/Code/aTMDe_setup/placeHolder.f90
@@ -144,6 +148,7 @@ $(OBJ)/TMDF.o \
 $(OBJ)/TMDs_inKT.o \
 $(OBJ)/TMDX_DY.o \
 $(OBJ)/TMDX_SIDIS.o \
+$(OBJ)/TMDint_KPC_DY.o \
 $(OBJ)/aTMDe_control.o 
 
 #these are utility object needed to compale any artemide module
@@ -335,6 +340,12 @@ $(OBJ)/TMDX_DY.o: $(SOURCEDIR)/TMDX_DY.f90 $(SOURCEDIR)/DYcoeff-func.f90 $(OBJ)/
 $(OBJ)/TMDX_SIDIS.o: $(SOURCEDIR)/TMDX_SIDIS.f90 $(OBJ)/TMDs.o $(OBJ)/QCDinput.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/TMDX_SIDIS.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/TMDint_KPC_DY.o: $(SOURCEDIR)/TMDint_KPC_DY.f90 $(TMDKPCFiles) $(aTMDeUTILITY)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/TMDint_KPC_DY.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
