@@ -2576,7 +2576,7 @@ where $$dX=dQ^2 dy d q^2_T.$$ So, for a small bin
 \begin{eqnarray}
 prefactor2 \times F=(\text{cuts for lepton pair})\times H(Q,\mu_H)F(Q,q_T,x_1,x_2,\mu,\zeta_1,\zeta_),
 \end{eqnarray}
-where $F$ is defined in (\ref{TMDF:F}). There are following feature of current implementation
+where $F$ is defined in (\ref{TMDF:F}) or (\ref{KPC:main}). There are following feature of current implementation
 \begin{itemize}
 \item In the current version the scaling variables are set as
 \begin{eqnarray}
@@ -2586,6 +2586,9 @@ Currently, it is hard coded and could not be easily modified. However, there is 
 \item For the definition of \textit{(cuts for lepton pair)}-function see \cite{Scimemi:2017etj}. It is evaluated within module \texttt{LeptonCutsDY.f90}. The presence of cuts, and their parameters are set by the \texttt{SetCuts} subroutine.
 \item The expression for the hard factor $H$ is taken from \cite{Gehrmann:2010ue}. It is the function of $\ln(Q/\mu_H)$ and $a_s(\mu_H))$. Since in the current realization $\mu_H=Q$, the logarithm is replaced by $\ln(c_2)$, where $c_2$ is the variation constant.
 \end{itemize}
+\begin{tcolorbox}
+The cross-section can be computed by two different means. Using LP factorization or using KPC-resummed factorization. The selection is done by the parameter A.p2. One behavior totally exclude another.
+\end{tcolorbox}
 
 \red{This section is to be updated by definition of kinematics }
 
@@ -2753,12 +2756,12 @@ Traditionally, the corrections $\sim q_T/Q$ are dropped, since they are power co
 Traditionally, the corrections $\sim q_T/Q$ are dropped, since they are power corrections. Nonetheless, they could be included since they have different sources in comparison to power corrections to the factorized cross-section. Usage of one or another version of $scales$ is switched in \texttt{constants-file} (Option 9.A.p4).
 
 
-\subsection{Enumeration of processes}
+\subsection{Enumeration of processes (LP case)}
 
 \begin{center}
 List of enumeration for \texttt{p2}
 \\
-\begin{tabular}{||l|c||p{12cm}||}
+\begin{tabular}{||l|c||p{10cm}||}
 \hline\hline
 \texttt{p2} & ~~$prefactor2$~~&  Short description 
 \\\hline
@@ -2776,6 +2779,28 @@ List of enumeration for \texttt{p2}
 Here $R=0.3893379\cdot 10^9$ the transformation factor from GeV to pb.
 \end{center}
 
+\subsection{Enumeration of processes (KPC case)}
+
+\begin{center}
+List of enumeration for \texttt{p2}
+\\
+\begin{tabular}{||l|c||p{10cm}||}
+\hline\hline
+\texttt{p2} & ~~$prefactor2$~~&  Short description 
+\\\hline
+1 & $\frac{2\pi^2}{9}\frac{\alpha_{\text{em}}^2(Q)}{s}|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}). Corresponds to DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$.  The result is in pb/GeV$^2$
+\\\hline
+2 & $\frac{2\sqrt{Q^2+\vec q_T^2}}{\sqrt{s}}\cosh y$ $\frac{2\pi^2}{9}\frac{\alpha_{\text{em}}^2(Q)}{s}|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}).  The result is in pb/GeV$^2$. \textbf{Attention!:} this process corresponds to computation with the $dX=dx_F dQ^2 dq_T^2$ where $x_F=\frac{2\sqrt{Q^2+\vec q_T^2}}{\sqrt{s}}\sinh y$ is Feynman $x$. In this case the integration $y$ is preplaced by the integration over $x_F$ (i.e. limits of integration are treated as for $x_F$).
+\\\hline
+3 & --- & Absent
+\\\hline
+4 & --- & Absent
+\\\hline
+5 & $\frac{\pi m_H^2 a_s^2(Q)}{36 s v^2}Q^2 C_t^2(m_t,Q)|C_g(Q)|^2|A(x_t)|^2$ & Cross-section $\frac{d\sigma}{dy d(q_T^2)}$ for the exclusive Higgs-boson production. The result is in pb/GeV$^2$. For definition of functions see \cite{Ahrens:2009cxz}. \red{The correct formula is to be defined, this is LP formula multiplied by large-Q translation factor.}
+\\\hline\hline
+\end{tabular}
+Here $R=0.3893379\cdot 10^9$ the transformation factor from GeV to pb.
+\end{center}
 
 \newpage
 \section{\texttt{TMDX{\_}SIDIS} module}
@@ -3214,7 +3239,7 @@ The expressions for functions are selected such that the integral gives reasonab
 The TMD factorization with KPCs is computed using different route. The primary problem is that one must compute these correction in the momentum space. It essentially complicates the computation, since the evolution is done in the position space. 
 
 The module \texttt{TMDFint\_KPC\_DY} realizes the computation of the following integral
-\begin{eqnarray}
+\begin{eqnarray}\label{KPC:main}
 \mathcal{C}_{KPC}[K,FF]&=&4p_1^+p_2^+\int d\xi_1 d\xi_2 \int d^4k_1 d^4k_2 \delta^{(4)}(q-k_1-k_2)\delta(k_1^2)\delta(k_2^2)
 \\ &&\delta(k_1^+-\xi_1 p_1^+)\delta(k_2^--\xi_2 p_2^-)K \times FF,
 \end{eqnarray}

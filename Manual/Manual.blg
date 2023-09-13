@@ -1,51 +1,64 @@
-This is BibTeX, Version 0.99d (TeX Live 2019/Debian)
+This is BibTeX, Version 0.99d (TeX Live 2022/dev/Debian)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: Manual.aux
 The style file: apsrev.bst
+I found no \bibdata command---while reading file Manual.aux
 Reallocated singl_function (elt_size=4) to 100 items from 50.
-Database file #1: bibfile.bib
-Warning--I didn't find a database entry for "MMHT2014"
+Warning--I didn't find a database entry for "Scimemi:2017etj"
+Warning--I didn't find a database entry for "Scimemi:2019cmh"
+Warning--I didn't find a database entry for "Moos:2023yfa"
+Warning--I didn't find a database entry for "Buckley:2014ana"
+Warning--I didn't find a database entry for "Echevarria:2016scs"
+Warning--I didn't find a database entry for "Scimemi:2018xaf"
+Warning--I didn't find a database entry for "Echevarria:2015byo"
+Warning--I didn't find a database entry for "Vladimirov:2016dll"
+Warning--I didn't find a database entry for "Vladimirov:2017ksc"
+Warning--I didn't find a database entry for "Collins:2011zzd"
+Warning--I didn't find a database entry for "Gehrmann:2010ue"
+Warning--I didn't find a database entry for "Ahrens:2008qu"
+Warning--I didn't find a database entry for "Ahrens:2009cxz"
+Warning--I didn't find a database entry for "Bacchetta:2006tn"
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
-You've used 17 entries,
+You've used 0 entries,
             3411 wiz_defined-function locations,
-            1279 strings with 13152 characters,
-and the built_in function-call counts, 12636 in all, are:
-= -- 696
-> -- 459
-< -- 63
-+ -- 384
-- -- 112
-* -- 1803
-:= -- 1337
-add.period$ -- 17
-call.type$ -- 17
-change.case$ -- 69
-chr.to.int$ -- 13
-cite$ -- 17
-duplicate$ -- 1127
-empty$ -- 1047
-format.name$ -- 275
-if$ -- 2365
-int.to.chr$ -- 5
-int.to.str$ -- 18
-missing$ -- 175
-newline$ -- 66
-num.names$ -- 51
-pop$ -- 286
+            1179 strings with 10430 characters,
+and the built_in function-call counts, 46 in all, are:
+= -- 0
+> -- 0
+< -- 0
++ -- 0
+- -- 0
+* -- 2
+:= -- 9
+add.period$ -- 0
+call.type$ -- 0
+change.case$ -- 0
+chr.to.int$ -- 0
+cite$ -- 0
+duplicate$ -- 0
+empty$ -- 1
+format.name$ -- 0
+if$ -- 1
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 0
+newline$ -- 15
+num.names$ -- 0
+pop$ -- 0
 preamble$ -- 1
-purify$ -- 68
+purify$ -- 0
 quote$ -- 0
-skip$ -- 453
+skip$ -- 1
 stack$ -- 0
-substring$ -- 372
-swap$ -- 934
-text.length$ -- 57
+substring$ -- 0
+swap$ -- 0
+text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 100
+type$ -- 0
 warning$ -- 0
-while$ -- 49
+while$ -- 0
 width$ -- 0
-write$ -- 200
-(There was 1 warning)
+write$ -- 14
+(There was 1 error message)

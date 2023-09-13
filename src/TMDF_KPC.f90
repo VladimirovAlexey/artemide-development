@@ -18,7 +18,7 @@ implicit none
 
 private
 
-character (len=12),parameter :: moduleName="TMDin-KPC-DY"
+character (len=8),parameter :: moduleName="TMDF-KPC"
 character (len=5),parameter :: version="v3.00"
 !Last appropriate verion of constants-file
 integer,parameter::inputver=30
@@ -44,7 +44,7 @@ real(dp)::M2=1._dp
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!! Public declarations
-public::TMDF_KPC_IsInitialized,TMDF_KPC_Initialize
+public::TMDF_KPC_IsInitialized,TMDF_KPC_Initialize,TMDF_KPC_IsconvergenceLost
 public::KPC_DYconv
 
 contains
@@ -156,10 +156,10 @@ end subroutine TMDF_KPC_Initialize
 !!! Function that computes the integral for KPC convolution in DY
 !!! proc1 = (int,int,int) is the process def for TMD*TMD
 !!! proc2 = int is the process definition for the integral kernel
-!!! Q, qT, x1,x2, mu are usual DY variables
+!!! Q2, qT, x1,x2, mu are usual DY variables
 !!! THIS IS A SYMMETRIC VERSION (i.e. it should contain only cos(theta)
-function KPC_DYconv(Q,qT,x1,x2,mu,proc1,proc2)
-    real(dp),intent(in)::Q,qT,x1,x2,mu
+function KPC_DYconv(Q2,qT,x1,x2,mu,proc1,proc2)
+    real(dp),intent(in)::Q2,qT,x1,x2,mu
     integer,intent(in),dimension(1:3)::proc1
     integer,intent(in)::proc2
     real(dp)::KPC_DYconv
@@ -168,7 +168,7 @@ function KPC_DYconv(Q,qT,x1,x2,mu,proc1,proc2)
 
     LocalCounter=0
 
-    tau2=Q**2+qT**2
+    tau2=Q2+qT**2
     deltaT=qT**2/tau2
 
     KPC_DYconv=Integrate_GK(Integrand_forTheta,0._dp,pi,toleranceINT)
@@ -183,14 +183,14 @@ contains
 
     cT=cos(theta)
 
-    Integrand_forTheta=INT_overALPHA(Q,tau2,deltaT,x1,x2,mu,proc1,proc2,cT)
+    Integrand_forTheta=INT_overALPHA(Q2,tau2,deltaT,x1,x2,mu,proc1,proc2,cT)
 
 end function Integrand_forTheta
 
 end function KPC_DYconv
 
-function INT_overALPHA(Q,tau2,deltaT,x1,x2,mu,proc1,proc2,cT)
-    real(dp),intent(in)::Q,tau2,deltaT,x1,x2,mu,cT
+function INT_overALPHA(Q2,tau2,deltaT,x1,x2,mu,proc1,proc2,cT)
+    real(dp),intent(in)::Q2,tau2,deltaT,x1,x2,mu,cT
     integer,intent(in),dimension(1:3)::proc1
     integer,intent(in)::proc2
     real(dp)::INT_overALPHA
@@ -202,7 +202,7 @@ contains
 function Integrand_forALPHA(alpha)
     real(dp)::Integrand_forALPHA
     real(dp),intent(in)::alpha
-    real(dp)::S,Lam,xi1,xi2,K1,K2,sinA,Q2
+    real(dp)::S,Lam,xi1,xi2,K1,K2,sinA
 
     sinA=cos(alpha)
     S=Sqrt(deltaT*sinA)*cT
@@ -213,9 +213,7 @@ function Integrand_forALPHA(alpha)
     K1=tau2/4*((1+S)**2-Lam)
     K2=tau2/4*((1-S)**2-Lam)
 
-    Q2=Q**2
-
-    Integrand_forALPHA=TMD_pair(Q,xi1,xi2,k1,k2,mu,proc1)*DY_KERNEL_pair(Q2,tau2-Q2,x1,x2,xi1,xi2,k1,k2,cT,sinA,proc2)/2
+    Integrand_forALPHA=TMD_pair(Q2,xi1,xi2,k1,k2,mu,proc1)*DY_KERNEL_pair(Q2,tau2-Q2,x1,x2,xi1,xi2,k1,k2,cT,sinA,proc2)/2
 
 
 end function Integrand_forALPHA
@@ -223,5 +221,17 @@ end function Integrand_forALPHA
 end function INT_overALPHA
 
 !!!--------------------------------------------------------------------------------------------------
+!!!!!!!Functions which carry the trigger on convergences.... Its used in xSec, and probably in other places.
+function TMDF_KPC_IsconvergenceLost()
+    logical::TMDF_KPC_IsconvergenceLost
+    !!! checks TMDs trigger
+    TMDF_KPC_IsconvergenceLost=convergenceLost
+end function TMDF_KPC_IsconvergenceLost
+
+subroutine TMDF_KPC_convergenceISlost()
+    convergenceLost=.true.
+    if(outputLevel>1) call Warning_Raise('convergenceLOST trigger ON',messageCounter,messageTrigger,moduleName)
+end subroutine TMDF_KPC_convergenceISlost
+
 
 end module TMDF_KPC

@@ -55,11 +55,11 @@ $(SOURCEDIR)/Model/wgtTMDPDF_model.f90 \
 $(SOURCEDIR)/wgtTMDPDF_OPE.f90 \
 $(SOURCEDIR)/wgtTMDPDF.f90 \
 $(SOURCEDIR)/TMDs.f90 \
-$(SOURCEDIR)/TMDF.f90 \
 $(SOURCEDIR)/TMDs_inKT.f90 \
+$(SOURCEDIR)/TMDF.f90 \
+$(SOURCEDIR)/TMDF_KPC.f90 \
 $(SOURCEDIR)/TMDX_DY.f90 \
 $(SOURCEDIR)/TMDX_SIDIS.f90 \
-$(SOURCEDIR)/TMDF_KPC.f90 \
 $(SOURCEDIR)/aTMDe_control.f90
 
 Twist2Files=\
@@ -109,8 +109,8 @@ $(SOURCEDIR)/Code/TMDF_KPC/KERNELpairs_DY.f90
 aTMDeSetupFiles=\
 $(SOURCEDIR)/Code/aTMDe_setup/placeHolder.f90
 
-ExtraFiles=\
-$(SOURCEDIR)/DYcoeff-func.f90
+TMDXFiles=\
+$(SOURCEDIR)/Code/TMDX/DYcoeff-func.f90
 
 aTMDeMODEL = \
 $(SOURCEDIR)/Model/TMDR_model.f90 \
@@ -332,7 +332,13 @@ $(OBJ)/TMDF.o: $(SOURCEDIR)/TMDF.f90 $(TMDFFiles) $(OBJ)/TMDs.o $(OBJ)/EWinput.o
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/TMDX_DY.o: $(SOURCEDIR)/TMDX_DY.f90 $(SOURCEDIR)/DYcoeff-func.f90 $(OBJ)/TMDF.o  $(OBJ)/QCDinput.o $(aTMDeUTILITY)
+$(OBJ)/TMDF_KPC.o: $(SOURCEDIR)/TMDF_KPC.f90 $(OBJ)/TMDs_inKT.o $(OBJ)/EWinput.o $(TMDKPCFiles) $(aTMDeUTILITY)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/TMDF_KPC.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/TMDX_DY.o: $(SOURCEDIR)/TMDX_DY.f90 $(TMDXFiles) $(OBJ)/TMDF.o $(OBJ)/TMDF_KPC.o  $(OBJ)/QCDinput.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/TMDX_DY.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -341,12 +347,6 @@ $(OBJ)/TMDX_DY.o: $(SOURCEDIR)/TMDX_DY.f90 $(SOURCEDIR)/DYcoeff-func.f90 $(OBJ)/
 $(OBJ)/TMDX_SIDIS.o: $(SOURCEDIR)/TMDX_SIDIS.f90 $(OBJ)/TMDs.o $(OBJ)/QCDinput.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/TMDX_SIDIS.f90 -I$(MOD)
-	mv *.o $(OBJ)
-	mv *.mod $(MOD)
-
-$(OBJ)/TMDF_KPC.o: $(SOURCEDIR)/TMDF_KPC.f90 $(OBJ)/TMDs_inKT.o $(OBJ)/EWinput.o $(TMDKPCFiles) $(aTMDeUTILITY)
-#	mkdir -p obj
-	$(FC) -c $(SOURCEDIR)/TMDF_KPC.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 

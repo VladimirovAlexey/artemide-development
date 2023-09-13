@@ -139,6 +139,10 @@ logical::include_TMDF
 real(dp)::TMDF_OGATAh,TMDF_tolerance
 real(dp)::TMDF_mass
 
+!-------------------- TMDF-KPC-Dy parameters
+logical::include_TMDF_KPC
+real(dp)::TMDF_KPC_toleranceGEN,TMDF_KPC_toleranceINT
+
 !-------------------- TMDs-inKT parameters
 logical::include_TMDs_inKT
 real(dp)::TMDs_inKT_OGATAh,TMDs_inKT_tolerance
@@ -150,6 +154,7 @@ real(dp)::TMDX_DY_toleranceINT, TMDX_DY_toleranceGEN
 integer::TMDX_DY_ptSECTION
 logical::TMDX_DY_exactX1X2,TMDX_DY_piResum,TMDX_DY_exactScale
 real::TMDX_DY_maxQbinSize,TMDX_DY_minqTabs
+logical::TMDX_DY_useKPC
 
 !-------------------- TMDX-SIDIS parameters
 logical::include_TMDX_SIDIS
@@ -160,10 +165,6 @@ logical::TMDX_SIDIS_qTcorr,TMDX_SIDIS_M1corr,TMDX_SIDIS_M2corr,TMDX_SIDIS_qTinX1
 integer::TMDX_SIDIS_numProc
 real(dp)::TMDX_SIDIS_toleranceZ,TMDX_SIDIS_toleranceX
 character(len=4)::TMDX_SIDIS_methodZ,TMDX_SIDIS_methodX
-
-!-------------------- TMDF-KPC-Dy parameters
-logical::include_TMDF_KPC
-real(dp)::TMDF_KPC_toleranceGEN,TMDF_KPC_toleranceINT
 
 !---------------------------------------------------
 public::artemide_Setup_fromFile,CreateConstantsFile,ReadConstantsFile,CheckConstantsFile
@@ -429,6 +430,7 @@ subroutine SetupDefault(order)
     TMDX_DY_exactX1X2=.true.
     TMDX_DY_piResum=.false.
     TMDX_DY_exactScale=.false.
+    TMDX_DY_useKPC=.false.
 
     !------------------ parameters for TMDX-SIDIS
     include_TMDX_SIDIS=.false.
@@ -850,12 +852,10 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*A   : ---- Main definitions ----')")
     write(51,"('*p1  : Order of coefficient function')")
     write(51,*) trim(TMDX_DY_order)
-    write(51,"('*p2  : Use the exact values of x1 and x2 (include qT/Q correction)')")
-    write(51,*) TMDX_DY_exactX1X2
+    write(51,"('*p2  : Utilize KPC formula (T=KPC formula, F=LP formula)')")
+    write(51,*) TMDX_DY_useKPC
     write(51,"('*p3  : Use resummation of pi^2-corrections in hard coefficient')")
     write(51,*) TMDX_DY_piResum
-    write(51,"('*p4  : Use the exact values for factorization scales (include qT/Q correction)')")
-    write(51,*) TMDX_DY_exactScale
     write(51,"('*B   : ---- Numerical evaluation parameters ----')")
     write(51,"('*p1  : Tolerance general (variable comparision, etc.)')")
     write(51,*) TMDX_DY_toleranceGEN
@@ -867,6 +867,15 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDX_DY_maxQbinSize
     write(51,"('*p5  : Minimal value of qT (lower values are fixed to this number)')")
     write(51,*) TMDX_DY_minqTabs
+    write(51,"('*C   : ---- Definition of LP TMD factorization ----')")
+    write(51,"('*p1  : Use the exact values of x1 and x2 (include qT/Q correction)')")
+    write(51,*) TMDX_DY_exactX1X2
+    write(51,"('*p2  : Use the exact values for factorization scales (include qT/Q correction)')")
+    write(51,*) TMDX_DY_exactScale
+    write(51,"('*D   : ---- Definition of TMD factorization with KPC ----')")
+    write(51,"('*p1  : Include terms induced by fiducial cuts')")
+    write(51,*) .true.
+
 
 
     write(51,"(' ')")
@@ -1460,11 +1469,9 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p1  ')
     read(51,*) TMDX_DY_order
     call MoveTO(51,'*p2  ')
-    read(51,*) TMDX_DY_exactX1X2
+    read(51,*) TMDX_DY_useKPC
     call MoveTO(51,'*p3  ')
     read(51,*) TMDX_DY_piResum
-    call MoveTO(51,'*p4  ')
-    read(51,*) TMDX_DY_exactScale
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
     read(51,*) TMDX_DY_toleranceGEN
@@ -1476,6 +1483,12 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) TMDX_DY_maxQbinSize
     call MoveTO(51,'*p5  ')
     read(51,*) TMDX_DY_minqTabs
+    call MoveTO(51,'*C   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) TMDX_DY_exactX1X2
+    call MoveTO(51,'*p2  ')
+    read(51,*) TMDX_DY_exactScale
+    call MoveTO(51,'*D   ')
 
 
     !# ----                          PARAMETERS OF TMDX-SIDIS                -----

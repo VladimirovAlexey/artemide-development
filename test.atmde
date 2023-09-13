@@ -300,11 +300,9 @@
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
  LO
-*p2  : Use the exact values of x1 and x2 (include qT/Q correction)
- T
-*p3  : Use resummation of pi^2-corrections in hard coefficient
+*p2  : Utilize KPC formula (T=KPC formula, F=LP formula)
  F
-*p4  : Use the exact values for factorization scales (include qT/Q correction)
+*p3  : Use resummation of pi^2-corrections in hard coefficient
  F
 *B   : ---- Numerical evaluation parameters ----
 *p1  : Tolerance general (variable comparision, etc.)
@@ -317,7 +315,14 @@
    30.0000000
 *p5  : Minimal value of qT (lower values are fixed to this number)
    0.0001
- 
+*C   : ---- Definition of LP TMD factorization ----
+*p1  : Use the exact LP values of x1 and x2 (include qT/Q correction)
+ T
+*p2  : Use the exact LP value for factorization scale (include qT/Q correction)
+ F
+*D   : ---- Definition of TMD factorization with KPC ----
+*p1  : Include terms induced by fiducial cuts
+ T
  
 # ---------------------------------------------------------------------------
 # ----                          PARAMETERS OF TMDX-SIDIS                -----
@@ -498,7 +503,7 @@
            F
 
 # ---------------------------------------------------------------------------
-# ----                           PARAMETERS OF TMDF-KPC-DY                  -----
+# ----                           PARAMETERS OF TMDF-KPC-DY              -----
 # ---------------------------------------------------------------------------
 *14   :
 *p1  : initialize TMDF-KPC-DY module

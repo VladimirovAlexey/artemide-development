@@ -7,10 +7,9 @@
 !
 !    ver 3.0: created from v.2.06 (AV, 05.09.2023)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-module TMDX_DY
+module TMDX_DY_KPC
 use aTMDe_Numerics
 use IO_functions
-use TMDF
 use TMDF_KPC
 use LeptonCutsDY
 use QCDinput
@@ -20,7 +19,7 @@ implicit none
 private
 
 !Current version of module
-character (len=7),parameter :: moduleName="TMDX-DY"
+character (len=11),parameter :: moduleName="TMDX-DY-KPC"
 character (len=5),parameter :: version="v3.00"
 !Last appropriate verion of constants-file
 integer,parameter::inputver=30
@@ -31,17 +30,12 @@ real(dp) :: toleranceGEN=0.0000001d0
 integer::outputlevel
 integer::messageTrigger
 
-!!!!
-!!!! in the module the kinematic is stored in the varibles "kinematic" real(dp),dimension(1:6)
-!!!! which is (qT,s,Q,Q^2,x0,y,exp[y])
-!!!! where x0=sqrt[(Q^2+q_T^2)/s]   (if exactX1X2) or x0=Q^2/s (otherwise)
-!!!!
-!!other global parameters see SetXParameters
+!!Order parameter
 integer:: orderH_global
-logical::useKPC
+!! flag to use resummation of pi^2 corrections
 logical::usePIresum
-integer:: exactX1X2    !!!=1 if exact x's=true, =0 otherwise
-integer:: exactScales  !!!=1 if exact hard scales = true, =0 otherwise
+
+real(dp)::c2_global
 
 !!! number of sections for PT-integral by default
 integer::NumPTdefault=6
@@ -49,10 +43,6 @@ integer::NumPTdefault=6
 real::maxQbinSize=30.
 !!! Minimal qT, below this number the value is frozen
 real(dp)::qTMin_ABS=0.0001d0
-
-real(dp)::c2_global!,muHard_global
-
-
 
 integer::GlobalCounter
 integer::CallCounter
@@ -62,23 +52,23 @@ real(dp)::hc2
 
 logical::started=.false.
 
-public::TMDX_DY_Initialize,TMDX_DY_SetScaleVariation,&
-TMDX_DY_ShowStatistic,TMDX_DY_ResetCounters,TMDX_DY_IsInitialized
-public::  xSec_DY,xSec_DY_List,xSec_DY_List_BINLESS
+public::TMDX_DY_KPC_Initialize,TMDX_DY_KPC_SetScaleVariation,&
+TMDX_DY_KPC_ShowStatistic,TMDX_DY_KPC_ResetCounters,TMDX_DY_KPC_IsInitialized
+public::  xSec_DY_KPC,xSec_DY_KPC_List,xSec_DY_KPC_List_BINLESS
 
-interface xSec_DY
+interface xSec_DY_KPC
   module procedure MainInterface_AsAAAloo
 end interface
 
 contains
   
-function TMDX_DY_IsInitialized()
-  logical::TMDX_DY_IsInitialized
-  TMDX_DY_IsInitialized=started
-end function TMDX_DY_IsInitialized
+function TMDX_DY_KPC_IsInitialized()
+  logical::TMDX_DY_KPC_IsInitialized
+  TMDX_DY_KPC_IsInitialized=started
+end function TMDX_DY_KPC_IsInitialized
 
 !! Initialization of the package
-subroutine TMDX_DY_Initialize(file,prefix)
+subroutine TMDX_DY_KPC_Initialize(file,prefix)
   character(len=*),intent(in)::file
   character(len=*),intent(in),optional::prefix
   character(len=300)::path
@@ -130,8 +120,8 @@ subroutine TMDX_DY_Initialize(file,prefix)
   !$    call OMP_set_num_threads(i)
   !$    if(outputLevel>1) write(*,*) '    artemide.TMDX_DY: number of threads for parallel evaluation is set to ', i
 
-  !!! go to section TMD-DY
-  call MoveTO(51,'*9   ')
+  !!! go to section TMD-KPC-DY
+  call MoveTO(51,'*15   ')
   call MoveTO(51,'*p1  ')
   read(51,*) initRequired
   if(.not.initRequired) then
@@ -163,20 +153,15 @@ subroutine TMDX_DY_Initialize(file,prefix)
     if(outputLevel>0) write(*,*)  WarningString('try to set unknown order. Switch to NLO.',moduleName)
     orderH_global=1
   END SELECT
-  if(outputLevel>1) write(*,*) '    artemide.TMDX_DY: the used order is ',trim(orderMain)
+  if(outputLevel>1) write(*,*) '    artemide.TMDX_KPC_DY: the used order is ',trim(orderMain)
 
+  !!exact values of x1x2
   call MoveTO(51,'*p2   ')
-  read(51,*) useKPC
-  if(outputLevel>1 .and. useKPC) write(*,*) color('    artemide.TMDX_DY: using TMD factorization with KPC',c_cyan)
-  if(outputLevel>1 .and. useKPC) write(*,*) color('                      Please, cite [2307.13054]',c_cyan)
-  if(outputLevel>1 .and. .not.(useKPC)) write(*,*) color('    artemide.TMDX_DY: using TMD factorization at LP',c_cyan)
-
   !! pi2 resummation
   call MoveTO(51,'*p3   ')
   read(51,*) usePIresum
-  if(outputLevel>2 .and. usePIresum) write(*,*) '    artemide.TMDX_DY: pi-resummation in coef.function included.'
+  if(outputLevel>2 .and. usePIresum) write(*,*) '    artemide.TMDX_KPC_DY: pi-resummation in coef.function included.'
 
-  !!!------ parameters of numerics
   call MoveTO(51,'*B   ')
   call MoveTO(51,'*p1  ')
   read(51,*) toleranceGEN
@@ -189,45 +174,12 @@ subroutine TMDX_DY_Initialize(file,prefix)
   call MoveTO(51,'*p5  ')
   read(51,*) qTMin_ABS
 
-   if(.not.(useKPC)) then
-    !!!------ parameters of LP factorization
-    call MoveTO(51,'*C   ')
-    !!exact values of x1x2
-    call MoveTO(51,'*p1   ')
-    read(51,*) dummyLogical
-    if(dummyLogical) then
-      exactX1X2=1
-    else
-      exactX1X2=0
-    end if
-    if(outputLevel>2 .and. dummyLogical) write(*,*) '    artemide.TMDX_DY: qT/Q corrections for x1 and x2 variables are included.'
-    !!exact values for scales
-    call MoveTO(51,'*p2   ')
-    read(51,*) dummyLogical
-    if(dummyLogical) then
-      exactScales=1
-    else
-      exactScales=0
-    end if
-    if(outputLevel>2 .and. dummyLogical) write(*,*) '    artemide.TMDX_DY: qT/Q correction for scales variables are included.'
-
-  else
-    !!!------ parameters of KPC factorization
-    exactX1X2=1
-    exactScales=0
-
-    call MoveTO(51,'*D   ')
-    !!!!! nothing is here yet
-
-  end if
-
-  CLOSE (51, STATUS='KEEP')
-
 
   !$     if(outputLevel>2) write(*,*) '------TEST OF PARALLEL PROCESSING ----------'
   !$OMP PARALLEL
   !$     if(outputLevel>2) write(*,*) '   artemide.TMDX_DY:thread num ',  omp_get_thread_num(), ' ready.'
   !$OMP END PARALLEL
+  CLOSE (51, STATUS='KEEP')
 
   if(.not.EWinput_IsInitialized()) then
     if(outputLevel>1) write(*,*) '.. initializing EWinput (from ',moduleName,')'
@@ -238,23 +190,12 @@ subroutine TMDX_DY_Initialize(file,prefix)
     end if
   end if
 
-  if(useKPC) then
-    if(.not.TMDF_KPC_IsInitialized()) then
-      if(outputLevel>1) write(*,*) '.. initializing TMDF (from ',moduleName,')'
-      if(present(prefix)) then
-        call TMDF_KPC_Initialize(file,prefix)
-      else
-        call TMDF_KPC_Initialize(file)
-      end if
-    end if
-  else
-    if(.not.TMDF_IsInitialized()) then
-      if(outputLevel>1) write(*,*) '.. initializing TMDF (from ',moduleName,')'
-      if(present(prefix)) then
-        call TMDF_Initialize(file,prefix)
-      else
-        call TMDF_Initialize(file)
-      end if
+  if(.not.TMDF_IsInitialized()) then
+    if(outputLevel>1) write(*,*) '.. initializing TMDF-KPC (from ',moduleName,')'
+    if(present(prefix)) then
+      call TMDF_KPC_Initialize(file,prefix)
+    else
+      call TMDF_KPC_Initialize(file)
     end if
   end if
 
@@ -267,29 +208,29 @@ subroutine TMDX_DY_Initialize(file,prefix)
   started=.true.
 
   write(*,*)  color('----- arTeMiDe.TMD_DY '//trim(version)//': .... initialized',c_green)
-end subroutine TMDX_DY_Initialize
+end subroutine TMDX_DY_KPC_Initialize
 
-subroutine TMDX_DY_ResetCounters()
-  if(outputlevel>2) call TMDX_DY_ShowStatistic()
+subroutine TMDX_DY_KPC_ResetCounters()
+  if(outputlevel>2) call TMDX_DY_KPC_ShowStatistic()
   GlobalCounter=0
   CallCounter=0
   messageCounter=0
-end subroutine TMDX_DY_ResetCounters
+end subroutine TMDX_DY_KPC_ResetCounters
   
-subroutine TMDX_DY_ShowStatistic()
+subroutine TMDX_DY_KPC_ShowStatistic()
 
-    write(*,'(A,ES12.3)') 'TMDX DY statistics      total calls of point xSec  :  ',Real(GlobalCounter)
+    write(*,'(A,ES12.3)') 'TMDX DY KPC statistics  total calls of point xSec  :  ',Real(GlobalCounter)
     write(*,'(A,ES12.3)') '                              total calls of xSecF :  ',Real(CallCounter)
     write(*,'(A,F12.3)')  '                                         avarage M :  ',Real(GlobalCounter)/Real(CallCounter)
-end subroutine TMDX_DY_ShowStatistic
+end subroutine TMDX_DY_KPC_ShowStatistic
   
   
   
 !!!!Call this after TMD initializetion but before NP, and X parameters
-subroutine TMDX_DY_SetScaleVariation(c2_in)
+subroutine TMDX_DY_KPC_SetScaleVariation(c2_in)
   real(dp),intent(in)::c2_in
 
-  if(outputLevel>1) write(*,*) 'TMDX_DY: c2 scale reset:',c2_in
+  if(outputLevel>1) write(*,*) 'TMDX_DY_KPC: c2 scale reset:',c2_in
 
   if(c2_in<0.1d0 .or. c2_in>10.d0) then
     if(outputLevel>0) write(*,*) WarningString('variation in c2 is enourmous. c2 is set to 2',moduleName)
@@ -298,63 +239,12 @@ subroutine TMDX_DY_SetScaleVariation(c2_in)
     c2_global=c2_in
   end if
 
-end subroutine TMDX_DY_SetScaleVariation
+end subroutine TMDX_DY_KPC_SetScaleVariation
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FUNCTIONS FOR OPERATION WITH KINEMATICS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
-!!! function makes kinematic array from the given set of qT,s,Q,y
-!!! array has 7 often appearing entries
-function kinematicArray(qT,s,Q,y)
-  real(dp),dimension(1:7)::kinematicArray
-  real(dp)::qT,s,Q,y
-
-  kinematicArray=(/qT,s,Q,Q**2,sqrt((Q**2+exactX1X2*qT**2)/s),y,exp(y)/)
-
-end function kinematicArray
-  
-!!!intrinsic change the value of Q within kinematic array var
-subroutine SetQ(Q,var)
-  real(dp),dimension(1:7)::var
-  real(dp)::Q
-
-  var(3)=Q
-  var(4)=Q**2
-  var(5)=sqrt((var(4)+exactX1X2*var(1)**2)/var(2))
-
-end subroutine SetQ
-  
-!!!intrinsic change the value of y within kinematic array var
-subroutine SetY(y,var)
-  real(dp),dimension(1:7)::var
-  real(dp)::y
-
-  var(6)=y
-  var(7)=exp(y)
-
-end subroutine SetY
-  
-!!!intrinsic change the value of qT within kinematic array var
-subroutine SetQT(qT_in,var)
-  real(dp),dimension(1:7)::var
-  real(dp)::qT_in
-
-  var(1)=qT_in
-  var(5)=sqrt((var(4)+exactX1X2*var(1)**2)/var(2))
-
-end subroutine SetQT
-
-
-!!! Computes y-variable from x_F
-pure function yFromXF(xF,var)
-  real(dp),intent(in),dimension(1:7)::var
-  real(dp),intent(in):: xF
-  real(dp):: yFromXF
-  yFromXF=asinh(xF/2d0/var(5))
-end function yFromXF
-
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FUNCTIONS FOR PREFACTORS & PROCESSES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -368,17 +258,15 @@ end function yFromXF
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!! for easier read coeff-functions are split into separate file
-INCLUDE '/Code/TMDX/DYcoeff-func.f90'
+INCLUDE 'Code/TMDX/DYcoeff-func.f90'
 
 !!!!! Prefactor 2 is (universal part) x (cuts) x H
 function PreFactor2(kin,process, includeCuts_in,CutParam)
   real(dp),dimension(1:7),intent(in)::kin
   logical,intent(in)::includeCuts_in
+  real(dp)::PreFactor2,cutPrefactor,uniPart,scaleMu
   real(dp),dimension(1:4),intent(in)::CutParam
   integer,dimension(1:4),intent(in)::process
-  real(dp)::PreFactor2
-
-  real(dp)::cutPrefactor,uniPart,scaleMu
 
   !!!!! lepton-cut prefactor
   if(includeCuts_in) then
@@ -438,67 +326,6 @@ function PreFactor2(kin,process, includeCuts_in,CutParam)
   PreFactor2=uniPart*cutPrefactor
 
 end function PreFactor2
-
-!!!!! Prefactor 2 is (universal part) x (cuts) x H
-function PreFactorKPC(kin,proc1,proc2, includeCuts_in,CutParam)
-  real(dp),dimension(1:7),intent(in)::kin
-  logical,intent(in)::includeCuts_in
-  real(dp),dimension(1:4),intent(in)::CutParam
-  integer,dimension(1:4),intent(in)::proc1
-  integer,intent(in)::proc2
-  real(dp)::PreFactorKPC
-
-  real(dp)::cutPrefactor,uniPart,scaleMu
-
-  !!!!! lepton-cut prefactor
-  if(includeCuts_in) then
-    !!! here include cuts onf lepton tensor
-    cutPrefactor=1.d0!CutFactor4(qT=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam)
-    write(*,*) "CUTS are not yet realised in KPC case"
-    stop
-  else
-    !!! this is uncut lepton tensor
-    cutPrefactor=1.d0
-  end if
-
-  !!!! universal part
-  scaleMu=kin(4)
-
-  SELECT CASE(proc1(1))
-  case(-10221191)
-    uniPart=1d0
-    cutPrefactor=1d0
-  CASE(1)
-    !4 pi aEm^2/3 /Nc/Q^2/s
-    uniPart=pi2x2/9*(alphaEM(scaleMu)**2)/kin(2)*&
-        HardCoefficientDY(scaleMu)*&
-        hc2*1d9!from GeV to pb
-
-  CASE(2)
-    !4 pi aEm^2/3 /Nc/Q^2/s
-    ! the process=2 is for the xF-integration. It has extra weigth 2sqrt[(Q^2+q_T^2)/s] Cosh[y]
-    uniPart=pi2x2/9**(alphaEM(scaleMu)**2)/kin(2)*&
-        HardCoefficientDY(scaleMu)*&
-        hc2*1d9*&!from GeV to pb
-        2._dp*kin(5)*cosh(kin(6))
-
-  CASE (5) !exclusive HIGGSboson production
-    ! (2\pi) *pi Mh^2 as(mu)/36/s/vev^2 * H*cT^2
-    ! (1.033)^2 is correction for mT mass in Ct at LO.
-    ! * pi*Q2/2 (because of KPC ??? this factor is assumption)
-    uniPart=(pi/36d0)*MH2*(As(c2_global*scaleMu)/VEVH)**2*kin(4)/kin(2)*&
-        HardCoefficientHIGGS(scaleMu)*(EffCouplingHFF(scaleMu)**2)*1.0677023627519822d0*&
-        hc2*1d9!from GeV to pb
-
-  cutPrefactor=1d0 !!! cut-prefactor is different in this case!
-  CASE DEFAULT
-    write(*,*) ErrorString('unknown process p='//numToStr(proc1(1))//' .Evaluation stop.',moduleName)
-    stop
-  END SELECT
-
-  PreFactorKPC=uniPart*cutPrefactor
-
-end function PreFactorKPC
   
 
 !!! check is the process y-symmetric
@@ -556,48 +383,27 @@ function xSec(var,process,incCut,CutParam)
   integer,dimension(1:4),intent(in)::process
   GlobalCounter=GlobalCounter+1
 
-  !!!!!!!!!!!!!!!!!!!! COMPUTATION WITH KPC
-  if(useKPC) then
-    if(TMDF_KPC_IsconvergenceLost()) then
-      xSec=1d9
-      return
-    end if
-
-    !!! setting values of X
-    x1=var(5)*var(7)
-    x2=var(5)/var(7)
-
-    !!! setting values of scales
-    scaleZeta=var(4)+exactScales*var(1)**2  !! zeta=Q2+qT^2
-    scaleMu=sqrt(scaleZeta)
-
-    FF=KPC_DYconv(var(4),var(1),x1,x2,scaleMu*c2_global,process(2:4),1)
-
-    xSec=PreFactorKPC(var,process,1,incCut,CutParam)*FF
-  !!!!!!!!!!!!!!!!!!!! COMPUTATION WITHOUT KPC
-  else
-    if(TMDF_IsconvergenceLost()) then
-      xSec=1d9
-      return
-    end if
-
-    !!! setting values of X
-    x1=var(5)*var(7)
-    x2=var(5)/var(7)
-
-    !!! setting values of scales
-    scaleZeta=var(4)+exactScales*var(1)**2  !! zeta=Q2+qT^2
-    scaleMu=sqrt(scaleZeta)
-
-    FF=TMDF_F(var(4),var(1),x1,x2,scaleMu*c2_global,scaleZeta,scaleZeta,process(2))
-
-    xSec=PreFactor2(var,process,incCut,CutParam)*FF
+  if(TMDF_KPC_IsconvergenceLost()) then
+    xSec=1d9
+    return
   end if
+
+  !!! setting values of X
+  x1=var(5)*var(7)
+  x2=var(5)/var(7)
+
+  !!! setting values of scales
+  scaleZeta=var(4)+exactScales*var(1)**2  !! zeta=Q2+qT^2
+  scaleMu=sqrt(scaleZeta)
+
+  FF=TMDF_F(var(4),var(1),x1,x2,scaleMu*c2_global,scaleZeta,scaleZeta,process(2))
+
+  xSec=PreFactor2(var,process,incCut,CutParam)*FF
 
   !write(*,*) "{",var(4),",",x1,"},"!,z1
 end function xSec
   
-  !---------------------------------INTEGRATED over Y---------------------------------------------------------------
+!---------------------------------INTEGRATED over Y---------------------------------------------------------------
   
 
 !!!function for integration over Y
@@ -610,7 +416,7 @@ function Xsec_Yint(var,process,incCut,CutParam,ymin_in,ymax_in)
   real(dp) :: ymin_Check,ymax_Check
   integer,dimension(1:4),intent(in)::process
 
-  if(TMDF_IsconvergenceLost()) then
+  if(TMDF_KPC_IsconvergenceLost()) then
     Xsec_Yint=1d9
     return
   end if
@@ -745,7 +551,7 @@ function Xsec_Qint_Yint(var,process,incCut,CutParam,Qmin_in,Qmax_in,ymin_in,ymax
   integer::numSec,i
   real(dp)::dQ
 
-  if(TMDF_IsconvergenceLost()) then
+  if(TMDF_KPC_IsconvergenceLost()) then
     Xsec_Qint_Yint=1d9
     return
   end if
@@ -858,7 +664,7 @@ function Xsec_PTint_Qint_Yint(process,incCut,CutParam,s_in,qt_min_in,qt_max_in,Q
   real(dp):: Q_min,Q_max,qt_min,qt_max,s
   integer :: Num
 
-  if(TMDF_IsconvergenceLost()) then
+  if(TMDF_KPC_IsconvergenceLost()) then
     Xsec_PTint_Qint_Yint=1d9
     return
   end if
@@ -983,7 +789,6 @@ end subroutine Xsec_PTint_Qint_Yint_0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!! interface for array,s,array,array,array,logical,optional, optional
 subroutine MainInterface_AsAAAloo(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)
-!   function xSec_DY(process,s,qT,Q,y,includeCuts,CutParameters,Num)
   integer,intent(in),dimension(1:4)::process            !the number of process
   real(dp),intent(in)::s                          !Mandelshtam s
   real(dp),intent(in),dimension(1:2)::qT           !(qtMin,qtMax)
@@ -1025,7 +830,7 @@ subroutine MainInterface_AsAAAloo(X,process,s,qT,Q,y,includeCuts,CutParameters,N
 
 end subroutine MainInterface_AsAAAloo
   
-  subroutine xSec_DY_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)
+  subroutine xSec_DY_KPC_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)
     integer,intent(in),dimension(:,:)::process            !the number of process
     real(dp),intent(in),dimension(:)::s                !Mandelshtam s
     real(dp),intent(in),dimension(:,:)::qT            !(qtMin,qtMax)
@@ -1042,57 +847,57 @@ end subroutine MainInterface_AsAAAloo
     
   !!! cheking sizes
   if(size(X)/=length) then
-    write(*,*) ErrorString('xSec_DY_List: sizes of xSec and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List: sizes of xSec and s lists are not equal.',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(process,1)/=length) then
-    write(*,*) ErrorString('xSec_DY_List: sizes of process and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List: sizes of process and s lists are not equal.',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(qT,1)/=length) then
-    write(*,*) ErrorString('xSec_DY_List: sizes of qT and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List: sizes of qT and s lists are not equal.',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(y,1)/=length) then
-    write(*,*) ErrorString('xSec_DY_List: sizes of y and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List: sizes of y and s lists are not equal.',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(Q,1)/=length) then
-    write(*,*) ErrorString('xSec_DY_List: sizes of Q and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List: sizes of Q and s lists are not equal.',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(includeCuts)/=length) then
-    write(*,*) ErrorString('xSec_DY_List: sizes of includeCuts and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List: sizes of includeCuts and s lists are not equal.',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(CutParameters,1)/=length) then
-    write(*,*) ErrorString('xSec_DY_List: sizes of CutParameters and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List: sizes of CutParameters and s lists are not equal.',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(process,2)/=4) then
-    write(*,*) ErrorString('xSec_DY_List: process list must be (:,1:4).',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List: process list must be (:,1:4).',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(qT,2)/=2) then
-    write(*,*) ErrorString('xSec_DY_List: qt list must be (:,1:2).',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List: qt list must be (:,1:2).',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(y,2)/=2) then
-    write(*,*) ErrorString('xSec_DY_List: y list must be (:,1:2).',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List: y list must be (:,1:2).',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(Q,2)/=2) then
-    write(*,*) ErrorString('xSec_DY_List: Q list must be (:,1:2).',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List: Q list must be (:,1:2).',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
@@ -1103,7 +908,7 @@ end subroutine MainInterface_AsAAAloo
     allocate(nn(1:length))
     if(present(Num)) then
         if(size(Num,1)/=length) then
-      write(*,*) 'ERROR: arTeMiDe_DY: xSec_DY_List: sizes of Num and s lists are not equal.'
+      write(*,*) 'ERROR: arTeMiDe_DY: xSec_DY_KPC_List: sizes of Num and s lists are not equal.'
       write(*,*) 'Evaluation stop'
       stop
     end if
@@ -1121,9 +926,9 @@ end subroutine MainInterface_AsAAAloo
      end do
     !$OMP END PARALLEL DO
     deallocate(nn)
-  end subroutine xSec_DY_List
+  end subroutine xSec_DY_KPC_List
   
-  subroutine xSec_DY_List_BINLESS(X,process,s,qT,Q,y,includeCuts,CutParameters)
+  subroutine xSec_DY_KPC_List_BINLESS(X,process,s,qT,Q,y,includeCuts,CutParameters)
     integer,intent(in),dimension(:,:)::process            !the number of process
     real(dp),intent(in),dimension(:)::s                !Mandelshtam s
     real(dp),intent(in),dimension(:)::qT            !(qtMin,qtMax)
@@ -1140,42 +945,42 @@ end subroutine MainInterface_AsAAAloo
     
     !!! cheking sizes
   if(size(X)/=length) then
-    write(*,*) ErrorString('xSec_DY_List_BINLESS: sizes of xSec and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List_BINLESS: sizes of xSec and s lists are not equal.',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(process,1)/=length) then
-    write(*,*) ErrorString('xSec_DY_List_BINLESS: sizes of process and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List_BINLESS: sizes of process and s lists are not equal.',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(qT)/=length) then
-    write(*,*) ErrorString('xSec_DY_List_BINLESS: sizes of qT and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List_BINLESS: sizes of qT and s lists are not equal.',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(y)/=length) then
-    write(*,*) ErrorString('xSec_DY_List_BINLESS: sizes of y and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List_BINLESS: sizes of y and s lists are not equal.',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(Q)/=length) then
-    write(*,*) ErrorString('xSec_DY_List_BINLESS: sizes of Q and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List_BINLESS: sizes of Q and s lists are not equal.',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(includeCuts)/=length) then
-    write(*,*) ErrorString('xSec_DY_List_BINLESS: sizes of includeCuts and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List_BINLESS: sizes of includeCuts and s lists are not equal.',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(CutParameters,1)/=length) then
-    write(*,*) ErrorString('xSec_DY_List_BINLESS: sizes of CutParameters and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List_BINLESS: sizes of CutParameters and s lists are not equal.',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
   if(size(process,2)/=4) then
-    write(*,*) ErrorString('xSec_DY_List_BINLESS: process list must be (:,1:4).',moduleName)
+    write(*,*) ErrorString('xSec_DY_KPC_List_BINLESS: process list must be (:,1:4).',moduleName)
     write(*,*) ErrorString('Evaluation stop',moduleName)
     stop
   end if
@@ -1193,6 +998,6 @@ end subroutine MainInterface_AsAAAloo
      end do
     !$OMP END PARALLEL DO
     deallocate(vv)
-  end subroutine xSec_DY_List_BINLESS
+  end subroutine xSec_DY_KPC_List_BINLESS
   
 end module TMDX_DY
