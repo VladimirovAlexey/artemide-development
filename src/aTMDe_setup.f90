@@ -30,7 +30,7 @@ logical::include_EWinput
 real(dp)::mCHARM,mBOTTOM,mTOP,mZ,mW,GammaZ,GammaW,mH,GammaH,vevH
 real(dp)::mELECTRON,mMUON,mTAU
 !other physical parameters
-real(dp)::hc2,alphaQED_MZ,sW2,alphaQED_MTAU
+real(dp)::hc2,Mnorm,alphaQED_MZ,sW2,alphaQED_MTAU
 !CKM matrix
 real(dp)::Vckm_UD,Vckm_US,Vckm_CD,Vckm_CS,Vckm_CB,Vckm_UB
 
@@ -161,6 +161,10 @@ integer::TMDX_SIDIS_numProc
 real(dp)::TMDX_SIDIS_toleranceZ,TMDX_SIDIS_toleranceX
 character(len=4)::TMDX_SIDIS_methodZ,TMDX_SIDIS_methodX
 
+!-------------------- TMDF-KPC-Dy parameters
+logical::include_TMDF_KPC_DY
+real(dp)::TMDF_KPC_DY_toleranceGEN,TMDF_KPC_DY_toleranceINT
+
 !---------------------------------------------------
 public::artemide_Setup_fromFile,CreateConstantsFile,ReadConstantsFile,CheckConstantsFile
 
@@ -221,6 +225,7 @@ subroutine SetupDefault(order)
     mTAU=1.77686d0        !mass of tau
 
     hc2=0.389379338d0    !transformation constant (hc)^2   GeV->mbarn
+    Mnorm=1.d0    !Mass parameter used for the normalization of TMDs
 
     alphaQED_MZ=127.955d0    !inverse alpha_QED at Z-boson mass
     alphaQED_MTAU=133.476d0    !inverse alpha_QED at TAU-lepton mass
@@ -441,6 +446,11 @@ subroutine SetupDefault(order)
     TMDX_SIDIS_toleranceX=TMDX_SIDIS_tolerance
     TMDX_SIDIS_methodX='SA'        !SA=Simpson adaptive, S5=Simpson 5-point
 
+    !------------------ parameters for TMDF-KPC-DY
+    include_TMDF_KPC_DY=.true.
+    TMDF_KPC_DY_toleranceGEN=0.000001d0  !tolerance general (i.e. comparison etc)
+    TMDF_KPC_DY_toleranceINT=0.0001d0    !tolerance integration (i.e. relative integration tolerance)
+
 end subroutine SetupDefault
 
 !!! theck the file for compatibility with the current version
@@ -529,6 +539,8 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*B   : ---- Universal physic parameters ----')")
     write(51,"('*p1  : Unit transformation constant (hc)^2 [GeV->mbarn]')")
     write(51,*) hc2
+    write(51,"('*p2  : Global mass for normalization of TMDs [GeV]')")
+    write(51,*) Mnorm
     write(51,"(' ')")
     write(51,"('*C   : ---- aTMDe-control parameters ----')")
     write(51,"('*p1  : Maximum number of processors to use (used only if compiled with openMP)')")
@@ -1040,8 +1052,26 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) number_of_tw3_wgtPDF
     write(51,"('*p5  : run the test of the grid (takes some time)')")
     write(51,*) wgtTMDPDF_runGridTest_tw3
-    CLOSE (51, STATUS='KEEP') 
 
+
+    write(51,"(' ')")
+    write(51,"(' ')")
+    write(51,"('# ---------------------------------------------------------------------------')")
+    write(51,"('# ----                      PARAMETERS OF TMDF-KPC-DY                   -----')")
+    write(51,"('# ---------------------------------------------------------------------------')")
+    write(51,"('*14  :')")
+    write(51,"('*p1  : initialize TMDF-KPC-DY module')")
+    write(51,*) include_TMDF_KPC_DY
+    write(51,"('*A   : ---- Main definitions ----')")
+    write(51,"('*p1  : NOT YET')")
+
+    write(51,"('*B   : ---- Numerical evaluation parameters ----')")
+    write(51,"('*p1  : Tolerance general (variable comparision, etc.)')")
+    write(51,*) TMDF_KPC_DY_toleranceGEN
+    write(51,"('*p2  : Tolerance integral (Integration tollerance)')")
+    write(51,*) TMDF_KPC_DY_toleranceINT
+
+    CLOSE (51, STATUS='KEEP')
     if(outputLevel>1) write(*,*) 'aTMDe_setup: Constans file is made.'
 
 end subroutine CreateConstantsFile
@@ -1115,6 +1145,8 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
     read(51,*) hc2
+    call MoveTO(51,'*p2  ')
+    read(51,*) Mnorm
 
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')
@@ -1223,7 +1255,6 @@ subroutine ReadConstantsFile(file,prefix)
         call MoveTO(51,'*p4  ')
         read(51,*) replicas_of_hPDFs
     end if
-
     !# ----                           PARAMETERS OF EWinput                  -----
     call MoveTO(51,'*2   ')
     call MoveTO(51,'*p1  ')
@@ -1262,7 +1293,6 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) mMUON
     call MoveTO(51,'*p3  ')
     read(51,*) mTAU
-
 
     !# ----                            PARAMETERS OF TMDR                    -----
     call MoveTO(51,'*3   ')
@@ -1619,6 +1649,20 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) number_of_tw3_wgtPDF
     call MoveTO(51,'*p5  ')
     read(51,*) wgtTMDPDF_runGridTest_tw3
+
+
+    !# ----                            PARAMETERS OF TMDF-KPC-DY              -----
+    call MoveTO(51,'*14   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_TMDF_KPC_DY
+    call MoveTO(51,'*A   ')
+    call MoveTO(51,'*p1  ')
+    !read(51,*) TMDF_tolerance
+    call MoveTO(51,'*B   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) TMDF_KPC_DY_toleranceGEN
+    call MoveTO(51,'*p2  ')
+    read(51,*) TMDF_KPC_DY_toleranceINT
 
     CLOSE (51, STATUS='KEEP') 
 

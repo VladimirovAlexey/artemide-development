@@ -1,6 +1,6 @@
 program example
 use aTMDe_control
-use TMDint_KPC_DY
+use TMDF_KPC_DY
 implicit none
 
 integer::i
@@ -21,10 +21,9 @@ x2=0.3d0
 
 do i=0,9
   qt=0.1d0+i*0.5
-  R=KPC_DYconv(Q,qT,x1,x2,Q,(/1,1,1/),2)
-  write(*,'("{",F12.8,",",F16.8,"},")') qt,R
+  R=KPC_DYconv(Q,qT,x1,x2,Q,(/1,1,1/),1)
+  write(*,'("{",F12.8,",",F16.8,"},")') qt,R*1d6
 
 end do
-
 
 end program example

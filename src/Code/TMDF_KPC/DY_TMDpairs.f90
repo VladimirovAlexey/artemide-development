@@ -1,4 +1,7 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!! List of functions to substitute into the cross-section
+!!! These functions contain product of TMD distributions and all what is neccesary to attach
+!!!
 function DY_TMD_pair(Q,x1,x2,k1,k2,mu,process)
 real(dp),intent(in)::Q,x1,x2,k1,k2,mu
 integer,dimension(1:3),intent(in)::process

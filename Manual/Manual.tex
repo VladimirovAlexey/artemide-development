@@ -3207,7 +3207,74 @@ The result of evaluation should be
 \end{eqnarray}
 The expressions for functions are selected such that the integral gives reasonable values for $0.05<x<1$.
 
+\newpage
 
+\section{KPC in TMD factorization}
+
+The TMD factorization with KPCs is computed using different route. The primary problem is that one must compute these correction in the momentum space. It essentially complicates the computation, since the evolution is done in the position space. 
+
+The module \texttt{TMDint\_KPC\_DY} realises the computation of the following integral
+\begin{eqnarray}
+\mathcal{C}_{KPC}[K,FF]&=&4p_1^+p_2^+\int d\xi_1 d\xi_2 \int d^4k_1 d^4k_2 \delta^{(4)}(q-k_1-k_2)\delta(k_1^2)\delta(k_2^2)
+\\ &&\delta(k_1^+-\xi_1 p_1^+)\delta(k_2^--\xi_2 p_2^-)K \times FF,
+\end{eqnarray}
+where $K$ is a kinematic kernel, that is resulted from the convolution of tensors, and $FF$ is the product of TMD distributions.
+
+This function has the following interface
+\begin{center}
+\texttt{KPC\_DYconv(Q,qT,x1,x2,mu,proc1,proc2)}
+\end{center}
+where \texttt{Q,qT,x1,x2,mu} are usual variables, and \texttt{proc1} is (int,int,int)-array with first item being the number of $FF$, the second and third items being number of hadrons; \texttt{proc2} is the enumeration of factors K.
+
+\subsection{Realization of convolution}
+
+The integral for convolution can be presented as
+\begin{eqnarray}
+\mathcal{C}_{KPC}[K,FF]&=&
+\int_{0}^{\pi/2}d\alpha \int_0^{\pi}d\theta  \frac{K \times FF }{2},
+\end{eqnarray}
+where 
+\begin{eqnarray}
+\xi_1&=&\frac{x_1}{2}\(1+S+\sqrt{\Lambda}\),
+\\
+\xi_2&=&\frac{x_2}{2}\(1-S+\sqrt{\Lambda}\),
+\\
+\vec k_1^2&=&\frac{\tau^2}{4}\(1-\Lambda+2S+S^2\),
+\\
+\vec k_2^2&=&\frac{\tau^2}{4}\(1-\Lambda-2S+S^2\),
+\end{eqnarray}
+with
+\begin{eqnarray}
+S=\frac{(\vec q_T\vec \Delta)}{\tau^2}=\sqrt{\sin \alpha \frac{\vec q_T^2}{\tau^2}}\cos\theta,\qquad \Lambda=\frac{\lambda(\tau^2,\vec k_1^2,\vec k_2^2)}{\tau^4}=\(1-\frac{\vec q_T^2}{\tau^2}\)\(1-\sin\alpha\).
+\end{eqnarray}
+
+\subsection{Enumeration of factors K}
+
+\begin{longtable}{||l|p{6cm}|p{9cm}||}
+\hline\hline
+\texttt{N} & ~~$K$~~& Short description 
+\\\hline
+1 & 1 & Unpolarized DY case
+\\\hline
+2 & $\Ds -\frac{\xi_1}{\xi_2}\frac{\vec k_2^2}{Q^2}$ & Unpolarized EW case, term proportional to $\mathcal{P}_1$ and $f_1f_1$
+\\\hline
+3 & $\Ds -\frac{\xi_2}{\xi_1}\frac{\vec k_1^2}{Q^2}$ & Unpolarized EW case, term proportional to $\mathcal{P}_2$ and $f_1f_1$
+\\\hline
+4 & $\Ds \frac{2(\vec k_1\vec k_2)}{Q^2}$ & Unpolarized EW case, term proportional to $\mathcal{P}_3$ and $f_1f_1$
+\\\hline
+5 & $\Ds \frac{\xi_1}{\xi_2}\frac{\vec k_2^2}{Q^2}\frac{(\vec k_1\vec k_2)}{M^2}$ & Unpolarized EW case, term proportional to $\mathcal{P}_1$ and $h_1^\perp h_1^\perp$
+\\\hline
+6 & $\Ds \frac{\xi_2}{\xi_1}\frac{\vec k_1^2}{Q^2}\frac{(\vec k_1\vec k_2)}{M^2}$ & Unpolarized EW case, term proportional to $\mathcal{P}_2$ and $h_1^\perp h_1^\perp$
+\\\hline
+7 & $\Ds \frac{2 \vec k_1^2 \vec k_2^2}{M^2Q^2}$ & Unpolarized EW case, term proportional to $\mathcal{P}_3$ and $h_1^\perp h_1^\perp$
+\\\hline
+8 & $\Ds \frac{\xi_1}{x_1}-\frac{x_2}{\xi_2}\frac{\vec k_2^2}{Q^2+\vec q_T^2}$ & Unpolarized EW case, term proportional to $\mathcal{P}_1^A$ and $f_1f_1$
+\\\hline
+9 & $\Ds -\frac{\xi_2}{x_2}+\frac{x_1}{\xi_1}\frac{\vec k_1^2}{Q^2+\vec q_T^2}$ & Unpolarized EW case, term proportional to $\mathcal{P}_2^A$ and $f_1f_1$
+\\\hline\hline
+\end{longtable}
+
+\end{document}
 
 \newpage
 

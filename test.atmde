@@ -20,7 +20,9 @@
  
 *B   : ---- Universal physic parameters ----
 *p1  : Unit transformation constant (hc)^2 [GeV->mbarn]
-  0.38937933800000002     
+  0.38937933800000002
+*p2  : Global mass for normalization of TMDs [GeV]
+  1.00000000000000
  
 *C   : ---- aTMDe-control parameters ----
 *p1  : Maximum number of processors to use (used only if compiled with openMP)
@@ -494,3 +496,18 @@
            1
 *p5  : run the test of the grid (takes some time)
            F
+
+# ---------------------------------------------------------------------------
+# ----                           PARAMETERS OF TMDF-KPC-DY                  -----
+# ---------------------------------------------------------------------------
+*14   :
+*p1  : initialize TMDF-KPC-DY module
+ F
+*A   : ---- Main definitions ----
+*p1  : NOT YET
+
+*B   : ---- Numerical evaluation parameters ----
+*p1  : Tolerance general (variable comparision, etc.)
+   1.0000000000000000E-006
+*p2  : Tolerance (Integration tollerance)
+   1.0000000000000000E-004

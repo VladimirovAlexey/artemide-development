@@ -24,14 +24,15 @@ use TMDF
 use TMDX_DY
 use TMDX_SIDIS
 use TMDs_inKT
+use TMDF_KPC_DY
 use aTMDe_Setup
 implicit none
 
 private
 character (len=14),parameter :: moduleName="aTMDe-control"
-character (len=5),parameter :: version="v2.06"
+character (len=5),parameter :: version="v3.00"
 !Last appropriate verion of constants-file
-integer,parameter::inputver=11
+integer,parameter::inputver=30
 character (len=15),parameter :: constNAME="aTMDe-temporary"
 
 integer::outputLevel=2
@@ -43,6 +44,7 @@ logical::isStarted=.false.
 logical::include_EWinput,include_uTMDPDF,include_uTMDFF,include_TMDR,include_TMDs,include_TMDF
 logical::include_lpTMDPDF,include_SiversTMDPDF,include_wgtTMDPDF
 logical::include_TMDX_DY,include_TMDX_SIDIS,include_TMDs_inKT
+logical::include_TMDF_KPC_DY
 
 !!!! legths of non-perturbative arrays
 integer::NPlength_total
@@ -213,6 +215,10 @@ subroutine artemide_Initialize(file,prefix,order)
         NPlength_wgtTMDPDF=0
     end if
 
+    call MoveTO(51,'*14   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_TMDF_KPC_DY
+
     CLOSE (51, STATUS='KEEP')
     !-----------------------------------------------------------
     if(outputLevel>2) write(*,*) 'artemide.control: initialization file is read. Initialization of modules ... '
@@ -316,6 +322,14 @@ subroutine artemide_Initialize(file,prefix,order)
             call TMDX_SIDIS_Initialize(constNAME,prefix)
         else
             call TMDX_SIDIS_Initialize(constNAME)
+        end if
+    end if
+
+    if(include_TMDF_KPC_DY) then
+        if(present(prefix)) then
+            call TMDF_KPC_DY_Initialize(constNAME,prefix)
+        else
+            call TMDF_KPC_DY_Initialize(constNAME)
         end if
     end if
 
