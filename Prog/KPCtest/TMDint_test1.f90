@@ -1,6 +1,6 @@
 program example
 use aTMDe_control
-use TMDF_KPC_DY
+use TMDF_KPC
 implicit none
 
 integer::i

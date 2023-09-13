@@ -7,7 +7,7 @@
 !
 !    ver 3.0: created (AV, 07.09.2023)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-module TMDF_KPC_DY
+module TMDF_KPC
 use aTMDe_Numerics
 use IntegrationRoutines
 use IO_functions
@@ -44,21 +44,21 @@ real(dp)::M2=1._dp
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!! Public declarations
-public::TMDF_KPC_DY_IsInitialized,TMDF_KPC_DY_Initialize
+public::TMDF_KPC_IsInitialized,TMDF_KPC_Initialize
 public::KPC_DYconv
 
 contains
 
-INCLUDE 'Code/TMDF_KPC/DY_TMDpairs.f90'
-INCLUDE 'Code/TMDF_KPC/DY_KERNELpairs.f90'
+INCLUDE 'Code/TMDF_KPC/TMDpairs.f90'
+INCLUDE 'Code/TMDF_KPC/KERNELpairs_DY.f90'
 
-function TMDF_KPC_DY_IsInitialized()
-    logical::TMDF_KPC_DY_IsInitialized
-    TMDF_KPC_DY_IsInitialized=started
-end function TMDF_KPC_DY_IsInitialized
+function TMDF_KPC_IsInitialized()
+    logical::TMDF_KPC_IsInitialized
+    TMDF_KPC_IsInitialized=started
+end function TMDF_KPC_IsInitialized
 
    !! Initialization of the package
-subroutine TMDF_KPC_DY_Initialize(file,prefix)
+subroutine TMDF_KPC_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
     character(len=300)::path
@@ -148,7 +148,7 @@ subroutine TMDF_KPC_DY_Initialize(file,prefix)
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.TMDF '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) ' '
 
-end subroutine TMDF_KPC_DY_Initialize
+end subroutine TMDF_KPC_Initialize
 
 
 !!!--------------------------------------------------------------------------------------------------
@@ -215,7 +215,7 @@ function Integrand_forALPHA(alpha)
 
     Q2=Q**2
 
-    Integrand_forALPHA=DY_TMD_pair(Q,xi1,xi2,k1,k2,mu,proc1)*DY_KERNEL_pair(Q2,tau2-Q2,x1,x2,xi1,xi2,k1,k2,cT,sinA,proc2)/2
+    Integrand_forALPHA=TMD_pair(Q,xi1,xi2,k1,k2,mu,proc1)*DY_KERNEL_pair(Q2,tau2-Q2,x1,x2,xi1,xi2,k1,k2,cT,sinA,proc2)/2
 
 
 end function Integrand_forALPHA
@@ -224,4 +224,4 @@ end function INT_overALPHA
 
 !!!--------------------------------------------------------------------------------------------------
 
-end module TMDF_KPC_DY
+end module TMDF_KPC

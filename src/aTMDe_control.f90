@@ -24,7 +24,7 @@ use TMDF
 use TMDX_DY
 use TMDX_SIDIS
 use TMDs_inKT
-use TMDF_KPC_DY
+use TMDF_KPC
 use aTMDe_Setup
 implicit none
 
@@ -44,7 +44,7 @@ logical::isStarted=.false.
 logical::include_EWinput,include_uTMDPDF,include_uTMDFF,include_TMDR,include_TMDs,include_TMDF
 logical::include_lpTMDPDF,include_SiversTMDPDF,include_wgtTMDPDF
 logical::include_TMDX_DY,include_TMDX_SIDIS,include_TMDs_inKT
-logical::include_TMDF_KPC_DY
+logical::include_TMDF_KPC
 
 !!!! legths of non-perturbative arrays
 integer::NPlength_total
@@ -217,7 +217,7 @@ subroutine artemide_Initialize(file,prefix,order)
 
     call MoveTO(51,'*14   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) include_TMDF_KPC_DY
+    read(51,*) include_TMDF_KPC
 
     CLOSE (51, STATUS='KEEP')
     !-----------------------------------------------------------
@@ -325,11 +325,11 @@ subroutine artemide_Initialize(file,prefix,order)
         end if
     end if
 
-    if(include_TMDF_KPC_DY) then
+    if(include_TMDF_KPC) then
         if(present(prefix)) then
-            call TMDF_KPC_DY_Initialize(constNAME,prefix)
+            call TMDF_KPC_Initialize(constNAME,prefix)
         else
-            call TMDF_KPC_DY_Initialize(constNAME)
+            call TMDF_KPC_Initialize(constNAME)
         end if
     end if
 

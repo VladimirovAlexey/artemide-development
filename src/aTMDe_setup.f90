@@ -162,8 +162,8 @@ real(dp)::TMDX_SIDIS_toleranceZ,TMDX_SIDIS_toleranceX
 character(len=4)::TMDX_SIDIS_methodZ,TMDX_SIDIS_methodX
 
 !-------------------- TMDF-KPC-Dy parameters
-logical::include_TMDF_KPC_DY
-real(dp)::TMDF_KPC_DY_toleranceGEN,TMDF_KPC_DY_toleranceINT
+logical::include_TMDF_KPC
+real(dp)::TMDF_KPC_toleranceGEN,TMDF_KPC_toleranceINT
 
 !---------------------------------------------------
 public::artemide_Setup_fromFile,CreateConstantsFile,ReadConstantsFile,CheckConstantsFile
@@ -447,9 +447,9 @@ subroutine SetupDefault(order)
     TMDX_SIDIS_methodX='SA'        !SA=Simpson adaptive, S5=Simpson 5-point
 
     !------------------ parameters for TMDF-KPC-DY
-    include_TMDF_KPC_DY=.true.
-    TMDF_KPC_DY_toleranceGEN=0.000001d0  !tolerance general (i.e. comparison etc)
-    TMDF_KPC_DY_toleranceINT=0.0001d0    !tolerance integration (i.e. relative integration tolerance)
+    include_TMDF_KPC=.true.
+    TMDF_KPC_toleranceGEN=0.000001d0  !tolerance general (i.e. comparison etc)
+    TMDF_KPC_toleranceINT=0.0001d0    !tolerance integration (i.e. relative integration tolerance)
 
 end subroutine SetupDefault
 
@@ -1057,19 +1057,19 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"(' ')")
     write(51,"(' ')")
     write(51,"('# ---------------------------------------------------------------------------')")
-    write(51,"('# ----                      PARAMETERS OF TMDF-KPC-DY                   -----')")
+    write(51,"('# ----                      PARAMETERS OF TMDF-KPC                      -----')")
     write(51,"('# ---------------------------------------------------------------------------')")
     write(51,"('*14  :')")
     write(51,"('*p1  : initialize TMDF-KPC-DY module')")
-    write(51,*) include_TMDF_KPC_DY
+    write(51,*) include_TMDF_KPC
     write(51,"('*A   : ---- Main definitions ----')")
     write(51,"('*p1  : NOT YET')")
 
     write(51,"('*B   : ---- Numerical evaluation parameters ----')")
     write(51,"('*p1  : Tolerance general (variable comparision, etc.)')")
-    write(51,*) TMDF_KPC_DY_toleranceGEN
+    write(51,*) TMDF_KPC_toleranceGEN
     write(51,"('*p2  : Tolerance integral (Integration tollerance)')")
-    write(51,*) TMDF_KPC_DY_toleranceINT
+    write(51,*) TMDF_KPC_toleranceINT
 
     CLOSE (51, STATUS='KEEP')
     if(outputLevel>1) write(*,*) 'aTMDe_setup: Constans file is made.'
@@ -1651,18 +1651,18 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) wgtTMDPDF_runGridTest_tw3
 
 
-    !# ----                            PARAMETERS OF TMDF-KPC-DY              -----
+    !# ----                            PARAMETERS OF TMDF-KPC              -----
     call MoveTO(51,'*14   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) include_TMDF_KPC_DY
+    read(51,*) include_TMDF_KPC
     call MoveTO(51,'*A   ')
     call MoveTO(51,'*p1  ')
     !read(51,*) TMDF_tolerance
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) TMDF_KPC_DY_toleranceGEN
+    read(51,*) TMDF_KPC_toleranceGEN
     call MoveTO(51,'*p2  ')
-    read(51,*) TMDF_KPC_DY_toleranceINT
+    read(51,*) TMDF_KPC_toleranceINT
 
     CLOSE (51, STATUS='KEEP') 
 
