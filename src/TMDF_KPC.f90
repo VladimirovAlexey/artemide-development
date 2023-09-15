@@ -184,6 +184,7 @@ contains
     cT=cos(theta)
 
     Integrand_forTheta=INT_overALPHA(Q2,tau2,deltaT,x1,x2,mu,proc1,proc2,cT)
+    !Integrand_forTheta=INT_overLP(Q2,qT,x1,x2,mu,proc1,proc2,cT)*2/Q2
 
 end function Integrand_forTheta
 
@@ -219,6 +220,34 @@ function Integrand_forALPHA(alpha)
 end function Integrand_forALPHA
 
 end function INT_overALPHA
+
+!!!!!----- This is LP integral over DELTA
+function INT_overLP(Q2,qT,x1,x2,mu,proc1,proc2,cT)
+    real(dp),intent(in)::Q2,qT,x1,x2,mu,cT
+    integer,intent(in),dimension(1:3)::proc1
+    integer,intent(in)::proc2
+    real(dp)::INT_overLP
+
+    !!!! upper limit must be infinity.. but I cut it at Q2
+    INT_overLP=Integrate_GK(Integrand_forLP,0._dp,4*Q2,toleranceINT)
+
+contains
+
+function Integrand_forLP(Delta2)
+    real(dp)::Integrand_forLP
+    real(dp),intent(in)::Delta2
+    real(dp)::K1,K2
+
+    K1=(qT**2+Delta2+2*qT*sqrt(Delta2)*cT)/4
+    K2=(qT**2+Delta2-2*qT*sqrt(Delta2)*cT)/4
+
+    Integrand_forLP=TMD_pair(Q2,x1,x2,k1,k2,mu,proc1)*DY_KERNEL_pair(Q2,qT**2,x1,x2,x1,x2,k1,k2,cT,1.d0,proc2)/4
+
+
+end function Integrand_forLP
+
+end function INT_overLP
+
 
 !!!--------------------------------------------------------------------------------------------------
 !!!!!!!Functions which carry the trigger on convergences.... Its used in xSec, and probably in other places.

@@ -133,7 +133,7 @@
  
 *A   : ---- Main definitions ----
 *p1  : Order of evolution
- N3LO
+ N4LO
 *p2  : Override the general definition of the pertrubative order (in this case orders are defined by the list below)
    F
 *p3  : Order of Gamma-cusp (LO=1-loop, NLO=2-loop, ...)
@@ -167,9 +167,9 @@
 
 *A   : ---- OPE main definitions ----
 *p1  : Order of coefficient function
- LO
+ N3LO
 *p2  : Prepare grid
- F
+ T
 *p3  : Include gluon TMDs into the grid
  F
 *p4  : total number of PDFs added to the grid (by default it coincides with number of initialized PDFs)
@@ -299,7 +299,7 @@
  T
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
- LO
+ N4LO
 *p2  : Utilize KPC formula (T=KPC formula, F=LP formula)
  F
 *p3  : Use resummation of pi^2-corrections in hard coefficient

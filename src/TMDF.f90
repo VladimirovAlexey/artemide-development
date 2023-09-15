@@ -220,9 +220,10 @@ end subroutine TMDF_ResetCounters
  end if
   
  SELECT CASE(process)
-  !!!test case
+  !!!test cases
   CASE(0,10000,20000,30000)
-    Integrand=Exp(-0.2d0*b)
+    !Integrand=Exp(-0.2d0*b)
+    Integrand=b**4*Exp(-5.d0*b)
   CASE(9999,19999,29999,39999)
     Integrand=Exp(-mu*b)*(1d0+x1*b**2+x2*b**4)
   CASE(9998,19998,29998,39998)

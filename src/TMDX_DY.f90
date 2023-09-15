@@ -393,7 +393,7 @@ function PreFactor2(kin,process, includeCuts_in,CutParam)
   scaleMu=sqrt(kin(4)+exactScales*kin(1)**2)
 
   SELECT CASE(process(1))
-  case(-10221191)
+  case(0)
     uniPart=1d0
     cutPrefactor=1d0
   CASE(1)
@@ -401,7 +401,6 @@ function PreFactor2(kin,process, includeCuts_in,CutParam)
     uniPart=pix4/9d0*(alphaEM(scaleMu)**2)/(kin(2)*kin(4))*&
         HardCoefficientDY(scaleMu)*&
         hc2*1d9!from GeV to pb
-
   CASE(2)
     !4 pi aEm^2/3 /Nc/Q^2/s
     ! the process=2 is for the xF-integration. It has extra weigth 2sqrt[(Q^2+q_T^2)/s] Cosh[y]
@@ -458,18 +457,18 @@ function PreFactorKPC(kin,proc1,proc2, includeCuts_in,CutParam)
     stop
   else
     !!! this is uncut lepton tensor
-    cutPrefactor=1.d0
+    cutPrefactor=1.d0*(1+0.5d0*(kin(1)/kin(3))**2)
   end if
 
   !!!! universal part
-  scaleMu=kin(4)
+  scaleMu=kin(3)
 
   SELECT CASE(proc1(1))
-  case(-10221191)
+  case(0)
     uniPart=1d0
     cutPrefactor=1d0
   CASE(1)
-    !4 pi aEm^2/3 /Nc/Q^2/s
+!     !4 pi aEm^2/3 /Nc/Q^2/s
     uniPart=pi2x2/9*(alphaEM(scaleMu)**2)/kin(2)*&
         HardCoefficientDY(scaleMu)*&
         hc2*1d9!from GeV to pb
