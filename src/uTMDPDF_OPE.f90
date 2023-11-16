@@ -100,6 +100,7 @@ integer::numberOfHadrons=1                !!!total number of hadrons to be store
 !!--------------------------------------Public interface-----------------------------------------
 public::uTMDPDF_OPE_IsInitialized,uTMDPDF_OPE_Initialize,uTMDPDF_OPE_convolution
 public::uTMDPDF_OPE_resetGrid,uTMDPDF_OPE_testGrid,uTMDPDF_OPE_SetPDFreplica,uTMDPDF_OPE_SetScaleVariation
+public::uTMDPDF_X0_AS
 
 !!!!!!----FOR TEST
 !public::MakeGrid,ExtractFromGrid,CxF_compute,TestGrid
@@ -117,6 +118,9 @@ INCLUDE 'Code/Twist2/Twist2Bgrid.f90'
 INCLUDE 'Code/Twist2/Twist2Convolution.f90'
 !! Grid operation
 INCLUDE 'Code/Twist2/Twist2Grid-XB.f90'
+
+!! Mellin convolution for AS-term
+INCLUDE 'Code/Twist2/Twist2-AS-term.f90'
 
 
 function uTMDPDF_OPE_IsInitialized()
@@ -359,6 +363,44 @@ function uTMDPDF_OPE_convolution(x,b,h,addGluon)
 
 end function uTMDPDF_OPE_convolution
 
+function uTMDPDF_X0_AS(x,mu,h,addGluon)
+    real(dp),dimension(-5:5)::uTMDPDF_X0_AS
+    real(dp),intent(in)::x,mu
+    integer,intent(in)::h
+    logical,optional,intent(in)::addGluon
+
+    logical::gluon
+
+    !!! check gluonity
+    if(present(addGluon)) then
+        gluon=addGluon
+    else
+        gluon=withGluon
+    end if
+
+      !!! test boundaries
+    if(x>1d0) then
+        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
+        uTMDPDF_X0_AS=0._dp
+        return
+    else if(x==1.d0) then
+        uTMDPDF_X0_AS=0._dp
+        return
+    else if(x<1d-12) then
+        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
+        stop
+    end if
+
+    !!!! case NA
+    if(orderMain==-50) then
+        uTMDPDF_X0_AS=0._dp
+        return
+    end if
+
+    !!! computation
+    uTMDPDF_X0_AS=CxF_AS(x,mu,h,gluon)/x
+
+end function uTMDPDF_X0_AS
 
 !!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
 !!! This subroutine force reconstruction of the grid (if griding is ON)

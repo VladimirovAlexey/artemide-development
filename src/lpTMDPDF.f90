@@ -212,6 +212,9 @@ function lpTMDPDF_lowScale5(x,bT,hadron)
         call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
         lpTMDPDF_lowScale5=0._dp
         return
+    else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
+        lpTMDPDF_lowScale5=0._dp
+        return
     else if(bT>BMAX_ABS) then
         lpTMDPDF_lowScale5=0._dp
         return
