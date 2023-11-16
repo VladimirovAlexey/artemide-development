@@ -1674,6 +1674,8 @@ Entry &~~Type~~& Description
 \\\hline\hline
 \texttt{XX\_OPE\_convolution(x,b,h,G)} & dp\_real(-5:5) & Returns (\ref{OPE:tw2:main}) for (x,b)=((real)\texttt{x}, (real)\texttt{b}), and hadron number (int)\texttt{h}. In the case of \texttt{NA} returns 1. If grid is computed restore from the grid. The flag (T/F)\texttt{G} is optional. It indicates the inclusion of gluon into the result. Note, that if gluons were not included into the grid they are zero.
 \\\hline\hline
+\texttt{uTMDPDF\_X0\_AS(x,mu,h,G)} & dp\_real(-5:5) & Computes the AS[$\mathcal{X}_0[f_1]$] as defined in [????.????]. This is asymptotic term required to determine the second moment of TMDPDF. (x,$\mu$)=((real)\texttt{x}, (real)\texttt{mu}), and hadron number (int)\texttt{h}. In the case of \texttt{NA} returns 0. The flag (T/F)\texttt{G} is optional. It indicates the inclusion of gluon into the result. \red{For a moment this function is done only for uTMDPDF, but it will be updated to all twist-TMDs}
+\\\hline\hline
 \end{tabular}
 \end{center}
 
@@ -1902,6 +1904,25 @@ x\bar x\ln\bar x,x\bar x\ln^2\bar x,x\bar x\ln^3\bar x,
 Decomposed in this basis the coefficient functions are very presice. The typical relative precision is $10^{-8}-10^{-10}$ \textit{for the finite part} (other terms are exact). The worst presicion happen at small $x\sim 10^{-5}$ for $g\ot g$ channel where relative precision is $\sim 10^{-5}-10^{-6}$.
 
 Similar ansatz is used for uTMDFF, with some term removed (which are sensitive to small-x region). Precision in the case of TMDFF is slightly worse $10^{-6}-10^{-8}$. The worst precision is for N$^3$LO $q\to q'$ channel, where it is $\sim 10^{-4}-10^{-6}$. However, it is very good precision which guaranties about 10-12 presice digits for the physical convolution.
+
+\begin{center}
+\textbf{Computation of AS$[\mathcal{X}_0]$}
+\end{center}
+
+The function AS$\mathcal{X}_0$ is defined in [????.????] and reads
+\begin{eqnarray}\label{def:AS_X0}
+\text{AS}[\mathcal{X}_0[F]]&=&\alpha_s \Big\{P_1+\alpha_s\[P_2+\(C_1-P_1\)\otimes\(P_1-\beta_0\)\]
+\\\nn &&+\alpha_s^2\Big[P_3+\(C_1-P_1\)\otimes\(P_2-\beta_1\)
++\(C_2-P_2\)\otimes\(P_1-2\beta_0\)
+\\\nn &&-\(C_1-P_1\)\otimes\(P_1-\beta_0\)\otimes\(P_1-2\beta_0\)\Big]
++\mathcal{O}\(\alpha_s^3\)\Big\}\otimes f.
+\end{eqnarray}
+I could be obtained by computation of ordinary optimal small-b convolution with replacement of finite terms by $0$, and logarithm terms by $\mathbf{L}_b^k\to -k!$. Thus, the function can be computed as ordinary convolution with the coefficient function $X$ defined as (up to N$^3$LO)
+\begin{eqnarray}
+X=\frac{3}{4}C[\mathbf{L}_b=0]-\frac{2}{3}C[\mathbf{L}_b=1]-\frac{1}{12}C[\mathbf{L}_b=4].
+\end{eqnarray}
+
+
 
 \subsection{\texttt{\_OPE} modules (tw3)}
 \label{TMD_OPE_tw3}
