@@ -204,8 +204,8 @@ end function lpTMDPDF_CurrentLambdaNP
 !!!!!!! the function that actually returns the lpTMDPDF!
 function lpTMDPDF_lowScale5(x,bT,hadron)
   real(dp),dimension(-5:5)::lpTMDPDF_lowScale5
-  real(dp) :: x, bT
-  integer::hadron
+  real(dp),intent(in) :: x, bT
+  integer,intent(in)::hadron
 
   !!! test boundaries
     if(x>1d0) then

@@ -13,7 +13,9 @@ use TMDX_DY
 use TMDX_SIDIS
 use aTMDe_control
 use uTMDPDF
+use uTMDPDF_OPE
 use uTMDFF
+use SiversTMDPDF
 use lpTMDPDF
 use wgtTMDPDF
 use TMDR_model
@@ -380,6 +382,36 @@ contains
   uTMDPDF_kT_50_Optimal=uTMDPDF_kT_5(x,bt,hadron)
     
   end function uTMDPDF_kT_50_Optimal
+
+  ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function uTMDPDF_G0(x,mu,hadron)
+    real*8:: uTMDPDF_G0(-5:5)
+    real*8:: x,mu
+    integer::hadron
+
+  uTMDPDF_G0=Moment_G(0,x,mu,uTMDPDF_lowScale5,hadron)
+
+  end function uTMDPDF_G0
+
+    ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function uTMDPDF_X0(x,mu,hadron)
+    real*8:: uTMDPDF_X0(-5:5)
+    real*8:: x,mu
+    integer::hadron
+
+  uTMDPDF_X0=Moment_X(0,x,mu,uTMDPDF_lowScale5,hadron)
+
+  end function uTMDPDF_X0
+
+      ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function uTMDPDF_PDF(x,mu,hadron)
+    real*8:: uTMDPDF_PDF(-5:5)
+    real*8:: x,mu
+    integer::hadron
+
+  uTMDPDF_PDF=uTMDPDF_OPE_PDF(x,mu,hadron)
+
+  end function uTMDPDF_PDF
   
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!! upolarized TMDFF
@@ -487,6 +519,16 @@ contains
   SiversTMDPDF_kT_50_Optimal=SiversTMDPDF_kT_5(x,bt,hadron)
     
   end function SiversTMDPDF_kT_50_Optimal
+
+    ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function SiversTMDPDF_G1(x,mu,hadron)
+    real*8:: SiversTMDPDF_G1(-5:5)
+    real*8:: x,mu
+    integer::hadron
+
+  SiversTMDPDF_G1=Moment_G(1,x,mu,SiversTMDPDF_lowScale5,hadron)
+
+  end function SiversTMDPDF_G1
   
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!!!!!!!! wgt TMDPDF

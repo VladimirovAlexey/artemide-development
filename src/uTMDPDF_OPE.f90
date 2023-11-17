@@ -100,7 +100,7 @@ integer::numberOfHadrons=1                !!!total number of hadrons to be store
 !!--------------------------------------Public interface-----------------------------------------
 public::uTMDPDF_OPE_IsInitialized,uTMDPDF_OPE_Initialize,uTMDPDF_OPE_convolution
 public::uTMDPDF_OPE_resetGrid,uTMDPDF_OPE_testGrid,uTMDPDF_OPE_SetPDFreplica,uTMDPDF_OPE_SetScaleVariation
-public::uTMDPDF_X0_AS
+public::uTMDPDF_X0_AS,uTMDPDF_OPE_PDF
 
 !!!!!!----FOR TEST
 !public::MakeGrid,ExtractFromGrid,CxF_compute,TestGrid
@@ -320,6 +320,18 @@ function xf(x,Q,hadron)
     xf=xPDF(x,Q,hadron)
     
 end function xf
+
+!!!! this is function which sends PDF directly to the output
+!!!! needed solely for analysis of TMDs, to not to run LHAPDF again
+!!!! NOTE: it is not mutiplied by x
+function uTMDPDF_OPE_PDF(x,mu,hadron)
+    real(dp) :: x,mu
+    integer:: hadron
+    real(dp), dimension(-5:5):: uTMDPDF_OPE_PDF
+
+    uTMDPDF_OPE_PDF=xPDF(x,mu,hadron)/x
+
+end function uTMDPDF_OPE_PDF
 
 function uTMDPDF_OPE_convolution(x,b,h,addGluon)
     real(dp),dimension(-5:5)::uTMDPDF_OPE_convolution

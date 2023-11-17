@@ -12,7 +12,9 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
     use tmdx_sidis
     use atmde_control
     use utmdpdf
+    use utmdpdf_ope
     use utmdff
+    use siverstmdpdf
     use lptmdpdf
     use wgttmdpdf
     use tmdr_model
@@ -233,6 +235,24 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
         integer :: hadron
         real*8 dimension(11) :: utmdpdf_kt_50_optimal
     end function utmdpdf_kt_50_optimal
+    function utmdpdf_g0(x,mu,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 :: x
+        real*8 :: mu
+        integer :: hadron
+        real*8 dimension(11) :: utmdpdf_g0
+    end function utmdpdf_g0
+    function utmdpdf_x0(x,mu,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 :: x
+        real*8 :: mu
+        integer :: hadron
+        real*8 dimension(11) :: utmdpdf_x0
+    end function utmdpdf_x0
+    function utmdpdf_pdf(x,mu,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 :: x
+        real*8 :: mu
+        integer :: hadron
+        real*8 dimension(11) :: utmdpdf_pdf
+    end function utmdpdf_pdf
     function utmdff_kt_5_evolved(x,bt,muf,zetaf,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         real*8 :: x
         real*8 :: bt
@@ -303,6 +323,12 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
         integer :: hadron
         real*8 dimension(11) :: siverstmdpdf_kt_50_optimal
     end function siverstmdpdf_kt_50_optimal
+    function siverstmdpdf_g1(x,mu,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 :: x
+        real*8 :: mu
+        integer :: hadron
+        real*8 dimension(11) :: siverstmdpdf_g1
+    end function siverstmdpdf_g1
     function wgttmdpdf_kt_5_evolved(x,bt,muf,zetaf,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         real*8 :: x
         real*8 :: bt

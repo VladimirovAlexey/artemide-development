@@ -95,7 +95,7 @@ function FNP(x,bT,hadron,lambdaNP)
 
     FNP=(/&
     FNPr,FNPr,FNPr,FNPubar,FNPdbar,&
-    0d0,&
+    exp(-0.001d0*bb),&
     FNPd,FNPu,FNPr,FNPr,FNPr/)
 
 

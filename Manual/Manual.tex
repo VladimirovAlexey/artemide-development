@@ -3189,7 +3189,7 @@ The module \texttt{TMDs\_inKT} uses all functions from the module \texttt{TMDs}.
 \begin{center}
 List of available commands
 \\
-\begin{tabular}{||l|c|c|p{8cm}||}
+\begin{longtable}{||l|c|c|p{8cm}||}
 \hline\hline
 Command & ~~Type~~& ~~Sec.~~ & Short description
 \\\hline
@@ -3230,7 +3230,11 @@ Command & ~~Type~~& ~~Sec.~~ & Short description
 \texttt{SiversTMDPDF{\_}kT{\_}50(x,kT,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF (gluon term defined). $n=1$
 \\
 \hline\hline
-\end{tabular}
+\texttt{Moment{\_}G(n,x,mu,F,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Computed the moment $\mathcal{G}_n$ (see below). (int)\texttt{n,h}, are order of moment and hadonr, (real*8)\texttt{x,mu} collinear momentum fraction and scale. F is the name of optimal TMDPDF. \red{For a moment, $n=0,1,2$, only}.
+\\\hline
+\texttt{Moment{\_}X(n,x,mu,F,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Computed the moment $\mathcal{G}_n$ (see below). (int)\texttt{n,h}, are order of moment and hadonr, (real*8)\texttt{x,mu} collinear momentum fraction and scale. F is the name of optimal TMDPDF. \red{For a moment, $n=0,1$, only}.
+\\\hline
+\end{longtable}
 \end{center}
 
 \textbf{Comments:} 
@@ -3256,6 +3260,17 @@ The result of evaluation should be
 \frac{J_0(2\sqrt{x k_T})}{2\pi k_T}, \frac{1}{2\pi k_T }\Bigg\}.
 \end{eqnarray}
 The expressions for functions are selected such that the integral gives reasonable values for $0.05<x<1$.
+
+Moments are defined as
+\begin{eqnarray}
+\mathcal{G}_n[F]&=&\frac{1}{2^n}\int d^2k_T \theta(|k_T|<\mu) \frac{k_T^{2n}}{M^{2n}} F(x,k_T)
+=
+\frac{\mu^{n+1}}{2^nn!}
+\int_0^\infty db b^{n}   J_{n+1}(b\mu)\widetilde{F}(x,b),
+\\
+\mathcal{X}_n[F]&=&\int^\mu d\vec k_T^2 \frac{(\vec k_T^2)^{n+1}}{2^nM^{2n}}F(x,k_T)
+\\\nn &=&\frac{1}{2^nn!}\int_0^\infty db\,\mu^3(\mu b)^n \frac{(n+1)J_{n+1}(\mu b)-J_{n+3}(\mu b)}{n+2}\widetilde{F}(x,b).
+\end{eqnarray}
 
 \newpage
 

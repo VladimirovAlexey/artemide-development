@@ -37,11 +37,11 @@
  
 *A   : ---- quarks threashold masses ----
 *p1  : mass of charm-quark
-   1.2749999999999999     
+   1.40   
 *p2  : mass of bottom-quark
-   4.1799999999999997     
+   4.75
 *p3  : mass of top-quark
-   172.90000000000001     
+   1e+10     
  
 *B   : ---- uPDF sets----
 *p1  : total number of PDFs to initialize (0= initialization is skipped)
@@ -49,19 +49,20 @@
 *p2  : reference number for hadrons
     1
 *p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
- NNPDF31_nnlo_as_0118
  MSHT20_REP
 *p4  : list of initialization replicas
     0
  
 *C   : ---- uFF sets----
 *p1  : total number of FFs to initialize (0= initialization is skipped)
-           0
+           2
 *p2  : reference number for hadrons
-    0
+    1,     2
 *p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
+ DSS14_NLO_PionPlus
+ DSS17_NLO_KaonPlus
 *p4  : list of initialization replicas
-    0
+    0,     0
  
 *D   : ----lpPDF sets----
 *p1  : total number of PDFs to initialize (0= initialization is skipped)
@@ -95,20 +96,20 @@
 *p2  : value of sin^2(theta_W)
   0.23122000000000001     
 *p3  : values of CKM matrix (1-line:UD, US, UB, 2-line: CD, CS, CB)
-  0.97419999999999995       0.22430000000000000        3.9399999999999998E-002
-  0.21800000000000000       0.99700000000000000        4.2200000000000001E-002
+  0.97370000000000000       0.22450000000000000        3.8200000000000000E-002
+  0.22100000000000000       0.98700000000000000        4.1000000000000001E-002
 *p4  : value of (alphaQED)^{-1} at MTAU
    133.47600000000000     
 *B   : ---- Z-boson ----
 *p1  : mass of Z-boson [GeV]
-   91.187600000000003     
+   91.187600000000000     
 *p2  : width of Z-boson [GeV]
-   2.4952000000000001     
+   2.4942000000000000     
 *C   : ---- W-boson ----
 *p1  : mass of W-boson [GeV]
-   80.379000000000005     
+   80.379000000000000     
 *p2  : width of W-boson [GeV]
-   2.0850000000000000     
+   2.0896000000000000     
 *D   : ---- Higgs-boson ----
 *p1  : mass of Higgs-boson [GeV]
    125.09999999999999     
@@ -134,7 +135,7 @@
  
 *A   : ---- Main definitions ----
 *p1  : Order of evolution
- N3LO
+ N4LO
 *p2  : Override the general definition of the pertrubative order (in this case orders are defined by the list below)
    F
 *p3  : Order of Gamma-cusp (LO=1-loop, NLO=2-loop, ...)
@@ -168,11 +169,11 @@
 
 *A   : ---- OPE main definitions ----
 *p1  : Order of coefficient function
- N3LO
+ LO
 *p2  : Prepare grid
- F
-*p3  : Include gluon TMDs into the grid
  T
+*p3  : Include gluon TMDs into the grid
+ F
 *p4  : total number of PDFs added to the grid (by default it coincides with number of initialized PDFs)
            1
 *p5  : run the test of the grid (takes some time)
@@ -200,11 +201,11 @@
 *p3  : the minimum bT in grid, for smaller value the result is constant
    9.9999999999999995E-007
 *p4  : the maximum bT in grid, for larger b the approximate extrapolation is done
-   25.000000000000000
+   30.000000000000000
 *p5  : Grid Size over X
          400
 *p6  : Grid Size over B
-         200
+         250
  
  
 # ---------------------------------------------------------------------------
@@ -222,7 +223,7 @@
 *p3  : Include gluon TMDs into the grid
  F
 *p4  : total number of PDFs added to the grid (by default it coincides with number of initialized FFs)
-           0
+           2
 *p5  : run the test of the grid (takes some time)
  F
 
@@ -297,10 +298,10 @@
 # ---------------------------------------------------------------------------
 *9   :
 *p1  : initialize TMDX-DY module
- F
+ T
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
- LO
+ N4LO
 *p2  : Utilize KPC formula (T=KPC formula, F=LP formula)
  F
 *p3  : Use resummation of pi^2-corrections in hard coefficient
@@ -320,10 +321,10 @@
 *p1  : Use the exact LP values of x1 and x2 (include qT/Q correction)
  T
 *p2  : Use the exact LP value for factorization scale (include qT/Q correction)
- F
+ T
 *D   : ---- Definition of TMD factorization with KPC ----
 *p1  : Include terms induced by fiducial cuts
- 
+ T
  
 # ---------------------------------------------------------------------------
 # ----                          PARAMETERS OF TMDX-SIDIS                -----
@@ -333,7 +334,7 @@
  F
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
- LO
+ N4LO
 *p2  : Use transverse momentum corrections in kinematics
  T
 *p3  : Use target mass corrections in kinematics

@@ -20,7 +20,7 @@ implicit none
 private
 
 character (len=10),parameter :: moduleName="TMDs-inKT"
-character (len=5),parameter :: version="v2.06"
+character (len=5),parameter :: version="v3.00"
 !Last appropriate verion of constants-file
 integer,parameter::inputver=1
 
@@ -48,6 +48,15 @@ integer::CallCounter
 integer::MaxCounter
 integer::messageCounter
  
+!!!! general interface to the optimal TMD PDF
+abstract interface
+    function tmd_opt(x_f,b_f,h_f)
+        use aTMDe_Numerics, only: dp
+        real(dp),intent(in)::x_f,b_f
+        integer,intent(in)::h_f
+        real(dp),dimension(-5:5)::tmd_opt
+    end function tmd_opt
+end interface
 !------------------------------------------Physical and mathematical constants------------------------------------------
   
 !------------------------------------------Working variables------------------------------------------------------------
@@ -58,6 +67,7 @@ integer::outputLevel=2
 integer::messageTrigger=5
 
 public::TMDs_inKT_Initialize,TMDs_inKT_ShowStatistic,TMDs_inKT_IsInitialized,TMDs_inKT_ResetCounters
+public::Moment_G,Moment_X
     
 real(dp),dimension(-5:5),public::uTMDPDF_kT_50,uTMDPDF_kT_5,uTMDFF_kT_5,uTMDFF_kT_50,lpTMDPDF_kT_50,&
     SiversTMDPDF_kT_5,SiversTMDPDF_kT_50,wgtTMDPDF_kT_5,wgtTMDPDF_kT_50
@@ -402,12 +412,13 @@ end function wgtTMDPDF_kT_50_optimal
 !------------------------------------------FOURIER--------------------------------
 !!!This is the defining module function
 !!! It evaluates the integral 
-!!!  int_0^infty   b db/2pi  J0(b qT) F1
+!!!  int_0^infty   b db/2pi  J_num(b qT) F1
 !!! The function F1 is given via number.. num
+!!! The order of the Bessel function is also selected according to num
 function Fourier(x,qT_in,mu,zeta,num,hadron)
-    real(dp)::qT,x,mu,zeta,qT_in
-    integer::num,hadron
-    real(dp)::integral(-5:5),eps(-5:5)
+    real(dp),intent(in)::x,mu,zeta,qT_in
+    integer,intent(in)::num,hadron
+    real(dp)::integral(-5:5),eps(-5:5),qT
     real(dp)::v1(-5:5),v2(-5:5),v3(-5:5),v4(-5:5),delta(-5:5)
     logical:: partDone(-5:5)
     integer::k,n,j,Nsegment
@@ -486,22 +497,24 @@ function Fourier(x,qT_in,mu,zeta,num,hadron)
                 ' ogata h=',hOGATA*hSegmentationWeight(Nsegment)
             write(*,*) 'W=',Integrand(bb(Nsegment,n,Nmax)/qT,x,mu,zeta,num,hadron), 'eps/integral =', eps/integral
             write(*,*) 'v1+v2+v3+v4=',v1+v2+v3+v4, '>',tolerance*(ABS(integral(1))+ABS(integral(2)))
-            write(*,*) 'x=',x,'type =',num,' it is ',CallCounter,'call.'
+            write(*,*) 'x=',x,'type =',num,' it is ',CallCounter,' call.'
             write(*,*) '------------------------------------------'
             end if
         call TMDs_inKT_convergenceISlost()
     end if
 
+    !! store the maximum number of calls
     if(k>MaxCounter) MaxCounter=k-1
-        !   write(*,*) 'Integral=',integral
-        Fourier=integral/(qT**(n+2)) 
+
+    !!! result is scaled by qT [because the argument of Bessel was scaled bqT-> B]
+    Fourier=integral/(qT**(n+2))
     end if 
     !write(*,*) 'Last call: ',k
 end function Fourier
  
 function Integrand(b,x,mu,zeta,num,hadron)
-    real(dp)::b,x,mu,zeta
-    integer::num,hadron
+    real(dp),intent(in)::b,x,mu,zeta
+    integer,intent(in)::num,hadron
     real(dp)::Integrand(-5:5)
 
     !increment counter 
@@ -584,5 +597,147 @@ function Integrand(b,x,mu,zeta,num,hadron)
 
 end function Integrand
  
-  !-------------------------------------------------functions for uTMDPDF---------------------------------------
+!-----------------------------------------------------------------------------------------------------------------------------
+!-------------------------------------------------functions for Computation of moments ---------------------------------------
+!-----------------------------------------------------------------------------------------------------------------------------
+
+!------------------------------------------General Moment--------------------------------
+!!! This is the general function for the computation of the Moment
+!!! It evaluates the integral
+!!! int_0^infty   b^n db   J_k(b mu) F[x,b,optimal]
+!!! The function F is profided via directly it must be of the type uTMDPDF_lowScale5(x,bT,hadron)
+function Moment_Gen(n,k,x,mu,F_opt,hadron)
+    real(dp),intent(in)::x,mu
+    integer,intent(in)::n,k,hadron
+    procedure(tmd_opt)::F_opt
+    real(dp),dimension(-5:5)::Moment_Gen(-5:5)
+    real(dp),dimension(-5:5)::integral,eps,v1,v2,v3,v4,delta
+    logical:: partDone(-5:5)
+    integer::r,j,Nsegment
+
+    CallCounter=CallCounter+1
+    integral=(/0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0/)
+
+    if(mu<0.8d0) then
+        write(*,*) ErrorString("ERROR in KT-moment computation. mu<0.8",moduleName)
+        stop
+    end if
+
+    if(k>3) then
+        write(*,*) ErrorString("ERROR in KT-moment computation. Called moment with J_k, k>3",moduleName)
+        stop
+    end if
+
+    !!!in the case of lost convergence we return huge number (divergent xSec)
+    if(TMDs_inKT_IsconvergenceLost()) then
+        Moment_Gen=integral+1d10
+    else
+
+    v1=(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
+    v2=(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
+    v3=(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
+    v4=(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
+    partDone=(/.false.,.false.,.false.,.false.,.false.,.false.,.false.,.false.,.false.,.false.,.false./)
+
+    !!! define segment of qT
+    do j=1,hSegmentationNumber
+        if(mu<qTSegmentationBoundary(j)) exit
+    end do
+    if(j>hSegmentationNumber) then
+        Nsegment=hSegmentationNumber
+    else
+        Nsegment=j
+    end if
+
+    do r=1,Nmax!!! maximum of number of bessel roots preevaluated in the head
+        eps=ww(Nsegment,k,r)*(bb(Nsegment,k,r)**n)*F_opt(x,bb(Nsegment,k,r)/mu,hadron)
+
+        v4=v3
+        v3=v2
+        v2=v1
+        v1=abs(eps)
+
+        delta=(v1+v2+v3+v4)
+        integral=integral+eps
+
+        !!! here we check that residual term is smaller than already collected integral
+        !!! also checking the zerothness of the integral. If already collected integral is null it is null
+        !!! Here is potential bug. If the first 10 points give zero (whereas some later points do not), the integral will be zero
+        !!! I check for each separate flavor
+        do j=-5,5
+            if((delta(j)<tolerance*ABS(integral(j)) .or. ABS(integral(j))<1d-32) .and. r>=10) partDone(j)=.true.
+        end do
+        if(partDone(-5).and.partDone(-4).and.partDone(-3).and.partDone(-2).and.partDone(-1)&
+            .and.partDone(0).and.partDone(1).and.partDone(2).and.partDone(3).and.partDone(4).and.partDone(5)) exit
+
+    end do
+
+    if(r>=Nmax) then
+        if(outputlevel>0) call Warning_Raise('OGATA quadrature diverge for the Momen. TMD decaing too slow?',&
+            messageCounter,messageTrigger,moduleName)
+            if(outputlevel>2) then
+            write(*,*) 'Information over the last call ----------'
+            write(*,*) partDone
+            write(*,*) 'bt/mu= ',bb(Nsegment,k,Nmax)/mu, 'qT=',mu, '| segmentation zone=',Nsegment,&
+                ' ogata h=',hOGATA*hSegmentationWeight(Nsegment)
+            write(*,*) 'W=',F_opt(x,bb(Nsegment,k,Nmax)/mu,hadron), 'eps/integral =', eps/integral
+            write(*,*) 'v1+v2+v3+v4=',v1+v2+v3+v4, '>',tolerance*(ABS(integral(1))+ABS(integral(2)))
+            write(*,*) 'x=',x,'n=',n,'type of J =',k,' it is ',CallCounter,' call.'
+            write(*,*) '------------------------------------------'
+            end if
+        call TMDs_inKT_convergenceISlost()
+    end if
+
+    !! store the maximum number of calls
+    if(r>MaxCounter) MaxCounter=r-1
+
+    !!! result is multiplied by (2pi) [because the waights are defined for db/2pi] and scaled by mu [by definition of the moment]
+    Moment_Gen=integral/(mu**(n+1))*pix2
+    end if
+    !write(*,*) 'Last call: ',r
+end function Moment_Gen
+
+
+!!!! The moment G_n, defined as
+!!!! mu^{n+1}/2^n/n! int b^n J_{n+1} (b mu) F[OPTIMAL]
+function Moment_G(n,x,mu,F_opt,hadron)
+    real(dp),intent(in)::x,mu
+    integer,intent(in)::n,hadron
+    procedure(tmd_opt)::F_opt
+    real(dp),dimension(-5:5)::Moment_G(-5:5)
+
+    SELECT CASE(n)
+        CASE(0)
+            Moment_G=mu*Moment_Gen(0,1,x,mu,F_opt,hadron)
+        CASE(1)
+            Moment_G=mu**2/2*Moment_Gen(1,2,x,mu,F_opt,hadron)
+        CASE(2)
+            Moment_G=mu**3/8*Moment_Gen(2,3,x,mu,F_opt,hadron)
+        CASE DEFAULT
+            write(*,*) ErrorString("MOMENT G is defined only for n=0,1,2",moduleName)
+            stop
+    END SELECT
+
+end function Moment_G
+
+!!!! The moment G_n, defined as
+!!!! mu^{n+1}/2^n/n! int b^n J_{n+1} (b mu) F[OPTIMAL]
+function Moment_X(n,x,mu,F_opt,hadron)
+    real(dp),intent(in)::x,mu
+    integer,intent(in)::n,hadron
+    procedure(tmd_opt)::F_opt
+    real(dp),dimension(-5:5)::Moment_X(-5:5)
+
+    SELECT CASE(n)
+        CASE(0)
+            Moment_X=mu**3*(Moment_Gen(0,1,x,mu,F_opt,hadron)-Moment_Gen(0,3,x,mu,F_opt,hadron))
+        CASE(1)
+            Moment_X=mu**3/2*(mu*Moment_Gen(1,2,x,mu,F_opt,hadron)-2*Moment_Gen(0,3,x,mu,F_opt,hadron))
+        CASE DEFAULT
+            write(*,*) ErrorString("MOMENT X is defined only for n=0,1",moduleName)
+            stop
+    END SELECT
+
+end function Moment_X
+
 end module TMDs_inKT

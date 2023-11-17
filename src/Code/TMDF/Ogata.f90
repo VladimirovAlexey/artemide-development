@@ -106,14 +106,16 @@
       write(*,*) 'W=',Integrand(Q2,bb(Nsegment,n,Nmax)/qT,x1,x2,mu,zeta1,zeta2,process), 'eps/integral =', eps/integral
       write(*,*) 'residual term=',delta, '>',tolerance
       write(*,*) '(x1,x2)=(',x1,',',x2,')'
-      write(*,*) 'process =',process,' it is ',CallCounter,'call.'
+      write(*,*) 'process =',process,' it is ',CallCounter,' call.'
       write(*,*) '------------------------------------------'
       end if
     call TMDF_convergenceISlost()
   end if
   
+  !! store the maximum number of calls
   if(k>MaxCounter) MaxCounter=k-1
-!   write(*,*) 'Integral=',integral
+
+  !!! result is scaled by qT [because the argument of Bessel was scaled bqT-> B]
   TMDF_F=integral/(qT**(n+2)) 
   end if
   !write(*,*) 'Last call: ',k

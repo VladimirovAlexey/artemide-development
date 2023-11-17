@@ -176,7 +176,6 @@ subroutine artemide_Setup_fromFile(file,prefix,order)
     character(len=*)::file
     character(len=*),optional::prefix
     character(len=*),optional::order
-
     !! first we set up the default definitions for LO
     outputLevel=2
     if(present(order)) then
