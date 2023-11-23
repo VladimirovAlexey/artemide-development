@@ -628,6 +628,11 @@ function Moment_Gen(n,k,x,mu,F_opt,hadron)
         stop
     end if
 
+    if(k+n<0) then
+        write(*,*) ErrorString("ERROR in KT-moment computation. Integral is divergent at 0",moduleName)
+        stop
+    end if
+
     !!!in the case of lost convergence we return huge number (divergent xSec)
     if(TMDs_inKT_IsconvergenceLost()) then
         Moment_Gen=integral+1d10
@@ -730,7 +735,8 @@ function Moment_X(n,x,mu,F_opt,hadron)
 
     SELECT CASE(n)
         CASE(0)
-            Moment_X=mu**3*(Moment_Gen(0,1,x,mu,F_opt,hadron)-Moment_Gen(0,3,x,mu,F_opt,hadron))
+            !Moment_X=mu**3*(Moment_Gen(0,1,x,mu,F_opt,hadron)-Moment_Gen(0,3,x,mu,F_opt,hadron))/2
+            Moment_X=mu**2*(mu*Moment_Gen(0,1,x,mu,F_opt,hadron)-2*Moment_Gen(-1,2,x,mu,F_opt,hadron))
         CASE(1)
             Moment_X=mu**3/2*(mu*Moment_Gen(1,2,x,mu,F_opt,hadron)-2*Moment_Gen(0,3,x,mu,F_opt,hadron))
         CASE DEFAULT

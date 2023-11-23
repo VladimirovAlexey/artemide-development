@@ -134,7 +134,7 @@ end function bSTAR
 pure function muOPE(bt,x,y,c4)
     real(dp),intent(in)::bt,x,y,c4
 
-    muOPE=C0_const*c4/bT+2d0
+    muOPE=C0_const*c4/bT+5d0
     
     if(muOPE>1000d0) then
         muOPE=1000d0

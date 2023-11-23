@@ -169,9 +169,9 @@
 
 *A   : ---- OPE main definitions ----
 *p1  : Order of coefficient function
- LO
+ N3LO
 *p2  : Prepare grid
- T
+ F
 *p3  : Include gluon TMDs into the grid
  F
 *p4  : total number of PDFs added to the grid (by default it coincides with number of initialized PDFs)

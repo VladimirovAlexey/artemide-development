@@ -93,7 +93,7 @@ subroutine MakeGrid()
 
     if(abs(f1)>1d-12 .and. abs(f2)>1d-12) then
       interpolationParameters(1,iX,i,h)=b1*b2*(f2*log(b2)-f1*log(b1))/(b1*log(b2)-b2*log(b1))
-      interpolationParameters(2,iX,i,h)=-log(b1)*log(b2)*(f1*b1-f2*b2)/(b1*log(b2)-b2*log(b1))
+      interpolationParameters(2,iX,i,h)=log(b1)*log(b2)*(f1*b1-f2*b2)/(b1*log(b2)-b2*log(b1))
     else
       interpolationParameters(1,iX,i,h)=0._dp
       interpolationParameters(2,iX,i,h)=0._dp
