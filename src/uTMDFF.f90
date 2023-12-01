@@ -226,8 +226,9 @@ function uTMDFF_lowScale5(x,bT,hadron)
         stop
     end if
 
-    uTMDFF_lowScale5=uTMDFF_OPE_convolution(x,bT,hadron)*FNP(x,bT,hadron,lambdaNP)
+    uTMDFF_lowScale5=uTMDFF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
 
+    if(hadron<0) uTMDFF_lowScale5=uTMDFF_lowScale5(5:-5:-1)
 end function uTMDFF_lowScale5
 
 end module uTMDFF

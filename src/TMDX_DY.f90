@@ -588,7 +588,7 @@ function xSec(var,process,incCut,CutParam)
     scaleZeta=var(4)+exactScales*var(1)**2  !! zeta=Q2+qT^2
     scaleMu=sqrt(scaleZeta)
 
-    FF=TMDF_F(var(4),var(1),x1,x2,scaleMu*c2_global,scaleZeta,scaleZeta,process(2))
+    FF=TMDF_F(var(4),var(1),x1,x2,scaleMu*c2_global,scaleZeta,scaleZeta,process(2:4))
 
     xSec=PreFactor2(var,process,incCut,CutParam)*FF
   end if

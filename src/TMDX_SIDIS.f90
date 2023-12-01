@@ -840,7 +840,7 @@ function xSec(var,process)
     scaleZeta=var(3)-exactScales*qT**2  !! zeta=Q2+qT^2
     scaleMu=sqrt(scaleZeta) 
 
-    FF=TMDF_F(var(3),qT,x1,z1,scaleMu*c2_global,scaleZeta,scaleZeta,process(3))
+    FF=TMDF_F(var(3),qT,x1,z1,scaleMu*c2_global,scaleZeta,scaleZeta,[process(3),1,1])
     xSec=PreFactor2(var,process,x1,z1,qT)*FF  
 
     !write(*,*) "{",var(3),",",x1,"},"!,z1

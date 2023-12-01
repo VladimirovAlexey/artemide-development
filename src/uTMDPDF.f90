@@ -226,7 +226,9 @@ function uTMDPDF_lowScale5(x,bT,hadron)
         stop
     end if
 
-    uTMDPDF_lowScale5=uTMDPDF_OPE_convolution(x,bT,hadron)*FNP(x,bT,hadron,lambdaNP)
+    uTMDPDF_lowScale5=uTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
+
+    if(hadron<0) uTMDPDF_lowScale5=uTMDPDF_lowScale5(5:-5:-1)
 
 end function uTMDPDF_lowScale5
 

@@ -226,7 +226,9 @@ function SiversTMDPDF_lowScale5(x,bT,hadron)
         stop
     end if
 
-    SiversTMDPDF_lowScale5=SiversTMDPDF_OPE_tw3_convolution(x,bT,hadron)*FNP(x,bT,hadron,lambdaNP)
+    SiversTMDPDF_lowScale5=SiversTMDPDF_OPE_tw3_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
+
+    if(hadron<0) SiversTMDPDF_lowScale5=SiversTMDPDF_lowScale5(5:-5:-1)
 
 end function SiversTMDPDF_lowScale5
 

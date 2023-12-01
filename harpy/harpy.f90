@@ -404,6 +404,16 @@ contains
   end function uTMDPDF_X0
 
       ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+  function uTMDPDF_ASX0(x,mu,hadron)
+    real*8:: uTMDPDF_ASX0(-5:5)
+    real*8:: x,mu
+    integer::hadron
+
+  uTMDPDF_ASX0=uTMDPDF_X0_AS(x,mu,mu,1)
+
+  end function uTMDPDF_ASX0
+
+      ! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
   function uTMDPDF_PDF(x,mu,hadron)
     real*8:: uTMDPDF_PDF(-5:5)
     real*8:: x,mu

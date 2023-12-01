@@ -47,7 +47,8 @@ implicit none
       p2=(/66d0,116d0/)
       p3=(/-2.4d0,2.4d0/)
       cc=(/20d0,20d0,-2.4d0,2.4d0/)
-      pp=(/1,5,1,1/)
+      pp=(/1,3,1,1/)
+      !pp=(/1,5,1,1/)
       !pp=(/1,1,5/)
       call xSec_DY(xx,pp,(8000d0)**2,p1,p2,p3,.true.,CutParameters=cc)
       write(*,*) ptmin(j),'--',ptmax(j),xx

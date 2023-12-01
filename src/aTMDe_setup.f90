@@ -694,7 +694,7 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDR_tolerance
     write(51,"('*p2  : The smallest value of b (for smaller OPE is frozen)')")
     write(51,*) TMDR_bFREEZE
-    write(51,"('*p3  : The smoothing parmaeters for small-b stabilization')")
+    write(51,"('*p3  : The smoothing parameters for small-b stabilization')")
     write(51,*) TMDR_smooth
 
 

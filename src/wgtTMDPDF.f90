@@ -241,8 +241,10 @@ function wgtTMDPDF_lowScale5(x,bT,hadron)
         stop
     end if
 
-    wgtTMDPDF_lowScale5=wgtTMDPDF_OPE_convolution(x,bT,hadron)*FNP(x,bT,hadron,lambdaNP)&
-        +wgtTMDPDF_OPE_tw3_convolution(x,bT,hadron)*FNP_tw3(x,bT,hadron,lambdaNP)
+    wgtTMDPDF_lowScale5=wgtTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)&
+        +wgtTMDPDF_OPE_tw3_convolution(x,bT,abs(hadron))*FNP_tw3(x,bT,abs(hadron),lambdaNP)
+
+    if(hadron<0) wgtTMDPDF_lowScale5=wgtTMDPDF_lowScale5(5:-5:-1)
 
 end function wgtTMDPDF_lowScale5
 

@@ -228,6 +228,8 @@ function lpTMDPDF_lowScale5(x,bT,hadron)
 
     lpTMDPDF_lowScale5=lpTMDPDF_OPE_convolution(x,bT,hadron)*FNP(x,bT,hadron,lambdaNP)
 
+    if(hadron<0) lpTMDPDF_lowScale5=lpTMDPDF_lowScale5(5:-5:-1)  !! it makes no sense, because it is only gluon... but still
+
 end function lpTMDPDF_lowScale5
 
 end module lpTMDPDF

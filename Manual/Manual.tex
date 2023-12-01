@@ -1547,7 +1547,7 @@ Entry &~~Type~~& Description
 \\\hline
 \texttt{XX\_CurrentLambdaNP()} & real(:) & Returns the current vector for $\lambda_{\text{NP}}$.
 \\\hline\hline
-\texttt{XX\_lowScale5(x,bT,h)} & real(-5:5) & Returns the value of TMD distributions for given (x,b) (reals) and hadron h. The value is the vector over flavors.
+\texttt{XX\_lowScale5(x,bT,h)} & real(-5:5) & Returns the value of TMD distributions for given (x,b) (reals) and hadron h. The value is the vector over flavors. For $h<0$ the quark-distributions are replaced by anti-quark distributions and vice versa. I.e. $F(-h)=F(h)(5:-5:-1)$
 \\\hline\hline
 \end{tabular}
 \end{center}
@@ -1674,7 +1674,7 @@ Entry &~~Type~~& Description
 \\\hline\hline
 \texttt{XX\_OPE\_convolution(x,b,h,G)} & dp\_real(-5:5) & Returns (\ref{OPE:tw2:main}) for (x,b)=((real)\texttt{x}, (real)\texttt{b}), and hadron number (int)\texttt{h}. In the case of \texttt{NA} returns 1. If grid is computed restore from the grid. The flag (T/F)\texttt{G} is optional. It indicates the inclusion of gluon into the result. Note, that if gluons were not included into the grid they are zero.
 \\\hline\hline
-\texttt{uTMDPDF\_X0\_AS(x,mu,h,G)} & dp\_real(-5:5) & Computes the AS[$\mathcal{X}_0[f_1]$] as defined in [????.????]. This is asymptotic term required to determine the second moment of TMDPDF. (x,$\mu$)=((real)\texttt{x}, (real)\texttt{mu}), and hadron number (int)\texttt{h}. In the case of \texttt{NA} returns 0. The flag (T/F)\texttt{G} is optional. It indicates the inclusion of gluon into the result. \red{For a moment this function is done only for uTMDPDF, but it will be updated to all twist-TMDs}
+\texttt{uTMDPDF\_X0\_AS(x,mu,mu0,h,G)} & dp\_real(-5:5) & Computes the AS[$\mathcal{X}_0[f_1]$] as defined in [????.????]. This is asymptotic term required to determine the second moment of TMDPDF. (x,$\mu$,$\mu_0$)=((real)\texttt{x}, (real)\texttt{mu}, (real)\texttt{mu0}), and hadron number (int)\texttt{h}. In the case of \texttt{NA} returns 0. The flag (T/F)\texttt{G} is optional. It indicates the inclusion of gluon into the result. \red{For a moment this function is done only for uTMDPDF, but it will be updated to all twist-TMDs}
 \\\hline\hline
 \end{tabular}
 \end{center}
@@ -2052,8 +2052,6 @@ Command & ~~Type~~& ~~Sec.~~ & Short description
 \texttt{wgtTMDPDF{\_}50(x,b,,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Worm gear T TMD PDF at optimal line (gluon term defined)
 \\\hline\hline
 \texttt{uPDF{\_}uPDF(x1,x2,b,mu,zeta,h1,h2)} & (real*8(-5:5)) &\ref{TMDs:products} &  Product of Unpolarized TMD PDF $f_{q\ot h_1}(x_1)f_{\bar q\ot h_1}$ at the same scale (gluon term undefined)
-\\\hline
-\texttt{uPDF{\_}anti{\_}uPDF(x1,x2,b,mu,zeta,h1,h2)} & (real*8(-5:5)) &\ref{TMDs:products} &  Product of Unpolarized TMD PDF $f_{q\ot h_1}(x_1)f_{q\ot h_1}$ at the same scale (gluon term undefined)
 \\
 \hline\hline
 \end{tabular}
@@ -2094,7 +2092,7 @@ where
 \item [\texttt{b}] (real*8) Transverse distance ($b>0$) in GeV
 \item [\texttt{mu}] (real*8) The scale $\mu_f$ in GeV. Typically, $\mu_f=Q$.
 \item [\texttt{zeta}] (real*8) The scale $\zeta_f$ in GeV$^2$. Typically, $\zeta_f=Q^2$.
-\item [\texttt{h}] (integer) The hadron type.
+\item [\texttt{h}] (integer) The hadron type. If $h<0$, the hadron is anti-hadron.
 \end{itemize}
 This function return the vector real*8(-5:5) for $\bar b, \bar c, \bar s,\bar u,\bar d ,?,d,u,s, c, b$.
 
@@ -2104,6 +2102,8 @@ This function return the vector real*8(-5:5) for $\bar b, \bar c, \bar s,\bar u,
 \item The other TMDs, such as unpolarized TMDFF, transversity, etc. are obtained by similar function see the table in the beginning of the section.
 
 \item Each function has version without parameters \texttt{mu} and \texttt{zeta}. It corresponds to the evaluation of a TMS at optimal line \cite{Scimemi:2018xaf}. Practically, it just transfers the outcome of corresponding TMD module, e.g.module \texttt{uTMDPDF}, see sec.\ref{uTMDPDF}.
+
+\item For $h<0$ the quark-distributions are replaced by anti-quark distributions and vice versa. I.e. $F(-h)=F(h)(5:-5:-1)$ [it is done in TMDs-Modules]
 \end{itemize}
 
 \subsection{Products of TMDs}
@@ -2121,7 +2121,7 @@ where
 \item [\texttt{zeta}] (real*8) The scale $\zeta_f$ in GeV$^2$. Typically, $\zeta_f=Q^2$.
 \item [\texttt{h1,h2}] (integer) The hadron's types.
 \end{itemize}
-The function return a product ofthe form $F_{f_1\ot h_1}(x_1,b;\mu,\zeta)F_{f_2\ot h_2}(x_2,b;\mu,\zeta)$, where $f_{1,2}$ and the type of TMDs depend on the function.
+The function return a product of the form $F_{f_1\ot h_1}(x_1,b;\mu,\zeta)F_{f_2\ot h_2}(x_2,b;\mu,\zeta)$, where $f_{1,2}$ and the type of TMDs depend on the function.
 
 
 
@@ -2267,63 +2267,35 @@ List of enumeration of structures functions
 \\
 9998 &  &  &  &  & &
 \\\hline
-1 & $\delta_{\bar f f'}|e_f|^2$ & $f_1$ & $f_1$ & (unpol.)$p+p\to\gamma$ & no & LP/KPC
+1 & $\delta_{\bar f f'}|e_f|^2$ & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to\gamma$ & no & LP/KPC
 \\\hline
-2 & $\delta_{f f'}|e_f|^2$ & $f_1$ & $f_1$ & (unpol.)$p+\bar p\to\gamma$ & no & LP/KPC
+2 & $\Ds\delta_{\bar f f'}\frac{(1-2|ef|s_w^2)^2-4e_f^2s_w^4}{8s_w^2c_w^2}$ & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to Z$ & no & LP/KPC
 \\\hline
-3 & $\Ds\delta_{\bar f f'}\frac{(1-2|ef|s_w^2)^2-4e_f^2s_w^4}{8s_w^2c_w^2}$ & $f_1$ & $f_1$ & (unpol.)$p+p\to Z$ & no & LP/KPC
+3 & $\Ds\delta_{\bar f f'}\frac{z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to Z+\gamma$ & no & LP/KPC
 \\\hline
-4 & $\Ds\delta_{f f'}\frac{(1-2|ef|s_w^2)^2-4e_f^2s_w^4}{8s_w^2c_w^2}$ & $f_1$ & $f_1$ & (unpol.)$p+\bar p\to Z$ & no & LP/KPC
+4 & $\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^+$ & no & LP/KPC
 \\\hline
-5 & $\Ds\delta_{\bar f f'}\frac{z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $f_1$ & $f_1$ & (unpol.)$p+p\to Z+\gamma$ & no & LP/KPC
+5 & $\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^-$ & no & LP/KPC
 \\\hline
-6 & $\Ds\delta_{f f'}\frac{z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $f_1$ & $f_1$ & (unpol.)$p+\bar p\to Z+\gamma$ & no & LP/KPC
+6 & $\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^\pm$ & no & LP/KPC
 \\\hline
-7 & $\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $f_1$ & $f_1$ & (unpol.)$p+p\to W^+$ & no & LP/KPC
+7 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$  & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^+$ (for narrow-width approx.) & no & LP/KPC
 \\\hline
-8 & $\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $f_1$ & $f_1$ & (unpol.)$p+p\to W^-$ & no & LP/KPC
+8 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$  & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^-$ (for narrow-width approx.) & no & LP/KPC
 \\\hline
-9 & $\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $f_1$ & $f_1$ & (unpol.)$p+p\to W^\pm$ & no & LP/KPC
+9 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$  & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^\pm$ (for narrow-width approx.) & no & LP/KPC
 \\\hline
-10 & $\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $f_1$ & $f_1$ & (unpol.)$p+\bar p\to W^+$ & no & LP/KPC
+10 & $\Ds f_g(x_1)f_g(x_2)+h^\perp_{1}(x_1)h^\perp_{1}(x_2)$ & - & - & (unpol.)$h_1+h_2\to H$ Elementary Higgs production & yes & LP/KPC
 \\\hline
-11 & $\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $f_1$ & $f_1$ & (unpol.)$p+\bar p\to W^-$ & no & LP/KPC
+11 & $\Ds f_g(x_1)f_g(x_2)$ & $f_1$ & $f_{1}$ & (unpol.)$h_1+h_2\to H$ Elementary Higgs production. Only unpol.TMDPDF term & yes & LP/KPC
 \\\hline
-12 & $\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $f_1$ & $f_1$ & (unpol.)$p+\bar p\to W^\pm$ & no & LP/KPC
+12 & $\Ds h^\perp_{1g}(x_1)h^\perp_{1g}(x_2)$ & $h^\perp_{1}$ & $h^\perp_{1}$ & (unpol.)$h_1+h_2\to H$ Elementary Higgs production. Only linearly pol.TMDPDF term & yes & LP/KPC
 \\\hline
-13 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$  & $f_1$ & $f_1$ & (unpol.)$p+p\to W^+$ (for narrow-width approx.) & no & LP/KPC
+101 & $\Ds R^{Cu}_{\bar f f'}e_f e_{f'} $ see (3.1) of \cite{Scimemi:2017etj} & $f_1$ & $f^{Cu}_1$ & (unpol.)$h_1+Cu\to \gamma$ where the isostructure of Cu is simulated from $hadron=1$, (used to describe E288 experiment) & no & LP/KPC
 \\\hline
-14 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$  & $f_1$ & $f_1$ & (unpol.)$p+p\to W^-$ (for narrow-width approx.) & no & LP/KPC
+102 & $\Ds R^{^2H}_{\bar f f'}e_f e_{f'} $ see (3.1) of \cite{Scimemi:2017etj} with $Z=1$ and $A=2$ & $f_1$ & $f^{^2H}_1$ & (unpol.)$h_1+^2H\to \gamma$ where thes isostructure of $^2H$  is simulated from $hadron=1$, used to describe E772 experiment& no & LP/KPC
 \\\hline
-15 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$  & $f_1$ & $f_1$ & (unpol.)$p+p\to W^\pm$ (for narrow-width approx.) & no & LP/KPC
-\\\hline
-16 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$ & $f_1$ & $f_1$ & (unpol.)$p+\bar p\to W^+$ (for narrow-width approx.) & no & LP/KPC
-\\\hline
-17 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$ & $f_1$ & $f_1$ & (unpol.)$p+\bar p\to W^-$ (for narrow-width approx.) & no & LP/KPC
-\\\hline
-18 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$ & $f_1$ & $f_1$ & (unpol.)$p+\bar p\to W^\pm $ (for narrow-width approx.) & no & LP/KPC
-\\\hline
-20 & $\Ds f_g(x_1)f_g(x_2)+h^\perp_{1}(x_1)h^\perp_{1}(x_2)$ & - & - & (unpol.)$h+h\to H$ Elementary Higgs production & yes & LP/KPC
-\\\hline
-21 & $\Ds f_g(x_1)f_g(x_2)$ & $f_1$ & $f_{1}$ & (unpol.)$h+h\to H$ Elementary Higgs production. Only unpol.TMDPDF term & yes & LP/KPC
-\\\hline
-22 & $\Ds h^\perp_{1g}(x_1)h^\perp_{1g}(x_2)$ & $h^\perp_{1}$ & $h^\perp_{1}$ & (unpol.)$h+h\to H$ Elementary Higgs production. Only linearly pol.TMDPDF term & yes & LP/KPC
-\\\hline
-101 & $\delta_{\bar f f'}|e_f|^2$ & $f^h_1$ & $f_1$ & (unpol.)$h+p\to\gamma$ (with $h=2$) & no & LP
-\\\hline
-102 & $\delta_{f f'}|e_f|^2$ & $f^h_1$ & $f_1$ & (unpol.)$h+\bar p\to\gamma$(with $h=2$) & no & LP
-\\\hline
-103 & $\delta_{f f'}|e_f|^2$ & $f^h_1$ & $f_1$ & (unpol.)$\bar h+p\to\gamma$(with $h=2$). Note, that it is equal 102 & no & LP
-\\\hline
-104 & $\delta_{\bar f f'}|e_f|^2$ & $f^h_1$ & $f_1$ & (unpol.)$\bar h+\bar p\to\gamma$ (with $h=2$). Note, that it is equal 101 & no & LP
-\\\hline
-1001 & $\Ds R^{Cu}_{\bar f f'}e_f e_{f'} $ see (3.1) of \cite{Scimemi:2017etj} & $f_1$ & $f^{Cu}_1$ & (unpol.)$p+Cu\to \gamma$ where $h$ is proton (roughly simulates isostructure of Cu, used to describe E288 experiment in \cite{Scimemi:2017etj}) & no & LP/KPC
-\\\hline
-1002 & $\Ds R^{^2H}_{\bar f f'}e_f e_{f'} $ see (3.1) of \cite{Scimemi:2017etj} with $Z=1$ and $A=2$ & $f_1$ & $f^{^2H}_1$ & (unpol.)$p+^2H\to \gamma$ where $h$ is proton (roughly simulates isostructure of $^2H$, used to describe E772 experiment)& no & LP/KPC
-\\\hline
-1003 & $\Ds R^{^W}_{f f'}e_f e_{f'} $ see (3.1) of \cite{Scimemi:2017etj} with $Z=74$ and $A=183$ & $f_1$ & $f^{W}_1$ & (unpol.)$\bar p+W\to \gamma$, where $h$ is proton (roughly simulates isostructure of $W$(tungsten), used to describe E537 experiment)& no & LP/KPC
-\\\hline
-1004 & $\Ds R^{^W}_{\bar f f'}e_f e_{f'} $ see (3.1) of \cite{Scimemi:2017etj} with $Z=74$ and $A=183$ & $f_1$ & $f^{W}_1$ & (unpol.)$h+W\to \gamma$, where $h$ is $\pi^-$ (roughly simulates isostructure of $\pi^-+W$(tungsten), used to describe E537 experiment)& no & LP/KPC
+103 & $\Ds R^{^W}_{f f'}e_f e_{f'} $ see (3.1) of \cite{Scimemi:2017etj} with $Z=74$ and $A=183$ & $f_1$ & $f^{W}_1$ & (unpol.)$h_1+W\to \gamma$, where the  isostructure of $W$(tungsten) is simulated from $hadron=1$, used to describe E537 experiment& no & LP/KPC
 \\\hline \hline
 2001 & $\delta_{ff'}|e_f|^2$~~&$f^p_1$ & $d^{h_1}_1$ & (unpol)$p+\gamma\to h_1$ & no & LP
 \\\hline
@@ -2383,21 +2355,15 @@ List of enumeration of structures functions
 \\
 19998 &  &  &  &  & 
 \\\hline\hline
-10001 & $-M\delta_{\bar f f'}|e_f|^2$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$p^{\uparrow}+p\to\gamma$ & no
+10001 & $-M\delta_{\bar f f'}|e_f|^2$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$h_1^{\uparrow}+h_2\to\gamma$ & no
 \\\hline
-10005 & $-M\Ds\delta_{\bar f f'}\frac{z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$p^{\uparrow}+p\to Z+\gamma$ & no
+10003 & $-M\Ds\delta_{\bar f f'}\frac{z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$h_1^{\uparrow}+h_2\to Z+\gamma$ & no
 \\\hline
-10007 & $-M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$p^{\uparrow}+p\to W^+$ & no
+10004 & $-M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$h_1^{\uparrow}+h_2\to W^+$ & no
 \\\hline
-10008 & $-M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$p^{\uparrow}+p\to W^-$ & no
+10008 & $-M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$h_1^{\uparrow}+h_2\to W^-$ & no
 \\\hline
-10101 & $+M\delta_{\bar f f'}|e_f|^2$ & $f^h_1$ & $-(f_{1T}^\perp)^{p}$ & (Sivers)$h+p^\uparrow\to\gamma$ (with $h=2$) & no
-\\\hline
-10102 & $+M\delta_{f f'}|e_f|^2$ & $f^h_1$ & $-(f_{1T}^\perp)^{\bar p}$  & (Sivers)$h+\bar p^\uparrow\to\gamma$(with $h=2$) & no
-\\\hline
-10103 & $+M\delta_{f f'}|e_f|^2$ & $f^h_1$ & $-(f_{1T}^\perp)^{p}$  & (Sivers)$\bar h+p^\uparrow\to\gamma$(with $h=2$). Note, that it is equal 10102 & no
-\\\hline
-10104 & $+M\delta_{\bar f f'}|e_f|^2$ & $f^h_1$ & $-(f_{1T}^\perp)^{\bar p}$  & (Sivers)$\bar h+\bar p^\uparrow\to\gamma$ (with $h=2$). Note, that it is equal 10101 & no
+10011 & $+M\delta_{\bar f f'}|e_f|^2$ & $f^h_1$ & $-(f_{1T}^\perp)^{p}$ & (Sivers)$h+p^\uparrow\to\gamma$ (with $h=2$) & no
 \\\hline \hline
 12001 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^p$ & $d^{h_1}_1$ & (Sivers)$p^{\uparrow}+\gamma\to h_1$ & no
 \\\hline
@@ -2490,11 +2456,11 @@ List of enumeration of structures functions
 \\\hline
 13116 & $+M\delta_{f\bar f'}|e_f|^2$~~&$(g_{1T}^\perp)^{n}$ & $d^{h_{1+2+3}}_1$ & (wgt)$n^{\uparrow}+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
 \\\hline
-13200 & $+M\Ds\delta_{\bar f f'}\frac{\bar z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $(g_{1T}^\perp)^p$ & $(-1)^f f_1$ & $G_{TU}^1$ cross-section in $p^{\uparrow}+p\to Z+\gamma$ & no
+13200 & $+M\Ds\delta_{\bar f f'}\frac{\bar z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $(g_{1T}^\perp)^p$ & $(-1)^f f_1$ & $G_{TU}^1$ cross-section in $h_1^{\uparrow}+h_2\to Z+\gamma$ & no
 \\\hline
-13201 & $+M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $(g_{1T}^\perp)^p$ & $(-1)^ff_1$ & $G_{TU}^1$ cross-section in $p^{\uparrow}+p\to W^+$ & no
+13201 & $+M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $(g_{1T}^\perp)^p$ & $(-1)^ff_1$ & $G_{TU}^1$ cross-section in $h_1^{\uparrow}+h_2\to W^+$ & no
 \\\hline
-13202 & $+M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $(g_{1T}^\perp)^p$ & $(-1)^ff_1$ & $G_{TU}^1$ cross-section in $p^{\uparrow}+p\to W^-$ & no
+13202 & $+M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $(g_{1T}^\perp)^p$ & $(-1)^ff_1$ & $G_{TU}^1$ cross-section in $h_1^{\uparrow}+h_2\to W^-$ & no
 \\\hline\hline
 \end{longtable}
 
@@ -3338,6 +3304,116 @@ S=\frac{(\vec q_T\vec \Delta)}{\tau^2}=\sqrt{\sin \alpha \frac{\vec q_T^2}{\tau^
 9 & $\Ds -\frac{\xi_2}{x_2}+\frac{x_1}{\xi_1}\frac{\vec k_1^2}{Q^2+\vec q_T^2}$ & Unpolarized EW case, term proportional to $\mathcal{P}_2^A$ and $f_1f_1$
 \\\hline\hline
 \end{longtable}
+
+\section{APPENDICES}
+
+\subsection{Equivalence between process-enumeration in ver.$<3$}
+
+In the versions of artemide $<3$, the enumeration of processes was done with 3 integers $[\tilde a,\tilde b,\tilde c]$, where $\tilde a$ and $\tilde b$ determined the prefactor, and $\tilde c$ determined the actual process. In fact, first number was not used (extremely rarely), thus it was eliminated in version $>3$. Instead, the numeration of hadrons was added. In artemide $>3$ the process is enumerated by four integers $[b,c,h_1,h_2]$ where $b$ determines the prefactor, $c$ the type of process and $h_1$ and $h_2$ the hadrons for scattering.
+
+The correspondence of process numbering is the following
+\begin{itemize}
+\item $\tilde a=1$, other options absent
+\item $\tilde b=b$
+\item $\tilde c$ is replaced by the $c$ $h_1$, $h_2$ according to the following table
+\end{itemize}
+\begin{center}
+List of available commands
+\\
+\begin{longtable}{||c|c||c|p{8cm}||}
+\hline\hline
+artemide $<3$ & artemide $>3$ & Process & Comment
+\\ $\tilde c$ & $[c,h_1,h_2]$ & & \\
+\\\hline
+0 & [0,-,-] &  & Does not use TMDs.
+\\
+9999 & [0,-,-] & Test cases & Do not use TMDs.
+\\
+9998 & [0,-,-] &  & Does not use TMDs.
+\\\hline
+1 & [1,1,1] & $p+p\to \gamma$ &
+\\\hline
+2 & [1,1,-1] & $p+\bar p\to \gamma$ &
+\\\hline
+3 & [2,1,1] & $p+p\to Z$ &
+\\\hline
+4 & [2,1,-1] & $p+\bar p\to Z$ &
+\\\hline
+5 & [3,1,1] & $p+p\to Z+\gamma$ &
+\\\hline
+6 & [3,1,-1] & $p+\bar p\to Z+\gamma$ &
+\\\hline
+7 & [4,1,1] & $p+p\to W^+$ &
+\\\hline
+8 & [5,1,1] & $p+p\to W^-$ &
+\\\hline
+9 & [6,1,1] & $p+p\to W^\pm$ &
+\\\hline
+10 & [4,1,-1] & $p+\bar p\to W^+$ &
+\\\hline
+11 & [5,1,-1] & $p+\bar p\to W^-$ &
+\\\hline
+12 & [6,1,-1] & $p+\bar p\to W^\pm$ &
+\\\hline
+13 & [7,1,1] & $p+p\to W^+$ & Same as 7 with $\Gamma_W=0$
+\\\hline
+14 & [8,1,1] & $p+p\to W^-$ & Same as 8 with $\Gamma_W=0$
+\\\hline
+15 & [9,1,1] & $p+p\to W^\pm$ & Same as 9 with $\Gamma_W=0$
+\\\hline
+16 & [7,1,-1] & $p+\bar p\to W^+$ & Same as 9 with $\Gamma_W=0$
+\\\hline
+17 & [8,1,-1] & $p+\bar p\to W^-$ & Same as 10 with $\Gamma_W=0$
+\\\hline
+18 & [9,1,-1] & $p+\bar p\to W^\pm$ & Same as 11 with $\Gamma_W=0$
+\\\hline
+20 & [10,1,1] & $p+p\to H$ &
+\\\hline
+21 & [11,1,1] & $p+p\to H$ & Only $f_1$
+\\\hline
+22 & [12,1,1] & $p+p\to H$ & Only $f_1^\perp$
+\\\hline
+101 & [1,2,1] & $\pi^-+p\to \gamma$ &
+\\\hline
+102 & [1,2,-1] & $\pi^-+\bar p\to \gamma$ &
+\\\hline
+103 & [1,-2,1] & $\pi^++p\to \gamma$ &
+\\\hline
+104 & [1,-2,-1] & $\pi^++\bar p\to \gamma$ &
+\\\hline
+1001 & [101,1,1] & $p+Cu\to \gamma$ & 
+\\\hline
+1002 & [102,1,1] & $p+^2H\to \gamma$ & 
+\\\hline
+1003 & [103,-1,1] & $\bar p+W\to \gamma$ & 
+\\\hline
+1004 & [103,2,1] & $\pi^-+W\to \gamma$ & 
+\\\hline\hline
+ SIDIS
+\\\hline\hline
+10001 & [10001,1,1] & $p^\uparrow+p\to \gamma$ & 
+\\\hline
+10005 & [10003,1,1] & $p^\uparrow+p\to \gamma+Z$ & 
+\\\hline
+10007 & [10004,1,1] & $p^\uparrow+p\to W^+$ & 
+\\\hline
+10008 & [10005,1,1] & $p^\uparrow+p\to W^-$ & 
+\\\hline
+10101 & [10011,2,1] & $\pi^++p^\uparrow\to \gamma$ & 
+\\\hline
+10102 & [10011,2,-1] & $\pi^++\bar p^\uparrow\to \gamma$ & 
+\\\hline
+10103 & [10011,-2,1] & $\pi^-+p^\uparrow\to \gamma$ & 
+\\\hline
+10104 & [10011,-2,-1] & $\pi^-+\bar p^\uparrow\to \gamma$ & 
+\\\hline\hline
+13200 & [13200,1,1] & $p^\uparrow+p\to Z+\gamma$ & 
+\\\hline
+13201 & [13201,1,1] & $p^\uparrow+p\to W^+$ & 
+\\\hline
+13202 & [13202,1,1] & $p^\uparrow+p\to W^-$ & 
+\end{longtable}
+\end{center}
 
 \end{document}
 

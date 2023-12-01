@@ -38,8 +38,8 @@
  !!!
  function TMDF_F(Q2,qT,x1,x2,mu,zeta1,zeta2,process)
   real(dp)::TMDF_F
-  real(dp)::qT,x1,x2,mu,zeta1,zeta2,Q2
-  integer::process
+  real(dp),intent(in)::qT,x1,x2,mu,zeta1,zeta2,Q2
+  integer,dimension(1:3),intent(in)::process
   real(dp)::integral,eps,delta
   real(dp)::v1,v2,v3,v4
   integer::k,n,j,Nsegment
@@ -60,11 +60,11 @@
   v4=1d0
   
   !!Here we set the order of Bessel
-  if(process<10000) then
+  if(process(1)<10000) then
   n=0
-  else if(process<20000) then
+  else if(process(1)<20000) then
   n=1
-  else if(process<30000) then
+  else if(process(1)<30000) then
   n=2
   else
   n=3

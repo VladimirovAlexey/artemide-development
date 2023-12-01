@@ -247,6 +247,12 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
         integer :: hadron
         real*8 dimension(11) :: utmdpdf_x0
     end function utmdpdf_x0
+    function utmdpdf_asx0(x,mu,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 :: x
+        real*8 :: mu
+        integer :: hadron
+        real*8 dimension(11) :: utmdpdf_asx0
+    end function utmdpdf_asx0
     function utmdpdf_pdf(x,mu,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         real*8 :: x
         real*8 :: mu

@@ -21,19 +21,22 @@
 !!!! where CC[L]=[c0+L c1+L^2 c2+L^3 c3] is the original N3LO coefficeint function
 !!!! C_AS can be computed simply as
 !!!! C_AS=3/4*CC[0]-2/3*CC[1]-CC[4]/12
+!!!! If we compute with muOPE the coefficients contain logarithms
 
 
 !!!! The following code is canibalized from the Twist2Convolution.f90 and simplified
 !!!! it computes [C_AS x f](x,mu)/x
+!!!! mu is the scale of tranformation
+!!!! mu0 is the scale of OPE
 
 !!!! The CxF is defined as Mellin convolution of [C xF]
 !!!! The integral is \int_x^1 dy C(y) F[x/y], where F[x]=x PDF(x)
 !!!! The ordinary convolution \int_x^1 dy/y C(y) PDF(x/y) = CxF(x)/x
 !!!! the parameters x,y for model are defined as in this formula
-function CxF_AS(x,mu,hadron,includeGluon)
+function CxF_AS(x,mu,mu0,hadron,includeGluon)
     real(dp),dimension(-5:5)::CxF_AS
     integer, intent(in)::hadron
-    real(dp),intent(in)::x,mu
+    real(dp),intent(in)::x,mu,mu0
     logical,intent(in)::includeGluon
     real(dp):: lx
 
@@ -44,6 +47,7 @@ function CxF_AS(x,mu,hadron,includeGluon)
 
     real(dp),dimension(1:parametrizationLength):: Bqq,Bqg,Bgq,Bgg,Bqqb,Bqqp
     integer::i
+    real(dp)::a0,a1,a2,a4,l0 !!! coefficients of C(L=0,1,2,4)
 
     real(dp)::yCUT
     real(dp),parameter::xCUT=0.99_dp
@@ -53,6 +57,16 @@ function CxF_AS(x,mu,hadron,includeGluon)
         write(*,*) ErrorString("ERROR in AS-moment computation. mu<0.8",moduleName)
         stop
     end if
+    if(mu0<0.8d0) then
+        write(*,*) ErrorString("ERROR in AS-moment computation. muOPE<0.8",moduleName)
+        stop
+    end if
+
+    l0=2._dp*Log(mu/mu0)
+    a0=3._dp/4+l0+3._dp*l0**2/8
+    a1=-2._dp/3-2*l0-l0**2
+    a2=l0+3._dp*l0**2/4
+    a4=-1._dp/12-l0**2/8
 
     !! drop the case of x>1
     if(x>1._dp) then
@@ -62,15 +76,17 @@ function CxF_AS(x,mu,hadron,includeGluon)
 
     !!! values of parameters at y=1
     !!! they are used also later
-    asAt1=As(mu)
-    NfAt1=activeNf(mu)
-    PDFat1=xf(x,mu,hadron)
+    asAt1=As(mu0)
+    NfAt1=activeNf(mu0)
+    PDFat1=xf(x,mu0,hadron)
 
     !!!! delta-part
     !! C(y)~delta(1-y)
-    Cqq=3._dp/4*C_q_q_delta(asAt1,NfAt1,0._dp)-2._dp/3*C_q_q_delta(asAt1,NfAt1,1._dp)-1._dp/12*C_q_q_delta(asAt1,NfAt1,4._dp)
+    Cqq=a0*C_q_q_delta(asAt1,NfAt1,0._dp)+a1*C_q_q_delta(asAt1,NfAt1,1._dp)&
+            +a2*C_q_q_delta(asAt1,NfAt1,2._dp)+a4*C_q_q_delta(asAt1,NfAt1,4._dp)
     if(includeGluon) then
-        Cgg=3._dp/4*C_g_g_delta(asAt1,NfAt1,0._dp)-2._dp/3*C_g_g_delta(asAt1,NfAt1,1._dp)-1._dp/12*C_g_g_delta(asAt1,NfAt1,4._dp)
+        Cgg=a0*C_g_g_delta(asAt1,NfAt1,0._dp)+a1*C_g_g_delta(asAt1,NfAt1,1._dp)&
+            +a2*C_g_g_delta(asAt1,NfAt1,2._dp)+a4*C_g_g_delta(asAt1,NfAt1,4._dp)
     else
         Cgg=0._dp
     end if
@@ -84,14 +100,14 @@ function CxF_AS(x,mu,hadron,includeGluon)
 
     lx=Log(1._dp-x)
     !! this value is used in the integration over 1/(..)_+
-    CplusAt1_qq=3._dp/4*Coeff_q_q_plus(asAt1,NfAt1,0._dp)-2._dp/3*Coeff_q_q_plus(asAt1,NfAt1,1._dp)&
-                -1._dp/12*Coeff_q_q_plus(asAt1,NfAt1,4._dp)
-
+    CplusAt1_qq=a0*Coeff_q_q_plus(asAt1,NfAt1,0._dp)+a1*Coeff_q_q_plus(asAt1,NfAt1,1._dp)&
+                +a2*Coeff_q_q_plus(asAt1,NfAt1,2._dp)+a4*Coeff_q_q_plus(asAt1,NfAt1,4._dp)
     Csingqq=sum(CplusAt1_qq*(/lx,lx**2/2._dp,lx**3/3._dp/))
+
     if(includeGluon) then
         CplusAt1_gg=&
-            3._dp/4*Coeff_g_g_plus(asAt1,NfAt1,0._dp)-2._dp/3*Coeff_g_g_plus(asAt1,NfAt1,1._dp)&
-                -1._dp/12*Coeff_g_g_plus(asAt1,NfAt1,4._dp)
+            a0*Coeff_g_g_plus(asAt1,NfAt1,0._dp)+a1*Coeff_g_g_plus(asAt1,NfAt1,1._dp)&
+                +a2*Coeff_g_g_plus(asAt1,NfAt1,2._dp)+a4*Coeff_g_g_plus(asAt1,NfAt1,4._dp)
         Csinggg=sum(CplusAt1_gg*(/lx,lx**2/2._dp,lx**3/3._dp/))
     else
         CplusAt1_gg=0._dp
@@ -106,19 +122,23 @@ function CxF_AS(x,mu,hadron,includeGluon)
     !!! if mu is y-independent then one can use the value of coeff at y=1
     !!! and do not update them for each iteration of the integral
     !!! IT IS Y-INDEPENT
-    Bqq=3._dp/4*Coeff_q_q_reg(asAt1,NfAt1,0._dp)-2._dp/3*Coeff_q_q_reg(asAt1,NfAt1,1._dp)-1._dp/12*Coeff_q_q_reg(asAt1,NfAt1,4._dp)
-    Bqg=3._dp/4*Coeff_q_g_reg(asAt1,NfAt1,0._dp)-2._dp/3*Coeff_q_g_reg(asAt1,NfAt1,1._dp)-1._dp/12*Coeff_q_g_reg(asAt1,NfAt1,4._dp)
+    Bqq=a0*Coeff_q_q_reg(asAt1,NfAt1,0._dp)+a1*Coeff_q_q_reg(asAt1,NfAt1,1._dp)&
+            +a2*Coeff_q_q_reg(asAt1,NfAt1,2._dp)+a4*Coeff_q_q_reg(asAt1,NfAt1,4._dp)
+    Bqg=a0*Coeff_q_g_reg(asAt1,NfAt1,0._dp)+a1*Coeff_q_g_reg(asAt1,NfAt1,1._dp)&
+            +a2*Coeff_q_g_reg(asAt1,NfAt1,2._dp)+a4*Coeff_q_g_reg(asAt1,NfAt1,4._dp)
     if(includeGluon) then
-    Bgq=3._dp/4*Coeff_g_q_reg(asAt1,NfAt1,0._dp)-2._dp/3*Coeff_g_q_reg(asAt1,NfAt1,1._dp)-1._dp/12*Coeff_g_q_reg(asAt1,NfAt1,4._dp)
-    Bgg=3._dp/4*Coeff_g_g_reg(asAt1,NfAt1,0._dp)-2._dp/3*Coeff_g_g_reg(asAt1,NfAt1,1._dp)-1._dp/12*Coeff_g_g_reg(asAt1,NfAt1,4._dp)
+    Bgq=a0*Coeff_g_q_reg(asAt1,NfAt1,0._dp)+a1*Coeff_g_q_reg(asAt1,NfAt1,1._dp)&
+            +a2*Coeff_g_q_reg(asAt1,NfAt1,2._dp)+a4*Coeff_g_q_reg(asAt1,NfAt1,4._dp)
+    Bgg=a0*Coeff_g_g_reg(asAt1,NfAt1,0._dp)+a1*Coeff_g_g_reg(asAt1,NfAt1,1._dp)&
+            +a2*Coeff_g_g_reg(asAt1,NfAt1,2._dp)+a4*Coeff_g_g_reg(asAt1,NfAt1,4._dp)
     else
     Bgq=0._dp
     Bgg=0._dp
     end if
-    Bqqb=3._dp/4*Coeff_q_qb_reg(asAt1,NfAt1,0._dp)-2._dp/3*Coeff_q_qb_reg(asAt1,NfAt1,1._dp)&
-        -1._dp/12*Coeff_q_qb_reg(asAt1,NfAt1,4._dp)
-    Bqqp=3._dp/4*Coeff_q_qp_reg(asAt1,NfAt1,0._dp)-2._dp/3*Coeff_q_qp_reg(asAt1,NfAt1,1._dp)&
-        -1._dp/12*Coeff_q_qp_reg(asAt1,NfAt1,4._dp)
+    Bqqb=a0*Coeff_q_qb_reg(asAt1,NfAt1,0._dp)+a1*Coeff_q_qb_reg(asAt1,NfAt1,1._dp)&
+            +a2*Coeff_q_qb_reg(asAt1,NfAt1,2._dp)+a4*Coeff_q_qb_reg(asAt1,NfAt1,4._dp)
+    Bqqp=a0*Coeff_q_qp_reg(asAt1,NfAt1,0._dp)+a1*Coeff_q_qp_reg(asAt1,NfAt1,1._dp)&
+            +a2*Coeff_q_qp_reg(asAt1,NfAt1,2._dp)+a4*Coeff_q_qp_reg(asAt1,NfAt1,4._dp)
 
     !!! for smaller x, the part y~1 can be computed approximately (the xCUT is necesary since if x~y the error grows)
     !!! however if x is large ~1, the  should be closer to 1.
@@ -166,7 +186,7 @@ function CxF_AS(x,mu,hadron,includeGluon)
         Aqqb=sum(var*Bqqb)
         Aqqp=sum(var*Bqqp)
 
-        PDFs=xf(x/y,mu,hadron)
+        PDFs=xf(x/y,mu0,hadron)
 
 
         PDFsum=PDFs(-5)+PDFs(-4)+PDFs(-3)+PDFs(-2)+PDFs(-1)+PDFs(1)+PDFs(2)+PDFs(3)+PDFs(4)+PDFs(5)
@@ -203,7 +223,7 @@ function CxF_AS(x,mu,hadron,includeGluon)
 
 
 
-        PDF=xf(x/y,mu,hadron)
+        PDF=xf(x/y,mu0,hadron)
 
         dummy1=sum(listLY*CplusAt1_qq)
         dummy2=sum(listLY*CplusAt1_gg)
@@ -231,7 +251,7 @@ function CxF_AS(x,mu,hadron,includeGluon)
         !!!! int_y^1 dy (f[x/y]-f[x])*log[1-y]/(1-y) ~ (f[x/y]-f[x])(Log[1-y]-1)
         !!!! int_y^1 dy (f[x/y]-f[x])*log[1-y]**2/(1-y) ~ (f[x/y]-f[x])(2+Log[1-y]*(log[1-y]-2))
 
-        PDFs=xf(x/yCUT,mu,hadron)
+        PDFs=xf(x/yCUT,mu0,hadron)
 
         dummy1=sum((/1._dp,lY-1._dp,2._dp+lY*(lY-2._dp)/)*CplusAt1_qq)
         dummy2=sum((/1._dp,lY-1._dp,2._dp+lY*(lY-2._dp)/)*CplusAt1_gg)
@@ -248,7 +268,7 @@ function CxF_AS(x,mu,hadron,includeGluon)
         Aqqb=sum(var*Bqqb)
         Aqqp=sum(var*Bqqp)
 
-        PDFs=xf(x,mu,hadron)
+        PDFs=xf(x,mu0,hadron)
 
         PDFsum=PDFs(-5)+PDFs(-4)+PDFs(-3)+PDFs(-2)+PDFs(-1)+PDFs(1)+PDFs(2)+PDFs(3)+PDFs(4)+PDFs(5)
 

@@ -205,12 +205,17 @@ subroutine TMDF_ResetCounters()
 
 end subroutine TMDF_ResetCounters
  
- function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process)
+ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
  real(dp)::Integrand
- real(dp)::b,x1,x2,mu,zeta1,zeta2,Q2
- integer::process,h
+ real(dp),intent(in)::b,x1,x2,mu,zeta1,zeta2,Q2
+ integer,dimension(1:3),intent(in)::process_array
+ integer::process,h,h1,h2
  real(dp),dimension(-5:5)::FA,FB,FAB
  
+ process=process_array(1) !! general process name
+ h1=process_array(2)!! first hadron
+ h2=process_array(3)!! second hadron
+
  !increment counter 
  GlobalCounter=GlobalCounter+1
  
@@ -229,34 +234,14 @@ end subroutine TMDF_ResetCounters
   CASE(9998,19998,29998,39998)
     Integrand=Exp(-mu*b**2)*(1d0+x1*b**2+x2*b**4)
 !--------------------------------------------------------------------------------
-  CASE (1) !pp->gamma
+  CASE (1) !h1+h2 -> gamma
     ! e_q^2 *F_q(A)*F_qbar(B)
     if(zeta1==zeta2) then
-     FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,1,1)
+      FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,h1,h2)!!! -h2, to multiply quarks by anti-quarks in FAB
     else
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-     FAB=FA*(FB(5:-5:-1))
-    end if
+     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_5(x2,b,mu,zeta2,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
 
-    Integrand=FAB(1)/9.d0&
-      +FAB(2)*4.d0/9.d0&
-      +FAB(3)/9.d0&
-      +FAB(4)*4d0/9.d0&
-      +FAB(5)/9d0&
-      +FAB(-1)/9.d0&
-      +FAB(-2)*4.d0/9.d0&
-      +FAB(-3)/9.d0&
-      +FAB(-4)*4d0/9.d0&
-      +FAB(-5)/9d0
-!--------------------------------------------------------------------------------  
-  CASE (2) !ppbar->gamma
-    ! e_q^2 *F_q(A)*F_q(B)
-    if(zeta1==zeta2) then
-     FAB=uPDF_anti_uPDF(x1,x2,b,mu,zeta1,1,1)
-    else
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
      FAB=FA*FB
     end if
 
@@ -270,38 +255,15 @@ end subroutine TMDF_ResetCounters
       +FAB(-3)/9.d0&
       +FAB(-4)*4d0/9.d0&
       +FAB(-5)/9d0
-
 !--------------------------------------------------------------------------------  
-  CASE (3) !pp->Z
+  CASE (2) !h1+h2->Z
       !((1-2|eq|sw^2)^2+4eq^2sw^4)/(8sw^2cw^2) *F_q(A)*F_qbar(B)
     if(zeta1==zeta2) then
-     FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,1,1)
+      FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,h1,h2)
     else
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-     FAB=FA*(FB(5:-5:-1))
-    end if
+     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_5(x2,b,mu,zeta2,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
 
-    Integrand=&
-      FAB(1)*paramD&
-      +FAB(2)*paramU&
-      +FAB(3)*paramS&
-      +FAB(4)*paramC&
-      +FAB(5)*paramB&
-      +FAB(-1)*paramD&
-      +FAB(-2)*paramU&
-      +FAB(-3)*paramS&
-      +FAB(-4)*paramC&
-      +FAB(-5)*paramB
-
-!--------------------------------------------------------------------------------  
-  CASE (4) !ppbar->Z
-      !((1-2|eq|sw^2)^2+4eq^2sw^4)/(8sw^2cw^2) *F_q(A)*F_qbar(B)
-    if(zeta1==zeta2) then
-     FAB=uPDF_anti_uPDF(x1,x2,b,mu,zeta1,1,1)
-    else
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
      FAB=FA*FB
     end if
 
@@ -316,34 +278,22 @@ end subroutine TMDF_ResetCounters
       +FAB(-3)*paramS&
       +FAB(-4)*paramC&
       +FAB(-5)*paramB
-
 !--------------------------------------------------------------------------------  
-  CASE (5) !pp->Z+gamma
+  CASE (3) !h1+h2->Z+gamma
     if(zeta1==zeta2) then
-     FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,1,1)
+      FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,h1,h2)
     else
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-     FAB=FA*(FB(5:-5:-1))
-    end if
+     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_5(x2,b,mu,zeta2,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
 
-    Integrand=XIntegrandForDYwithZgamma(FAB,Q2)
-!--------------------------------------------------------------------------------  
-  CASE (6) !ppbar->Z+gamma
-    if(zeta1==zeta2) then
-     FAB=uPDF_anti_uPDF(x1,x2,b,mu,zeta1,1,1)
-    else
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
      FAB=FA*FB
     end if
 
-    !! we invert the order of FB
     Integrand=XIntegrandForDYwithZgamma(FAB,Q2)
 !--------------------------------------------------------------------------------  
-  CASE (7) !pp-> W+
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+  CASE (4) !h1+h2-> W+
+     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
 
     Integrand=paramW_L*(&
     paramW_UD*(FA(2)*FB(-1)+FA(-1)*FB(2))&        !u*dbar+dbar*u
@@ -354,9 +304,9 @@ end subroutine TMDF_ResetCounters
     +paramW_CB*(FA(4)*FB(-5)+FA(-5)*FB(4))&        !c*bbar+bbar*c
     )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
 !--------------------------------------------------------------------------------  
-  CASE (8) !pp-> W-
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+  CASE (5) !h1+h2-> W-
+     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
 
     Integrand=paramW_L*(&
     paramW_UD*(FA(1)*FB(-2)+FA(-2)*FB(1))&        !d*ubar+ubar*d
@@ -367,51 +317,9 @@ end subroutine TMDF_ResetCounters
     +paramW_CB*(FA(5)*FB(-4)+FA(-4)*FB(5))&        !b*cbar+cbar*b
     )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
 !--------------------------------------------------------------------------------  
-  CASE (9) !pp-> W+ + W-
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-
-    Integrand=paramW_L*(&
-    paramW_UD*(FA(2)*FB(-1)+FA(1)*FB(-2)+FA(-2)*FB(1)+FA(-1)*FB(2))&    !u*dbar+d*ubar+ubar*d+dbar*u
-    +paramW_US*(FA(2)*FB(-3)+FA(3)*FB(-2)+FA(-2)*FB(3)+FA(-3)*FB(2))&    !u*sbar+s*ubar+ubar*s+sbar*u
-    +paramW_UB*(FA(2)*FB(-5)+FA(5)*FB(-2)+FA(-2)*FB(5)+FA(-5)*FB(2))&    !u*bbar+b*ubar+ubar*b+bbar*u
-    +paramW_CD*(FA(4)*FB(-1)+FA(1)*FB(-4)+FA(-4)*FB(1)+FA(-1)*FB(4))&    !c*dbar+d*cbar+cbar*d+dbar*c
-    +paramW_CS*(FA(4)*FB(-3)+FA(3)*FB(-4)+FA(-4)*FB(3)+FA(-3)*FB(4))&    !c*sbar+s*cbar+cbar*s+sbar*c
-    +paramW_CB*(FA(4)*FB(-5)+FA(5)*FB(-4)+FA(-4)*FB(5)+FA(-5)*FB(4))&    !c*bbar+b*cbar+cbar*b+bbar*c
-    )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
-!--------------------------------------------------------------------------------  
-  CASE (10) !ppbar-> W+
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-     FB=FB(5:-5:-1) !! inverse the quark order
-
-    Integrand=paramW_L*(&
-    paramW_UD*(FA(2)*FB(-1)+FA(-1)*FB(2))&        !u*dbar+dbar*u
-    +paramW_US*(FA(2)*FB(-3)+FA(-3)*FB(2))&        !u*sbar+sbar*u
-    +paramW_UB*(FA(2)*FB(-5)+FA(-5)*FB(2))&        !u*bbar+bbar*u
-    +paramW_CD*(FA(4)*FB(-1)+FA(-1)*FB(4))&        !c*dbar+dbar*c
-    +paramW_CS*(FA(4)*FB(-3)+FA(-3)*FB(4))&        !c*sbar+sbar*c
-    +paramW_CB*(FA(4)*FB(-5)+FA(-5)*FB(4))&        !c*bbar+bbar*c
-    )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
-!--------------------------------------------------------------------------------  
-  CASE (11) !ppbar-> W-
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-     FB=FB(5:-5:-1) !! inverse the quark order
-
-    Integrand=paramW_L*(&
-    paramW_UD*(FA(1)*FB(-2)+FA(-2)*FB(1))&        !d*ubar+ubar*d
-    +paramW_US*(FA(3)*FB(-2)+FA(-2)*FB(3))&        !s*ubar+ubar*s
-    +paramW_UB*(FA(5)*FB(-2)+FA(-2)*FB(5))&        !b*ubar+ubar*b
-    +paramW_CD*(FA(1)*FB(-4)+FA(-4)*FB(1))&        !d*cbar+cbar*d
-    +paramW_CS*(FA(3)*FB(-4)+FA(-4)*FB(3))&        !s*cbar+cbar*s
-    +paramW_CB*(FA(5)*FB(-4)+FA(-4)*FB(5))&        !b*cbar+cbar*b
-    )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
-!--------------------------------------------------------------------------------  
-  CASE (12) !ppbar-> W+ + W-
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-     FB=FB(5:-5:-1) !! inverse the quark order
+  CASE (6) !h1+h2-> W+ + W-
+     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
 
     Integrand=paramW_L*(&
     paramW_UD*(FA(2)*FB(-1)+FA(1)*FB(-2)+FA(-2)*FB(1)+FA(-1)*FB(2))&    !u*dbar+d*ubar+ubar*d+dbar*u
@@ -423,9 +331,9 @@ end subroutine TMDF_ResetCounters
     )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
 
 !--------------------------------------------------------------------------------  
-  CASE (13) !pp-> W+
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+  CASE (7) !h1+h2-> W+ (for zero-width)
+     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
 
     Integrand=&
     paramW_UD*(FA(2)*FB(-1)+FA(-1)*FB(2))&        !u*dbar+dbar*u
@@ -436,9 +344,9 @@ end subroutine TMDF_ResetCounters
     +paramW_CB*(FA(4)*FB(-5)+FA(-5)*FB(4))        !c*bbar+bbar*c
 
 !--------------------------------------------------------------------------------  
-  CASE (14) !pp-> W-
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+  CASE (8) !h1+h2-> W- (for zero-width)
+     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
 
     Integrand=&
     paramW_UD*(FA(1)*FB(-2)+FA(-2)*FB(1))&        !d*ubar+ubar*d
@@ -449,9 +357,9 @@ end subroutine TMDF_ResetCounters
     +paramW_CB*(FA(5)*FB(-4)+FA(-4)*FB(5))        !b*cbar+cbar*b
 
 !--------------------------------------------------------------------------------  
-  CASE (15) !pp-> W+ + W-
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+  CASE (9) !h1+h2-> W+- (for zero-width)
+     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
 
     Integrand=&
     paramW_UD*(FA(2)*FB(-1)+FA(1)*FB(-2)+FA(-2)*FB(1)+FA(-1)*FB(2))&    !u*dbar+d*ubar+ubar*d+dbar*u
@@ -462,184 +370,52 @@ end subroutine TMDF_ResetCounters
     +paramW_CB*(FA(4)*FB(-5)+FA(5)*FB(-4)+FA(-4)*FB(5)+FA(-5)*FB(4))    !c*bbar+b*cbar+cbar*b+bbar*c
 
 !--------------------------------------------------------------------------------  
-  CASE (16) !ppbar-> W+
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-     FB=FB(5:-5:-1) !! inverse the quark order
-
-    Integrand=&
-    paramW_UD*(FA(2)*FB(-1)+FA(-1)*FB(2))&        !u*dbar+dbar*u
-    +paramW_US*(FA(2)*FB(-3)+FA(-3)*FB(2))&        !u*sbar+sbar*u
-    +paramW_UB*(FA(2)*FB(-5)+FA(-5)*FB(2))&        !u*bbar+bbar*u
-    +paramW_CD*(FA(4)*FB(-1)+FA(-1)*FB(4))&        !c*dbar+dbar*c
-    +paramW_CS*(FA(4)*FB(-3)+FA(-3)*FB(4))&        !c*sbar+sbar*c
-    +paramW_CB*(FA(4)*FB(-5)+FA(-5)*FB(4))        !c*bbar+bbar*c
-
-!--------------------------------------------------------------------------------  
-  CASE (17) !ppbar-> W-
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-     FB=FB(5:-5:-1) !! inverse the quark order
-
-    Integrand=&
-    paramW_UD*(FA(1)*FB(-2)+FA(-2)*FB(1))&        !d*ubar+ubar*d
-    +paramW_US*(FA(3)*FB(-2)+FA(-2)*FB(3))&        !s*ubar+ubar*s
-    +paramW_UB*(FA(5)*FB(-2)+FA(-2)*FB(5))&        !b*ubar+ubar*b
-    +paramW_CD*(FA(1)*FB(-4)+FA(-4)*FB(1))&        !d*cbar+cbar*d
-    +paramW_CS*(FA(3)*FB(-4)+FA(-4)*FB(3))&        !s*cbar+cbar*s
-    +paramW_CB*(FA(5)*FB(-4)+FA(-4)*FB(5))        !b*cbar+cbar*b
-
-!--------------------------------------------------------------------------------  
-  CASE (18) !ppbar-> W+ + W-
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-     FB=FB(5:-5:-1) !! inverse the quark order
-
-    Integrand=&
-    paramW_UD*(FA(2)*FB(-1)+FA(1)*FB(-2)+FA(-2)*FB(1)+FA(-1)*FB(2))&    !u*dbar+d*ubar+ubar*d+dbar*u
-    +paramW_US*(FA(2)*FB(-3)+FA(3)*FB(-2)+FA(-2)*FB(3)+FA(-3)*FB(2))&    !u*sbar+s*ubar+ubar*s+sbar*u
-    +paramW_UB*(FA(2)*FB(-5)+FA(5)*FB(-2)+FA(-2)*FB(5)+FA(-5)*FB(2))&    !u*bbar+b*ubar+ubar*b+bbar*u
-    +paramW_CD*(FA(4)*FB(-1)+FA(1)*FB(-4)+FA(-4)*FB(1)+FA(-1)*FB(4))&    !c*dbar+d*cbar+cbar*d+dbar*c
-    +paramW_CS*(FA(4)*FB(-3)+FA(3)*FB(-4)+FA(-4)*FB(3)+FA(-3)*FB(4))&    !c*sbar+s*cbar+cbar*s+sbar*c
-    +paramW_CB*(FA(4)*FB(-5)+FA(5)*FB(-4)+FA(-4)*FB(5)+FA(-5)*FB(4))    !c*bbar+b*cbar+cbar*b+bbar*c
-!--------------------------------------------------------------------------------  
-  CASE(20) !pp -> Higgs (unpol.part+lin.pol.part)
-    FA=uTMDPDF_50(x1,b,mu,zeta1,1)
-    FB=uTMDPDF_50(x2,b,mu,zeta2,1)
+  CASE(10) !h1+h2 -> Higgs (unpol.part+lin.pol.part)
+    FA=uTMDPDF_50(x1,b,mu,zeta1,h1)
+    FB=uTMDPDF_50(x2,b,mu,zeta2,h2)
     Integrand=FA(0)*FB(0) !!!! unpolarized part
 
-    FA=lpTMDPDF_50(x1,b,mu,zeta1,1)
-    FB=lpTMDPDF_50(x2,b,mu,zeta2,1)
+    FA=lpTMDPDF_50(x1,b,mu,zeta1,h1)
+    FB=lpTMDPDF_50(x2,b,mu,zeta2,h2)
     Integrand=Integrand+FA(0)*FB(0) !!!! linearly polarized part
 !--------------------------------------------------------------------------------  
-  CASE(21) !pp -> Higgs (unpol.part)    
-    FA=uTMDPDF_50(x1,b,mu,zeta1,1)
-    FB=uTMDPDF_50(x2,b,mu,zeta2,1)
+  CASE(11) !h1+h2 -> Higgs (unpol.part)
+    FA=uTMDPDF_50(x1,b,mu,zeta1,h1)
+    FB=uTMDPDF_50(x2,b,mu,zeta2,h2)
     Integrand=FA(0)*FB(0)
   
 !--------------------------------------------------------------------------------  
-  CASE(22) !pp -> Higgs (lin.pol.part)
-    FA=lpTMDPDF_50(x1,b,mu,zeta1,1)
-    FB=lpTMDPDF_50(x2,b,mu,zeta2,1)
+  CASE(12) !h1+h2 -> Higgs (lin.pol.part)
+    FA=lpTMDPDF_50(x1,b,mu,zeta1,h1)
+    FB=lpTMDPDF_50(x2,b,mu,zeta2,h2)
     Integrand=FA(0)*FB(0)
 
-!--------------------------------------------------------------------------------
-  CASE (101) !p h->gamma
-    ! e_q^2 *F_q(A)*F_qbar(B)
-    if(zeta1==zeta2) then
-     FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,2,1)
-    else
-     FA=uTMDPDF_5(x1,b,mu,zeta1,2)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-     FAB=FA*(FB(5:-5:-1))
-    end if
-
-    Integrand=FAB(1)/9.d0&
-      +FAB(2)*4.d0/9.d0&
-      +FAB(3)/9.d0&
-      +FAB(4)*4d0/9.d0&
-      +FAB(5)/9d0&
-      +FAB(-1)/9.d0&
-      +FAB(-2)*4.d0/9.d0&
-      +FAB(-3)/9.d0&
-      +FAB(-4)*4d0/9.d0&
-      +FAB(-5)/9d0
 !--------------------------------------------------------------------------------  
-  CASE (102) !pbar h->gamma
-    ! e_q^2 *F_q(A)*F_q(B)
-    if(zeta1==zeta2) then
-     FAB=uPDF_anti_uPDF(x1,x2,b,mu,zeta1,2,1)
-    else
-     FA=uTMDPDF_5(x1,b,mu,zeta1,2)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-     FAB=FA*FB
-    end if
-    !! in fact, we must revert this array, but the coefficients are symmetric
-    Integrand=FAB(1)/9.d0&
-      +FAB(2)*4.d0/9.d0&
-      +FAB(3)/9.d0&
-      +FAB(4)*4d0/9.d0&
-      +FAB(5)/9d0&
-      +FAB(-1)/9.d0&
-      +FAB(-2)*4.d0/9.d0&
-      +FAB(-3)/9.d0&
-      +FAB(-4)*4d0/9.d0&
-      +FAB(-5)/9d0
-!--------------------------------------------------------------------------------
-  CASE (103) !p hbar->gamma
-    ! e_q^2 *F_q(A)*F_qbar(B)
-    if(zeta1==zeta2) then
-     FAB=uPDF_anti_uPDF(x1,x2,b,mu,zeta1,2,1)
-    else
-     FA=uTMDPDF_5(x1,b,mu,zeta1,2)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-     FAB=FA*FB
-    end if
-    !! in fact, we must revert this array, but the coefficients are symmetric
-
-    Integrand=FAB(1)/9.d0&
-      +FAB(2)*4.d0/9.d0&
-      +FAB(3)/9.d0&
-      +FAB(4)*4d0/9.d0&
-      +FAB(5)/9d0&
-      +FAB(-1)/9.d0&
-      +FAB(-2)*4.d0/9.d0&
-      +FAB(-3)/9.d0&
-      +FAB(-4)*4d0/9.d0&
-      +FAB(-5)/9d0
-!--------------------------------------------------------------------------------  
-  CASE (104) !pbar hbar->gamma
-    ! e_q^2 *F_q(A)*F_q(B)
-    ! e_q^2 *F_q(A)*F_qbar(B)
-    if(zeta1==zeta2) then
-     FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,2,1)
-    else
-     FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,2)
-     FAB=FA*(FB(5:-5:-1))
-    end if
-
-    Integrand=FAB(1)/9.d0&
-      +FAB(2)*4.d0/9.d0&
-      +FAB(3)/9.d0&
-      +FAB(4)*4d0/9.d0&
-      +FAB(5)/9d0&
-      +FAB(-1)/9.d0&
-      +FAB(-2)*4.d0/9.d0&
-      +FAB(-3)/9.d0&
-      +FAB(-4)*4d0/9.d0&
-      +FAB(-5)/9d0
-!--------------------------------------------------------------------------------  
-  CASE (1001) !p+Cu->gamma* !!this is for E288
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
+  CASE (101) !h1+Cu->gamma* !!this is for E288
+    !!!! strictly hadron 1
+    FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
     Integrand=116d0/567d0*(FA(2)*FB(-2)+FA(-2)*FB(2))+136d0/567d0*(FA(-2)*FB(1)+FA(2)*FB(-1))&
           +34d0/567d0*(FA(-1)*FB(2)+FA(1)*FB(-2))+29d0/567d0*(FA(-1)*FB(1)+FA(1)*FB(-1))&
           +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
 
   !--------------------------------------------------------------------------------  
-  CASE (1002) !p+2H->gamma* !!this is for E772
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
+  CASE (102) !h1+2H->gamma* !!this is for E772
+    !!!! strictrly hadron 1
+    FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
     Integrand=2d0/9d0*(FA(2)*FB(-2)+FA(-2)*FB(2))+2d0/9d0*(FA(-2)*FB(1)+FA(2)*FB(-1))&
           +1d0/18d0*(FA(-1)*FB(2)+FA(1)*FB(-2))+1d0/18d0*(FA(-1)*FB(1)+FA(1)*FB(-1))&
           +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
   !--------------------------------------------------------------------------------  
-  CASE (1003) !pbar+W->gamma* !!this is for E537
+  CASE (103) !h1+W->gamma* !!this is for E537
+    !!!! strictrly hadron 1
     !Wolfram has A=183,    Z=74,    N=109
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-    Integrand=296d0/1647d0*(FA(2)*FB(2)+FA(-2)*FB(-2))+436d0/1647d0*(FA(2)*FB(1)+FA(-2)*FB(-1))&
-          +109d0/1647d0*(FA(1)*FB(2)+FA(-1)*FB(-2))+74d0/1647d0*(FA(1)*FB(1)+FA(-1)*FB(-1))&
-          +1d0/9d0*(FA(3)*FB(3)+FA(-3)*FB(-3)+4d0*FA(4)*FB(4)+4d0*FA(-4)*FB(-4)+FA(5)*FB(5)+FA(-5)*FB(-5))
-  !--------------------------------------------------------------------------------  
-  CASE (1004) !pminus+W->gamma* !!this is for E537
-    !Wolfram has A=183,    Z=74,    N=109
-    FA=uTMDPDF_5(x1,b,mu,zeta1,2)
+    FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
     FB=uTMDPDF_5(x2,b,mu,zeta2,1)
     Integrand=296d0/1647d0*(FA(-2)*FB(2)+FA(2)*FB(-2))+436d0/1647d0*(FA(-2)*FB(1)+FA(2)*FB(-1))&
-          +109d0/1647d0*(FA(-1)*FB(2)+FA(1)*FB(-2))+74d0/1647d0*(FA(-1)*FB(1)+FA(1)*FB(-1))&
-          +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
+	      +109d0/1647d0*(FA(-1)*FB(2)+FA(1)*FB(-2))+74d0/1647d0*(FA(-1)*FB(1)+FA(1)*FB(-1))&
+	      +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
   !----------------------------------------------------------------------------------
   !-------------------------SIDIS----------------------------------------------------
   !----------------------------------------------------------------------------------
@@ -914,9 +690,9 @@ end subroutine TMDF_ResetCounters
 !--------------------------------------------------------------------------------
     CASE (10001) !pp->gamma
         ! e_q^2 *F_q(A)*F_qbar(B)
-        FA=-SiversTMDPDF_5(x1,b,mu,zeta1,1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-        FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-        FAB=FA*(FB(5:-5:-1))
+        FA=-SiversTMDPDF_5(x1,b,mu,zeta1,h1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
+        FB=uTMDPDF_5(x2,b,mu,zeta2,-h2) !!! -h2, to multiply quarks by anti-quarks in FAB
+        FAB=FA*FB
         
         Integrand=-global_mass_scale*(&
         FAB(1)/9.d0&
@@ -930,16 +706,16 @@ end subroutine TMDF_ResetCounters
         +FAB(-4)*4d0/9.d0&
         +FAB(-5)/9d0)
     !--------------------------------------------------------------------------------  
-    CASE (10005) !pp->Z+gamma        
-        FA=-SiversTMDPDF_5(x1,b,mu,zeta1,1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-        FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-        FAB=FA*(FB(5:-5:-1))
+    CASE (10003) !pp->Z+gamma
+        FA=-SiversTMDPDF_5(x1,b,mu,zeta1,h1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
+        FB=uTMDPDF_5(x2,b,mu,zeta2,-h2) !!! -h2, to multiply quarks by anti-quarks in FAB
+        FAB=FA*FB
             
         Integrand=-global_mass_scale*XIntegrandForDYwithZgamma(FAB,Q2)
     !--------------------------------------------------------------------------------  
-    CASE (10007) !pp-> W+
-        FA=-SiversTMDPDF_5(x1,b,mu,zeta1,1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-        FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+    CASE (10004) !pp-> W+
+        FA=-SiversTMDPDF_5(x1,b,mu,zeta1,h1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
+        FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
         
         Integrand=-global_mass_scale*paramW_L*(&
         paramW_UD*(FA(2)*FB(-1)+FA(-1)*FB(2))&        !u*dbar+dbar*u
@@ -950,9 +726,9 @@ end subroutine TMDF_ResetCounters
         +paramW_CB*(FA(4)*FB(-5)+FA(-5)*FB(4))&        !c*bbar+bbar*c
         )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
     !--------------------------------------------------------------------------------  
-    CASE (10008) !pp-> W-
-        FA=-SiversTMDPDF_5(x1,b,mu,zeta1,1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-        FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+    CASE (10005) !pp-> W-
+        FA=-SiversTMDPDF_5(x1,b,mu,zeta1,h1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
+        FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
         
         Integrand=-global_mass_scale*paramW_L*(&
         paramW_UD*(FA(1)*FB(-2)+FA(-2)*FB(1))&        !d*ubar+ubar*d
@@ -963,68 +739,11 @@ end subroutine TMDF_ResetCounters
         +paramW_CB*(FA(5)*FB(-4)+FA(-4)*FB(5))&        !b*cbar+cbar*b
         )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
     !--------------------------------------------------------------------------------  
-    CASE (10101) !h+p(s)->gamma
+    CASE (10011) !h+p(s)->gamma
     ! e_q^2 *F_q(A)*F_qbar(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta2,2)
-    FB=-SiversTMDPDF_5(x2,b,mu,zeta1,1)    !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
+    FA=uTMDPDF_5(x1,b,mu,zeta2,h1)
+    FB=-SiversTMDPDF_5(x2,b,mu,zeta1,h2)    !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
     FAB=FA*(FB(5:-5:-1))
-
-    !!!! extra factor -1 (total +1) is due to definition of Sivers, h1+h2(s)=-h1(s)+h2
-    Integrand=+global_mass_scale*(&
-        FAB(1)/9.d0&
-        +FAB(2)*4.d0/9.d0&
-        +FAB(3)/9.d0&
-        +FAB(4)*4d0/9.d0&
-        +FAB(5)/9d0&
-        +FAB(-1)/9.d0&
-        +FAB(-2)*4.d0/9.d0&
-        +FAB(-3)/9.d0&
-        +FAB(-4)*4d0/9.d0&
-        +FAB(-5)/9d0)
-    !--------------------------------------------------------------------------------  
-    CASE (10102) !h + pbar(s)-> gamma
-    ! e_q^2 *F_q(A)*F_q(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta2,2)
-    FB=-SiversTMDPDF_5(x2,b,mu,zeta1,1) !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY    
-    FAB=FA*FB
-    
-    !!!! extra factor -1 (total +1) is due to definition of Sivers, h1+h2(s)=-h1(s)+h2
-    Integrand=+global_mass_scale*(&
-        FAB(1)/9.d0&
-        +FAB(2)*4.d0/9.d0&
-        +FAB(3)/9.d0&
-        +FAB(4)*4d0/9.d0&
-        +FAB(5)/9d0&
-        +FAB(-1)/9.d0&
-        +FAB(-2)*4.d0/9.d0&
-        +FAB(-3)/9.d0&
-        +FAB(-4)*4d0/9.d0&
-        +FAB(-5)/9d0)
-    !--------------------------------------------------------------------------------
-    CASE (10103) !hbar + p(s) -> gamma
-    ! e_q^2 *F_qbar(A)*F_qbar(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta2,2)
-    FB=-SiversTMDPDF_5(x2,b,mu,zeta1,1) !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-    FAB=FA*FB    
-    
-    !!!! extra factor -1 (total +1) is due to definition of Sivers, h1+h2(s)=-h1(s)+h2
-    Integrand=+global_mass_scale*(&
-        FAB(1)/9.d0&
-        +FAB(2)*4.d0/9.d0&
-        +FAB(3)/9.d0&
-        +FAB(4)*4d0/9.d0&
-        +FAB(5)/9d0&
-        +FAB(-1)/9.d0&
-        +FAB(-2)*4.d0/9.d0&
-        +FAB(-3)/9.d0&
-        +FAB(-4)*4d0/9.d0&
-        +FAB(-5)/9d0)
-    !--------------------------------------------------------------------------------  
-    CASE (10104) !hbar + pbar(s) ->gamma
-    ! e_q^2 *F_qbar(A)*F_q(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta2,2)
-    FA=-SiversTMDPDF_5(x2,b,mu,zeta1,1) !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY   
-    FAB=(FA(5:-5:-1))*FB
 
     !!!! extra factor -1 (total +1) is due to definition of Sivers, h1+h2(s)=-h1(s)+h2
     Integrand=+global_mass_scale*(&
@@ -1610,15 +1329,15 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------
     !-------------------------SPECIAL DY CASES---------------------------------------  
     CASE (13200) !pp->Z+gamma        
-        FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)  
-        FB=uTMDPDF_5(x2,b,mu,zeta2,1)
-        FAB=FA*(FB(5:-5:-1))
+        FA=wgtTMDPDF_5(x1,b,mu,zeta1,h1)
+        FB=uTMDPDF_5(x2,b,mu,zeta2,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
+        FAB=FA*FB
             
         Integrand=global_mass_scale*XIntegrandForDYwithZgamma_GTU(FAB,Q2)
     !--------------------------------------------------------------------------------  
     CASE (13201) !pp-> W+
-        FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)  
-        FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+        FA=wgtTMDPDF_5(x1,b,mu,zeta1,h1)
+        FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
         
         Integrand=-global_mass_scale*paramW_L*(& !!! -1=is due to the -gL^2 in the coupling for lepton
         paramW_UD*(FA(2)*FB(-1)-FA(-1)*FB(2))&        !u*dbar+dbar*u
@@ -1630,8 +1349,8 @@ end subroutine TMDF_ResetCounters
         )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
     !--------------------------------------------------------------------------------  
     CASE (13202) !pp-> W-
-        FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-        FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+        FA=wgtTMDPDF_5(x1,b,mu,zeta1,h1)
+        FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
         
         Integrand=-global_mass_scale*paramW_L*(& !!! -1=is due to the -gL^2 in the coupling for lepton
         paramW_UD*(FA(1)*FB(-2)-FA(-2)*FB(1))&        !d*ubar+ubar*d

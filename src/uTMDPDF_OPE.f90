@@ -375,9 +375,9 @@ function uTMDPDF_OPE_convolution(x,b,h,addGluon)
 
 end function uTMDPDF_OPE_convolution
 
-function uTMDPDF_X0_AS(x,mu,h,addGluon)
+function uTMDPDF_X0_AS(x,mu,mu0,h,addGluon)
     real(dp),dimension(-5:5)::uTMDPDF_X0_AS
-    real(dp),intent(in)::x,mu
+    real(dp),intent(in)::x,mu,mu0
     integer,intent(in)::h
     logical,optional,intent(in)::addGluon
 
@@ -410,7 +410,7 @@ function uTMDPDF_X0_AS(x,mu,h,addGluon)
     end if
 
     !!! computation
-    uTMDPDF_X0_AS=CxF_AS(x,mu,h,gluon)/x
+    uTMDPDF_X0_AS=CxF_AS(x,mu,mu0,h,gluon)/x
 
 end function uTMDPDF_X0_AS
 
