@@ -11,6 +11,7 @@
 !	ver 2.00:release (AV, 29.03.2019)
 !	ver 2.01:release (AV, 08.06.2019)
 !	ver 2.05:release (AV, 22.05.2020)
+!	ver 3.00:release (AV, 29.01.2024)
 !
 !				A.Vladimirov (23.12.2018)
 !
@@ -24,6 +25,7 @@ use uTMDPDF
 use uTMDFF
 use lpTMDPDF
 use SiversTMDPDF
+use BoerMuldersTMDPDF
 use wgtTMDPDF
 implicit none
 
@@ -31,9 +33,9 @@ private
 !   public
 
 character (len=7),parameter :: moduleName="TMDs"
-character (len=5),parameter :: version="v2.06"
+character (len=5),parameter :: version="v3.00"
 !Last appropriate verion of constants-file
-integer,parameter::inputver=19
+integer,parameter::inputver=30
 
 !------------------------------------------Physical and mathematical constants------------------------------------------
 !------------------------------------------Working variables------------------------------------------------------------
@@ -48,6 +50,7 @@ logical::include_uTMDFF
 logical::include_lpTMDPDF
 logical::include_SiversTMDPDF
 logical::include_wgtTMDPDF
+logical::include_BoerMuldersTMDPDF
 
 
 !-----------------------------------------Public interface--------------------------------------------------------------
@@ -57,6 +60,7 @@ real(dp),dimension(-5:5),public:: uTMDFF_5,uTMDFF_50
 real(dp),dimension(-5:5),public:: lpTMDPDF_50
 real(dp),dimension(-5:5),public:: SiversTMDPDF_5,SiversTMDPDF_50
 real(dp),dimension(-5:5),public:: wgtTMDPDF_5,wgtTMDPDF_50
+real(dp),dimension(-5:5),public:: BoerMuldersTMDPDF_5,BoerMuldersTMDPDF_50
 
 public::uPDF_uPDF,uPDF_anti_uPDF
 
@@ -94,6 +98,14 @@ end interface
 
 interface wgtTMDPDF_50
     module procedure wgtTMDPDF_50_Ev,wgtTMDPDF_50_optimal
+end interface
+
+interface BoerMuldersTMDPDF_5
+    module procedure BoerMuldersTMDPDF_5_Ev,BoerMuldersTMDPDF_5_optimal
+end interface
+
+interface BoerMuldersTMDPDF_50
+    module procedure BoerMuldersTMDPDF_50_Ev,BoerMuldersTMDPDF_50_optimal
 end interface
 
 contains 
@@ -195,6 +207,11 @@ subroutine TMDs_Initialize(file,prefix)
     call MoveTO(51,'*p1  ')
     read(51,*) include_wgtTMDPDF
 
+    !! BoerMuldersTMDPDF
+    call MoveTO(51,'*14  ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_BoerMuldersTMDPDF
+
     CLOSE (51, STATUS='KEEP')
 
     if(.not.QCDinput_IsInitialized()) then
@@ -257,6 +274,15 @@ subroutine TMDs_Initialize(file,prefix)
             call wgtTMDPDF_Initialize(file,prefix)
         else
             call wgtTMDPDF_Initialize(file)
+        end if
+    end if
+
+    if(include_BoerMuldersTMDPDF .and. (.not.BoerMuldersTMDPDF_IsInitialized())) then
+        if(outputLevel>1) write(*,*) '.. initializing SiversTMDPDF (from ',moduleName,')'
+        if(present(prefix)) then
+            call BoerMuldersTMDPDF_Initialize(file,prefix)
+        else
+            call BoerMuldersTMDPDF_Initialize(file)
         end if
     end if
 

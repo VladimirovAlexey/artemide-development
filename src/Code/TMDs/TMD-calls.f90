@@ -379,3 +379,76 @@ function wgtTMDPDF_50_optimal(x,bt,hadron)
     wgtTMDPDF_50_optimal=wgtTMDPDF_lowScale5(x,bT,hadron)
 
 end function wgtTMDPDF_50_optimal
+
+!!!!!!!!!!!!!!!!!!!BoerMuldersTMDPDF!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!! upolarized TMDFF
+! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+function BoerMuldersTMDPDF_5_Ev(x,bt,muf,zetaf,hadron)
+    real(dp)::BoerMuldersTMDPDF_5_Ev(-5:5)
+    real(dp),intent(in):: x,bt,muf,zetaf
+    integer,intent(in)::hadron
+    real(dp):: Rkernel
+
+    Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
+
+    BoerMuldersTMDPDF_5_Ev=Rkernel*BoerMuldersTMDPDF_lowScale5(x,bT,hadron)
+
+    !!! forcefully set =0 below threshold
+    if(muf<mBOTTOM) then
+        BoerMuldersTMDPDF_5_Ev(5)=0_dp
+        BoerMuldersTMDPDF_5_Ev(-5)=0_dp
+    end if
+    if(muf<mCHARM) then
+        BoerMuldersTMDPDF_5_Ev(4)=0_dp
+        BoerMuldersTMDPDF_5_Ev(-4)=0_dp
+    end if
+
+end function BoerMuldersTMDPDF_5_Ev
+
+!!!!!!!! upolarized TMDFF
+! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+function BoerMuldersTMDPDF_50_Ev(x,bt,muf,zetaf,hadron)
+    real(dp)::BoerMuldersTMDPDF_50_Ev(-5:5)
+    real(dp),intent(in):: x,bt,muf,zetaf
+    integer,intent(in)::hadron
+    real(dp):: Rkernel ,RkernelG
+
+    Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
+    RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
+
+    BoerMuldersTMDPDF_50_Ev=BoerMuldersTMDPDF_lowScale5(x,bT,hadron)*&
+        (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
+
+    !!! forcefully set =0 below threshold
+    if(muf<mBOTTOM) then
+        BoerMuldersTMDPDF_50_Ev(5)=0_dp
+        BoerMuldersTMDPDF_50_Ev(-5)=0_dp
+    end if
+    if(muf<mCHARM) then
+        BoerMuldersTMDPDF_50_Ev(4)=0_dp
+        BoerMuldersTMDPDF_50_Ev(-4)=0_dp
+    end if
+
+end function BoerMuldersTMDPDF_50_Ev
+
+! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+function BoerMuldersTMDPDF_5_optimal(x,bt,hadron)
+    real(dp)::BoerMuldersTMDPDF_5_optimal(-5:5)
+    real(dp),intent(in):: x,bt
+    integer,intent(in)::hadron
+
+    BoerMuldersTMDPDF_5_optimal=BoerMuldersTMDPDF_lowScale5(x,bT,hadron)
+
+end function BoerMuldersTMDPDF_5_optimal
+
+! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+function BoerMuldersTMDPDF_50_optimal(x,bt,hadron)
+    real(dp)::BoerMuldersTMDPDF_50_optimal(-5:5)
+    real(dp),intent(in):: x,bt
+    integer,intent(in)::hadron
+
+    BoerMuldersTMDPDF_50_optimal=BoerMuldersTMDPDF_lowScale5(x,bT,hadron)
+
+end function BoerMuldersTMDPDF_50_optimal
+
