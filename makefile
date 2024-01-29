@@ -54,6 +54,9 @@ $(SOURCEDIR)/SiversTMDPDF.f90 \
 $(SOURCEDIR)/Model/wgtTMDPDF_model.f90 \
 $(SOURCEDIR)/wgtTMDPDF_OPE.f90 \
 $(SOURCEDIR)/wgtTMDPDF.f90 \
+$(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 \
+$(SOURCEDIR)/BoerMuldersTMDPDF_OPE.f90 \
+$(SOURCEDIR)/BoerMuldersTMDPDF.f90 \
 $(SOURCEDIR)/TMDs.f90 \
 $(SOURCEDIR)/TMDs_inKT.f90 \
 $(SOURCEDIR)/TMDF.f90 \
@@ -145,6 +148,9 @@ $(OBJ)/SiversTMDPDF.o \
 $(OBJ)/wgtTMDPDF_model.o \
 $(OBJ)/wgtTMDPDF_OPE.o \
 $(OBJ)/wgtTMDPDF.o \
+$(OBJ)/BoerMuldersTMDPDF_model.o \
+$(OBJ)/BoerMuldersTMDPDF_OPE.o \
+$(OBJ)/BoerMuldersTMDPDF.o \
 $(OBJ)/TMDs.o \
 $(OBJ)/TMDF.o \
 $(OBJ)/TMDs_inKT.o \
@@ -314,8 +320,26 @@ $(OBJ)/wgtTMDPDF.o: $(SOURCEDIR)/wgtTMDPDF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Mo
 	$(FC) -c $(SOURCEDIR)/wgtTMDPDF.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
-	
-$(OBJ)/TMDs.o: $(SOURCEDIR)/TMDs.f90 $(OBJ)/uTMDPDF.o $(OBJ)/uTMDFF.o $(OBJ)/lpTMDPDF.o $(OBJ)/SiversTMDPDF.o $(OBJ)/wgtTMDPDF.o $(SOURCEDIR)/Model/TMDs_model.f90 $(OBJ)/TMDR.o $(TMDsFiles) $(aTMDeUTILITY)
+
+$(OBJ)/BoerMuldersTMDPDF_model.o: $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 $(aTMDeUTILITY)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/BoerMuldersTMDPDF_OPE.o: $(SOURCEDIR)/BoerMuldersTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 $(Twist3Files) $(aTMDeUTILITY) $(BoerMuldersTMDPDFFiles)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/BoerMuldersTMDPDF_OPE.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/BoerMuldersTMDPDF.o: $(SOURCEDIR)/BoerMuldersTMDPDF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 $(SOURCEDIR)/BoerMuldersTMDPDF_OPE.f90 $(Twist3Files) $(aTMDeUTILITY) $(BoerMuldersTMDPDFFiles)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/BoerMuldersTMDPDF.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/TMDs.o: $(SOURCEDIR)/TMDs.f90 $(OBJ)/uTMDPDF.o $(OBJ)/uTMDFF.o $(OBJ)/lpTMDPDF.o $(OBJ)/SiversTMDPDF.o $(OBJ)/wgtTMDPDF.o $(OBJ)/BoerMuldersTMDPDF.o $(SOURCEDIR)/Model/TMDs_model.f90 $(OBJ)/TMDR.o $(TMDsFiles) $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/TMDs.f90 -I$(MOD)
 	mv *.o $(OBJ)

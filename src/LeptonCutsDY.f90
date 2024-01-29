@@ -266,7 +266,7 @@ function integralEtaExactUNDEFINED_A(a,b,uu)
 end function integralEtaExactUNDEFINED_A
 
 
-!!!!the theta (0 or 1) funciton of the integrand in the coordinates rapidity-angle
+!!!!the theta (0 or 1) function of the integrand in the coordinates rapidity-angle
 !! Search for the boundary of integration between t1 and t2 at fixed phi
 !! by devision on 2
 !	   1     2    3       4          5                       6

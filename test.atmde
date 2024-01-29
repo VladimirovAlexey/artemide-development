@@ -503,9 +503,42 @@
            F
 
 # ---------------------------------------------------------------------------
+# ----                         PARAMETERS OF BoerMuldersTMDPDF          -----
+# ---------------------------------------------------------------------------
+*14  :
+*p1  : initialize SiversTMDPDF module
+ F
+
+*A   : ---- OPE[tw3] main definitions ----
+*p1  : Order of coefficient function
+ NA
+*p2  : Prepare grid
+ F
+*p3  : Include gluon TMDs into the grid [=T, because it is GLUON TMDPDF]
+ F
+*p4  : total number of PDFs added to the grid (by default it coincides with number of initialized PDFs)
+           0
+*p5  : run the test of the grid (takes some time)
+ F
+
+*B   : ---- Parameters of NP model ----
+*p1  : Length of lambdaNP
+           1
+*p2  : Absolute maximum b (for larger b, TMD=0)
+   100.00000000000000
+
+*C   : ---- Numerical evaluation parameters ----
+*p1  : Tolerance (relative tolerance of convolution integral)
+   9.9999999999999995E-007
+*p2  : Tolerance general (used for various comparisons)
+   9.9999999999999995E-007
+*p3  : Maximum number of iterations (for adaptive integration)
+       10000
+
+# ---------------------------------------------------------------------------
 # ----                           PARAMETERS OF TMDF-KPC-DY              -----
 # ---------------------------------------------------------------------------
-*14   :
+*15   :
 *p1  : initialize TMDF-KPC-DY module
  F
 *A   : ---- Main definitions ----

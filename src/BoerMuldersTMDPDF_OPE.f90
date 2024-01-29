@@ -1,13 +1,13 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !            arTeMiDe 3.00
 !
-!    Evaluation of the small-b OPE for SiversTMDPDF
+!    Evaluation of the small-b OPE for BoerMuldersTMDPDF
 !
-!    if you use this module please, quote 1901.04519
+!    if you use this module please, quote     2209.00962
 !
-!    ver 3.00: release (AV, 21.07.2023)
+!    ver 3.00: release (AV, 29.01.2024)
 !
-!                A.Vladimirov (21.07.2023)
+!                A.Vladimirov (29.07.2024)
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -18,12 +18,12 @@
 ! * only global variables are kept here
 ! * the most part of the code is universal, and shared by many such modules
 
-module SiversTMDPDF_OPE
+module BoerMuldersTMDPDF_OPE
 use aTMDe_Numerics
 use IntegrationRoutines
 use IO_functions
 use QCDinput
-use SiversTMDPDF_model
+use BoerMuldersTMDPDF_model
 implicit none
 
 !------------------------LOCALs -----------------------------------------------
@@ -32,7 +32,7 @@ private
 
 !Current version of module
 character (len=5),parameter :: version="v3.00"
-character (len=16),parameter :: moduleName="SiversTMDPDF_OPE"
+character (len=21),parameter :: moduleName="BoerMuldersTMDPDF_OPE"
 !Last appropriate version of constants-file
 integer,parameter::inputver=30
 
@@ -76,9 +76,9 @@ logical :: gridReady!!!!indicator that grid is ready to use. If it is .true., th
 integer::numberOfHadrons=1                !!!total number of hadrons to be stored
 
 !!--------------------------------------Public interface-----------------------------------------
-public::SiversTMDPDF_OPE_IsInitialized,SiversTMDPDF_OPE_Initialize
-public::SiversTMDPDF_OPE_tw3_convolution,SiversTMDPDF_OPE_tw3_resetGrid,SiversTMDPDF_OPE_tw3_testGrid
-public::SiversTMDPDF_OPE_tw3_SetPDFreplica,SiversTMDPDF_OPE_tw3_SetScaleVariation
+public::BoerMuldersTMDPDF_OPE_IsInitialized,BoerMuldersTMDPDF_OPE_Initialize
+public::BoerMuldersTMDPDF_OPE_tw3_convolution,BoerMuldersTMDPDF_OPE_tw3_resetGrid,BoerMuldersTMDPDF_OPE_tw3_testGrid
+public::BoerMuldersTMDPDF_OPE_tw3_SetPDFreplica,BoerMuldersTMDPDF_OPE_tw3_SetScaleVariation
 
 !!!!!!----FOR TEST
 !public::MakeGrid,ExtractFromGrid,CxF_compute,TestGrid
@@ -86,16 +86,16 @@ public::SiversTMDPDF_OPE_tw3_SetPDFreplica,SiversTMDPDF_OPE_tw3_SetScaleVariatio
 contains
 
 !! Coefficient function
-!INCLUDE 'Code/SiversTMDPDF/coeffFunc-new2.f90'
+!INCLUDE 'Code/BoerMuldersTMDPDF/coeffFunc-new2.f90'
 
 
-function SiversTMDPDF_OPE_IsInitialized()
-    logical::SiversTMDPDF_OPE_IsInitialized
-    SiversTMDPDF_OPE_IsInitialized=started
-end function SiversTMDPDF_OPE_IsInitialized
+function BoerMuldersTMDPDF_OPE_IsInitialized()
+    logical::BoerMuldersTMDPDF_OPE_IsInitialized
+    BoerMuldersTMDPDF_OPE_IsInitialized=started
+end function BoerMuldersTMDPDF_OPE_IsInitialized
 
 !! Initialization of the package
-subroutine SiversTMDPDF_OPE_Initialize(file,prefix)
+subroutine BoerMuldersTMDPDF_OPE_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
     character(len=300)::path
@@ -147,7 +147,7 @@ subroutine SiversTMDPDF_OPE_Initialize(file,prefix)
     !$read(51,*) i
     !$ call OMP_set_num_threads(i)
 
-    call MoveTO(51,'*12   ')
+    call MoveTO(51,'*14   ')
     call MoveTO(51,'*p1  ')
     read(51,*) initRequired
     if(.not.initRequired) then
@@ -212,7 +212,7 @@ subroutine SiversTMDPDF_OPE_Initialize(file,prefix)
 !     call BGrid_Initialize()
 !     call TMDGrid_XB_Initialize()
     
-    !!! Model initialisation is called from the SiversTMDPDF-module
+    !!! Model initialisation is called from the BoerMuldersTMDPDF-module
     gridReady=.false.
 
 !     if(useGrid) then
@@ -225,10 +225,10 @@ subroutine SiversTMDPDF_OPE_Initialize(file,prefix)
     started=.true.
     messageCounter=0
 
-    if(outputLevel>0) write(*,*) color('----- arTeMiDe.SiversTMDPDF_OPE '//trim(version)//': .... initialized',c_green)
+    if(outputLevel>0) write(*,*) color('----- arTeMiDe.BoerMuldersTMDPDF_OPE '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) ' '
 
-end subroutine SiversTMDPDF_OPE_Initialize
+end subroutine BoerMuldersTMDPDF_OPE_Initialize
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
@@ -244,8 +244,8 @@ end subroutine SiversTMDPDF_OPE_Initialize
 ! end function xf
 
 !!! this is convolution with twist3 PDF
-function SiversTMDPDF_OPE_tw3_convolution(x,b,h,addGluon)
-    real(dp),dimension(-5:5)::SiversTMDPDF_OPE_tw3_convolution
+function BoerMuldersTMDPDF_OPE_tw3_convolution(x,b,h,addGluon)
+    real(dp),dimension(-5:5)::BoerMuldersTMDPDF_OPE_tw3_convolution
     real(dp),intent(in)::x,b
     integer,intent(in)::h
     logical,optional,intent(in)::addGluon
@@ -259,49 +259,49 @@ function SiversTMDPDF_OPE_tw3_convolution(x,b,h,addGluon)
         gluon=withGluonTW3
     end if
 
-    !!!! test for boundaries is done in SiversTMDPDF_lowScale5 (on the enty to this procedure)
+    !!!! test for boundaries is done in BoerMuldersTMDPDF_lowScale5 (on the enty to this procedure)
 
     !!!! case NA
     if(orderMainTW3==-50) then
         if(gluon) then
-            SiversTMDPDF_OPE_tw3_convolution=1._dp
+            BoerMuldersTMDPDF_OPE_tw3_convolution=1._dp
         else
-            SiversTMDPDF_OPE_tw3_convolution=(/1._dp,1._dp,1._dp,1._dp,1._dp,0._dp,1._dp,1._dp,1._dp,1._dp,1._dp/)
+            BoerMuldersTMDPDF_OPE_tw3_convolution=(/1._dp,1._dp,1._dp,1._dp,1._dp,0._dp,1._dp,1._dp,1._dp,1._dp,1._dp/)
         end if
         return
     end if
 
     !!!!! perturbative convolution is not implemented yet
 
-end function SiversTMDPDF_OPE_tw3_convolution
+end function BoerMuldersTMDPDF_OPE_tw3_convolution
 
 
 !!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
 
 !!! This subroutine force reconstruction of the grid (if griding is ON)
-subroutine SiversTMDPDF_OPE_tw3_resetGrid()
+subroutine BoerMuldersTMDPDF_OPE_tw3_resetGrid()
     !!!!! not implemented yet
-end subroutine SiversTMDPDF_OPE_tw3_resetGrid
+end subroutine BoerMuldersTMDPDF_OPE_tw3_resetGrid
 
 !!! This subroutine force reconstruction of the grid (if griding is ON)
-subroutine SiversTMDPDF_OPE_tw3_testGrid()
+subroutine BoerMuldersTMDPDF_OPE_tw3_testGrid()
     !!!!! not implemented yet
-end subroutine SiversTMDPDF_OPE_tw3_testGrid
+end subroutine BoerMuldersTMDPDF_OPE_tw3_testGrid
 
 !! call QCDinput to change the PDF replica number
 !! unset the grid, since it should be recalculated fro different PDF replica.
-subroutine SiversTMDPDF_OPE_tw3_SetPDFreplica(rep,hadron)
+subroutine BoerMuldersTMDPDF_OPE_tw3_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
 
     !!!! not implemented yet
 
-end subroutine SiversTMDPDF_OPE_tw3_SetPDFreplica
+end subroutine BoerMuldersTMDPDF_OPE_tw3_SetPDFreplica
 
 !!!! this routine set the variations of scales
 !!!! it is used for the estimation of errors
-subroutine SiversTMDPDF_OPE_tw3_SetScaleVariation(c4_in)
+subroutine BoerMuldersTMDPDF_OPE_tw3_SetScaleVariation(c4_in)
     real(dp),intent(in)::c4_in
     !!!! not implemented yet
-end subroutine SiversTMDPDF_OPE_tw3_SetScaleVariation
+end subroutine BoerMuldersTMDPDF_OPE_tw3_SetScaleVariation
 
-end module SiversTMDPDF_OPE
+end module BoerMuldersTMDPDF_OPE

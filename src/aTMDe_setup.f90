@@ -131,6 +131,17 @@ real(dp)::wgtTMDPDF_grid_xMin,wgtTMDPDF_grid_parX
 real(dp)::wgtTMDPDF_grid_bMin,wgtTMDPDF_grid_bMax
 integer::wgtTMDPDF_grid_SizeX,wgtTMDPDF_grid_SizeB
 
+!-------------------- BoerMuldersTMDPDF parameters
+logical::include_BoerMuldersTMDPDF
+integer::number_of_BoerMuldersTMDPDFs
+character*8::BoerMuldersTMDPDF_order
+logical::BoerMuldersTMDPDF_makeGrid,BoerMuldersTMDPDF_withGluon,BoerMuldersTMDPDF_runGridTest
+integer::BoerMuldersTMDPDF_lambdaLength
+real(dp)::BoerMuldersTMDPDF_BMAX_ABS
+real(dp)::BoerMuldersTMDPDF_toleranceINT
+real(dp)::BoerMuldersTMDPDF_toleranceGEN
+integer::BoerMuldersTMDPDF_maxIteration
+
 !-------------------- TMDs parameters
 logical::include_TMDs
 
@@ -402,7 +413,18 @@ subroutine SetupDefault(order)
     wgtTMDPDF_runGridTest_tw3=.false.
     number_of_tw3_wgtPDF=0
     
-    
+    !-------------------- parameters for BoerMuldersTMDPDF
+    include_BoerMuldersTMDPDF=.false. !!! we do not initialize BoerMuldersTMDPDF by definition
+    BoerMuldersTMDPDF_order=trim('NA') !!! by definition BoerMulders is tree-order
+    BoerMuldersTMDPDF_makeGrid=.false.   !!! no need to make grid
+    BoerMuldersTMDPDF_withGluon=.false.
+    BoerMuldersTMDPDF_runGridTest=.false.
+    number_of_BoerMuldersTMDPDFs=1
+    BoerMuldersTMDPDF_lambdaLength=1
+    BoerMuldersTMDPDF_BMAX_ABS=100.d0
+    BoerMuldersTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
+    BoerMuldersTMDPDF_toleranceGEN=1.d-6!general tolerance
+    BoerMuldersTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
 
     !------------------ parameters for TMDs
     include_TMDs=.true.
@@ -1061,13 +1083,47 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p5  : run the test of the grid (takes some time)')")
     write(51,*) wgtTMDPDF_runGridTest_tw3
 
+    write(51,"(' ')")
+    write(51,"(' ')")
+    write(51,"('# ---------------------------------------------------------------------------')")
+    write(51,"('# ----                         PARAMETERS OF BoerMuldersTMDPDF               -----')")
+    write(51,"('# ---------------------------------------------------------------------------')")
+    write(51,"('*14  :')")
+    write(51,"('*p1  : initialize BoerMuldersTMDPDF module')")
+    write(51,*) include_BoerMuldersTMDPDF
+    write(51,"(' ')")
+    write(51,"('*A   : ---- OPE[tw3] main definitions ----')")
+    write(51,"('*p1  : Order of coefficient function')")
+    write(51,*) trim(BoerMuldersTMDPDF_order)
+    write(51,"('*p2  : Prepare grid')")
+    write(51,*) BoerMuldersTMDPDF_makeGrid
+    write(51,"('*p3  : Include gluon TMDs into the grid [=T, because it is GLUON TMDPDF]')")
+    write(51,*) BoerMuldersTMDPDF_withGluon
+    write(51,"('*p4  : total number of PDFs added to the grid (by default it coincides with number of initialized PDFs)')")
+    write(51,*) number_of_BoerMuldersTMDPDFs
+    write(51,"('*p5  : run the test of the grid (takes some time)')")
+    write(51,*) BoerMuldersTMDPDF_runGridTest
+    write(51,"(' ')")
+    write(51,"('*B   : ---- Parameters of NP model ----')")
+    write(51,"('*p1  : Length of lambdaNP')")
+    write(51,*) BoerMuldersTMDPDF_lambdaLength
+    write(51,"('*p2  : Absolute maximum b (for larger b, TMD=0)')")
+    write(51,*) BoerMuldersTMDPDF_BMAX_ABS
+    write(51,"(' ')")
+    write(51,"('*C   : ---- Numerical evaluation parameters ----')")
+    write(51,"('*p1  : Tolerance (relative tolerance of convolution integral)')")
+    write(51,*) BoerMuldersTMDPDF_toleranceINT
+    write(51,"('*p2  : Tolerance general (used for various comparisons)')")
+    write(51,*) BoerMuldersTMDPDF_toleranceGEN
+    write(51,"('*p3  : Maximum number of iterations (for adaptive integration)')")
+    write(51,*) BoerMuldersTMDPDF_maxIteration
 
     write(51,"(' ')")
     write(51,"(' ')")
     write(51,"('# ---------------------------------------------------------------------------')")
     write(51,"('# ----                      PARAMETERS OF TMDF-KPC                      -----')")
     write(51,"('# ---------------------------------------------------------------------------')")
-    write(51,"('*14  :')")
+    write(51,"('*15  :')")
     write(51,"('*p1  : initialize TMDF-KPC-DY module')")
     write(51,*) include_TMDF_KPC
     write(51,"('*A   : ---- Main definitions ----')")
@@ -1663,8 +1719,36 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) wgtTMDPDF_runGridTest_tw3
 
 
-    !# ----                            PARAMETERS OF TMDF-KPC              -----
+    !# ----                           PARAMETERS OF BoerMuldersTMDPDF                  -----
     call MoveTO(51,'*14   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_BoerMuldersTMDPDF
+    call MoveTO(51,'*A   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) BoerMuldersTMDPDF_order
+    call MoveTO(51,'*p2  ')
+    read(51,*) BoerMuldersTMDPDF_makeGrid
+    call MoveTO(51,'*p3  ')
+    read(51,*) BoerMuldersTMDPDF_withGluon
+    call MoveTO(51,'*p4  ')
+    read(51,*) number_of_BoerMuldersTMDPDFs
+    call MoveTO(51,'*p5  ')
+    read(51,*) BoerMuldersTMDPDF_runGridTest
+    call MoveTO(51,'*B   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) BoerMuldersTMDPDF_lambdaLength
+    call MoveTO(51,'*p2  ')
+    read(51,*) BoerMuldersTMDPDF_BMAX_ABS
+    call MoveTO(51,'*C   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) BoerMuldersTMDPDF_toleranceINT
+    call MoveTO(51,'*p2  ')
+    read(51,*) BoerMuldersTMDPDF_toleranceGEN
+    call MoveTO(51,'*p3  ')
+    read(51,*) BoerMuldersTMDPDF_maxIteration
+
+    !# ----                            PARAMETERS OF TMDF-KPC              -----
+    call MoveTO(51,'*15   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_TMDF_KPC
     call MoveTO(51,'*A   ')
