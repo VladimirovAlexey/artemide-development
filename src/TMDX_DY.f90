@@ -515,20 +515,33 @@ function LeptonCutFactorKPC(kin,proc1, includeCuts_in,CutParam)
   real(dp)::LeptonCutFactorKPC
 
   !!!!!!!!!!!!!!!
-  !SELECT CASE(proc1)
-  ! TOBE WRITTEN
-  !!
+  SELECT CASE(proc1)
+  CASE(1,2) !!! P0
+    if(includeCuts_in) then
+      !!! here include cuts onf lepton tensor
+      LeptonCutFactorKPC=1.d0!CutFactor4(qT=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam)
+      write(*,*) "CUTS are not yet realised in KPC case"
+      stop
+    else
+      !!! this is uncut lepton tensor
+      LeptonCutFactorKPC=1.d0*(1+0.5d0*(kin(1)/kin(3))**2)
+    end if
+  CASE DEFAULT
 
-  !!!!! lepton-cut prefactor
-  if(includeCuts_in) then
-    !!! here include cuts onf lepton tensor
-    LeptonCutFactorKPC=1.d0!CutFactor4(qT=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam)
-    write(*,*) "CUTS are not yet realised in KPC case"
-    stop
-  else
-    !!! this is uncut lepton tensor
-    LeptonCutFactorKPC=1.d0*(1+0.5d0*(kin(1)/kin(3))**2)
-  end if
+    !!!!! lepton-cut prefactor
+    if(includeCuts_in) then
+      !!! here include cuts onf lepton tensor
+      LeptonCutFactorKPC=1.d0!CutFactor4(qT=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam)
+      write(*,*) "CUTS are not yet realised in KPC case"
+      stop
+    else
+      !!! this is uncut lepton tensor
+      LeptonCutFactorKPC=1.d0*(1+0.5d0*(kin(1)/kin(3))**2)
+    end if
+
+  END SELECT
+
+
 
 end function LeptonCutFactorKPC
 
@@ -611,7 +624,7 @@ function xSec(var,process,incCut,CutParam)
 
     do i=4, numProc
       if(process(i)/=0) then
-        FF=KPC_DYconv(var(4),var(1),x1,x2,scaleMu*c2_global,(/process(2),process(3),process(i)/),1)
+        FF=KPC_DYconv(var(4),var(1),x1,x2,scaleMu*c2_global,(/process(2),process(3),process(i)/))
         LC=LeptonCutFactorKPC(var,process(i),incCut,CutParam)
         XX=XX+FF*LC
       end if

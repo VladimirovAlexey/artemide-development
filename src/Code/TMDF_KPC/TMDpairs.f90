@@ -8,10 +8,15 @@ integer,dimension(1:3),intent(in)::process
 real(dp)::TMD_pair
 real(dp),dimension(-5:5)::FA,FB,FAB
 real(dp)::param
+integer::h1,h2
 
 !increment counter
 GlobalCounter=GlobalCounter+1
 LocalCounter=LocalCounter+1
+
+h1=process(1)
+h2=process(2)
+
 
 SELECT CASE(process(3))
   !!!test cases
@@ -27,8 +32,8 @@ SELECT CASE(process(3))
 
   CASE (1) !pp->gamma
     ! e_q^2 *F_q(A)*F_qbar(B)
-     FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,process(1))
-     FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,-process(2)) !!! -h2, to myltiply quarks by anti-quarks in FAB
+     FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,h1)
+     FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,-h2) !!! -h2, to myltiply quarks by anti-quarks in FAB
      FAB=FA*FB
 
     TMD_pair=FAB(1)/9.d0&
@@ -43,154 +48,14 @@ SELECT CASE(process(3))
       +FAB(-5)/9d0
 
 !--------------------------------------------------------------------------------
-  CASE (2) !pp->Z
-      !((1-2|eq|sw^2)^2+4eq^2sw^4)/(8sw^2cw^2) *F_q(A)*F_qbar(B)
-     FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,process(1))
-     FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,-process(2))
+  CASE (2,3,4,5) !Delta^{GG'}z_{+l}z_{+f}f1f1
+     FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,h1)
+     FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,-h2)!!! -h2, to myltiply quarks by anti-quarks in FAB
      FAB=FA*FB
 
-    TMD_pair=&
-      FAB(1)*paramD&
-      +FAB(2)*paramU&
-      +FAB(3)*paramS&
-      +FAB(4)*paramC&
-      +FAB(5)*paramB&
-      +FAB(-1)*paramD&
-      +FAB(-2)*paramU&
-      +FAB(-3)*paramS&
-      +FAB(-4)*paramC&
-      +FAB(-5)*paramB
+    TMD_pair=XTMD_pairZpZp(FAB,Q2)
 
-!--------------------------------------------------------------------------------
-  CASE (3) !pp->Z+gamma
-     FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,process(1))
-     FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,-process(2))!!! -h2, to myltiply quarks by anti-quarks in FAB
-     FAB=FA*FB
 
-    TMD_pair=XTMD_pairForDYwithZgamma(FAB,Q2)
-!--------------------------------------------------------------------------------
-  CASE (4) !pp-> W+
-     FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,process(1))
-     FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,process(2))
-
-    TMD_pair=paramW_L*(&
-    paramW_UD*(FA(2)*FB(-1)+FA(-1)*FB(2))&        !u*dbar+dbar*u
-    +paramW_US*(FA(2)*FB(-3)+FA(-3)*FB(2))&        !u*sbar+sbar*u
-    +paramW_UB*(FA(2)*FB(-5)+FA(-5)*FB(2))&        !u*bbar+bbar*u
-    +paramW_CD*(FA(4)*FB(-1)+FA(-1)*FB(4))&        !c*dbar+dbar*c
-    +paramW_CS*(FA(4)*FB(-3)+FA(-3)*FB(4))&        !c*sbar+sbar*c
-    +paramW_CB*(FA(4)*FB(-5)+FA(-5)*FB(4))&        !c*bbar+bbar*c
-    )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
-!--------------------------------------------------------------------------------
-  CASE (5) !pp-> W-
-     FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,process(1))
-     FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,process(2))
-
-    TMD_pair=paramW_L*(&
-    paramW_UD*(FA(1)*FB(-2)+FA(-2)*FB(1))&        !d*ubar+ubar*d
-    +paramW_US*(FA(3)*FB(-2)+FA(-2)*FB(3))&        !s*ubar+ubar*s
-    +paramW_UB*(FA(5)*FB(-2)+FA(-2)*FB(5))&        !b*ubar+ubar*b
-    +paramW_CD*(FA(1)*FB(-4)+FA(-4)*FB(1))&        !d*cbar+cbar*d
-    +paramW_CS*(FA(3)*FB(-4)+FA(-4)*FB(3))&        !s*cbar+cbar*s
-    +paramW_CB*(FA(5)*FB(-4)+FA(-4)*FB(5))&        !b*cbar+cbar*b
-    )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
-!--------------------------------------------------------------------------------
-  CASE (6) !pp-> W+ + W-
-     FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,process(1))
-     FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,process(2))
-
-    TMD_pair=paramW_L*(&
-    paramW_UD*(FA(2)*FB(-1)+FA(1)*FB(-2)+FA(-2)*FB(1)+FA(-1)*FB(2))&    !u*dbar+d*ubar+ubar*d+dbar*u
-    +paramW_US*(FA(2)*FB(-3)+FA(3)*FB(-2)+FA(-2)*FB(3)+FA(-3)*FB(2))&    !u*sbar+s*ubar+ubar*s+sbar*u
-    +paramW_UB*(FA(2)*FB(-5)+FA(5)*FB(-2)+FA(-2)*FB(5)+FA(-5)*FB(2))&    !u*bbar+b*ubar+ubar*b+bbar*u
-    +paramW_CD*(FA(4)*FB(-1)+FA(1)*FB(-4)+FA(-4)*FB(1)+FA(-1)*FB(4))&    !c*dbar+d*cbar+cbar*d+dbar*c
-    +paramW_CS*(FA(4)*FB(-3)+FA(3)*FB(-4)+FA(-4)*FB(3)+FA(-3)*FB(4))&    !c*sbar+s*cbar+cbar*s+sbar*c
-    +paramW_CB*(FA(4)*FB(-5)+FA(5)*FB(-4)+FA(-4)*FB(5)+FA(-5)*FB(4))&    !c*bbar+b*cbar+cbar*b+bbar*c
-    )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
-
-!--------------------------------------------------------------------------------
-  CASE (7) !pp-> W+
-     FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,process(1))
-     FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,process(2))
-
-    TMD_pair=&
-    paramW_UD*(FA(2)*FB(-1)+FA(-1)*FB(2))&        !u*dbar+dbar*u
-    +paramW_US*(FA(2)*FB(-3)+FA(-3)*FB(2))&        !u*sbar+sbar*u
-    +paramW_UB*(FA(2)*FB(-5)+FA(-5)*FB(2))&        !u*bbar+bbar*u
-    +paramW_CD*(FA(4)*FB(-1)+FA(-1)*FB(4))&        !c*dbar+dbar*c
-    +paramW_CS*(FA(4)*FB(-3)+FA(-3)*FB(4))&        !c*sbar+sbar*c
-    +paramW_CB*(FA(4)*FB(-5)+FA(-5)*FB(4))        !c*bbar+bbar*c
-
-!--------------------------------------------------------------------------------
-  CASE (8) !pp-> W-
-     FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,process(1))
-     FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,process(2))
-
-    TMD_pair=&
-    paramW_UD*(FA(1)*FB(-2)+FA(-2)*FB(1))&        !d*ubar+ubar*d
-    +paramW_US*(FA(3)*FB(-2)+FA(-2)*FB(3))&        !s*ubar+ubar*s
-    +paramW_UB*(FA(5)*FB(-2)+FA(-2)*FB(5))&        !b*ubar+ubar*b
-    +paramW_CD*(FA(1)*FB(-4)+FA(-4)*FB(1))&        !d*cbar+cbar*d
-    +paramW_CS*(FA(3)*FB(-4)+FA(-4)*FB(3))&        !s*cbar+cbar*s
-    +paramW_CB*(FA(5)*FB(-4)+FA(-4)*FB(5))        !b*cbar+cbar*b
-
-!--------------------------------------------------------------------------------
-  CASE (9) !pp-> W+ + W-
-     FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,process(1))
-     FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,process(2))
-
-    TMD_pair=&
-    paramW_UD*(FA(2)*FB(-1)+FA(1)*FB(-2)+FA(-2)*FB(1)+FA(-1)*FB(2))&    !u*dbar+d*ubar+ubar*d+dbar*u
-    +paramW_US*(FA(2)*FB(-3)+FA(3)*FB(-2)+FA(-2)*FB(3)+FA(-3)*FB(2))&    !u*sbar+s*ubar+ubar*s+sbar*u
-    +paramW_UB*(FA(2)*FB(-5)+FA(5)*FB(-2)+FA(-2)*FB(5)+FA(-5)*FB(2))&    !u*bbar+b*ubar+ubar*b+bbar*u
-    +paramW_CD*(FA(4)*FB(-1)+FA(1)*FB(-4)+FA(-4)*FB(1)+FA(-1)*FB(4))&    !c*dbar+d*cbar+cbar*d+dbar*c
-    +paramW_CS*(FA(4)*FB(-3)+FA(3)*FB(-4)+FA(-4)*FB(3)+FA(-3)*FB(4))&    !c*sbar+s*cbar+cbar*s+sbar*c
-    +paramW_CB*(FA(4)*FB(-5)+FA(5)*FB(-4)+FA(-4)*FB(5)+FA(-5)*FB(4))    !c*bbar+b*cbar+cbar*b+bbar*c
-
-!--------------------------------------------------------------------------------
-  CASE(10) !pp -> Higgs (unpol.part+lin.pol.part)
-    FA=uTMDPDF_kT_50(x1,sqrt(k1),mu,Q2,process(1))
-    FB=uTMDPDF_kT_50(x2,sqrt(k2),mu,Q2,process(2))
-    TMD_pair=FA(0)*FB(0) !!!! unpolarized part
-
-    FA=lpTMDPDF_kT_50(x1,sqrt(k1),mu,Q2,process(1))
-    FB=lpTMDPDF_kT_50(x2,sqrt(k2),mu,Q2,process(2))
-    TMD_pair=TMD_pair+FA(0)*FB(0) !!!! linearly polarized part
-!--------------------------------------------------------------------------------
-  CASE(11) !pp -> Higgs (unpol.part)
-    FA=uTMDPDF_kT_50(x1,sqrt(k1),mu,Q2,process(1))
-    FB=uTMDPDF_kT_50(x2,sqrt(k2),mu,Q2,process(2))
-    TMD_pair=FA(0)*FB(0)
-
-!--------------------------------------------------------------------------------
-  CASE(12) !pp -> Higgs (lin.pol.part)
-    FA=lpTMDPDF_kT_50(x1,sqrt(k1),mu,Q2,process(1))
-    FB=lpTMDPDF_kT_50(x2,sqrt(k2),mu,Q2,process(1))
-    TMD_pair=FA(0)*FB(0)
-
-  !--------------------------------------------------------------------------------
-  CASE (101) !p+Cu->gamma* !!this is for E288
-    FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,process(1))
-    FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,process(2))
-    TMD_pair=116d0/567d0*(FA(2)*FB(-2)+FA(-2)*FB(2))+136d0/567d0*(FA(-2)*FB(1)+FA(2)*FB(-1))&
-          +34d0/567d0*(FA(-1)*FB(2)+FA(1)*FB(-2))+29d0/567d0*(FA(-1)*FB(1)+FA(1)*FB(-1))&
-          +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
-
-  !--------------------------------------------------------------------------------
-  CASE (102) !p+2H->gamma* !!this is for E772
-    FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,process(1))
-    FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,process(2))
-    TMD_pair=2d0/9d0*(FA(2)*FB(-2)+FA(-2)*FB(2))+2d0/9d0*(FA(-2)*FB(1)+FA(2)*FB(-1))&
-          +1d0/18d0*(FA(-1)*FB(2)+FA(1)*FB(-2))+1d0/18d0*(FA(-1)*FB(1)+FA(1)*FB(-1))&
-          +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
-  !--------------------------------------------------------------------------------
-  CASE (103) !pminus+W->gamma* !!this is for E537
-    !Wolfram has A=183,    Z=74,    N=109
-    FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,process(1))
-    FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,process(2))
-    TMD_pair=296d0/1647d0*(FA(-2)*FB(2)+FA(2)*FB(-2))+436d0/1647d0*(FA(-2)*FB(1)+FA(2)*FB(-1))&
-          +109d0/1647d0*(FA(-1)*FB(2)+FA(1)*FB(-2))+74d0/1647d0*(FA(-1)*FB(1)+FA(1)*FB(-1))&
-          +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
 
   CASE DEFAULT
     write(*,*) ErrorString('undefined process: ',moduleName),process
@@ -204,11 +69,12 @@ end function TMD_pair
 
 !-------------------------------------------------------------------------------------------------------------------------------------
 !-------------------------------------------------------------------------------------------------------------------------------------
-!!! The hadron tensonr for the DY icludes Z + gamma, evaluated at FA and FB
-function XTMD_pairForDYwithZgamma(FAB,Q2)
-     real(dp)::XTMD_pairForDYwithZgamma,Q2
+!!! Combination Delta^{GG'} z_{+l}z_{+f} FF
+function XTMD_pairZpZp(FAB,Q2)
+     real(dp)::XTMD_pairZpZp
+     real(dp),intent(in)::Q2
     !!cross-seciton parameters
-     real(dp),dimension(-5:5):: FAB
+     real(dp),dimension(-5:5),intent(in):: FAB
 
      !!!parameters of Z boson coupling
 !      real(dp),parameter:: paramU=0.40329064872689d0 !! ((1-2|eq|sw^2)^2+4eq^2sw^4)/(8sw^2cw^2) for eq=2/3
@@ -226,7 +92,7 @@ function XTMD_pairForDYwithZgamma(FAB,Q2)
 !      real(dp),parameter:: paramMIXB=0.1367184036034d0  !! e(T3-2e sW^2)/2sWcW for eq=-1/3, T3=-1/2
 !      real(dp),parameter:: paramMIXL=0.0445432448766d0  !! e(T3-2e sW^2)/2sWcW for eq=-1, T3=-1/2
 
-     XTMD_pairForDYwithZgamma=&
+     XTMD_pairZpZp=&
      (&!gamma-part
       4d0/9d0*FAB(2)&
       +1d0/9d0*FAB(1)&
@@ -265,4 +131,4 @@ function XTMD_pairForDYwithZgamma(FAB,Q2)
       +paramB*FAB(-5))*&
       Q2*Q2/((Q2-MZ2)**2+GammaZ2*MZ2)
 
-end function XTMD_pairForDYwithZgamma
+end function XTMD_pairZpZp

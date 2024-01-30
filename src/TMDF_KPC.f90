@@ -154,17 +154,16 @@ end subroutine TMDF_KPC_Initialize
 !!!--------------------------------------------------------------------------------------------------
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!! Function that computes the integral for KPC convolution in DY
-!!! proc1 = (int,int,int) is the process def for TMD*TMD
+!!! proc1 = (int,int,int) is the process def for TMD*TMD, and for the integral kernel
 !!! proc2 = int is the process definition for the integral kernel
 !!! Q2, qT, x1,x2, mu are usual DY variables
 !!! THIS IS A SYMMETRIC VERSION (i.e. it should contain only cos(theta)
 !!!-----
 !!! The integral is 2D, over theta and alpha (which are complicated combinations)
 !!! First evaluate over theta (0,pi), then over alpha (0,pi/2)
-function KPC_DYconv(Q2,qT,x1,x2,mu,proc1,proc2)
+function KPC_DYconv(Q2,qT,x1,x2,mu,proc1)
     real(dp),intent(in)::Q2,qT,x1,x2,mu
     integer,intent(in),dimension(1:3)::proc1
-    integer,intent(in)::proc2
     real(dp)::KPC_DYconv
 
     real(dp)::tau2,deltaT
@@ -186,17 +185,15 @@ contains
 
     cT=cos(theta)
 
-    Integrand_forTheta=INT_overALPHA(Q2,tau2,deltaT,x1,x2,mu,proc1,proc2,cT)
-    !Integrand_forTheta=INT_overLP(Q2,qT,x1,x2,mu,proc1,proc2,cT)*2/Q2
+    Integrand_forTheta=INT_overALPHA(Q2,tau2,deltaT,x1,x2,mu,proc1,cT)
 
 end function Integrand_forTheta
 
 end function KPC_DYconv
 
-function INT_overALPHA(Q2,tau2,deltaT,x1,x2,mu,proc1,proc2,cT)
+function INT_overALPHA(Q2,tau2,deltaT,x1,x2,mu,proc1,cT)
     real(dp),intent(in)::Q2,tau2,deltaT,x1,x2,mu,cT
     integer,intent(in),dimension(1:3)::proc1
-    integer,intent(in)::proc2
     real(dp)::INT_overALPHA
 
     INT_overALPHA=Integrate_GK(Integrand_forALPHA,0._dp,piHalf,toleranceINT)
@@ -218,38 +215,11 @@ function Integrand_forALPHA(alpha)
     K2=tau2/4*((1-S)**2-Lam)
 
     !!! it is devided by 2 (instead of 4), because the integral over cos(theta) is over (0,pi).
-    Integrand_forALPHA=TMD_pair(Q2,xi1,xi2,k1,k2,mu,proc1)*DY_KERNEL_pair(Q2,tau2-Q2,x1,x2,xi1,xi2,k1,k2,cT,sinA,proc2)/2
+    Integrand_forALPHA=TMD_pair(Q2,xi1,xi2,k1,k2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,proc1(1))/2
 
 end function Integrand_forALPHA
 
 end function INT_overALPHA
-
-!!!!!----- This is LP integral over DELTA
-function INT_overLP(Q2,qT,x1,x2,mu,proc1,proc2,cT)
-    real(dp),intent(in)::Q2,qT,x1,x2,mu,cT
-    integer,intent(in),dimension(1:3)::proc1
-    integer,intent(in)::proc2
-    real(dp)::INT_overLP
-
-    !!!! upper limit must be infinity.. but I cut it at Q2
-    INT_overLP=Integrate_GK(Integrand_forLP,0._dp,4*Q2,toleranceINT)
-
-contains
-
-function Integrand_forLP(Delta2)
-    real(dp)::Integrand_forLP
-    real(dp),intent(in)::Delta2
-    real(dp)::K1,K2
-
-    K1=(qT**2+Delta2+2*qT*sqrt(Delta2)*cT)/4
-    K2=(qT**2+Delta2-2*qT*sqrt(Delta2)*cT)/4
-
-    Integrand_forLP=TMD_pair(Q2,x1,x2,k1,k2,mu,proc1)*DY_KERNEL_pair(Q2,qT**2,x1,x2,x1,x2,k1,k2,cT,1.d0,proc2)/4
-
-
-end function Integrand_forLP
-
-end function INT_overLP
 
 
 !!!--------------------------------------------------------------------------------------------------
