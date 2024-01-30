@@ -212,9 +212,9 @@ end subroutine TMDF_ResetCounters
  integer::process,h,h1,h2
  real(dp),dimension(-5:5)::FA,FB,FAB
  
- process=process_array(1) !! general process name
- h1=process_array(2)!! first hadron
- h2=process_array(3)!! second hadron
+ process=process_array(3) !! general process name
+ h1=process_array(1)!! first hadron
+ h2=process_array(2)!! second hadron
 
  !increment counter 
  GlobalCounter=GlobalCounter+1

@@ -100,7 +100,7 @@ subroutine TMDF_KPC_Initialize(file,prefix)
     read(51,*) dummy
     M2=dummy**2
 
-    call MoveTO(51,'*14   ')
+    call MoveTO(51,'*15   ')
     call MoveTO(51,'*p1  ')
     read(51,*) initRequired
     if(.not.initRequired) then
@@ -158,6 +158,9 @@ end subroutine TMDF_KPC_Initialize
 !!! proc2 = int is the process definition for the integral kernel
 !!! Q2, qT, x1,x2, mu are usual DY variables
 !!! THIS IS A SYMMETRIC VERSION (i.e. it should contain only cos(theta)
+!!!-----
+!!! The integral is 2D, over theta and alpha (which are complicated combinations)
+!!! First evaluate over theta (0,pi), then over alpha (0,pi/2)
 function KPC_DYconv(Q2,qT,x1,x2,mu,proc1,proc2)
     real(dp),intent(in)::Q2,qT,x1,x2,mu
     integer,intent(in),dimension(1:3)::proc1
@@ -172,7 +175,7 @@ function KPC_DYconv(Q2,qT,x1,x2,mu,proc1,proc2)
     deltaT=qT**2/tau2
 
     KPC_DYconv=Integrate_GK(Integrand_forTheta,0._dp,pi,toleranceINT)
-    write(*,*) "LC=",LocalCounter
+    !write(*,*) "LC=",LocalCounter
 
 contains
 
@@ -214,8 +217,8 @@ function Integrand_forALPHA(alpha)
     K1=tau2/4*((1+S)**2-Lam)
     K2=tau2/4*((1-S)**2-Lam)
 
+    !!! it is devided by 2 (instead of 4), because the integral over cos(theta) is over (0,pi).
     Integrand_forALPHA=TMD_pair(Q2,xi1,xi2,k1,k2,mu,proc1)*DY_KERNEL_pair(Q2,tau2-Q2,x1,x2,xi1,xi2,k1,k2,cT,sinA,proc2)/2
-
 
 end function Integrand_forALPHA
 

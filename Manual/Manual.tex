@@ -1418,7 +1418,7 @@ Here, $S$ is the smoothing parameter. It should be small enough to guaranty non-
 There are many TMD distributions each computed in a separate module. All TMD distributions are split in the following classes:
 \begin{itemize}
 \item \textbf{Pure Twist-2 OPE} These are \texttt{uTMDPDF}, \texttt{uTMDFF}, \texttt{lpTMDPDF}. These TMD distributions are defined by twist-2 collinear distribution at small-b
-\item \textbf{Pure Twist-3 OPE} These are \texttt{SiversTMDPDF}. These TMD distributions are defined by twist-3 collinear distribution at small-b
+\item \textbf{Pure Twist-3 OPE} These are \texttt{SiversTMDPDF}, \texttt{BoerMuldersTMDPDF}. These TMD distributions are defined by twist-3 collinear distribution at small-b
 \item \textbf{Twist-2 \& Twist-3 OPE} These are \texttt{wgtTMDPDF}. These TMD distributions are defined by twist-2 (WW-term) and twist-3 collinear distribution at small-b
 \end{itemize}
 These lists are to be extended in the future. 
@@ -1462,6 +1462,8 @@ List of available orders for different distributions
 \texttt{wgtTMDPDF}[tw3]&:& \texttt{NA}
 \\
 \texttt{SiversTMDPDF}[tw3]&:& \texttt{NA}
+\\
+\texttt{BoerMuldersTMDPDF}[tw3]&:& \texttt{NA}
 \end{eqnarray*}
 
 The functions are computed by the following rule
@@ -1475,9 +1477,11 @@ The functions are computed by the following rule
 \texttt{wgtTMDPDF}&=&[C\times h]_{\text{tw2}}(x,b)F_{\text{NP}}(x,b)+[C\times T]_{\text{tw3}}(x,b)F^{\text{tw3}}_{\text{NP}}(x,b),
 \\
 \texttt{SiversTMDPDF}&=&[C\times T]_{\text{tw3}}(x,b)F^{\text{tw3}}_{\text{NP}}(x,b),
+\\
+\texttt{BoerMuldersTMDPDF}&=&[C\times E]_{\text{tw3}}(x,b)F^{\text{tw3}}_{\text{NP}}(x,b),
 \end{eqnarray}
 where $f$, $d$, $h$ are collinear distributions of twist-2, and $[C\times h]_{\text{tw2}}$ is corresponding convolution;
-$T$ are collinear distributions of twist-3, and $[C\times T]_{\text{tw3}}$ is corresponding convolution; $F_{\text{NP}}(x,b)$ and $F^{\text{tw3}}_{\text{NP}}(x,b)$ are non-perturbative functions to be fit. NP functions are defined in the \texttt{XX\_model} modules, and share the same $\lambda_{\text{NP}}$ (array of parameters). This structure correctly reproduces the small-b properties of TMD-distributions. The convolutions are computed in separate modules see sec.\ref{TMD_OPE}, \ref{TMD_OPE_tw3}.
+$T$ and $E$ are collinear distributions of twist-3, and $[C\times T]_{\text{tw3}}$, $[C\times E]_{\text{tw3}}$ are corresponding convolution; $F_{\text{NP}}(x,b)$ and $F^{\text{tw3}}_{\text{NP}}(x,b)$ are non-perturbative functions to be fit. NP functions are defined in the \texttt{XX\_model} modules, and share the same $\lambda_{\text{NP}}$ (array of parameters). This structure correctly reproduces the small-b properties of TMD-distributions. The convolutions are computed in separate modules see sec.\ref{TMD_OPE}, \ref{TMD_OPE_tw3}.
 
 \subsubsection{INI-parameters}
 
@@ -1525,7 +1529,7 @@ D.p6 & integer & Number of nodes in the b-grid
 \end{center}
 \begin{itemize}
 \item \texttt{wgtTMDPDF} has extra section E, which has the same fields as the section A, but responsible for twist-3 convolution.
-\item For \texttt{SiversTMDPDF} the convolution is twist-3. The section C, is absence since it is not yet implemented.
+\item For \texttt{SiversTMDPDF}, \texttt{BoerMuldersTMDPDF} the convolution is twist-3. The section C, is absence since it is not yet implemented.
 \end{itemize}
 
 \subsubsection{Functions}
@@ -2050,6 +2054,10 @@ Command & ~~Type~~& ~~Sec.~~ & Short description
 \texttt{wgtTMDPDF{\_}5(x,b,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Worm gear T TMD PDF at optimal line (gluon term undefined)
 \\\hline
 \texttt{wgtTMDPDF{\_}50(x,b,,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Worm gear T TMD PDF at optimal line (gluon term defined)
+\\\hline
+\texttt{BoerMuldersTMDPDF{\_}5(x,b,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF at optimal line (gluon term undefined)
+\\\hline
+\texttt{BoerMuldersTMDPDF{\_}50(x,b,,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF at optimal line (gluon term defined)
 \\\hline\hline
 \texttt{uPDF{\_}uPDF(x1,x2,b,mu,zeta,h1,h2)} & (real*8(-5:5)) &\ref{TMDs:products} &  Product of Unpolarized TMD PDF $f_{q\ot h_1}(x_1)f_{\bar q\ot h_1}$ at the same scale (gluon term undefined)
 \\
@@ -2553,17 +2561,21 @@ This module evaluates cross-sections with the Drell-Yan-like kinematics. I.e. it
 
 The general structure of the cross-section is
 \begin{eqnarray}
-\Delta\sigma(q_T)=\int_{bin} dX ~prefactor2~\times F,
+\Delta\sigma(q_T)=\int_{bin} dX ~prefactor2~\times \sum_n F_n,
 \end{eqnarray}
 where $$dX=dQ^2 dy d q^2_T.$$ So, for a small bin
 \begin{eqnarray}
 \Delta\sigma(q_T)\approx\Delta X \frac{d\sigma}{dX},\qquad \Delta X=(Q_{\text{max}}^2-Q_{\text{min}}^2)(y_{\text{max}}-y_{\text{min}})(q_{T\text{max}}^2-q_{T\text{min}}^2).
 \end{eqnarray}
-\textit{Prefactor2} accumulates the definition of the phase-space, process and cross-section. Generally, the \textit{prefactor2} $\times F$ is
+\textit{Prefactor2} accumulates the definition of the phase-space, and general process. It has the form
 \begin{eqnarray}
-prefactor2 \times F=(\text{cuts for lepton pair})\times H(Q,\mu_H)F(Q,q_T,x_1,x_2,\mu,\zeta_1,\zeta_),
+prefactor2=(\text{phase-space Jacobian})\times H(Q,\mu_H)
 \end{eqnarray}
-where $F$ is defined in (\ref{TMDF:F}) or (\ref{KPC:main}). There are following feature of current implementation
+The $F_n$ is a contribution specific for a channel. Some processes have several channels, which could be computed together or separately (e.g. $\sim f_1f_1$ and $\sim h_1^\perp h_1^\perp$). Generally it has a form
+\begin{eqnarray}
+F_n=(\text{cuts for lepton pair})_n\times F_n(Q,q_T,x_1,x_2,\mu,\zeta_1,\zeta_),
+\end{eqnarray}
+where $F$ is a product of TMDs and corresponding weight defined in (\ref{TMDF:F}) or (\ref{KPC:main}). There are following feature of current implementation
 \begin{itemize}
 \item In the current version the scaling variables are set as
 \begin{eqnarray}
@@ -2618,12 +2630,12 @@ The order of used coefficient function is set in \texttt{constant-file} by \text
 \label{TMDX:setup}
 
 
-\textbf{Process:} The process is encoded by 4 integer numbers \texttt{(/p1,p2,p3,p4/)} where
+\textbf{Process:} The process is encoded by integer numbers \texttt{(/p1,p2,p3,p4,p5,.../)} where
 \begin{itemize}
 \item[\texttt{p1}] (integer) Defines the $prefactor2$ that contains the phase space elements and the universal part of factorization formula. 
-\item[\texttt{p2}] (integer) Defines the structure function $F$. See sec.\ref{TMDF:enum}.
-\item[\texttt{p3}] (integer) Defines the type of hadron 1.
-\item[\texttt{p4}] (integer) Defines the type of hadron 2.
+\item[\texttt{p2}] (integer) Defines the type of hadron 1.
+\item[\texttt{p3}] (integer) Defines the type of hadron 2.
+\item[\texttt{p4, p5,...}] (integer) Defines the structure function $F$. See sec.\ref{TMDF:enum}. These subprocess are summed into cross-section. If \texttt{pi}=0, the term is neglected.
 \end{itemize}
 \textbf{Note:} \red{In artemide v.2.07 and earlier} the process was encoded by 3 numbers, and did not contained the types of hadrons.
 
@@ -2648,7 +2660,7 @@ The main subroutine is called \texttt{xSec\_DY} and it have the following interf
 where
 \begin{itemize}
 \item \texttt{X} is (real*8) value of cross-section.
-\item \texttt{process} is integer \texttt{p}, or (integer)array \texttt{(p1,p2,p3,p4)}.
+\item \texttt{process} is integer \texttt{p}, or (integer)array \texttt{(p1,p2,p3,p4,...)}.
 \item \texttt{s} is Mandelshtam variable $s$
 \item \texttt{qT} is (real*8)array \texttt{(qtmin,qtmax)}
 \item \texttt{Q} is (real*8)array \texttt{(Qmin,Qmax)}

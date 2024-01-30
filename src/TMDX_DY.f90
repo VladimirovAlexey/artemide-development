@@ -361,41 +361,38 @@ end function yFromXF
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!! PROCESS DEFINITION:
-!!! (i, n, h1, h2) -- integers
+!!! (i, h1, h2, n1, n2, ...) -- integers
 !!! i = the integration type and global prefactor
-!!! n = the integrand combination
 !!! h1,h2 = the hadron types. h>0
+!!! n = the integrand combination
+!!! several n's implies summation of corresponding process
+!!! n=0 is skept in the summation
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!! for easier read coeff-functions are split into separate file
 INCLUDE '/Code/TMDX/DYcoeff-func.f90'
 
+!!!!!----------------------------------------------------------------
+!!!!!  Prefactors and cuts for LP computation
+!!!!!----------------------------------------------------------------
+
 !!!!! Prefactor 2 is (universal part) x (cuts) x H
-function PreFactor2(kin,process, includeCuts_in,CutParam)
+!!!!! This depends only on the integration type of the process (i)
+function PreFactor2(kin,process)
   real(dp),dimension(1:7),intent(in)::kin
-  logical,intent(in)::includeCuts_in
-  real(dp),dimension(1:4),intent(in)::CutParam
-  integer,dimension(1:4),intent(in)::process
+  integer,intent(in)::process
   real(dp)::PreFactor2
 
-  real(dp)::cutPrefactor,uniPart,scaleMu
+  real(dp)::uniPart,scaleMu
 
-  !!!!! lepton-cut prefactor
-  if(includeCuts_in) then
-    !!! here include cuts onf lepton tensor
-    cutPrefactor=CutFactor4(qT=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam)
-  else
-    !!! this is uncut lepton tensor
-    cutPrefactor=(1+0.5d0*(kin(1)/kin(3))**2)
-  end if
+
 
   !!!! universal part
   scaleMu=sqrt(kin(4)+exactScales*kin(1)**2)
 
-  SELECT CASE(process(1))
+  SELECT CASE(process)
   case(0)
     uniPart=1d0
-    cutPrefactor=1d0
   CASE(1)
     !4 pi aEm^2/3 /Nc/Q^2/s
     uniPart=pix4/9d0*(alphaEM(scaleMu)**2)/(kin(2)*kin(4))*&
@@ -427,56 +424,67 @@ function PreFactor2(kin,process, includeCuts_in,CutParam)
     uniPart=(1d0/18d0)*MH2*(As(c2_global*scaleMu)/VEVH)**2/kin(2)*&
         HardCoefficientHIGGS(scaleMu)*(EffCouplingHFF(scaleMu)**2)*1.0677023627519822d0*&
         hc2*1d9!from GeV to pb
-
-  cutPrefactor=1d0 !!! cut-prefactor is different in this case!
   CASE DEFAULT
-    write(*,*) ErrorString('unknown process p='//numToStr(process(1))//' .Evaluation stop.',moduleName)
+    write(*,*) ErrorString('unknown process p='//numToStr(process)//' .Evaluation stop.',moduleName)
     stop
   END SELECT
 
-  PreFactor2=uniPart*cutPrefactor
+  PreFactor2=uniPart
 
 end function PreFactor2
 
-!!!!! Prefactor 2 is (universal part) x (cuts) x H
-function PreFactorKPC(kin,proc1,proc2, includeCuts_in,CutParam)
+!!!! Fiducial cut for leptons.
+!!!! this factor depends on the type of process and computed in the corresponding module
+!!!! This function perform the preliminary selection depending on the process
+function LeptonCutFactorLP(kin,proc1, includeCuts_in,CutParam)
   real(dp),dimension(1:7),intent(in)::kin
   logical,intent(in)::includeCuts_in
   real(dp),dimension(1:4),intent(in)::CutParam
-  integer,dimension(1:4),intent(in)::proc1
-  integer,intent(in)::proc2
-  real(dp)::PreFactorKPC
-
-  real(dp)::cutPrefactor,uniPart,scaleMu
+  integer,intent(in)::proc1
+  real(dp)::LeptonCutFactorLP
 
   !!!!! lepton-cut prefactor
   if(includeCuts_in) then
     !!! here include cuts onf lepton tensor
-    cutPrefactor=1.d0!CutFactor4(qT=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam)
-    write(*,*) "CUTS are not yet realised in KPC case"
-    stop
+    LeptonCutFactorLP=CutFactor4(qT=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam)
   else
     !!! this is uncut lepton tensor
-    cutPrefactor=1.d0*(1+0.5d0*(kin(1)/kin(3))**2)
+    LeptonCutFactorLP=(1+0.5d0*(kin(1)/kin(3))**2)
   end if
+
+end function LeptonCutFactorLP
+
+!!!!!----------------------------------------------------------------
+!!!!!  Prefactors and cuts for KPC computation
+!!!!!----------------------------------------------------------------
+
+!!!!! Prefactor 2 is (universal part)  x H
+!!!!! This prefactor depends only on the general class of process
+!!!!! proc1 is the first number of process array
+!!!!! Lepton cut factor is defined in a separate function and depend on the process
+function PreFactorKPC(kin,proc1)
+  real(dp),dimension(1:7),intent(in)::kin
+  integer,intent(in)::proc1
+  real(dp)::PreFactorKPC
+
+  real(dp)::scaleMu
 
   !!!! universal part
   scaleMu=kin(3)
 
-  SELECT CASE(proc1(1))
+  SELECT CASE(proc1)
   case(0)
-    uniPart=1d0
-    cutPrefactor=1d0
+    PreFactorKPC=1d0
   CASE(1)
 !     !4 pi aEm^2/3 /Nc/Q^2/s
-    uniPart=pi2x2/9*(alphaEM(scaleMu)**2)/kin(2)*&
+    PreFactorKPC=pi2x2/9*(alphaEM(scaleMu)**2)/kin(2)*&
         HardCoefficientDY(scaleMu)*&
         hc2*1d9!from GeV to pb
 
   CASE(2)
     !4 pi aEm^2/3 /Nc/Q^2/s
     ! the process=2 is for the xF-integration. It has extra weigth 2sqrt[(Q^2+q_T^2)/s] Cosh[y]
-    uniPart=pi2x2/9**(alphaEM(scaleMu)**2)/kin(2)*&
+    PreFactorKPC=pi2x2/9**(alphaEM(scaleMu)**2)/kin(2)*&
         HardCoefficientDY(scaleMu)*&
         hc2*1d9*&!from GeV to pb
         2._dp*kin(5)*cosh(kin(6))
@@ -485,20 +493,44 @@ function PreFactorKPC(kin,proc1,proc2, includeCuts_in,CutParam)
     ! (2\pi) *pi Mh^2 as(mu)/36/s/vev^2 * H*cT^2
     ! (1.033)^2 is correction for mT mass in Ct at LO.
     ! * pi*Q2/2 (because of KPC ??? this factor is assumption)
-    uniPart=(pi/36d0)*MH2*(As(c2_global*scaleMu)/VEVH)**2*kin(4)/kin(2)*&
+    PreFactorKPC=(pi/36d0)*MH2*(As(c2_global*scaleMu)/VEVH)**2*kin(4)/kin(2)*&
         HardCoefficientHIGGS(scaleMu)*(EffCouplingHFF(scaleMu)**2)*1.0677023627519822d0*&
         hc2*1d9!from GeV to pb
 
-  cutPrefactor=1d0 !!! cut-prefactor is different in this case!
   CASE DEFAULT
-    write(*,*) ErrorString('unknown process p='//numToStr(proc1(1))//' .Evaluation stop.',moduleName)
+    write(*,*) ErrorString('unknown process p='//numToStr(proc1)//' .Evaluation stop.',moduleName)
     stop
   END SELECT
 
-  PreFactorKPC=uniPart*cutPrefactor
-
 end function PreFactorKPC
-  
+
+!!!! Fiducial cut for leptons.
+!!!! this factor depends on the type of process and computed in the corresponding module
+!!!! This function perform the preliminary selection depending on the process
+function LeptonCutFactorKPC(kin,proc1, includeCuts_in,CutParam)
+  real(dp),dimension(1:7),intent(in)::kin
+  logical,intent(in)::includeCuts_in
+  real(dp),dimension(1:4),intent(in)::CutParam
+  integer,intent(in)::proc1
+  real(dp)::LeptonCutFactorKPC
+
+  !!!!!!!!!!!!!!!
+  !SELECT CASE(proc1)
+  ! TOBE WRITTEN
+  !!
+
+  !!!!! lepton-cut prefactor
+  if(includeCuts_in) then
+    !!! here include cuts onf lepton tensor
+    LeptonCutFactorKPC=1.d0!CutFactor4(qT=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam)
+    write(*,*) "CUTS are not yet realised in KPC case"
+    stop
+  else
+    !!! this is uncut lepton tensor
+    LeptonCutFactorKPC=1.d0*(1+0.5d0*(kin(1)/kin(3))**2)
+  end if
+
+end function LeptonCutFactorKPC
 
 !!! check is the process y-symmetric
 pure function IsySymmetric(p2)
@@ -547,13 +579,17 @@ end function NumPT_auto
 !!! this is help function which evaluate xSec at single qt (without lists) with only prefactor 2
 !!!! this is extended (and default) version of xSec, which include all parameters
 function xSec(var,process,incCut,CutParam)
-  real(dp):: xSec,FF
+  real(dp):: xSec,FF,LC,XX
   real(dp)::x1,x2,scaleMu,scaleZeta
   real(dp),dimension(1:7),intent(in)::var
   logical,intent(in)::incCut
   real(dp),dimension(1:4),intent(in)::CutParam
-  integer,dimension(1:4),intent(in)::process
+  integer,dimension(:),intent(in)::process
+  integer::numProc,i
+
   GlobalCounter=GlobalCounter+1
+
+  numProc=size(process)
 
   !!!!!!!!!!!!!!!!!!!! COMPUTATION WITH KPC
   if(useKPC) then
@@ -570,9 +606,18 @@ function xSec(var,process,incCut,CutParam)
     scaleZeta=var(4)+exactScales*var(1)**2  !! zeta=Q2+qT^2
     scaleMu=sqrt(scaleZeta)
 
-    FF=KPC_DYconv(var(4),var(1),x1,x2,scaleMu*c2_global,process(2:4),1)
+    !!!!! compute cross-section for each process
+    XX=0._dp
 
-    xSec=PreFactorKPC(var,process,1,incCut,CutParam)*FF
+    do i=4, numProc
+      if(process(i)/=0) then
+        FF=KPC_DYconv(var(4),var(1),x1,x2,scaleMu*c2_global,(/process(2),process(3),process(i)/),1)
+        LC=LeptonCutFactorKPC(var,process(i),incCut,CutParam)
+        XX=XX+FF*LC
+      end if
+    end do
+
+    xSec=PreFactorKPC(var,process(1))*XX
   !!!!!!!!!!!!!!!!!!!! COMPUTATION WITHOUT KPC
   else
     if(TMDF_IsconvergenceLost()) then
@@ -588,9 +633,15 @@ function xSec(var,process,incCut,CutParam)
     scaleZeta=var(4)+exactScales*var(1)**2  !! zeta=Q2+qT^2
     scaleMu=sqrt(scaleZeta)
 
-    FF=TMDF_F(var(4),var(1),x1,x2,scaleMu*c2_global,scaleZeta,scaleZeta,process(2:4))
+    !!!!! compute cross-section for each process
+    XX=0._dp
+    do i=4, numProc
+      FF=TMDF_F(var(4),var(1),x1,x2,scaleMu*c2_global,scaleZeta,scaleZeta,(/process(2),process(3),process(i)/))
+      LC=LeptonCutFactorLP(var,process(i),incCut,CutParam)
+      XX=XX+LC*FF
+    end do
 
-    xSec=PreFactor2(var,process,incCut,CutParam)*FF
+    xSec=PreFactor2(var,process(1))*XX
   end if
 
   !write(*,*) "{",var(4),",",x1,"},"!,z1

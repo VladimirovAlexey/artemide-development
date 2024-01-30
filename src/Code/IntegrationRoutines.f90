@@ -333,7 +333,7 @@ recursive function GK_Rec(f,xMin,xMax,eps) result(res)
         g7=g7+Wi_g7(i)*fI
         k15=k15+Wi_k15(i)*fI
     end do
-    
+
     if(delta*abs(k15-g7)>eps) then
         res=GK_Rec(f,xMin,av,eps)+GK_Rec(f,av,xMax,eps)
     else

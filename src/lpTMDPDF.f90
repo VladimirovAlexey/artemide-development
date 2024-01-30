@@ -125,7 +125,7 @@ subroutine lpTMDPDF_Initialize(file,prefix)
     end if
 
     if(outputLevel>2) write(*,'(A,I3)') ' Number of NP parameters =',lambdaNPlength
-    if(outputLevel>2) write(*,'(A,I3)') ' Absolute maximum b      =',BMAX_ABS
+    if(outputLevel>2) write(*,'(A,F12.2)') ' Absolute maximum b      =',BMAX_ABS
 
     allocate(lambdaNP(1:lambdaNPlength))
 
