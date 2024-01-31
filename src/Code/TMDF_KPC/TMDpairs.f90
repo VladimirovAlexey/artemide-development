@@ -47,13 +47,21 @@ SELECT CASE(process(3))
       +FAB(-4)*4d0/9.d0&
       +FAB(-5)/9d0
 
-!--------------------------------------------------------------------------------
+ !--------------------------------------------------------------------------------
   CASE (2,3,4,5) !Delta^{GG'}z_{+l}z_{+f}f1f1
      FA=uTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,h1)
-     FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,-h2)!!! -h2, to myltiply quarks by anti-quarks in FAB
+     FB=uTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
      FAB=FA*FB
 
     TMD_pair=XTMD_pairZpZp(FAB,Q2)
+
+  !--------------------------------------------------------------------------------
+  CASE (8,9,10) !Delta^{GG'}z_{+l}r_{+f}h1h1
+     FA=BoerMuldersTMDPDF_kT_5(x1,sqrt(k1),mu,Q2,h1)
+     FB=BoerMuldersTMDPDF_kT_5(x2,sqrt(k2),mu,Q2,-h2)!!! -h2, to myltiply quarks by anti-quarks in FAB
+     FAB=FA*FB
+
+    TMD_pair=XTMD_pairZpRp(FAB,Q2)
 
 
 
@@ -76,59 +84,92 @@ function XTMD_pairZpZp(FAB,Q2)
     !!cross-seciton parameters
      real(dp),dimension(-5:5),intent(in):: FAB
 
-     !!!parameters of Z boson coupling
-!      real(dp),parameter:: paramU=0.40329064872689d0 !! ((1-2|eq|sw^2)^2+4eq^2sw^4)/(8sw^2cw^2) for eq=2/3
-!      real(dp),parameter:: paramD=0.51983027428079d0 !! ((1-2|eq|sw^2)^2+4eq^2sw^4)/(8sw^2cw^2) for eq=1/3
-!      real(dp),parameter:: paramS=0.51983027428079d0  !! ((1-2|eq|sw^2)^2+4eq^2sw^4)/(8sw^2cw^2) for eq=1/3
-!      real(dp),parameter:: paramC=0.40329064872689d0 !! ((1-2|eq|sw^2)^2+4eq^2sw^4)/(8sw^2cw^2) for eq=2/3
-!      real(dp),parameter:: paramB=0.51983027428079d0  !! ((1-2|eq|sw^2)^2+4eq^2sw^4)/(8sw^2cw^2) for eq=1/3
-!      real(dp),parameter:: paramL=0.35358707798999d0  !! ((1-2|eq|sw^2)^2+4eq^2sw^4)/(8sw^2cw^2) for eq=1
-
-     !!!parameters of Z-gamma boson coupling
-!      real(dp),parameter:: paramMIXU=0.1515661518957d0 !! e(T3-2e sW^2)/2sWcW for eq=+2/3,, T3=+1/2
-!      real(dp),parameter:: paramMIXD=0.1367184036034d0 !! e(T3-2e sW^2)/2sWcW for eq=-1/3,T3=-1/2
-!      real(dp),parameter:: paramMIXS=0.1367184036034d0  !! e(T3-2e sW^2)/2sWcW for eq=-1/3, T3=-1/2
-!      real(dp),parameter:: paramMIXC=0.1515661518957d0 !! e(T3-2e sW^2)/2sWcW for eq=+2/3,, T3=+1/2
-!      real(dp),parameter:: paramMIXB=0.1367184036034d0  !! e(T3-2e sW^2)/2sWcW for eq=-1/3, T3=-1/2
-!      real(dp),parameter:: paramMIXL=0.0445432448766d0  !! e(T3-2e sW^2)/2sWcW for eq=-1, T3=-1/2
-
      XTMD_pairZpZp=&
-     (&!gamma-part
-      4d0/9d0*FAB(2)&
-      +1d0/9d0*FAB(1)&
-      +1d0/9d0*FAB(3)&
-      +4d0/9d0*FAB(4)&
-      +1d0/9d0*FAB(5)&
-      +4d0/9d0*FAB(-2)&
-      +1d0/9d0*FAB(-1)&
-      +1d0/9d0*FAB(-3)&
-      +4d0/9d0*FAB(-4)&
-      +1d0/9d0*FAB(-5))&
+     zP_gg_L*(&!gamma-part
+      zP_gg_U*FAB(2)&
+      +zP_gg_D*FAB(1)&
+      +zP_gg_S*FAB(3)&
+      +zP_gg_C*FAB(4)&
+      +zP_gg_B*FAB(5)&
+      +zP_gg_U*FAB(-2)&
+      +zP_gg_D*FAB(-1)&
+      +zP_gg_S*FAB(-3)&
+      +zP_gg_C*FAB(-4)&
+      +zP_gg_B*FAB(-5))&
      +&!gamma-Z interference
-     paramMIXL*(&
-      paramMIXU*FAB(2)&
-      +paramMIXD*FAB(1)&
-      +paramMIXS*FAB(3)&
-      +paramMIXC*FAB(4)&
-      +paramMIXB*FAB(5)&
-      +paramMIXU*FAB(-2)&
-      +paramMIXD*FAB(-1)&
-      +paramMIXS*FAB(-3)&
-      +paramMIXC*FAB(-4)&
-      +paramMIXB*FAB(-5))*&
+     zP_gZ_L*(&
+      zP_gZ_U*FAB(2)&
+      +zP_gZ_D*FAB(1)&
+      +zP_gZ_S*FAB(3)&
+      +zP_gZ_C*FAB(4)&
+      +zP_gZ_B*FAB(5)&
+      +zP_gZ_U*FAB(-2)&
+      +zP_gZ_D*FAB(-1)&
+      +zP_gZ_S*FAB(-3)&
+      +zP_gZ_C*FAB(-4)&
+      +zP_gZ_B*FAB(-5))*&
       2d0*Q2*(Q2-MZ2)/((Q2-MZ2)**2+GammaZ2*MZ2)&
      +&!ZZ-contributions
-     paramL*(&
-      paramU*FAB(2)&
-      +paramD*FAB(1)&
-      +paramS*FAB(3)&
-      +paramC*FAB(4)&
-      +paramB*FAB(5)&
-      +paramU*FAB(-2)&
-      +paramD*FAB(-1)&
-      +paramS*FAB(-3)&
-      +paramC*FAB(-4)&
-      +paramB*FAB(-5))*&
+     zP_ZZ_L*(&
+       zP_ZZ_U*FAB(2)&
+      +zP_ZZ_D*FAB(1)&
+      +zP_ZZ_S*FAB(3)&
+      +zP_ZZ_C*FAB(4)&
+      +zP_ZZ_B*FAB(5)&
+      +zP_ZZ_U*FAB(-2)&
+      +zP_ZZ_D*FAB(-1)&
+      +zP_ZZ_S*FAB(-3)&
+      +zP_ZZ_C*FAB(-4)&
+      +zP_ZZ_B*FAB(-5))*&
       Q2*Q2/((Q2-MZ2)**2+GammaZ2*MZ2)
 
 end function XTMD_pairZpZp
+
+!!! Combination Delta^{GG'} z_{+l}r_{+f} FF
+function XTMD_pairZpRp(FAB,Q2)
+     real(dp)::XTMD_pairZpRp
+     real(dp),intent(in)::Q2
+    !!cross-seciton parameters
+     real(dp),dimension(-5:5),intent(in):: FAB
+
+
+     XTMD_pairZpRp=&
+     zP_gg_L*(&!gamma-part   !!!!rP_gg=zP_gg
+      zP_gg_U*FAB(2)&
+      +zP_gg_D*FAB(1)&
+      +zP_gg_S*FAB(3)&
+      +zP_gg_C*FAB(4)&
+      +zP_gg_B*FAB(5)&
+      +zP_gg_U*FAB(-2)&
+      +zP_gg_D*FAB(-1)&
+      +zP_gg_S*FAB(-3)&
+      +zP_gg_C*FAB(-4)&
+      +zP_gg_B*FAB(-5))&
+     +&!gamma-Z interference  !!!!rP_gZ=zP_gZ
+     zP_gZ_L*(&
+      zP_gZ_U*FAB(2)&
+      +zP_gZ_D*FAB(1)&
+      +zP_gZ_S*FAB(3)&
+      +zP_gZ_C*FAB(4)&
+      +zP_gZ_B*FAB(5)&
+      +zP_gZ_U*FAB(-2)&
+      +zP_gZ_D*FAB(-1)&
+      +zP_gZ_S*FAB(-3)&
+      +zP_gZ_C*FAB(-4)&
+      +zP_gZ_B*FAB(-5))*&
+      2d0*Q2*(Q2-MZ2)/((Q2-MZ2)**2+GammaZ2*MZ2)&
+     +&!ZZ-contributions
+     zP_ZZ_L*(&
+       rP_ZZ_U*FAB(2)&
+      +rP_ZZ_D*FAB(1)&
+      +rP_ZZ_S*FAB(3)&
+      +rP_ZZ_C*FAB(4)&
+      +rP_ZZ_B*FAB(5)&
+      +rP_ZZ_U*FAB(-2)&
+      +rP_ZZ_D*FAB(-1)&
+      +rP_ZZ_S*FAB(-3)&
+      +rP_ZZ_C*FAB(-4)&
+      +rP_ZZ_B*FAB(-5))*&
+      Q2*Q2/((Q2-MZ2)**2+GammaZ2*MZ2)
+
+end function XTMD_pairZpRp

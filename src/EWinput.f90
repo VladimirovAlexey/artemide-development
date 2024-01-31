@@ -19,9 +19,9 @@ private
 logical:: started=.false.
 integer::outputLevel
 character (len=7),parameter :: moduleName="EWinput"
-character (len=5),parameter :: version="v2.03"
+character (len=5),parameter :: version="v3.00"
 !Last appropriate verion of constants-file
-integer,parameter::inputver=14
+integer,parameter::inputver=30
 
 real(dp)::massZ,massW,massHIGGS,sW2,cW2
 real(dp)::Vckm_UD,Vckm_US,Vckm_CD,Vckm_CS,Vckm_CB,Vckm_UB

@@ -26,13 +26,13 @@ real*8,dimension(-5:5)::kkk
 
 !!!! set up variables
 do i=1,NUM
-  !Q(i)=91.d0
-  Q(i)=1.5d0+(i-1)*1
-  !s(i)=3841600.d0
-  s(i)=(100.*Q(i))**2
+  Q(i)=91.d0
+  !Q(i)=1.5d0+(i-1)*1
+  s(i)=3841600.d0
+  !s(i)=(100.*Q(i))**2
   y(i)=0.d0
-  !qt(i)=0.1d0+(i-1)*0.5
-  qt(i)=0.01d0
+  qt(i)=0.1d0+(i-1)*0.5
+  !qt(i)=0.01d0
   proc(i,1:4)=(/1,1,1,2/)  !!KPC
   !proc(i,1:4)=(/1,1,1,3/)   !! LP
   iC(i)=.false.
@@ -45,7 +45,8 @@ call xSec_DY_List_BINLESS(X,proc,s,qT,Q,y,iC,cuts)
 
 
 do i=1,NUM
-  write(*,'("{",F12.8,",",F16.10,"},")') Q(i),4*qT(i)*Q(i)*X(i)
+  !write(*,'("{",F12.8,",",F16.10,"},")') Q(i),4*qT(i)*Q(i)*X(i)
+  write(*,'("{",F12.8,",",F16.10,"},")') qT(i),4*qT(i)*Q(i)*X(i)
 end do
 
 end program example

@@ -69,8 +69,12 @@ integer::messageTrigger=5
 public::TMDs_inKT_Initialize,TMDs_inKT_ShowStatistic,TMDs_inKT_IsInitialized,TMDs_inKT_ResetCounters
 public::Moment_G,Moment_X
     
-real(dp),dimension(-5:5),public::uTMDPDF_kT_50,uTMDPDF_kT_5,uTMDFF_kT_5,uTMDFF_kT_50,lpTMDPDF_kT_50,&
-    SiversTMDPDF_kT_5,SiversTMDPDF_kT_50,wgtTMDPDF_kT_5,wgtTMDPDF_kT_50
+real(dp),dimension(-5:5),public::uTMDPDF_kT_50,uTMDPDF_kT_5
+real(dp),dimension(-5:5),public::uTMDFF_kT_5,uTMDFF_kT_50
+real(dp),dimension(-5:5),public::lpTMDPDF_kT_50
+real(dp),dimension(-5:5),public::SiversTMDPDF_kT_5,SiversTMDPDF_kT_50
+real(dp),dimension(-5:5),public::wgtTMDPDF_kT_5,wgtTMDPDF_kT_50
+real(dp),dimension(-5:5),public::BoerMuldersTMDPDF_kT_5,BoerMuldersTMDPDF_kT_50
 public::testTMD_kT
 
 interface uTMDPDF_kT_5
@@ -107,6 +111,14 @@ end interface
 
 interface wgtTMDPDF_kT_50
     module procedure wgtTMDPDF_kT_50_Ev,wgtTMDPDF_kT_50_optimal
+end interface
+
+interface BoerMuldersTMDPDF_kT_5
+    module procedure BoerMuldersTMDPDF_kT_5_Ev,BoerMuldersTMDPDF_kT_5_optimal
+end interface
+
+interface BoerMuldersTMDPDF_kT_50
+    module procedure BoerMuldersTMDPDF_kT_50_Ev,BoerMuldersTMDPDF_kT_50_optimal
 end interface
 
 contains 
@@ -408,7 +420,36 @@ function wgtTMDPDF_kT_50_optimal(x,qT,hadron)
     integer::hadron
     wgtTMDPDF_kT_50_optimal=Fourier(x,qT,10d0,10d0,18,hadron) 
 end function wgtTMDPDF_kT_50_optimal
- 
+
+!---------------------------------------------------BoerMuldersTMDPDF
+function BoerMuldersTMDPDF_kT_5_Ev(x,qT,mu,zeta,hadron)
+    real(dp)::BoerMuldersTMDPDF_kT_5_Ev(-5:5)
+    real(dp)::x,qT,mu,zeta
+    integer::hadron
+    BoerMuldersTMDPDF_kT_5_Ev=Fourier(x,qT,mu,zeta,19,hadron)
+end function BoerMuldersTMDPDF_kT_5_Ev
+
+function BoerMuldersTMDPDF_kT_50_Ev(x,qT,mu,zeta,hadron)
+    real(dp)::BoerMuldersTMDPDF_kT_50_Ev(-5:5)
+    real(dp)::x,qT,mu,zeta
+    integer::hadron
+    BoerMuldersTMDPDF_kT_50_Ev=Fourier(x,qT,mu,zeta,20,hadron)
+end function BoerMuldersTMDPDF_kT_50_Ev
+
+function BoerMuldersTMDPDF_kT_5_optimal(x,qT,hadron)
+    real(dp)::BoerMuldersTMDPDF_kT_5_optimal(-5:5)
+    real(dp)::x,qT
+    integer::hadron
+    BoerMuldersTMDPDF_kT_5_optimal=Fourier(x,qT,10d0,10d0,21,hadron)
+end function BoerMuldersTMDPDF_kT_5_optimal
+
+function BoerMuldersTMDPDF_kT_50_optimal(x,qT,hadron)
+    real(dp)::BoerMuldersTMDPDF_kT_50_optimal(-5:5)
+    real(dp)::x,qT
+    integer::hadron
+    BoerMuldersTMDPDF_kT_50_optimal=Fourier(x,qT,10d0,10d0,22,hadron)
+end function BoerMuldersTMDPDF_kT_50_optimal
+
 !------------------------------------------FOURIER--------------------------------
 !!!This is the defining module function
 !!! It evaluates the integral 
@@ -588,6 +629,20 @@ function Integrand(b,x,mu,zeta,num,hadron)
 
         CASE(18) !!! wgtTMDPDF  quarks+gluon OPTIMAL
             Integrand=wgtTMDPDF_50(x,b,hadron)
+
+        CASE(19) !!! BoerMuldersTMDPDF  quarks
+            Integrand=BoerMuldersTMDPDF_5(x,b,mu,zeta,hadron)
+            Integrand(0)=0d0
+
+        CASE(20) !!! BoerMuldersuTMDPDF  quarks+gluon
+            Integrand=BoerMuldersTMDPDF_50(x,b,mu,zeta,hadron)
+
+        CASE(21) !!! BoerMuldersTMDPDF  quarks OPTIMAL
+            Integrand=BoerMuldersTMDPDF_5(x,b,hadron)
+            Integrand(0)=0d0
+
+        CASE(22) !!! BoerMuldersTMDPDF  quarks+gluon OPTIMAL
+            Integrand=BoerMuldersTMDPDF_50(x,b,hadron)
 
         CASE DEFAULT
         write(*,*) ErrorString('undefined TMD: ',moduleName)
