@@ -47,6 +47,10 @@ abstract interface
     end function func_array5
 end interface
   
+!!! This is parameter to which the integral is compared.
+!!! if absolute value of integral <zero. Its returned (otherwise, there could be infinite loop of precision)
+real(dp),parameter:: zero=10.d-8
+
 contains
 
 
@@ -308,6 +312,8 @@ function Integrate_GK(f,xMin,xMax,tolerance)
     end do
     
     eps=delta*abs(k15)*tolerance
+
+    if(abs(eps)<zero) eps=zero
     
     if(delta*abs(k15-g7)>eps) then
         Integrate_GK=GK_Rec(f,xMin,av,eps)+GK_Rec(f,av,xMax,eps)
@@ -372,9 +378,9 @@ function Integrate_GK_array5(f,xMin,xMax,tolerance)
     
     !!! check convergence
     eps=delta*abs(k15)*tolerance
-    !!! if integral is almost zero, I compare to 10^(-8)
+    !!! if integral is almost zero, I compare to "zero"
     do i=-5,5
-        if(abs(eps(i))<1.-8d0) eps(i)=1.-8d0
+        if(abs(eps(i))<zero) eps(i)=zero
     end do
     
     ISconvergent=.true.
