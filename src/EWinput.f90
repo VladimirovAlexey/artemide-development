@@ -31,6 +31,15 @@ public::alphaEM,EWinput_Initialize,EWinput_IsInitialized
 !!-Z-gamma DY
 real(dp),public::paramU,paramD,paramS,paramC,paramB,paramL,paramL_A
 real(dp),public::paramMIXU,paramMIXD,paramMIXS,paramMIXC,paramMIXB,paramMIXL,paramMIXL_A
+
+real(dp),public::zP_gg_U, zP_gg_D, zP_gg_S, zP_gg_C, zP_gg_B, zP_gg_L
+real(dp),public::zP_gZ_U, zP_gZ_D, zP_gZ_S, zP_gZ_C, zP_gZ_B, zP_gZ_L
+real(dp),public::zP_ZZ_U, zP_ZZ_D, zP_ZZ_S, zP_ZZ_C, zP_ZZ_B, zP_ZZ_L
+real(dp),public::zM_gZ_U, zM_gZ_D, zM_gZ_S, zM_gZ_C, zM_gZ_B, zM_gZ_L
+real(dp),public::zM_ZZ_U, zM_ZZ_D, zM_ZZ_S, zM_ZZ_C, zM_ZZ_B, zM_ZZ_L
+real(dp),public::rP_ZZ_U, rP_ZZ_D, rP_ZZ_S, rP_ZZ_C, rP_ZZ_B, rP_ZZ_L
+real(dp),public::rM_gZ_U, rM_gZ_D, rM_gZ_S, rM_gZ_C, rM_gZ_B, rM_gZ_L
+
 !!-W DY
 real(dp),public::paramW_UD,paramW_US,paramW_UB,paramW_CD,paramW_CS,paramW_CB,paramW_L
 
@@ -210,48 +219,105 @@ contains
  !!!! paramMIX is given by
  !!!! eq(t2-2ef sW^2)/(2sw cW)
  !!!! eq*gV  for Z boson
+
+ !!!! parameters z and r
+ !!!! zP_gg = ef^2
+ !!!! zP_gZ = eq(t2-2ef sW^2)/(2sw cW) = paramMIX
+ !!!! zP_ZZ = ((1-2|eq|sw^2)^2+4eq^2sw^4)/(8sw^2cw^2) = param
+ !!!! rP_ZZ = ef(ef sW^2-T3)/cW^2
+ !!!! zM_gZ =-abs(ef)/4sWcW
+ !!!! zM_ZZ=(4 abs(ef)sW^2-1)/8sw^2cw^2
+ !!!! rM_gZ=abs(ef)/4sWcW
  
  !-------------------------------------------------------
  !---  Z-boson interaction
  !---------------U quark
- ef=2d0/3d0
- t3=+0.5d0
- paramU=((1d0-2d0*Abs(ef)*sW2)**2+4d0*ef**2*sW2**2)/(8d0*sW2*cW2)
- paramMIXU=ef*(t3-2d0*ef*sW2)/(2d0*Sqrt(sw2*cw2))
+ ef=2._dp/3._dp
+ t3=+0.5_dp
+ paramU=((1-2*Abs(ef)*sW2)**2+4*ef**2*sW2**2)/(8*sW2*cW2)
+ paramMIXU=ef*(t3-2*ef*sW2)/(2*Sqrt(sw2*cw2))
+
+ zP_gg_U=ef**2
+ zP_gZ_U=ef*(t3-2*ef*sW2)/(2*Sqrt(sw2*cw2))
+ zP_ZZ_U=((1-2*Abs(ef)*sW2)**2+4*ef**2*sW2**2)/(8*sW2*cW2)
+ zM_gZ_U=-abs(ef)/4/sqrt(sW2*cW2)
+ zM_ZZ_U=(4*abs(ef)*sW2-1)/(8*sW2*cW2)
+ rP_ZZ_U=ef*(ef*sW2-t3)/cW2
+ rM_gZ_U=abs(ef)/(4*sqrt(sW2*cW2))
  
  !---------------D-quark 
- ef=-1d0/3d0
- t3=-0.5d0
- paramD=((1d0-2d0*Abs(ef)*sW2)**2+4d0*ef**2*sW2**2)/(8d0*sW2*cW2)
- paramMIXD=ef*(t3-2d0*ef*sW2)/(2d0*Sqrt(sw2*cw2))
+ ef=-1._dp/3._dp
+ t3=-0.5_dp
+ paramD=((1-2*Abs(ef)*sW2)**2+4*ef**2*sW2**2)/(8*sW2*cW2)
+ paramMIXD=ef*(t3-2*ef*sW2)/(2*Sqrt(sw2*cw2))
+
+ zP_gg_D=ef**2
+ zP_gZ_D=ef*(t3-2*ef*sW2)/(2*Sqrt(sw2*cw2))
+ zP_ZZ_D=((1-2*Abs(ef)*sW2)**2+4*ef**2*sW2**2)/(8*sW2*cW2)
+ zM_gZ_D=-abs(ef)/4/sqrt(sW2*cW2)
+ zM_ZZ_D=(4*abs(ef)*sW2-1)/(8*sW2*cW2)
+ rP_ZZ_D=ef*(ef*sW2-t3)/cW2
+ rM_gZ_D=abs(ef)/(4*sqrt(sW2*cW2))
  
  !---------------S-quark
- ef=-1d0/3d0
- t3=-0.5d0
- paramS=((1d0-2d0*Abs(ef)*sW2)**2+4d0*ef**2*sW2**2)/(8d0*sW2*cW2)
- paramMIXS=ef*(t3-2d0*ef*sW2)/(2d0*Sqrt(sw2*cw2))
+ ef=-1._dp/3._dp
+ t3=-0.5_dp
+ paramS=((1-2*Abs(ef)*sW2)**2+4*ef**2*sW2**2)/(8*sW2*cW2)
+ paramMIXS=ef*(t3-2*ef*sW2)/(2*Sqrt(sw2*cw2))
  
+ zP_gg_S=ef**2
+ zP_gZ_S=ef*(t3-2*ef*sW2)/(2*Sqrt(sw2*cw2))
+ zP_ZZ_S=((1-2*Abs(ef)*sW2)**2+4*ef**2*sW2**2)/(8*sW2*cW2)
+ zM_gZ_S=-abs(ef)/4/sqrt(sW2*cW2)
+ zM_ZZ_S=(4*abs(ef)*sW2-1)/(8*sW2*cW2)
+ rP_ZZ_S=ef*(ef*sW2-t3)/cW2
+ rM_gZ_S=abs(ef)/(4*sqrt(sW2*cW2))
+
  !---------------C-quark
- ef=2d0/3d0
- t3=+0.5d0
- paramC=((1d0-2d0*Abs(ef)*sW2)**2+4d0*ef**2*sW2**2)/(8d0*sW2*cW2)
- paramMIXC=ef*(t3-2d0*ef*sW2)/(2d0*Sqrt(sw2*cw2))
- 
+ ef=2._dp/3._dp
+ t3=+0.5_dp
+ paramC=((1-2*Abs(ef)*sW2)**2+4*ef**2*sW2**2)/(8*sW2*cW2)
+ paramMIXC=ef*(t3-2*ef*sW2)/(2*Sqrt(sw2*cw2))
+
+ zP_gg_C=ef**2
+ zP_gZ_C=ef*(t3-2*ef*sW2)/(2*Sqrt(sw2*cw2))
+ zP_ZZ_C=((1-2*Abs(ef)*sW2)**2+4*ef**2*sW2**2)/(8*sW2*cW2)
+ zM_gZ_C=-abs(ef)/4/sqrt(sW2*cW2)
+ zM_ZZ_C=(4*abs(ef)*sW2-1)/(8*sW2*cW2)
+ rP_ZZ_C=ef*(ef*sW2-t3)/cW2
+ rM_gZ_C=abs(ef)/(4*sqrt(sW2*cW2))
+
  !---------------B-quark
- ef=-1d0/3d0
- t3=-0.5d0
- paramB=((1d0-2d0*Abs(ef)*sW2)**2+4d0*ef**2*sW2**2)/(8d0*sW2*cW2)
- paramMIXB=ef*(t3-2d0*ef*sW2)/(2d0*Sqrt(sw2*cw2))
- 
+ ef=-1._dp/3._dp
+ t3=-0.5_dp
+ paramB=((1-2*Abs(ef)*sW2)**2+4*ef**2*sW2**2)/(8*sW2*cW2)
+ paramMIXB=ef*(t3-2*ef*sW2)/(2*Sqrt(sw2*cw2))
+
+ zP_gg_B=ef**2
+ zP_gZ_B=ef*(t3-2*ef*sW2)/(2*Sqrt(sw2*cw2))
+ zP_ZZ_B=((1-2*Abs(ef)*sW2)**2+4*ef**2*sW2**2)/(8*sW2*cW2)
+ zM_gZ_B=-abs(ef)/4/sqrt(sW2*cW2)
+ zM_ZZ_B=(4*abs(ef)*sW2-1)/(8*sW2*cW2)
+ rP_ZZ_B=ef*(ef*sW2-t3)/cW2
+ rM_gZ_B=abs(ef)/(4*sqrt(sW2*cW2))
+
   !---------------Lepton
- ef=-1d0
- t3=-0.5d0
- paramL=((1d0-2d0*Abs(ef)*sW2)**2+4d0*ef**2*sW2**2)/(8d0*sW2*cW2)
- paramMIXL=ef*(t3-2d0*ef*sW2)/(2d0*Sqrt(sw2*cw2))
+ ef=-1._dp
+ t3=-0.5_dp
+ paramL=((1-2*Abs(ef)*sW2)**2+4*ef**2*sW2**2)/(8*sW2*cW2)
+ paramMIXL=ef*(t3-2*ef*sW2)/(2*Sqrt(sw2*cw2))
  !!! asymetric combinations
- paramL_A=(4d0*Abs(ef)*sW2**2-1)/(8d0*sW2*cW2)
- paramMIXL_A=-t3*ef/(2d0*Sqrt(sw2*cw2))
- 
+ paramL_A=(4*Abs(ef)*sW2**2-1)/(8*sW2*cW2)
+ paramMIXL_A=-t3*ef/(2*Sqrt(sw2*cw2))
+
+ zP_gg_L=ef**2
+ zP_gZ_L=ef*(t3-2*ef*sW2)/(2*Sqrt(sw2*cw2))
+ zP_ZZ_L=((1-2*Abs(ef)*sW2)**2+4*ef**2*sW2**2)/(8*sW2*cW2)
+ zM_gZ_L=-abs(ef)/4/sqrt(sW2*cW2)
+ zM_ZZ_L=(4*abs(ef)*sW2-1)/(8*sW2*cW2)
+ rP_ZZ_L=ef*(ef*sW2-t3)/cW2
+ rM_gZ_L=abs(ef)/(4*sqrt(sW2*cW2))
+
  !-------------------------------------------------------
  !---  W-boson interaction
  

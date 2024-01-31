@@ -47,7 +47,7 @@ implicit none
       p2=(/66d0,116d0/)
       p3=(/-2.4d0,2.4d0/)
       cc=(/20d0,20d0,-2.4d0,2.4d0/)
-      pp=(/1,3,1,1/)
+      pp=(/1,1,1,3/)
       !pp=(/1,5,1,1/)
       !pp=(/1,1,5/)
       call xSec_DY(xx,pp,(8000d0)**2,p1,p2,p3,.true.,CutParameters=cc)
@@ -63,7 +63,7 @@ implicit none
     yList(j,:)=(/-2.4d0,2.4d0/)
     inCutList(j)=.true.
     cutList(j,:)=(/20d0,20d0,-2.4d0,2.4d0/)
-    pList(j,:)=(/1,5,1,1/)
+    pList(j,:)=(/1,1,1,3/)
     !pList(j,:)=(/1,1,5/)
     nnList(j)=4
     sList(j)=(8000d0)**2
