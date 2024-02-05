@@ -215,7 +215,7 @@ function Integrand_forALPHA(alpha)
     K2=tau2/4*((1-S)**2-Lam)
 
     !!! it is devided by 2 (instead of 4), because the integral over cos(theta) is over (0,pi).
-    Integrand_forALPHA=TMD_pair(Q2,xi1,xi2,k1,k2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,proc1(1))/2
+    Integrand_forALPHA=TMD_pair(Q2,xi1,xi2,k1,k2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,proc1(3))/2
 
 end function Integrand_forALPHA
 

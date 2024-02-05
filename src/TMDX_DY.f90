@@ -524,8 +524,10 @@ function LeptonCutFactorKPC(kin,proc1, includeCuts_in,CutParam)
       stop
     else
       !!! this is uncut lepton tensor
-      LeptonCutFactorKPC=1.d0*(1+0.5d0*(kin(1)/kin(3))**2)
+      LeptonCutFactorKPC=1._dp
     end if
+  CASE(20,21,22,23,24,30,31,32,35,36) !!! Angular coefficients
+    LeptonCutFactorKPC=1._dp !!!! there could not be a cut
   CASE DEFAULT
 
     !!!!! lepton-cut prefactor
@@ -536,7 +538,7 @@ function LeptonCutFactorKPC(kin,proc1, includeCuts_in,CutParam)
       stop
     else
       !!! this is uncut lepton tensor
-      LeptonCutFactorKPC=1.d0*(1+0.5d0*(kin(1)/kin(3))**2)
+      LeptonCutFactorKPC=1._dp
     end if
 
   END SELECT
