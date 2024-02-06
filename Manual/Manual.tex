@@ -3250,6 +3250,42 @@ Moments are defined as
 \\\nn &=&\frac{1}{2^nn!}\int_0^\infty db\,\mu^3(\mu b)^n \frac{(n+1)J_{n+1}(\mu b)-J_{n+3}(\mu b)}{n+2}\widetilde{F}(x,b).
 \end{eqnarray}
 
+\subsection{Grids}
+
+The computation of KPC is intensively uses the momentum space TMDs. Therefore, it is better to grid them, rather then evaluate each time. The grid is 3D, in $(x,k_T,Q)$. The grid used in the artemide 3.0 is:
+
+\textbf{Arcosh grid with control parameter}
+\begin{eqnarray}\label{grid_KT:x-grid}
+i=0,...,N_x,\qquad 
+x_i=\frac{1}{\cosh^p\(\Delta_x(i-N_x)\)},\qquad \Delta_x=\frac{\text{arccosh}(1/x^{1/p}_{\text{min}})}{N_x},\qquad \text{inv}[x]=
+N_x-\frac{\text{arccosh}(1/x^{1/p})}{\Delta_x}.
+\end{eqnarray}
+This grid is alike logarithmic at small-x, but has extra points at $x\to 1$. Therefore, one does not need extra griding at large-x. The parameter $p$ gives extra flexibility. At $p_x>1$ the density of points at $x\to 1$ grows. Same as used in OPE part.
+
+\textbf{Exponential grid with $Q_{\text{min}}$ and $Q_{\text{max}}$} 
+\begin{eqnarray}\label{grid_KT:Q-grid}
+i=0,...,N_Q,\qquad 
+Q_i=Q_{\text{min}}e^{i\Delta_Q},\qquad \Delta_Q=\frac{\ln(Q_{\text{max}}/Q_{\text{min}})}{N_x},\qquad \text{inv}[Q]=
+\frac{\ln(Q/Q_{\text{min}})}{\Delta_Q}.
+\end{eqnarray}
+Usual logarithmical grid. The function is rather smooth in the Q direction.
+
+\textbf{Exponential grid with $k_{\text{min}}$ and $k_{\text{max}}$} 
+\begin{eqnarray}\label{grid_KT:Q-grid}
+i=0,...,N_k,\qquad 
+k_i=k_{\text{min}}e^{i\Delta_k},\qquad \Delta_k=\frac{\ln(k_{\text{max}}/k_{\text{min}})}{N_k},\qquad \text{inv}[k]=
+\frac{\ln(k/k_{\text{min}})}{\Delta_k}.
+\end{eqnarray}
+Usual logarithmical grid. The function is rather smooth in the k direction once multiplied by $k^2$. The maximum value of $k$ is defined as 
+$$k_{\text{max}}=p_k Q_{\text{max}}.$$ 
+The parameter $p_k$ must be bigger than $2$ (2 is reached in the integration for KPC). For values $k>p_kQ$ (at given $Q$ the expressions are not stored.
+
+The interpolation is cubic. The grid is build for the finite domain of $x\in(x_{\min},1)$ and $k\in(k_{\text{min}},k_{\text{max}})$ and $Q\in(Q_{\text{min}},Q_{\text{max}})$. 
+\begin{itemize}
+\item For $x<x_{\min}$, $k_T>k_{\max}(Q)$, $Q<Q_{\text{min}}$ and $Q>Q_{\text{max}}$ the program will be terminated (with an error). 
+\item For $k_T<k_{\min}$ the code returns the value at $k_{\min}$. 
+\end{itemize}
+
 \newpage
 
 \section{KPC in TMD factorization}
@@ -3354,7 +3390,7 @@ The correspondence of process numbering is the following
 \begin{itemize}
 \item $\tilde a=1$, other options absent
 \item $\tilde b=b$
-\item $\tilde c$ is replaced by the $c$ $h_1$, $h_2$ according to the following table
+\item $\tilde c$ is replaced by the $h_1$, $h_2$, $c$ according to the following table
 \end{itemize}
 \begin{center}
 List of available commands
@@ -3362,71 +3398,71 @@ List of available commands
 \begin{longtable}{||c|c||c|p{8cm}||}
 \hline\hline
 artemide $<3$ & artemide $>3$ & Process & Comment
-\\ $\tilde c$ & $[c,h_1,h_2]$ & & \\
+\\ $\tilde c$ & $[h_1,h_2,c]$ & & \\
 \\\hline
-0 & [0,-,-] &  & Does not use TMDs.
+0 & [-,-,0] &  & Does not use TMDs.
 \\
-9999 & [0,-,-] & Test cases & Do not use TMDs.
+9999 & [-,-,0] & Test cases & Do not use TMDs.
 \\
-9998 & [0,-,-] &  & Does not use TMDs.
+9998 & [-,-,0] &  & Does not use TMDs.
 \\\hline
 1 & [1,1,1] & $p+p\to \gamma$ &
 \\\hline
-2 & [1,1,-1] & $p+\bar p\to \gamma$ &
+2 & [1,-1,1] & $p+\bar p\to \gamma$ &
 \\\hline
-3 & [2,1,1] & $p+p\to Z$ &
+3 & [1,1,2] & $p+p\to Z$ &
 \\\hline
-4 & [2,1,-1] & $p+\bar p\to Z$ &
+4 & [1,-1,2] & $p+\bar p\to Z$ &
 \\\hline
-5 & [3,1,1] & $p+p\to Z+\gamma$ &
+5 & [1,1,3] & $p+p\to Z+\gamma$ &
 \\\hline
-6 & [3,1,-1] & $p+\bar p\to Z+\gamma$ &
+6 & [1,-1,3] & $p+\bar p\to Z+\gamma$ &
 \\\hline
-7 & [4,1,1] & $p+p\to W^+$ &
+7 & [1,1,4] & $p+p\to W^+$ &
 \\\hline
-8 & [5,1,1] & $p+p\to W^-$ &
+8 & [1,1,5] & $p+p\to W^-$ &
 \\\hline
-9 & [6,1,1] & $p+p\to W^\pm$ &
+9 & [1,1,6] & $p+p\to W^\pm$ &
 \\\hline
-10 & [4,1,-1] & $p+\bar p\to W^+$ &
+10 & [1,-1,4] & $p+\bar p\to W^+$ &
 \\\hline
-11 & [5,1,-1] & $p+\bar p\to W^-$ &
+11 & [1,-1,5] & $p+\bar p\to W^-$ &
 \\\hline
-12 & [6,1,-1] & $p+\bar p\to W^\pm$ &
+12 & [1,-1,6] & $p+\bar p\to W^\pm$ &
 \\\hline
-13 & [7,1,1] & $p+p\to W^+$ & Same as 7 with $\Gamma_W=0$
+13 & [1,1,7] & $p+p\to W^+$ & Same as 7 with $\Gamma_W=0$
 \\\hline
-14 & [8,1,1] & $p+p\to W^-$ & Same as 8 with $\Gamma_W=0$
+14 & [1,1,8] & $p+p\to W^-$ & Same as 8 with $\Gamma_W=0$
 \\\hline
-15 & [9,1,1] & $p+p\to W^\pm$ & Same as 9 with $\Gamma_W=0$
+15 & [1,1,9] & $p+p\to W^\pm$ & Same as 9 with $\Gamma_W=0$
 \\\hline
-16 & [7,1,-1] & $p+\bar p\to W^+$ & Same as 9 with $\Gamma_W=0$
+16 & [1,-1,7] & $p+\bar p\to W^+$ & Same as 9 with $\Gamma_W=0$
 \\\hline
-17 & [8,1,-1] & $p+\bar p\to W^-$ & Same as 10 with $\Gamma_W=0$
+17 & [1,-1,8] & $p+\bar p\to W^-$ & Same as 10 with $\Gamma_W=0$
 \\\hline
-18 & [9,1,-1] & $p+\bar p\to W^\pm$ & Same as 11 with $\Gamma_W=0$
+18 & [1,-1,9] & $p+\bar p\to W^\pm$ & Same as 11 with $\Gamma_W=0$
 \\\hline
-20 & [10,1,1] & $p+p\to H$ &
+20 & [1,1,10] & $p+p\to H$ &
 \\\hline
-21 & [11,1,1] & $p+p\to H$ & Only $f_1$
+21 & [1,1,11] & $p+p\to H$ & Only $f_1$
 \\\hline
-22 & [12,1,1] & $p+p\to H$ & Only $f_1^\perp$
+22 & [1,1,12] & $p+p\to H$ & Only $f_1^\perp$
 \\\hline
-101 & [1,2,1] & $\pi^-+p\to \gamma$ &
+101 & [2,1,1] & $\pi^-+p\to \gamma$ &
 \\\hline
-102 & [1,2,-1] & $\pi^-+\bar p\to \gamma$ &
+102 & [2,-1,1] & $\pi^-+\bar p\to \gamma$ &
 \\\hline
-103 & [1,-2,1] & $\pi^++p\to \gamma$ &
+103 & [-2,1,1] & $\pi^++p\to \gamma$ &
 \\\hline
-104 & [1,-2,-1] & $\pi^++\bar p\to \gamma$ &
+104 & [-2,-1,1] & $\pi^++\bar p\to \gamma$ &
 \\\hline
-1001 & [101,1,1] & $p+Cu\to \gamma$ & 
+1001 & [1,1,101] & $p+Cu\to \gamma$ & 
 \\\hline
-1002 & [102,1,1] & $p+^2H\to \gamma$ & 
+1002 & [1,1,102] & $p+^2H\to \gamma$ & 
 \\\hline
-1003 & [103,-1,1] & $\bar p+W\to \gamma$ & 
+1003 & [-1,1,103] & $\bar p+W\to \gamma$ & 
 \\\hline
-1004 & [103,2,1] & $\pi^-+W\to \gamma$ & 
+1004 & [2,1,103] & $\pi^-+W\to \gamma$ & 
 \\\hline\hline
  SIDIS
 \\\hline\hline

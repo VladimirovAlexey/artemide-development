@@ -106,6 +106,9 @@ $(SOURCEDIR)/Code/TMDs/TMD-calls.f90
 TMDFFiles=\
 $(SOURCEDIR)/Code/TMDF/Ogata.f90
 
+TMDsKTFiles=\
+$(SOURCEDIR)/Code/TMDs_inKT/grid_inKT.f90
+
 TMDKPCFiles=\
 $(SOURCEDIR)/Code/TMDF_KPC/TMDpairs.f90\
 $(SOURCEDIR)/Code/TMDF_KPC/KERNELpairs_DY.f90
@@ -345,7 +348,7 @@ $(OBJ)/TMDs.o: $(SOURCEDIR)/TMDs.f90 $(OBJ)/uTMDPDF.o $(OBJ)/uTMDFF.o $(OBJ)/lpT
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/TMDs_inKT.o: $(SOURCEDIR)/TMDs_inKT.f90 $(OBJ)/TMDs.o $(aTMDeUTILITY)
+$(OBJ)/TMDs_inKT.o: $(SOURCEDIR)/TMDs_inKT.f90 $(OBJ)/TMDs.o $(TMDsKTFiles) $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/TMDs_inKT.f90 -I$(MOD)
 	mv *.o $(OBJ)

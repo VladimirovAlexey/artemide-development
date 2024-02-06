@@ -167,7 +167,7 @@
 
 *A   : ---- OPE main definitions ----
 *p1  : Order of coefficient function
- LO
+ N3LO
 *p2  : Prepare grid
  T
 *p3  : Include gluon TMDs into the grid
@@ -283,13 +283,68 @@
 # ---------------------------------------------------------------------------
 *8   :
 *p1  : initialize TMDs-inKT module
- T
+ F
 *A   : ---- Numerical evaluation parameters ----
 *p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
    1.0000000000000000E-004
 *p2  : Ogata quadrature integration step
-   1.0000000000000000E-003
- 
+   1.0000000000000000E-003   
+*B   : ---- General parameters of grid ----
+*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough
+   1.0000000000000000E-004
+*p2  : Parameter for x-griding function (better not to change it)
+   2.0000000000000000
+*p3  : The minimum kT in grid, for smaller value the result is constant
+   0.0001
+*p4  : The multiplicative factor for maximum kT (kT_max= par * Q)
+   2.5
+*p5  : The minimum Q in grid, make sure that it is enough
+   1.000000000000000
+*p6  : The maximum Q in grid, make sure that it is enough
+   200.0000000000000
+*p7  : Grid Size over X
+         200
+*p8  : Grid Size over kT
+         50
+*p9  : Grid Size over Q
+         25
+*C   : ---- Grids for each TMDPDF grid ----
+*p1  : include grid for unpolarized TMDPDF
+ T
+*p2  : number of hadrons in grid for unpolarized TMDPDF (by order strating with 1)
+ 1
+*p3  : include gluon into the grid for unpolarized TMDPDF
+ F
+*p4  : include grid for unpolarized TMDFF
+ F
+*p5  : number of hadrons in grid for unpolarized TMDFF (by order strating with 1)
+ 0
+*p6  : include gluon into the grid for unpolarized TMDFF
+ F
+*p7  : include grid for lin.pol. TMDPDF
+ F
+*p8  : number of hadrons in grid for lin.pol. TMDPDF (by order strating with 1)
+ 0
+*p9  : include gluon into the grid for lpTMDPDF
+ T
+*p10 : include grid for SiversTMDPDF
+ F
+*p11 : number of hadrons in grid for SiversTMDPDF (by order strating with 1)
+ 0
+*p12 : include gluon into the grid for SiversTMDPDF
+ F
+*p13 : include grid for wgtTMDPDF
+ F
+*p14 : number of hadrons in grid for wgtTMDPDF (by order strating with 1)
+ 0
+*p15 : include gluon into the grid for wgtTMDPDF
+ F
+*p16 : include grid for BoerMuldersTMDPDF
+ F
+*p17 : number of hadrons in grid for BoerMuldersTMDPDF (by order strating with 1)
+ 0
+*p18 : include gluon into the grid for BoerMuldersTMDPDF
+ F
  
 # ---------------------------------------------------------------------------
 # ----                           PARAMETERS OF TMDX-DY                  -----

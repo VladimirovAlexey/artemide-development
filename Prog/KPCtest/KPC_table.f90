@@ -1,7 +1,7 @@
 program example
 use aTMDe_control
 use TMDX_DY
-use TMDs
+use TMDs_inKT
 implicit none
 
 integer::i,j,k
@@ -23,6 +23,9 @@ real*8,dimension(1:Ny)::y
 integer,parameter::NT=41
 real*8,dimension(1:NT)::qT
 
+real*8::xx,kk,QQ
+real*8,dimension(-5:5)::f1
+
 Q=(/80.d0,82.d0,84.d0,86.d0,87.d0,88.d0,89.d0,90.d0,90.5d0,91.d0,91.25d0,91.5d0,92.d0,93.d0,94.d0,95.d0,96.d0,98.d0,100.d0/)
 
 y=(/-3.5d0,-3.25d0,-3.d0,-2.75d0,-2.5d0,-2.25d0,-2.d0,-1.75d0,-1.5d0,-1.25d0,-1.d0,-0.75d0,-0.5d0,-0.25d0,&
@@ -42,6 +45,22 @@ call artemide_SetNPparameters_TMDR((/1.56142d0, 0.0369174d0, 0.0581734d0, 1.0d0/
 call artemide_SetNPparameters_uTMDPDF(&
   (/0.874245d0, 0.913883d0, 0.991563d0, 6.05412d0, 0.353908d0,&
   46.6064d0, 0.115161d0, 1.53235d0, 1.31966d0, 0.434833d0, 0.d0, 0.d0/))
+
+open (22, FILE='Prog/KPCtest/dat/f1.dat', STATUS='REPLACE')
+do i=0,30
+  QQ=2.d0+3*i
+do j=0,10
+  xx=10**(-real(j,8)/20)
+do k=0,5
+  kk=2*QQ*k/50
+  f1=uTMDPDF_kT_5(xx,kk,QQ,QQ**2,1)
+  write(22,*) QQ, xx, kk, f1(2)
+end do
+end do
+end do
+close(22)
+
+stop
 
 
 NAME="A4"

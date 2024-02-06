@@ -14,7 +14,7 @@
 ! !!!------------------------- SPECIAL VARIABLES FOR GRID (used by TMDGrid-XB)------------------
 ! real(dp), dimension(:,:,:,:), allocatable :: gridMain !!!! THIS IS HUGE(!) matrix for the grid
 ! real(dp), dimension(:,:,:,:), allocatable :: interpolationParameters !!!! for b>bGrid_Max we
-! integer, dimension(:), allocatable:: hadronsInGRID  !!! table that saves the number of hadons into plain list
+! integer, dimension(:), allocatable:: hadronsInGRID  !!! table that saves the number of hadrons into plain list
 ! integer::numberOfHadrons=1                !!!total number of hadrons to be stored
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Griding functions  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

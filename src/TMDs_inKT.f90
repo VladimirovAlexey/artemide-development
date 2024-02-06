@@ -57,8 +57,67 @@ abstract interface
         real(dp),dimension(-5:5)::tmd_opt
     end function tmd_opt
 end interface
+
+!!!! general interface to the TMD PDF
+abstract interface
+    function tmd_ev(x_f,b_f,mu,zeta,h_f)
+        use aTMDe_Numerics, only: dp
+        real(dp),intent(in)::x_f,b_f,mu,zeta
+        integer,intent(in)::h_f
+        real(dp),dimension(-5:5)::tmd_ev
+    end function tmd_ev
+end interface
 !------------------------------------------Physical and mathematical constants------------------------------------------
-  
+
+!------------------------------------------Grid parameters -------------------------------------------------------------
+
+!!!! size in x
+integer::Nx=50
+!!!! minimum x
+real(dp)::xMin=0.00001_dp
+!!!! parameters of grid
+real(dp)::DeltaX
+real(dp)::parX=2._dp
+
+!!!! size in Q
+integer::NQ=25
+!!!! minimum & maximum Q
+real(dp)::QMin=1._dp
+real(dp)::QMax=200._dp
+!!!! parameters of grid
+real(dp)::DeltaQ
+
+!!!! size in kT (at Qmax)
+integer::NK=50
+!!!! minimum Q
+real(dp)::KMin=0.0001_dp
+!!!! Parameter of defining maximum value of K (=park*Q)
+real(dp)::parK=2.5_dp
+!!!! parameters of grid
+real(dp)::DeltaK
+
+!!!! grid matrices
+real(dp),allocatable::grid_uTMDPDF(:,:,:,:,:)
+real(dp),allocatable::grid_uTMDFF(:,:,:,:,:)
+real(dp),allocatable::grid_lpTMDPDF(:,:,:,:,:)
+real(dp),allocatable::grid_SiversTMDPDF(:,:,:,:,:)
+real(dp),allocatable::grid_wgtTMDPDF(:,:,:,:,:)
+real(dp),allocatable::grid_BoerMuldersTMDPDF(:,:,:,:,:)
+
+!!!! logical statements of including grids
+logical::include_grid_uTMDPDF,include_grid_uTMDFF,include_grid_lpTMDPDF,include_grid_SiversTMDPDF,&
+        include_grid_wgtTMDPDF,include_grid_BoerMuldersTMDPDF
+!!!! number of hadron in the grid for each type of TMD
+integer::numH_uTMDPDF,numH_uTMDFF,numH_lpTMDPDF,numH_SiversTMDPDF,&
+        numH_wgtTMDPDF,numH_BoerMuldersTMDPDF
+!!!! logical statements of including gluons into the grid
+logical::include_gluon_uTMDPDF,include_gluon_uTMDFF,include_gluon_lpTMDPDF,include_gluon_SiversTMDPDF,&
+        include_gluon_wgtTMDPDF,include_gluon_BoerMuldersTMDPDF
+
+!!!! logical statements that grids are ready
+logical::IsGridReady_uTMDPDF,IsGridReady_uTMDFF,IsGridReady_lpTMDPDF,IsGridReady_SiversTMDPDF,&
+        IsGridReady_wgtTMDPDF,IsGridReady_BoerMuldersTMDPDF
+
 !------------------------------------------Working variables------------------------------------------------------------
   
 logical::started=.false.
@@ -122,6 +181,9 @@ interface BoerMuldersTMDPDF_kT_50
 end interface
 
 contains 
+
+INCLUDE 'Code/TMDs_inKT/grid_inKT.f90'
+
 function TMDs_inKT_IsInitialized()
     logical::TMDs_inKT_IsInitialized
     TMDs_inKT_IsInitialized=started
@@ -179,6 +241,66 @@ subroutine TMDs_inKT_Initialize(file,prefix)
         
     if(outputLevel>2) write(*,'(A,ES8.2)') ' | h for Ogata quadrature    : ',hOGATA
     if(outputLevel>2) write(*,'(A,ES8.2)') ' | tolerance            : ',tolerance
+
+    !!!! grid parameters
+    call MoveTO(51,'*B   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) xMin
+    call MoveTO(51,'*p2  ')
+    read(51,*) parX
+    call MoveTO(51,'*p3  ')
+    read(51,*) KMin
+    call MoveTO(51,'*p4  ')
+    read(51,*) parK
+    call MoveTO(51,'*p5  ')
+    read(51,*) QMin
+    call MoveTO(51,'*p6  ')
+    read(51,*) QMax
+    call MoveTO(51,'*p7  ')
+    read(51,*) Nx
+    call MoveTO(51,'*p8  ')
+    read(51,*) NK
+    call MoveTO(51,'*p9  ')
+    read(51,*) NQ
+
+    !!!! Inclusion of grid for each type of TMD
+    call MoveTO(51,'*C   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_grid_uTMDPDF
+    call MoveTO(51,'*p2  ')
+    read(51,*) numH_uTMDPDF
+    call MoveTO(51,'*p3  ')
+    read(51,*) include_gluon_uTMDPDF
+    call MoveTO(51,'*p4  ')
+    read(51,*) include_grid_uTMDFF
+    call MoveTO(51,'*p5  ')
+    read(51,*) numH_uTMDFF
+    call MoveTO(51,'*p6  ')
+    read(51,*) include_gluon_uTMDFF
+    call MoveTO(51,'*p7  ')
+    read(51,*) include_grid_lpTMDPDF
+    call MoveTO(51,'*p8  ')
+    read(51,*) numH_lpTMDPDF
+    call MoveTO(51,'*p9  ')
+    read(51,*) include_gluon_lpTMDPDF
+    call MoveTO(51,'*p10 ')
+    read(51,*) include_grid_SiversTMDPDF
+    call MoveTO(51,'*p11 ')
+    read(51,*) numH_SiversTMDPDF
+    call MoveTO(51,'*p12 ')
+    read(51,*) include_gluon_SiversTMDPDF
+    call MoveTO(51,'*p13 ')
+    read(51,*) include_grid_wgtTMDPDF
+    call MoveTO(51,'*p14 ')
+    read(51,*) numH_wgtTMDPDF
+    call MoveTO(51,'*p15 ')
+    read(51,*) include_gluon_wgtTMDPDF
+    call MoveTO(51,'*p16 ')
+    read(51,*) include_grid_BoerMuldersTMDPDF
+    call MoveTO(51,'*p17 ')
+    read(51,*) numH_BoerMuldersTMDPDF
+    call MoveTO(51,'*p18 ')
+    read(51,*) include_gluon_BoerMuldersTMDPDF
         
     CLOSE (51, STATUS='KEEP') 
         
@@ -199,6 +321,56 @@ subroutine TMDs_inKT_Initialize(file,prefix)
         else
             call TMDs_Initialize(file)
         end if
+    end if
+
+    IsGridReady_uTMDPDF=.false.
+    IsGridReady_uTMDFF=.false.
+    IsGridReady_lpTMDPDF=.false.
+    IsGridReady_SiversTMDPDF=.false.
+    IsGridReady_wgtTMDPDF=.false.
+    IsGridReady_BoerMuldersTMDPDF=.false.
+
+    !!!!!!!!!!!!!!!!! grid preparation
+    if(include_grid_uTMDPDF) then
+        allocate(grid_uTMDPDF(0:NX,0:NK,0:NQ,-5:5,1:numH_uTMDPDF))
+        if(outputLevel>1) write(*,*) 'arTeMiDe.TMDs-inKT: grid for uTMDPDF to be prepared'
+    else
+        if(outputLevel>2) write(*,*) 'arTeMiDe.TMDs-inKT: grid for uTMDPDF to be NOT prepared'
+    end if
+
+    if(include_grid_uTMDFF) then
+        allocate(grid_uTMDFF(0:NX,0:NK,0:NQ,-5:5,1:numH_uTMDFF))
+        if(outputLevel>1) write(*,*) 'arTeMiDe.TMDs-inKT: grid for uTMDFF to be prepared'
+    else
+        if(outputLevel>2) write(*,*) 'arTeMiDe.TMDs-inKT: grid for uTMDFF to be NOT prepared'
+    end if
+
+    if(include_grid_lpTMDPDF) then
+        allocate(grid_lpTMDPDF(0:NX,0:NK,0:NQ,-5:5,1:numH_lpTMDPDF))
+        if(outputLevel>1) write(*,*) 'arTeMiDe.TMDs-inKT: grid for lpTMDPDF to be prepared'
+    else
+        if(outputLevel>2) write(*,*) 'arTeMiDe.TMDs-inKT: grid for lpTMDPDF to be NOT prepared'
+    end if
+
+    if(include_grid_SiversTMDPDF) then
+        allocate(grid_SiversTMDPDF(0:NX,0:NK,0:NQ,-5:5,1:numH_SiversTMDPDF))
+        if(outputLevel>1) write(*,*) 'arTeMiDe.TMDs-inKT: grid for SiversTMDPDF to be prepared'
+    else
+        if(outputLevel>2) write(*,*) 'arTeMiDe.TMDs-inKT: grid for SiversTMDPDF to be NOT prepared'
+    end if
+
+    if(include_grid_wgtTMDPDF) then
+        allocate(grid_wgtTMDPDF(0:NX,0:NK,0:NQ,-5:5,1:numH_wgtTMDPDF))
+        if(outputLevel>1) write(*,*) 'arTeMiDe.TMDs-inKT: grid for wgtTMDPDF to be prepared'
+    else
+        if(outputLevel>2) write(*,*) 'arTeMiDe.TMDs-inKT: grid for wgtTMDPDF to be NOT prepared'
+    end if
+
+    if(include_grid_BoerMuldersTMDPDF) then
+        allocate(grid_BoerMuldersTMDPDF(0:NX,0:NK,0:NQ,-5:5,1:numH_BoerMuldersTMDPDF))
+        if(outputLevel>1) write(*,*) 'arTeMiDe.TMDs-inKT: grid for BoerMuldersTMDPDF to be prepared'
+    else
+        if(outputLevel>2) write(*,*) 'arTeMiDe.TMDs-inKT: grid for BoerMuldersTMDPDF to be NOT prepared'
     end if
         
     started=.true.
@@ -284,65 +456,65 @@ end subroutine PrepareTables
  
 function testTMD_kT(x,qT)
     real(dp)::testTMD_kT(-5:5)
-    real(dp)::x,qT
+    real(dp),intent(in)::x,qT
     testTMD_kT=Fourier(x,qT,10d0,10d0,0,1) 
 end function testTMD_kT
 
 !---------------------------------------------------uTMDPDF
 function uTMDPDF_kT_5_Ev(x,qT,mu,zeta,hadron)
     real(dp)::uTMDPDF_kT_5_Ev(-5:5)
-    real(dp)::x,qT,mu,zeta
-    integer::hadron
+    real(dp),intent(in)::x,qT,mu,zeta
+    integer,intent(in)::hadron
     uTMDPDF_kT_5_Ev=Fourier(x,qT,mu,zeta,1,hadron) 
 end function uTMDPDF_kT_5_Ev
 
 function uTMDPDF_kT_50_Ev(x,qT,mu,zeta,hadron)
     real(dp)::uTMDPDF_kT_50_Ev(-5:5)
-    real(dp)::x,qT,mu,zeta
-    integer::hadron
+    real(dp),intent(in)::x,qT,mu,zeta
+    integer,intent(in)::hadron
     uTMDPDF_kT_50_Ev=Fourier(x,qT,mu,zeta,2,hadron) 
 end function uTMDPDF_kT_50_Ev
 
 function uTMDPDF_kT_5_optimal(x,qT,hadron)
     real(dp)::uTMDPDF_kT_5_optimal(-5:5)
-    real(dp)::x,qT
-    integer::hadron
+    real(dp),intent(in)::x,qT
+    integer,intent(in)::hadron
     uTMDPDF_kT_5_optimal=Fourier(x,qT,10d0,10d0,3,hadron) 
 end function uTMDPDF_kT_5_optimal
 
 function uTMDPDF_kT_50_optimal(x,qT,hadron)
     real(dp)::uTMDPDF_kT_50_optimal(-5:5)
-    real(dp)::x,qT
-    integer::hadron
+    real(dp),intent(in)::x,qT
+    integer,intent(in)::hadron
     uTMDPDF_kT_50_optimal=Fourier(x,qT,10d0,10d0,4,hadron) 
 end function uTMDPDF_kT_50_optimal
 
 !---------------------------------------------------uTMDFF
 function uTMDFF_kT_5_Ev(x,qT,mu,zeta,hadron)
     real(dp)::uTMDFF_kT_5_Ev(-5:5)
-    real(dp)::x,qT,mu,zeta
-    integer::hadron
+    real(dp),intent(in)::x,qT,mu,zeta
+    integer,intent(in)::hadron
     uTMDFF_kT_5_Ev=Fourier(x,qT,mu,zeta,5,hadron) 
 end function uTMDFF_kT_5_Ev
 
 function uTMDFF_kT_50_Ev(x,qT,mu,zeta,hadron)
     real(dp)::uTMDFF_kT_50_Ev(-5:5)
-    real(dp)::x,qT,mu,zeta
-    integer::hadron
+    real(dp),intent(in)::x,qT,mu,zeta
+    integer,intent(in)::hadron
     uTMDFF_kT_50_Ev=Fourier(x,qT,mu,zeta,6,hadron) 
 end function uTMDFF_kT_50_Ev
 
 function uTMDFF_kT_5_optimal(x,qT,hadron)
     real(dp)::uTMDFF_kT_5_optimal(-5:5)
-    real(dp)::x,qT
-    integer::hadron
+    real(dp),intent(in)::x,qT
+    integer,intent(in)::hadron
     uTMDFF_kT_5_optimal=Fourier(x,qT,10d0,10d0,7,hadron) 
 end function uTMDFF_kT_5_optimal
 
 function uTMDFF_kT_50_optimal(x,qT,hadron)
     real(dp)::uTMDFF_kT_50_optimal(-5:5)
-    real(dp)::x,qT
-    integer::hadron
+    real(dp),intent(in)::x,qT
+    integer,intent(in)::hadron
     uTMDFF_kT_50_optimal=Fourier(x,qT,10d0,10d0,8,hadron) 
 end function uTMDFF_kT_50_optimal
 
@@ -351,102 +523,102 @@ end function uTMDFF_kT_50_optimal
 
 function lpTMDPDF_kT_50_Ev(x,qT,mu,zeta,hadron)
     real(dp)::lpTMDPDF_kT_50_Ev(-5:5)
-    real(dp)::x,qT,mu,zeta
-    integer::hadron
+    real(dp),intent(in)::x,qT,mu,zeta
+    integer,intent(in)::hadron
     lpTMDPDF_kT_50_Ev=Fourier(x,qT,mu,zeta,9,hadron) 
 end function lpTMDPDF_kT_50_Ev
 
 function lpTMDPDF_kT_50_optimal(x,qT,hadron)
     real(dp)::lpTMDPDF_kT_50_optimal(-5:5)
-    real(dp)::x,qT
-    integer::hadron
+    real(dp),intent(in)::x,qT
+    integer,intent(in)::hadron
     lpTMDPDF_kT_50_optimal=Fourier(x,qT,10d0,10d0,10,hadron) 
 end function lpTMDPDF_kT_50_optimal
 
 !---------------------------------------------------SiversTMDPDF
 function SiversTMDPDF_kT_5_Ev(x,qT,mu,zeta,hadron)
     real(dp)::SiversTMDPDF_kT_5_Ev(-5:5)
-    real(dp)::x,qT,mu,zeta
-    integer::hadron
+    real(dp),intent(in)::x,qT,mu,zeta
+    integer,intent(in)::hadron
     SiversTMDPDF_kT_5_Ev=Fourier(x,qT,mu,zeta,11,hadron) 
 end function SiversTMDPDF_kT_5_Ev
 
 function SiversTMDPDF_kT_50_Ev(x,qT,mu,zeta,hadron)
     real(dp)::SiversTMDPDF_kT_50_Ev(-5:5)
-    real(dp)::x,qT,mu,zeta
-    integer::hadron
+    real(dp),intent(in)::x,qT,mu,zeta
+    integer,intent(in)::hadron
     SiversTMDPDF_kT_50_Ev=Fourier(x,qT,mu,zeta,12,hadron) 
 end function SiversTMDPDF_kT_50_Ev
 
 function SiversTMDPDF_kT_5_optimal(x,qT,hadron)
     real(dp)::SiversTMDPDF_kT_5_optimal(-5:5)
-    real(dp)::x,qT
-    integer::hadron
+    real(dp),intent(in)::x,qT
+    integer,intent(in)::hadron
     SiversTMDPDF_kT_5_optimal=Fourier(x,qT,10d0,10d0,13,hadron) 
 end function SiversTMDPDF_kT_5_optimal
 
 function SiversTMDPDF_kT_50_optimal(x,qT,hadron)
     real(dp)::SiversTMDPDF_kT_50_optimal(-5:5)
-    real(dp)::x,qT
-    integer::hadron
+    real(dp),intent(in)::x,qT
+    integer,intent(in)::hadron
     SiversTMDPDF_kT_50_optimal=Fourier(x,qT,10d0,10d0,14,hadron) 
 end function SiversTMDPDF_kT_50_optimal
 
 !---------------------------------------------------wgtTMDPDF
 function wgtTMDPDF_kT_5_Ev(x,qT,mu,zeta,hadron)
     real(dp)::wgtTMDPDF_kT_5_Ev(-5:5)
-    real(dp)::x,qT,mu,zeta
-    integer::hadron
+    real(dp),intent(in)::x,qT,mu,zeta
+    integer,intent(in)::hadron
     wgtTMDPDF_kT_5_Ev=Fourier(x,qT,mu,zeta,15,hadron) 
 end function wgtTMDPDF_kT_5_Ev
 
 function wgtTMDPDF_kT_50_Ev(x,qT,mu,zeta,hadron)
     real(dp)::wgtTMDPDF_kT_50_Ev(-5:5)
-    real(dp)::x,qT,mu,zeta
-    integer::hadron
+    real(dp),intent(in)::x,qT,mu,zeta
+    integer,intent(in)::hadron
     wgtTMDPDF_kT_50_Ev=Fourier(x,qT,mu,zeta,16,hadron) 
 end function wgtTMDPDF_kT_50_Ev
 
 function wgtTMDPDF_kT_5_optimal(x,qT,hadron)
     real(dp)::wgtTMDPDF_kT_5_optimal(-5:5)
-    real(dp)::x,qT
-    integer::hadron
+    real(dp),intent(in)::x,qT
+    integer,intent(in)::hadron
     wgtTMDPDF_kT_5_optimal=Fourier(x,qT,10d0,10d0,17,hadron) 
 end function wgtTMDPDF_kT_5_optimal
 
 function wgtTMDPDF_kT_50_optimal(x,qT,hadron)
     real(dp)::wgtTMDPDF_kT_50_optimal(-5:5)
-    real(dp)::x,qT
-    integer::hadron
+    real(dp),intent(in)::x,qT
+    integer,intent(in)::hadron
     wgtTMDPDF_kT_50_optimal=Fourier(x,qT,10d0,10d0,18,hadron) 
 end function wgtTMDPDF_kT_50_optimal
 
 !---------------------------------------------------BoerMuldersTMDPDF
 function BoerMuldersTMDPDF_kT_5_Ev(x,qT,mu,zeta,hadron)
     real(dp)::BoerMuldersTMDPDF_kT_5_Ev(-5:5)
-    real(dp)::x,qT,mu,zeta
-    integer::hadron
+    real(dp),intent(in)::x,qT,mu,zeta
+    integer,intent(in)::hadron
     BoerMuldersTMDPDF_kT_5_Ev=Fourier(x,qT,mu,zeta,19,hadron)
 end function BoerMuldersTMDPDF_kT_5_Ev
 
 function BoerMuldersTMDPDF_kT_50_Ev(x,qT,mu,zeta,hadron)
     real(dp)::BoerMuldersTMDPDF_kT_50_Ev(-5:5)
-    real(dp)::x,qT,mu,zeta
-    integer::hadron
+    real(dp),intent(in)::x,qT,mu,zeta
+    integer,intent(in)::hadron
     BoerMuldersTMDPDF_kT_50_Ev=Fourier(x,qT,mu,zeta,20,hadron)
 end function BoerMuldersTMDPDF_kT_50_Ev
 
 function BoerMuldersTMDPDF_kT_5_optimal(x,qT,hadron)
     real(dp)::BoerMuldersTMDPDF_kT_5_optimal(-5:5)
-    real(dp)::x,qT
-    integer::hadron
+    real(dp),intent(in)::x,qT
+    integer,intent(in)::hadron
     BoerMuldersTMDPDF_kT_5_optimal=Fourier(x,qT,10d0,10d0,21,hadron)
 end function BoerMuldersTMDPDF_kT_5_optimal
 
 function BoerMuldersTMDPDF_kT_50_optimal(x,qT,hadron)
     real(dp)::BoerMuldersTMDPDF_kT_50_optimal(-5:5)
-    real(dp)::x,qT
-    integer::hadron
+    real(dp),intent(in)::x,qT
+    integer,intent(in)::hadron
     BoerMuldersTMDPDF_kT_50_optimal=Fourier(x,qT,10d0,10d0,22,hadron)
 end function BoerMuldersTMDPDF_kT_50_optimal
 
@@ -620,7 +792,7 @@ function Integrand(b,x,mu,zeta,num,hadron)
             Integrand=wgtTMDPDF_5(x,b,mu,zeta,hadron)
             Integrand(0)=0d0
 
-        CASE(16) !!! SiversuTMDPDF  quarks+gluon
+        CASE(16) !!! wgtTMDPDF  quarks+gluon
             Integrand=wgtTMDPDF_50(x,b,mu,zeta,hadron)
 
         CASE(17) !!! wgtTMDPDF  quarks OPTIMAL
@@ -800,5 +972,130 @@ function Moment_X(n,x,mu,F_opt,hadron)
     END SELECT
 
 end function Moment_X
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!! GRIDS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!! make the grid
+!!!!! the optional argument specifies what to do. If not present all grids (which are included) are updated
+subroutine UpdateGrid(t)
+character(len=3),intent(in),optional::t
+
+if(present(t)) then
+
+    SELECT CASE(t)
+        CASE('upl')
+            if(include_grid_uTMDPDF) then
+                if(include_gluon_uTMDPDF) then
+                    call MakeGrid(grid_uTMDPDF,2,numH_uTMDPDF)
+                else
+                    call MakeGrid(grid_uTMDPDF,1,numH_uTMDPDF)
+                end if
+
+                IsGridReady_uTMDPDF=.true.
+            end if
+
+        CASE('uFF')
+            if(include_grid_uTMDFF) then
+                if(include_gluon_uTMDFF) then
+                    call MakeGrid(grid_uTMDFF,6,numH_uTMDFF)
+                else
+                    call MakeGrid(grid_uTMDFF,5,numH_uTMDFF)
+                end if
+
+                IsGridReady_uTMDFF=.true.
+            end if
+
+        CASE('lp ')
+            if(include_grid_lpTMDPDF) then
+                call MakeGrid(grid_lpTMDPDF,9,numH_lpTMDPDF)
+
+                IsGridReady_lpTMDPDF=.true.
+            end if
+
+        CASE('Siv')
+            if(include_grid_SiversTMDPDF) then
+                if(include_gluon_SiversTMDPDF) then
+                    call MakeGrid(grid_SiversTMDPDF,12,numH_SiversTMDPDF)
+                else
+                    call MakeGrid(grid_SiversTMDPDF,11,numH_SiversTMDPDF)
+                end if
+
+                IsGridReady_SiversTMDPDF=.true.
+            end if
+
+        CASE('wgt')
+            if(include_grid_wgtTMDPDF) then
+                if(include_gluon_wgtTMDPDF) then
+                    call MakeGrid(grid_wgtTMDPDF,16,numH_wgtTMDPDF)
+                else
+                    call MakeGrid(grid_wgtTMDPDF,15,numH_wgtTMDPDF)
+                end if
+
+                IsGridReady_wgtTMDPDF=.true.
+            end if
+
+        CASE('BM ')
+            if(include_grid_BoerMuldersTMDPDF) then
+                if(include_gluon_BoerMuldersTMDPDF) then
+                    call MakeGrid(grid_BoerMuldersTMDPDF,20,numH_BoerMuldersTMDPDF)
+                else
+                    call MakeGrid(grid_BoerMuldersTMDPDF,19,numH_BoerMuldersTMDPDF)
+                end if
+
+                IsGridReady_BoerMuldersTMDPDF=.true.
+            end if
+
+        CASE DEFAULT
+            write(*,*) ErrorString("Unknown optional argument .type.",moduleName)
+            stop
+    END SELECT
+else
+    if(include_grid_uTMDPDF) then
+        if(include_gluon_uTMDPDF) then
+            call MakeGrid(grid_uTMDPDF,2,numH_uTMDPDF)
+        else
+            call MakeGrid(grid_uTMDPDF,1,numH_uTMDPDF)
+        end if
+    end if
+
+    if(include_grid_uTMDFF) then
+        if(include_gluon_uTMDFF) then
+            call MakeGrid(grid_uTMDFF,6,numH_uTMDFF)
+        else
+            call MakeGrid(grid_uTMDFF,5,numH_uTMDFF)
+        end if
+    end if
+
+    if(include_grid_lpTMDPDF) then
+        call MakeGrid(grid_lpTMDPDF,9,numH_lpTMDPDF)
+    end if
+
+    if(include_grid_SiversTMDPDF) then
+        if(include_gluon_SiversTMDPDF) then
+            call MakeGrid(grid_SiversTMDPDF,12,numH_SiversTMDPDF)
+        else
+            call MakeGrid(grid_SiversTMDPDF,11,numH_SiversTMDPDF)
+        end if
+    end if
+
+    if(include_grid_wgtTMDPDF) then
+        if(include_gluon_wgtTMDPDF) then
+            call MakeGrid(grid_wgtTMDPDF,16,numH_wgtTMDPDF)
+        else
+            call MakeGrid(grid_wgtTMDPDF,15,numH_wgtTMDPDF)
+        end if
+    end if
+
+    if(include_grid_BoerMuldersTMDPDF) then
+        if(include_gluon_BoerMuldersTMDPDF) then
+            call MakeGrid(grid_BoerMuldersTMDPDF,20,numH_BoerMuldersTMDPDF)
+        else
+            call MakeGrid(grid_BoerMuldersTMDPDF,19,numH_BoerMuldersTMDPDF)
+        end if
+    end if
+end if
+end subroutine UpdateGrid
 
 end module TMDs_inKT
