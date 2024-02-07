@@ -189,8 +189,16 @@ subroutine wgtTMDPDF_OPE_Initialize(file,prefix)
         return
     end if
 
-    !----- ORDER
+    !----- GENERALS
     call MoveTO(51,'*A   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) withGluon
+    withGluonTW3=withGluon
+    call MoveTO(51,'*p2  ')
+    read(51,*) numberOfHadrons
+
+    !----- ORDER
+    call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
     read(51,*) order_global
 
@@ -216,14 +224,10 @@ subroutine wgtTMDPDF_OPE_Initialize(file,prefix)
     call MoveTO(51,'*p2  ')
     read(51,*) useGrid
     call MoveTO(51,'*p3  ')
-    read(51,*) withGluon
-    call MoveTO(51,'*p4  ')
-    read(51,*) numberOfHadrons
-    call MoveTO(51,'*p5  ')
     read(51,*) runTest
 
     !!!!! ---- parameters of numerical evaluation
-    call MoveTO(51,'*C   ')
+    call MoveTO(51,'*D   ')
     call MoveTO(51,'*p1  ')
     read(51,*) toleranceINT
     call MoveTO(51,'*p2  ')
@@ -237,7 +241,7 @@ subroutine wgtTMDPDF_OPE_Initialize(file,prefix)
         end if
 
     !-------------Parameters of grid
-    call MoveTO(51,'*D   ')
+    call MoveTO(51,'*E   ')
     call MoveTO(51,'*p1  ')
     read(51,*) xMin
     call MoveTO(51,'*p2  ')
@@ -260,7 +264,7 @@ subroutine wgtTMDPDF_OPE_Initialize(file,prefix)
     end if
 
     !-------------------tw3-part is place holder for a moment
-    call MoveTO(51,'*E   ')
+    call MoveTO(51,'*F   ')
     call MoveTO(51,'*p1  ')
     read(51,*) order_global
 
@@ -281,10 +285,6 @@ subroutine wgtTMDPDF_OPE_Initialize(file,prefix)
     call MoveTO(51,'*p2  ')
     read(51,*) useGridTW3
     call MoveTO(51,'*p3  ')
-    read(51,*) withGluonTW3
-!     call MoveTO(51,'*p4  ')
-!     read(51,*) numberOfHadronsTW3
-    call MoveTO(51,'*p5  ')
     read(51,*) runTestTW3
 
     CLOSE (51, STATUS='KEEP')

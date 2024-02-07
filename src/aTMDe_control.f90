@@ -17,6 +17,7 @@ use uTMDPDF
 use lpTMDPDF
 use SiversTMDPDF
 use wgtTMDPDF
+use BoerMuldersTMDPDF
 use uTMDFF
 use TMDR
 use TMDs
@@ -42,17 +43,18 @@ integer::messageTrigger=5
 logical::isStarted=.false.
 !!!! indicators of modules usage  
 logical::include_EWinput,include_uTMDPDF,include_uTMDFF,include_TMDR,include_TMDs,include_TMDF
-logical::include_lpTMDPDF,include_SiversTMDPDF,include_wgtTMDPDF
+logical::include_lpTMDPDF,include_SiversTMDPDF,include_wgtTMDPDF,include_BoerMuldersTMDPDF
 logical::include_TMDX_DY,include_TMDX_SIDIS,include_TMDs_inKT
 logical::include_TMDF_KPC
 
 !!!! legths of non-perturbative arrays
 integer::NPlength_total
-integer::NPlength_TMDR,NPlength_uTMDPDF,NPlength_uTMDFF,NPlength_lpTMDPDF,NPlength_SiversTMDPDF,NPlength_wgtTMDPDF
+integer::NPlength_TMDR,NPlength_uTMDPDF,NPlength_uTMDFF,NPlength_lpTMDPDF,&
+    NPlength_SiversTMDPDF,NPlength_wgtTMDPDF,NPlength_BoerMuldersTMDPDF
 
 !!!! non-pertrubative parameters for individual modules
 real(dp),allocatable::lambdaNP_TMDR(:),lambdaNP_uTMDPDF(:),lambdaNP_uTMDFF(:),lambdaNP_lpTMDPDF(:),&
-            lambdaNP_SiversTMDPDF(:),lambdaNP_wgtTMDPDF(:)
+            lambdaNP_SiversTMDPDF(:),lambdaNP_wgtTMDPDF(:),lambdaNP_BoerMuldersTMDPDF(:)
 
 !!!! Saved values of scale-variation parameters
 real(dp)::c1_saved,c2_saved,c3_saved,c4_saved
@@ -60,6 +62,7 @@ real(dp)::c1_saved,c2_saved,c3_saved,c4_saved
 public::artemide_Initialize
 public::artemide_SetNPparameters,artemide_SetNPparameters_TMDR,artemide_SetNPparameters_uTMDFF,artemide_SetNPparameters_uTMDPDF
 public::artemide_SetNPparameters_lpTMDPDF,artemide_SetNPparameters_SiversTMDPDF,artemide_SetNPparameters_wgtTMDPDF
+public::artemide_SetNPparameters_BoerMuldersTMDPDF
 public::artemide_SetScaleVariations
 public::artemide_ShowStatistics
 public::artemide_GetReplicaFromFile,artemide_NumOfReplicasInFile
@@ -139,7 +142,7 @@ subroutine artemide_Initialize(file,prefix,order)
     call MoveTO(51,'*p1  ')
     read(51,*) include_uTMDPDF
     if(include_uTMDPDF) then
-        call MoveTO(51,'*B   ')
+        call MoveTO(51,'*C   ')
         call MoveTO(51,'*p1  ')
         read(51,*) NPlength_uTMDPDF
         allocate(lambdaNP_uTMDPDF(1:NPlength_uTMDPDF))
@@ -151,7 +154,7 @@ subroutine artemide_Initialize(file,prefix,order)
     call MoveTO(51,'*p1  ')
     read(51,*) include_uTMDFF
     if(include_uTMDFF) then
-        call MoveTO(51,'*B   ')
+        call MoveTO(51,'*C   ')
         call MoveTO(51,'*p1  ')
         read(51,*) NPlength_uTMDFF
         allocate(lambdaNP_uTMDFF(1:NPlength_uTMDFF))
@@ -183,7 +186,7 @@ subroutine artemide_Initialize(file,prefix,order)
     call MoveTO(51,'*p1  ')
     read(51,*) include_lpTMDPDF
     if(include_lpTMDPDF) then
-        call MoveTO(51,'*B   ')
+        call MoveTO(51,'*C   ')
         call MoveTO(51,'*p1  ')
         read(51,*) NPlength_lpTMDPDF
         allocate(lambdaNP_lpTMDPDF(1:NPlength_lpTMDPDF))
@@ -195,7 +198,7 @@ subroutine artemide_Initialize(file,prefix,order)
     call MoveTO(51,'*p1  ')
     read(51,*) include_SiversTMDPDF
         if(include_SiversTMDPDF) then
-        call MoveTO(51,'*B   ')
+        call MoveTO(51,'*C   ')
         call MoveTO(51,'*p1  ')
         read(51,*) NPlength_SiversTMDPDF
         allocate(lambdaNP_SiversTMDPDF(1:NPlength_SiversTMDPDF))
@@ -216,6 +219,18 @@ subroutine artemide_Initialize(file,prefix,order)
     end if
 
     call MoveTO(51,'*14   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_BoerMuldersTMDPDF
+        if(include_BoerMuldersTMDPDF) then
+        call MoveTO(51,'*C   ')
+        call MoveTO(51,'*p1  ')
+        read(51,*) NPlength_BoerMuldersTMDPDF
+        allocate(lambdaNP_BoerMuldersTMDPDF(1:NPlength_BoerMuldersTMDPDF))
+    else
+        NPlength_BoerMuldersTMDPDF=0
+    end if
+
+    call MoveTO(51,'*15   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_TMDF_KPC
 
@@ -274,6 +289,14 @@ subroutine artemide_Initialize(file,prefix,order)
             call wgtTMDPDF_Initialize(constNAME,prefix)
         else
             call wgtTMDPDF_Initialize(constNAME)
+        end if
+    end if
+
+    if(include_BoerMuldersTMDPDF) then
+        if(present(prefix)) then
+            call BoerMuldersTMDPDF_Initialize(constNAME,prefix)
+        else
+            call BoerMuldersTMDPDF_Initialize(constNAME)
         end if
     end if
 
@@ -342,6 +365,7 @@ subroutine artemide_Initialize(file,prefix,order)
     if(include_lpTMDPDF) NPlength_total=NPlength_total+NPlength_lpTMDPDF
     if(include_SiversTMDPDF) NPlength_total=NPlength_total+NPlength_SiversTMDPDF
     if(include_wgtTMDPDF) NPlength_total=NPlength_total+NPlength_wgtTMDPDF
+    if(include_BoerMuldersTMDPDF) NPlength_total=NPlength_total+NPlength_BoerMuldersTMDPDF
 
     if(outputLevel>2) write(*,*) ' artemide.control: Total number of NP parameters:',NPlength_total
 
@@ -408,6 +432,10 @@ subroutine artemide_SetNPparameters(lambdaNP)
         lambdaNP_wgtTMDPDF=lambda_cur(num+1:num+NPlength_wgtTMDPDF)
         num=num+NPlength_wgtTMDPDF
     end if
+    if(include_BoerMuldersTMDPDF) then
+        lambdaNP_BoerMuldersTMDPDF=lambda_cur(num+1:num+NPlength_BoerMuldersTMDPDF)
+        num=num+NPlength_BoerMuldersTMDPDF
+    end if
 
     !!! sending NP arrays to packages
     if(include_TMDR) call TMDR_setNPparameters(lambdaNP_TMDR)
@@ -416,6 +444,7 @@ subroutine artemide_SetNPparameters(lambdaNP)
     if(include_lpTMDPDF) call lpTMDPDF_SetLambdaNP(lambdaNP_lpTMDPDF)
     if(include_SiversTMDPDF) call SiversTMDPDF_SetLambdaNP(lambdaNP_SiversTMDPDF)
     if(include_wgtTMDPDF) call wgtTMDPDF_SetLambdaNP(lambdaNP_wgtTMDPDF)
+    if(include_BoerMuldersTMDPDF) call BoerMuldersTMDPDF_SetLambdaNP(lambdaNP_BoerMuldersTMDPDF)
 
     !!! reseting other packages
     if(include_TMDF) call TMDF_ResetCounters()
@@ -683,7 +712,50 @@ subroutine artemide_SetNPparameters_wgtTMDPDF(lambdaNP)
     if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
 
 end subroutine artemide_SetNPparameters_wgtTMDPDF
- 
+
+subroutine artemide_SetNPparameters_BoerMuldersTMDPDF(lambdaNP)
+    real(dp),intent(in)::lambdaNP(:)
+    integer::ll
+
+    if(.not.include_BoerMuldersTMDPDF) then
+        if(outputLevel>0) &
+            write(*,*) ErrorString(&
+        'attempt to set NP-parameters for BoerMuldersTMDPDF, while BoerMuldersTMDPDF module is not included in the current setup',&
+            moduleName)
+        if(outputLevel>0) write(*,*) color('NOTHING IS DONE',c_red)
+        return
+    end if
+
+    ll=size(lambdaNP)
+
+
+    if(ll<NPlength_BoerMuldersTMDPDF) then
+        if(outputLevel>0) write(*,"(A,I4,A,I4,A)")&
+            color('artemide.SetNPparameters-BoerMuldersTMDPDF: ERROR: the length of NP parameters array (',c_red),ll,&
+            color(') is smaller then the total number of NP parameters for BoerMuldersTMDPDF (',c_red),NPlength_BoerMuldersTMDPDF,&
+            color(')',c_red)
+        if(outputLevel>0) write(*,*) color('NOTHING IS DONE',c_red)
+        return
+    end if
+
+    if(ll>NPlength_BoerMuldersTMDPDF) then
+        if(outputLevel>0) write(*,"(A,I4,A,I4,A)")&
+            color('artemide.SetNPparameters: ERROR: the length of NP parameters array (',c_red),ll,&
+            color(') is larger then total the number of NP parameters for BoerMuldersTMDPDF (',c_red),NPlength_BoerMuldersTMDPDF,&
+            color(')',c_red)
+        if(outputLevel>0) write(*,*) color('The array is trucated',c_red)
+    end if
+
+    lambdaNP_BoerMuldersTMDPDF=lambdaNP(1:NPlength_BoerMuldersTMDPDF)
+
+    call BoerMuldersTMDPDF_SetLambdaNP(lambdaNP_BoerMuldersTMDPDF)
+
+    !!! reseting other packages
+    if(include_TMDF) call TMDF_ResetCounters()
+    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
+    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
+
+end subroutine artemide_SetNPparameters_BoerMuldersTMDPDF
   
 !------------------------------------------------------- Other routines ---------------------------------
 subroutine artemide_ShowStatistics()
@@ -732,6 +804,13 @@ subroutine artemide_ShowStatistics()
         end do
         write(*,*) ' '
     end if
+    if(include_BoerMuldersTMDPDF) then
+        write(*,"('--- BoerMuldersTMDPDF : ',I3,' parameters')") NPlength_BoerMuldersTMDPDF
+        do i=1,NPlength_BoerMuldersTMDPDF
+            write(*,"(F10.4,' ')",advance='no') lambdaNP_BoerMuldersTMDPDF(i)
+        end do
+        write(*,*) ' '
+    end if
     
     if(include_TMDF) call TMDF_ShowStatistic()
     if(include_TMDX_DY) call TMDX_DY_ShowStatistic()
@@ -751,6 +830,7 @@ subroutine artemide_SetScaleVariations(c1,c2,c3,c4)
     if(include_lpTMDPDF) call lpTMDPDF_SetScaleVariation(c4)
     if(include_SiversTMDPDF) call SiversTMDPDF_SetScaleVariation_tw3(c4)
     if(include_wgtTMDPDF) call wgtTMDPDF_SetScaleVariation(c4)
+    if(include_BoerMuldersTMDPDF) call BoerMuldersTMDPDF_SetScaleVariation_tw3(c4)
     if(include_TMDR) call TMDR_SetScaleVariation(c1)
     if(include_TMDX_DY) call TMDX_DY_SetScaleVariation(c2)
     if(include_TMDX_SIDIS) call TMDX_SIDIS_SetScaleVariation(c2)
@@ -808,6 +888,14 @@ function BaseNPString()
         BaseNPString(j)=1d0
         j=j+1
         do i=1,NPlength_wgtTMDPDF
+            BaseNPString(j)=0d0
+            j=j+1
+        end do
+    end if
+    if(include_BoerMuldersTMDPDF) then
+        BaseNPString(j)=1d0
+        j=j+1
+        do i=1,NPlength_BoerMuldersTMDPDF
             BaseNPString(j)=0d0
             j=j+1
         end do
@@ -904,6 +992,16 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_wgtTMDPDF) then
                 write(*,*) ERRORstring('number of NP parameters in replica-file does not match the wgtTMDPDF model',moduleName)
+                stop
+            end if
+        end if
+
+        if(ver>=30 .and. include_BoerMuldersTMDPDF) then
+            call MoveTO(51,'*12   ')
+            read(51,*) k1,k2
+            if(k2-k1+1/=NPlength_BoerMuldersTMDPDF) then
+                write(*,*) ERRORstring('number of NP parameters in replica-file does not match the BoerMuldersTMDPDF model',&
+                moduleName)
                 stop
             end if
         end if
