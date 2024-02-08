@@ -93,6 +93,7 @@ integer::uTMDFF_maxIteration
 real(dp)::uTMDFF_grid_xMin,uTMDFF_grid_parX
 real(dp)::uTMDFF_grid_bMin,uTMDFF_grid_bMax
 integer::uTMDFF_grid_SizeX,uTMDFF_grid_SizeB
+real(dp)::uTMDFF_hOGATA,uTMDFF_toleranceOGATA,uTMDFF_KT_FREEZE
 
 !-------------------- lpTMDPDF parameters
 logical::include_lpTMDPDF
@@ -107,6 +108,7 @@ integer::lpTMDPDF_maxIteration
 real(dp)::lpTMDPDF_grid_xMin,lpTMDPDF_grid_parX
 real(dp)::lpTMDPDF_grid_bMin,lpTMDPDF_grid_bMax
 integer::lpTMDPDF_grid_SizeX,lpTMDPDF_grid_SizeB
+real(dp)::lpTMDPDF_hOGATA,lpTMDPDF_toleranceOGATA,lpTMDPDF_KT_FREEZE
 
 !-------------------- SiversTMDPDF parameters
 logical::include_SiversTMDPDF
@@ -118,6 +120,7 @@ real(dp)::SiversTMDPDF_BMAX_ABS
 real(dp)::SiversTMDPDF_toleranceINT
 real(dp)::SiversTMDPDF_toleranceGEN
 integer::SiversTMDPDF_maxIteration
+real(dp)::SiversTMDPDF_hOGATA,SiversTMDPDF_toleranceOGATA,SiversTMDPDF_KT_FREEZE
 
 !-------------------- wgtTMDPDF parameters
 logical::include_wgtTMDPDF
@@ -134,6 +137,7 @@ integer::wgtTMDPDF_maxIteration
 real(dp)::wgtTMDPDF_grid_xMin,wgtTMDPDF_grid_parX
 real(dp)::wgtTMDPDF_grid_bMin,wgtTMDPDF_grid_bMax
 integer::wgtTMDPDF_grid_SizeX,wgtTMDPDF_grid_SizeB
+real(dp)::wgtTMDPDF_hOGATA,wgtTMDPDF_toleranceOGATA,wgtTMDPDF_KT_FREEZE
 
 !-------------------- BoerMuldersTMDPDF parameters
 logical::include_BoerMuldersTMDPDF
@@ -145,6 +149,7 @@ real(dp)::BoerMuldersTMDPDF_BMAX_ABS
 real(dp)::BoerMuldersTMDPDF_toleranceINT
 real(dp)::BoerMuldersTMDPDF_toleranceGEN
 integer::BoerMuldersTMDPDF_maxIteration
+real(dp)::BoerMuldersTMDPDF_hOGATA,BoerMuldersTMDPDF_toleranceOGATA,BoerMuldersTMDPDF_KT_FREEZE
 
 !-------------------- TMDs parameters
 logical::include_TMDs
@@ -354,9 +359,9 @@ subroutine SetupDefault(order)
     uTMDPDF_grid_bMax=25.d0
     uTMDPDF_grid_SizeX=400
     uTMDPDF_grid_SizeB=200
-    uTMDPDF_toleranceOGATA=1.d-4
-    uTMDPDF_hOGATA=1.d-3
-    uTMDPDF_KT_FREEZE=1.d-4
+    uTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
+    uTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
+    uTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
 
     !-------------------- parameters for UTMDFF
     include_uTMDFF=.false.!!! we do not initialize TMDFF by definition
@@ -376,6 +381,9 @@ subroutine SetupDefault(order)
     uTMDFF_grid_bMax=25.d0
     uTMDFF_grid_SizeX=200
     uTMDFF_grid_SizeB=200
+    uTMDFF_toleranceOGATA=1.d-4    !!! OGATA tolerance
+    uTMDFF_hOGATA=1.d-3            !!! OGATA integration step
+    uTMDFF_KT_FREEZE=1.d-4         !!! min value of kT
 
     !-------------------- parameters for lpTMDPDF
     include_lpTMDPDF=.false.!!! we do not initialize TMDFF by definition
@@ -395,6 +403,9 @@ subroutine SetupDefault(order)
     lpTMDPDF_grid_bMax=25.d0
     lpTMDPDF_grid_SizeX=400
     lpTMDPDF_grid_SizeB=200
+    lpTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
+    lpTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
+    lpTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
 
     !-------------------- parameters for SiversTMDPDF
     include_SiversTMDPDF=.false. !!! we do not initialize SiversTMDPDF by definition
@@ -408,6 +419,9 @@ subroutine SetupDefault(order)
     SiversTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     SiversTMDPDF_toleranceGEN=1.d-6!general tolerance
     SiversTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
+    SiversTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
+    SiversTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
+    SiversTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
     
     !-------------------- parameters for wgtTMDPDF
     include_wgtTMDPDF=.false.
@@ -431,6 +445,9 @@ subroutine SetupDefault(order)
     wgtTMDPDF_makeGrid_tw3=.false.
     wgtTMDPDF_withGluon_tw3=.false. !!! this is true by default
     wgtTMDPDF_runGridTest_tw3=.false.
+    wgtTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
+    wgtTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
+    wgtTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
     
     !-------------------- parameters for BoerMuldersTMDPDF
     include_BoerMuldersTMDPDF=.false. !!! we do not initialize BoerMuldersTMDPDF by definition
@@ -444,6 +461,9 @@ subroutine SetupDefault(order)
     BoerMuldersTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     BoerMuldersTMDPDF_toleranceGEN=1.d-6!general tolerance
     BoerMuldersTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
+    BoerMuldersTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
+    BoerMuldersTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
+    BoerMuldersTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
 
     !------------------ parameters for TMDs
     include_TMDs=.true.
@@ -875,6 +895,14 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) uTMDFF_grid_SizeX
     write(51,"('*p6  : Grid Size over B ')")
     write(51,*) uTMDFF_grid_SizeB
+    write(51,"(' ')")
+    write(51,"('*F   : ---- Transformation to KT-space ----')")
+    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
+    write(51,*) uTMDFF_toleranceOGATA
+    write(51,"('*p2  : Ogata quadrature integration step')")
+    write(51,*) uTMDFF_hOGATA
+    write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
+    write(51,*) uTMDFF_KT_FREEZE
 
 
     write(51,"(' ')")
@@ -1101,6 +1129,14 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) lpTMDPDF_grid_SizeX
     write(51,"('*p6  : Grid Size over B ')")
     write(51,*) lpTMDPDF_grid_SizeB
+    write(51,"(' ')")
+    write(51,"('*F   : ---- Transformation to KT-space ----')")
+    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
+    write(51,*) lpTMDPDF_toleranceOGATA
+    write(51,"('*p2  : Ogata quadrature integration step')")
+    write(51,*) lpTMDPDF_hOGATA
+    write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
+    write(51,*) lpTMDPDF_KT_FREEZE
     
     write(51,"(' ')")
     write(51,"(' ')")
@@ -1138,6 +1174,16 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) SiversTMDPDF_toleranceGEN
     write(51,"('*p3  : Maximum number of iterations (for adaptive integration)')")
     write(51,*) SiversTMDPDF_maxIteration
+    write(51,"(' ')")
+    write(51,"('*E   : ---- (OPE) Parameters of grid ----')")
+    write(51,"(' ')")
+    write(51,"('*F   : ---- Transformation to KT-space ----')")
+    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
+    write(51,*) SiversTMDPDF_toleranceOGATA
+    write(51,"('*p2  : Ogata quadrature integration step')")
+    write(51,*) SiversTMDPDF_hOGATA
+    write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
+    write(51,*) SiversTMDPDF_KT_FREEZE
     
     write(51,"(' ')")
     write(51,"(' ')")
@@ -1197,6 +1243,16 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) wgtTMDPDF_makeGrid_tw3
     write(51,"('*p3  : run the test of the grid (takes some time)')")
     write(51,*) wgtTMDPDF_runGridTest_tw3
+    write(51,"(' ')")
+    write(51,"('*G   : ---- OPE[tw3] Parameters of grid ----')")
+    write(51,"(' ')")
+    write(51,"('*H   : ---- Transformation to KT-space ----')")
+    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
+    write(51,*) wgtTMDPDF_toleranceOGATA
+    write(51,"('*p2  : Ogata quadrature integration step')")
+    write(51,*) wgtTMDPDF_hOGATA
+    write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
+    write(51,*) wgtTMDPDF_KT_FREEZE
 
     write(51,"(' ')")
     write(51,"(' ')")
@@ -1234,6 +1290,16 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) BoerMuldersTMDPDF_toleranceGEN
     write(51,"('*p3  : Maximum number of iterations (for adaptive integration)')")
     write(51,*) BoerMuldersTMDPDF_maxIteration
+    write(51,"(' ')")
+    write(51,"('*E   : ---- (OPE) Parameters of grid ----')")
+    write(51,"(' ')")
+    write(51,"('*F   : ---- Transformation to KT-space ----')")
+    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
+    write(51,*) BoerMuldersTMDPDF_toleranceOGATA
+    write(51,"('*p2  : Ogata quadrature integration step')")
+    write(51,*) BoerMuldersTMDPDF_hOGATA
+    write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
+    write(51,*) BoerMuldersTMDPDF_KT_FREEZE
 
     write(51,"(' ')")
     write(51,"(' ')")

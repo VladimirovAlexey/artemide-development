@@ -45,9 +45,33 @@ real(dp)::toleranceGEN !!! tolerance general
 
 integer :: messageCounter
 
-!!! General parameters
+!!!------------------------------ General parameters----------------------------------------------
 logical::includeGluon=.false.   !! gluons included/non-included
 integer::numOfHadrons=1         !! total number of hadrons to compute
+
+!!!------------------------------ Parameters of transform to KT-space -------------------------------------------
+
+integer,parameter::TMDtypeN=1 !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD)
+real(dp)::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value
+
+!----Ogata Tables---
+integer,parameter::Nmax=1000
+INCLUDE 'Tables/BesselZero1000.f90'
+
+logical:: convergenceLost=.false.
+
+!!!!! I split the qT over runs qT<qTSegmentationBoundary
+!!!!! In each segment I have the ogata quadrature with h=hOGATA*hSegmentationWeight
+!!!!! It helps to convergen integrals, since h(optimal) ~ qT
+integer,parameter::hSegmentationNumber=7
+real(dp),dimension(1:hSegmentationNumber),parameter::hSegmentationWeight=(/0.0001d0,0.001d0,0.01d0,1d0,2d0,5d0,10d0/)
+real(dp),dimension(1:hSegmentationNumber),parameter::qTSegmentationBoundary=(/0.001d0,0.01d0,0.1d0,10d0,50d0,100d0,200d0/)
+
+real(dp)::hOGATA,toleranceOGATA
+!!!weights of ogata quadrature
+real(dp),dimension(1:hSegmentationNumber,1:Nmax)::ww
+!!!nodes of ogata quadrature
+real(dp),dimension(1:hSegmentationNumber,1:Nmax)::bb
 
 !!-----------------------------------------------Public interface---------------------------------------------------
 
@@ -56,12 +80,19 @@ public::BoerMuldersTMDPDF_SetScaleVariation_tw3
 public::BoerMuldersTMDPDF_SetPDFreplica_tw3
 public::BoerMuldersTMDPDF_SetLambdaNP,BoerMuldersTMDPDF_CurrentLambdaNP
 public::BoerMuldersTMDPDF_lowScale5
+public::BoerMuldersTMDPDF_inB,BoerMuldersTMDPDF_inKT
 
 interface BoerMuldersTMDPDF_inB
     module procedure TMD_opt,TMD_ev
 end interface
 
+interface BoerMuldersTMDPDF_inKT
+    module procedure Fourier_opt,Fourier_ev
+end interface
+
 contains
+
+INCLUDE 'Code/KTspace/Fourier.f90'
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Interface subroutines!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -146,6 +177,15 @@ subroutine BoerMuldersTMDPDF_Initialize(file,prefix)
     call MoveTO(51,'*p2  ')
     read(51,*) toleranceGEN
 
+    !!!!! ---- parameters of KT-transformation
+    call MoveTO(51,'*F   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) toleranceOGATA
+    call MoveTO(51,'*p2  ')
+    read(51,*) hOGATA
+    call MoveTO(51,'*p3  ')
+    read(51,*) kT_FREEZE
+
     CLOSE (51, STATUS='KEEP') 
 
     if(outputLevel>2 .and. includeGluon) write(*,'(A)') ' ... gluons are included'
@@ -155,6 +195,8 @@ subroutine BoerMuldersTMDPDF_Initialize(file,prefix)
     if(outputLevel>2) write(*,'(A,F12.2)') ' Absolute maximum b      =',BMAX_ABS
 
     allocate(lambdaNP(1:lambdaNPlength))
+
+    call PrepareTables()
 
     if(.not.TMDR_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'

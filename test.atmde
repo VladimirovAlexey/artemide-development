@@ -264,6 +264,13 @@
 *p6  : Grid Size over B
          200
  
+ *F   : ---- Transformation to KT-space ----
+*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
+   1.0000000000000000E-004
+*p2  : Ogata quadrature integration step
+   1.0000000000000000E-003 
+*p3  : Minimum value of kT (below that value function is constant)
+   0.0001
  
 # ---------------------------------------------------------------------------
 # ----                            PARAMETERS OF TMDs                    -----
@@ -476,7 +483,14 @@
 *p6  : Grid Size over B
          200
  
- 
+ *F   : ---- Transformation to KT-space ----
+*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
+   1.0000000000000000E-004
+*p2  : Ogata quadrature integration step
+   1.0000000000000000E-003 
+*p3  : Minimum value of kT (below that value function is constant)
+   0.0001
+   
 # ---------------------------------------------------------------------------
 # ----                         PARAMETERS OF SiversTMDPDF               -----
 # ---------------------------------------------------------------------------
@@ -511,7 +525,16 @@
    9.9999999999999995E-007
 *p3  : Maximum number of iterations (for adaptive integration)
        10000
+
+*E   : ---- (OPE) Parameters of grid ----
  
+*F   : ---- Transformation to KT-space ----
+*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
+   1.0000000000000000E-004
+*p2  : Ogata quadrature integration step
+   1.0000000000000000E-003 
+*p3  : Minimum value of kT (below that value function is constant)
+   0.0001
  
 # ---------------------------------------------------------------------------
 # ----                         PARAMETERS OF wgtTMDPDF                  -----
@@ -570,6 +593,16 @@
 *p3  : run the test of the grid (takes some time)
            F
 
+*G   : ---- OPE[tw3] Parameters of grid ----
+ 
+*H   : ---- Transformation to KT-space ----
+*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
+   1.0000000000000000E-004
+*p2  : Ogata quadrature integration step
+   1.0000000000000000E-003 
+*p3  : Minimum value of kT (below that value function is constant)
+   0.0001
+
 # ---------------------------------------------------------------------------
 # ----                         PARAMETERS OF BoerMuldersTMDPDF          -----
 # ---------------------------------------------------------------------------
@@ -604,6 +637,16 @@
    9.9999999999999995E-007
 *p3  : Maximum number of iterations (for adaptive integration)
        10000
+       
+*E   : ---- (OPE) Parameters of grid ----
+ 
+*F   : ---- Transformation to KT-space ----
+*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
+   1.0000000000000000E-004
+*p2  : Ogata quadrature integration step
+   1.0000000000000000E-003 
+*p3  : Minimum value of kT (below that value function is constant)
+   0.0001
 
 # ---------------------------------------------------------------------------
 # ----                           PARAMETERS OF TMDF-KPC-DY              -----
