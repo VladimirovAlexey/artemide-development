@@ -57,7 +57,7 @@ public::uTMDFF_SetLambdaNP,uTMDFF_CurrentLambdaNP
 public::uTMDFF_lowScale5
 
 interface uTMDFF_inB
-    module procedure uTMDFF_opt,uTMDFF_ev
+    module procedure TMD_opt,TMD_ev
 end interface
 
 contains
@@ -157,6 +157,15 @@ subroutine uTMDFF_Initialize(file,prefix)
 
     allocate(lambdaNP(1:lambdaNPlength))
 
+    if(.not.TMDR_IsInitialized()) then
+        if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
+        if(present(prefix)) then
+            call TMDR_Initialize(file,prefix)
+        else
+            call TMDR_Initialize(file)
+        end if
+    end if
+
     if(.not.uTMDFF_OPE_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing uTMDFF_OPE (from ',moduleName,')'
         if(present(prefix)) then
@@ -254,22 +263,24 @@ function uTMDFF_lowScale5(x,bT,hadron)
 end function uTMDFF_lowScale5
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
 
+!!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
+
 !!!!!!! the function that actually returns the uTMDFF optimal value
-function uTMDFF_opt(x,bT,hadron)
-  real(dp),dimension(-5:5)::uTMDFF_opt
+function TMD_opt(x,bT,hadron)
+  real(dp),dimension(-5:5)::TMD_opt
   real(dp),intent(in) :: x, bT
   integer,intent(in)::hadron
 
   !!! test boundaries
     if(x>1d0) then
         call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
-        uTMDFF_opt=0._dp
+        TMD_opt=0._dp
         return
      else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
-        uTMDFF_opt=0._dp
+        TMD_opt=0._dp
         return
     else if(bT>BMAX_ABS) then
-        uTMDFF_opt=0._dp
+        TMD_opt=0._dp
         return
     else if(x<1d-12) then
         write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
@@ -279,15 +290,15 @@ function uTMDFF_opt(x,bT,hadron)
         stop
     end if
 
-    uTMDFF_opt=uTMDFF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
+    TMD_opt=uTMDFF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
 
-    if(hadron<0) uTMDFF_opt=uTMDFF_opt(5:-5:-1)
+    if(hadron<0) TMD_opt=TMD_opt(5:-5:-1)
 
-end function uTMDFF_opt
+end function TMD_opt
 !
 !!!!!!!! the function that actually returns the uTMDFF evolved to (mu,zeta) value
-function uTMDFF_Ev(x,bt,muf,zetaf,hadron)
-    real(dp)::uTMDFF_Ev(-5:5)
+function TMD_ev(x,bt,muf,zetaf,hadron)
+    real(dp)::TMD_ev(-5:5)
     real(dp),intent(in):: x,bt,muf,zetaf
     integer,intent(in)::hadron
     real(dp):: Rkernel,RkernelG
@@ -296,25 +307,25 @@ function uTMDFF_Ev(x,bt,muf,zetaf,hadron)
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
         RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
 
-        uTMDFF_Ev=uTMDFF_opt(x,bT,hadron)*&
+        TMD_ev=TMD_opt(x,bT,hadron)*&
             (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
 
     else
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
-        uTMDFF_Ev=Rkernel*uTMDFF_opt(x,bT,hadron)
+        TMD_ev=Rkernel*TMD_opt(x,bT,hadron)
     end if
 
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
-    uTMDFF_Ev(5)=0_dp
-    uTMDFF_Ev(-5)=0_dp
+    TMD_ev(5)=0_dp
+    TMD_ev(-5)=0_dp
     end if
     if(muf<mCHARM) then
-    uTMDFF_Ev(4)=0_dp
-    uTMDFF_Ev(-4)=0_dp
+    TMD_ev(4)=0_dp
+    TMD_ev(-4)=0_dp
     end if
 
-end function uTMDFF_Ev
+end function TMD_ev
 
 end module uTMDFF

@@ -75,6 +75,9 @@ $(SOURCEDIR)/Code/Twist2/Twist2-AS-term.f90
 Twist3Files=\
 $(SOURCEDIR)/Code/Twist3/placeHolder.f90
 
+KTspaceFiles=\
+$(SOURCEDIR)/Code/KTspace/Fourier.f90
+
 TMD_ADFiles=\
 $(SOURCEDIR)/Code/TMD_AD/AD_primary.f90 \
 $(SOURCEDIR)/Code/TMD_AD/AD_secondary.f90 \
@@ -246,7 +249,7 @@ $(OBJ)/uTMDPDF_OPE.o: $(SOURCEDIR)/uTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $(SOURCEDIR
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 	
-$(OBJ)/uTMDPDF.o: $(SOURCEDIR)/uTMDPDF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/uTMDPDF_model.f90 $(SOURCEDIR)/uTMDPDF_OPE.f90 $(Twist2Files) $(aTMDeUTILITY) $(uTMDPDFFiles)
+$(OBJ)/uTMDPDF.o: $(SOURCEDIR)/uTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/uTMDPDF_model.f90 $(SOURCEDIR)/uTMDPDF_OPE.f90 $(KTspaceFiles) $(aTMDeUTILITY) $(uTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/uTMDPDF.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -264,7 +267,7 @@ $(OBJ)/uTMDFF_OPE.o: $(SOURCEDIR)/uTMDFF_OPE.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 	
-$(OBJ)/uTMDFF.o: $(SOURCEDIR)/uTMDFF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/uTMDFF_model.f90 $(SOURCEDIR)/uTMDFF_OPE.f90 $(Twist2Files) $(aTMDeUTILITY) $(uTMDFFFiles)
+$(OBJ)/uTMDFF.o: $(SOURCEDIR)/uTMDFF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/uTMDFF_model.f90 $(SOURCEDIR)/uTMDFF_OPE.f90 $(KTspaceFiles) $(aTMDeUTILITY) $(uTMDFFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/uTMDFF.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -276,13 +279,13 @@ $(OBJ)/lpTMDPDF_model.o: $(SOURCEDIR)/Model/lpTMDPDF_model.f90 $(aTMDeUTILITY)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/lpTMDPDF_OPE.o: $(SOURCEDIR)/lpTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/lpTMDPDF_model.f90 $(Twist2Files) $(aTMDeUTILITY) $(uTMDPDFFiles)
+$(OBJ)/lpTMDPDF_OPE.o: $(SOURCEDIR)/lpTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/lpTMDPDF_model.f90 $(Twist2Files) $(aTMDeUTILITY) $(uTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/lpTMDPDF_OPE.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/lpTMDPDF.o: $(SOURCEDIR)/lpTMDPDF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/lpTMDPDF_model.f90 $(SOURCEDIR)/lpTMDPDF_OPE.f90 $(Twist2Files) $(aTMDeUTILITY) $(lpTMDPDFFiles)
+$(OBJ)/lpTMDPDF.o: $(SOURCEDIR)/lpTMDPDF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/lpTMDPDF_model.f90 $(SOURCEDIR)/lpTMDPDF_OPE.f90 $(KTspaceFiles) $(aTMDeUTILITY) $(lpTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/lpTMDPDF.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -300,7 +303,7 @@ $(OBJ)/SiversTMDPDF_OPE.o: $(SOURCEDIR)/SiversTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/SiversTMDPDF.o: $(SOURCEDIR)/SiversTMDPDF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/SiversTMDPDF_model.f90 $(SOURCEDIR)/SiversTMDPDF_OPE.f90 $(Twist3Files) $(aTMDeUTILITY) $(SiversTMDPDFFiles)
+$(OBJ)/SiversTMDPDF.o: $(SOURCEDIR)/SiversTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/SiversTMDPDF_model.f90 $(SOURCEDIR)/SiversTMDPDF_OPE.f90 $(KTspaceFiles) $(aTMDeUTILITY) $(SiversTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/SiversTMDPDF.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -312,13 +315,13 @@ $(OBJ)/wgtTMDPDF_model.o: $(SOURCEDIR)/Model/wgtTMDPDF_model.f90 $(aTMDeUTILITY)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/wgtTMDPDF_OPE.o: $(SOURCEDIR)/wgtTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/wgtTMDPDF_model.f90 $(Twist2Files) $(aTMDeUTILITY) $(uTMDPDFFiles)
+$(OBJ)/wgtTMDPDF_OPE.o: $(SOURCEDIR)/wgtTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/wgtTMDPDF_model.f90 $(Twist2Files) $(Twist3Files) $(aTMDeUTILITY) $(uTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/wgtTMDPDF_OPE.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/wgtTMDPDF.o: $(SOURCEDIR)/wgtTMDPDF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/wgtTMDPDF_model.f90 $(SOURCEDIR)/wgtTMDPDF_OPE.f90 $(Twist2Files) $(aTMDeUTILITY) $(wgtTMDPDFFiles)
+$(OBJ)/wgtTMDPDF.o: $(SOURCEDIR)/wgtTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/wgtTMDPDF_model.f90 $(SOURCEDIR)/wgtTMDPDF_OPE.f90 $(KTspaceFiles) $(aTMDeUTILITY) $(wgtTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/wgtTMDPDF.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -336,7 +339,7 @@ $(OBJ)/BoerMuldersTMDPDF_OPE.o: $(SOURCEDIR)/BoerMuldersTMDPDF_OPE.f90 $(OBJ)/QC
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/BoerMuldersTMDPDF.o: $(SOURCEDIR)/BoerMuldersTMDPDF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 $(SOURCEDIR)/BoerMuldersTMDPDF_OPE.f90 $(Twist3Files) $(aTMDeUTILITY) $(BoerMuldersTMDPDFFiles)
+$(OBJ)/BoerMuldersTMDPDF.o: $(SOURCEDIR)/BoerMuldersTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 $(SOURCEDIR)/BoerMuldersTMDPDF_OPE.f90 $(KTspaceFiles) $(aTMDeUTILITY) $(BoerMuldersTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/BoerMuldersTMDPDF.f90 -I$(MOD)
 	mv *.o $(OBJ)

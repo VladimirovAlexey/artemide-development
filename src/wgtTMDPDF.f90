@@ -60,7 +60,7 @@ public::wgtTMDPDF_SetLambdaNP,wgtTMDPDF_CurrentLambdaNP
 public::wgtTMDPDF_lowScale5
 
 interface wgtTMDPDF_inB
-    module procedure wgtTMDPDF_ev,wgtTMDPDF_opt
+    module procedure TMD_ev,TMD_opt
 end interface
 
 contains
@@ -156,6 +156,17 @@ subroutine wgtTMDPDF_Initialize(file,prefix)
     if(outputLevel>2) write(*,'(A,I3)') ' Number of hadrons to be considered =',numOfHadrons
     if(outputLevel>2) write(*,'(A,I3)') ' Number of NP parameters =',lambdaNPlength
     if(outputLevel>2) write(*,'(A,F12.2)') ' Absolute maximum b      =',BMAX_ABS
+
+    allocate(lambdaNP(1:lambdaNPlength))
+
+    if(.not.TMDR_IsInitialized()) then
+        if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
+        if(present(prefix)) then
+            call TMDR_Initialize(file,prefix)
+        else
+            call TMDR_Initialize(file)
+        end if
+    end if
 
     if(.not.wgtTMDPDF_OPE_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing wgtTMDPDF_OPE (from ',moduleName,')'
@@ -269,22 +280,24 @@ function wgtTMDPDF_lowScale5(x,bT,hadron)
 end function wgtTMDPDF_lowScale5
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
 
+!!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
+
 !!!!!!! the function that actually returns the wgtTMDPDF!
-function wgtTMDPDF_opt(x,bT,hadron)
-  real(dp),dimension(-5:5)::wgtTMDPDF_opt
+function TMD_opt(x,bT,hadron)
+  real(dp),dimension(-5:5)::TMD_opt
   real(dp),intent(in) :: x, bT
   integer,intent(in)::hadron
 
   !!! test boundaries
     if(x>1d0) then
         call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
-        wgtTMDPDF_opt=0._dp
+        TMD_opt=0._dp
         return
     else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
-        wgtTMDPDF_opt=0._dp
+        TMD_opt=0._dp
         return
     else if(bT>BMAX_ABS) then
-        wgtTMDPDF_opt=0._dp
+        TMD_opt=0._dp
         return
     else if(x<1d-12) then
         write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
@@ -294,16 +307,16 @@ function wgtTMDPDF_opt(x,bT,hadron)
         stop
     end if
 
-    wgtTMDPDF_opt=wgtTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)&
+    TMD_opt=wgtTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)&
         +wgtTMDPDF_OPE_tw3_convolution(x,bT,abs(hadron))*FNP_tw3(x,bT,abs(hadron),lambdaNP)
 
-    if(hadron<0) wgtTMDPDF_opt=wgtTMDPDF_opt(5:-5:-1)
+    if(hadron<0) TMD_opt=TMD_opt(5:-5:-1)
 
-end function wgtTMDPDF_opt
+end function TMD_opt
 
 !!!!!!!! the function that actually returns the wgtTMDPDF evolved to (mu,zeta) value
-function wgtTMDPDF_Ev(x,bt,muf,zetaf,hadron)
-    real(dp)::wgtTMDPDF_Ev(-5:5)
+function TMD_ev(x,bt,muf,zetaf,hadron)
+    real(dp)::TMD_ev(-5:5)
     real(dp),intent(in):: x,bt,muf,zetaf
     integer,intent(in)::hadron
     real(dp):: Rkernel,RkernelG
@@ -312,25 +325,25 @@ function wgtTMDPDF_Ev(x,bt,muf,zetaf,hadron)
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
         RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
 
-        wgtTMDPDF_Ev=wgtTMDPDF_opt(x,bT,hadron)*&
+        TMD_ev=TMD_opt(x,bT,hadron)*&
             (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
 
     else
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
-        wgtTMDPDF_Ev=Rkernel*wgtTMDPDF_opt(x,bT,hadron)
+        TMD_ev=Rkernel*TMD_opt(x,bT,hadron)
     end if
 
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
-    wgtTMDPDF_Ev(5)=0_dp
-    wgtTMDPDF_Ev(-5)=0_dp
+    TMD_ev(5)=0_dp
+    TMD_ev(-5)=0_dp
     end if
     if(muf<mCHARM) then
-    wgtTMDPDF_Ev(4)=0_dp
-    wgtTMDPDF_Ev(-4)=0_dp
+    TMD_ev(4)=0_dp
+    TMD_ev(-4)=0_dp
     end if
 
-end function wgtTMDPDF_Ev
+end function TMD_ev
 
 end module wgtTMDPDF

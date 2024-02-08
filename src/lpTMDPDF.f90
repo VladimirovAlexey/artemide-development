@@ -58,7 +58,7 @@ public::lpTMDPDF_SetLambdaNP,lpTMDPDF_CurrentLambdaNP
 public::lpTMDPDF_lowScale5
 
 interface lpTMDPDF_inB
-    module procedure lpTMDPDF_opt,lpTMDPDF_ev
+    module procedure TMD_opt,TMD_ev
 end interface
 
 
@@ -162,6 +162,14 @@ subroutine lpTMDPDF_Initialize(file,prefix)
 
     allocate(lambdaNP(1:lambdaNPlength))
 
+    if(.not.TMDR_IsInitialized()) then
+        if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
+        if(present(prefix)) then
+            call TMDR_Initialize(file,prefix)
+        else
+            call TMDR_Initialize(file)
+        end if
+    end if
 
     if(.not.lpTMDPDF_OPE_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing lpTMDPDF_OPE (from ',moduleName,')'
@@ -261,22 +269,24 @@ function lpTMDPDF_lowScale5(x,bT,hadron)
 end function lpTMDPDF_lowScale5
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
 
+!!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
+
 !!!!!!! the function that actually returns the lpTMDPDF optimal value
-function lpTMDPDF_opt(x,bT,hadron)
-  real(dp),dimension(-5:5)::lpTMDPDF_opt
+function TMD_opt(x,bT,hadron)
+  real(dp),dimension(-5:5)::TMD_opt
   real(dp),intent(in) :: x, bT
   integer,intent(in)::hadron
 
   !!! test boundaries
     if(x>1d0) then
         call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
-        lpTMDPDF_opt=0._dp
+        TMD_opt=0._dp
         return
      else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
-        lpTMDPDF_opt=0._dp
+        TMD_opt=0._dp
         return
     else if(bT>BMAX_ABS) then
-        lpTMDPDF_opt=0._dp
+        TMD_opt=0._dp
         return
     else if(x<1d-12) then
         write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
@@ -286,15 +296,15 @@ function lpTMDPDF_opt(x,bT,hadron)
         stop
     end if
 
-    lpTMDPDF_opt=lpTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
+    TMD_opt=lpTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
 
-    if(hadron<0) lpTMDPDF_opt=lpTMDPDF_opt(5:-5:-1)
+    if(hadron<0) TMD_opt=TMD_opt(5:-5:-1)
 
-end function lpTMDPDF_opt
+end function TMD_opt
 !
 !!!!!!!! the function that actually returns the lpTMDPDF evolved to (mu,zeta) value
-function lpTMDPDF_Ev(x,bt,muf,zetaf,hadron)
-    real(dp)::lpTMDPDF_Ev(-5:5)
+function TMD_ev(x,bt,muf,zetaf,hadron)
+    real(dp)::TMD_ev(-5:5)
     real(dp),intent(in):: x,bt,muf,zetaf
     integer,intent(in)::hadron
     real(dp):: RkernelG
@@ -302,22 +312,22 @@ function lpTMDPDF_Ev(x,bt,muf,zetaf,hadron)
     if(includeGluon) then
         RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
 
-        lpTMDPDF_Ev=RkernelG*lpTMDPDF_opt(x,bT,hadron)
+        TMD_ev=RkernelG*TMD_opt(x,bT,hadron)
 
     else
-        lpTMDPDF_Ev=0._dp
+        TMD_ev=0._dp
     end if
 
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
-    lpTMDPDF_Ev(5)=0_dp
-    lpTMDPDF_Ev(-5)=0_dp
+    TMD_ev(5)=0_dp
+    TMD_ev(-5)=0_dp
     end if
     if(muf<mCHARM) then
-    lpTMDPDF_Ev(4)=0_dp
-    lpTMDPDF_Ev(-4)=0_dp
+    TMD_ev(4)=0_dp
+    TMD_ev(-4)=0_dp
     end if
-end function lpTMDPDF_Ev
+end function TMD_ev
 
 end module lpTMDPDF

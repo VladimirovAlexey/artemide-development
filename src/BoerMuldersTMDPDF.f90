@@ -58,7 +58,7 @@ public::BoerMuldersTMDPDF_SetLambdaNP,BoerMuldersTMDPDF_CurrentLambdaNP
 public::BoerMuldersTMDPDF_lowScale5
 
 interface BoerMuldersTMDPDF_inB
-    module procedure BoerMuldersTMDPDF_opt,BoerMuldersTMDPDF_ev
+    module procedure TMD_opt,TMD_ev
 end interface
 
 contains
@@ -156,6 +156,14 @@ subroutine BoerMuldersTMDPDF_Initialize(file,prefix)
 
     allocate(lambdaNP(1:lambdaNPlength))
 
+    if(.not.TMDR_IsInitialized()) then
+        if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
+        if(present(prefix)) then
+            call TMDR_Initialize(file,prefix)
+        else
+            call TMDR_Initialize(file)
+        end if
+    end if
 
     if(.not.BoerMuldersTMDPDF_OPE_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing BoerMuldersTMDPDF_OPE (from ',moduleName,')'
@@ -255,22 +263,24 @@ function BoerMuldersTMDPDF_lowScale5(x,bT,hadron)
 end function BoerMuldersTMDPDF_lowScale5
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
 
+!!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
+
 !!!!!!! the function that actually returns the BoerMuldersTMDPDF!
-function BoerMuldersTMDPDF_opt(x,bT,hadron)
-  real(dp),dimension(-5:5)::BoerMuldersTMDPDF_opt
+function TMD_opt(x,bT,hadron)
+  real(dp),dimension(-5:5)::TMD_opt
   real(dp),intent(in) :: x, bT
   integer,intent(in)::hadron
 
   !!! test boundaries
     if(x>1d0) then
         call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
-        BoerMuldersTMDPDF_opt=0._dp
+        TMD_opt=0._dp
         return
     else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
-        BoerMuldersTMDPDF_opt=0._dp
+        TMD_opt=0._dp
         return
     else if(bT>BMAX_ABS) then
-        BoerMuldersTMDPDF_opt=0._dp
+        TMD_opt=0._dp
         return
     else if(x<1d-12) then
         write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
@@ -280,15 +290,15 @@ function BoerMuldersTMDPDF_opt(x,bT,hadron)
         stop
     end if
 
-    BoerMuldersTMDPDF_opt=BoerMuldersTMDPDF_OPE_tw3_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
+    TMD_opt=BoerMuldersTMDPDF_OPE_tw3_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
 
-    if(hadron<0) BoerMuldersTMDPDF_opt=BoerMuldersTMDPDF_opt(5:-5:-1)
+    if(hadron<0) TMD_opt=TMD_opt(5:-5:-1)
 
-end function BoerMuldersTMDPDF_opt
+end function TMD_opt
 
 !!!!!!!! the function that actually returns the BoerMuldersTMDPDF evolved to (mu,zeta) value
-function BoerMuldersTMDPDF_Ev(x,bt,muf,zetaf,hadron)
-    real(dp)::BoerMuldersTMDPDF_Ev(-5:5)
+function TMD_ev(x,bt,muf,zetaf,hadron)
+    real(dp)::TMD_ev(-5:5)
     real(dp),intent(in):: x,bt,muf,zetaf
     integer,intent(in)::hadron
     real(dp):: Rkernel,RkernelG
@@ -297,25 +307,25 @@ function BoerMuldersTMDPDF_Ev(x,bt,muf,zetaf,hadron)
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
         RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
 
-        BoerMuldersTMDPDF_Ev=BoerMuldersTMDPDF_opt(x,bT,hadron)*&
+        TMD_ev=TMD_opt(x,bT,hadron)*&
             (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
 
     else
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
-        BoerMuldersTMDPDF_Ev=Rkernel*BoerMuldersTMDPDF_opt(x,bT,hadron)
+        TMD_ev=Rkernel*TMD_opt(x,bT,hadron)
     end if
 
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
-    BoerMuldersTMDPDF_Ev(5)=0_dp
-    BoerMuldersTMDPDF_Ev(-5)=0_dp
+    TMD_ev(5)=0_dp
+    TMD_ev(-5)=0_dp
     end if
     if(muf<mCHARM) then
-    BoerMuldersTMDPDF_Ev(4)=0_dp
-    BoerMuldersTMDPDF_Ev(-4)=0_dp
+    TMD_ev(4)=0_dp
+    TMD_ev(-4)=0_dp
     end if
 
-end function BoerMuldersTMDPDF_Ev
+end function TMD_ev
 
 end module BoerMuldersTMDPDF

@@ -78,6 +78,7 @@ integer::uTMDPDF_maxIteration
 real(dp)::uTMDPDF_grid_xMin,uTMDPDF_grid_parX
 real(dp)::uTMDPDF_grid_bMin,uTMDPDF_grid_bMax
 integer::uTMDPDF_grid_SizeX,uTMDPDF_grid_SizeB
+real(dp)::uTMDPDF_hOGATA,uTMDPDF_toleranceOGATA,uTMDPDF_KT_FREEZE
 
 !-------------------- uTMDFF parameters
 logical::include_uTMDFF
@@ -353,6 +354,9 @@ subroutine SetupDefault(order)
     uTMDPDF_grid_bMax=25.d0
     uTMDPDF_grid_SizeX=400
     uTMDPDF_grid_SizeB=200
+    uTMDPDF_toleranceOGATA=1.d-4
+    uTMDPDF_hOGATA=1.d-3
+    uTMDPDF_KT_FREEZE=1.d-4
 
     !-------------------- parameters for UTMDFF
     include_uTMDFF=.false.!!! we do not initialize TMDFF by definition
@@ -812,6 +816,14 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) uTMDPDF_grid_SizeX
     write(51,"('*p6  : Grid Size over B ')")
     write(51,*) uTMDPDF_grid_SizeB
+    write(51,"(' ')")
+    write(51,"('*F   : ---- Transformation to KT-space ----')")
+    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
+    write(51,*) uTMDPDF_toleranceOGATA
+    write(51,"('*p2  : Ogata quadrature integration step')")
+    write(51,*) uTMDPDF_hOGATA
+    write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
+    write(51,*) uTMDPDF_KT_FREEZE
 
     write(51,"(' ')")
     write(51,"(' ')")
@@ -1541,6 +1553,13 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) uTMDPDF_grid_SizeX
     call MoveTO(51,'*p6  ')
     read(51,*) uTMDPDF_grid_SizeB
+    call MoveTO(51,'*F   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) uTMDPDF_toleranceOGATA
+    call MoveTO(51,'*p2  ')
+    read(51,*) uTMDPDF_hOGATA
+    call MoveTO(51,'*p3  ')
+    read(51,*) uTMDPDF_KT_FREEZE
 
     !# ----                           PARAMETERS OF uTMDFF                   -----
     call MoveTO(51,'*5   ')
