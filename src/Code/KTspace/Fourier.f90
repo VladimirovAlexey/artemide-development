@@ -47,8 +47,22 @@ subroutine PrepareTables()
     integer::i,j
     real(dp)::hS!=h*hSegmentationWeight
     real(dp)::xi
+    real(dp)::CommonPrefactor
 
     if(outputlevel>2) write(*,'(A,A)',advance="no") moduleName,": Preparing Ogata tables for kt-transformation ..."
+
+    !!!! common prefactor is M^{2n}/n! as it is defined for TMD distributions
+    SELECT CASE(TMDtypeN)
+        CASE(0)
+            CommonPrefactor=1._dp
+        CASE(1)
+            CommonPrefactor=TMDmass**2
+        CASE(2)
+            CommonPrefactor=TMDmass**4/2
+        CASE DEFAULT
+            write(*,*) ErrorString('Unknown type ot Momentum transformation for TMD',moduleName),TMDtypeN
+            stop
+    END SELECT
 
     do j=1,hSegmentationNumber
     do i=1,Nmax
@@ -62,13 +76,15 @@ subroutine PrepareTables()
     !!! if we too far away in xI*hS, the double exponential grow rapidly.
     !!! and for >6, it generates term 10^{300} and exceed the presision
 
+    !!! The CommonPrefactor is the part of TMD transformation definition
+
     if(xi*hS>6.d0) then
         bb(j,i)=xi*Tanh(piHalf*Sinh(xi*hS))
-        ww(j,i)=BESSEL_JN(TMDtypeN,bb(j,i))/xi/(BESSEL_JN(TMDtypeN+1,xi)**2)/pi
+        ww(j,i)=CommonPrefactor*BESSEL_JN(TMDtypeN,bb(j,i))/xi/(BESSEL_JN(TMDtypeN+1,xi)**2)/pi
 
     else
         bb(j,i)=xi*Tanh(piHalf*Sinh(xi*hS))
-        ww(j,i)=BESSEL_JN(TMDtypeN,bb(j,i))/xi/(BESSEL_JN(TMDtypeN+1,xi)**2)&
+        ww(j,i)=CommonPrefactor*BESSEL_JN(TMDtypeN,bb(j,i))/xi/(BESSEL_JN(TMDtypeN+1,xi)**2)&
         *(pi*xi*hS*Cosh(xi*hS)/(2d0*Cosh(piHalf*Sinh(xi*hS))**2)+Tanh(piHalf*Sinh(xi*hS)))/pi
     end if
 
@@ -83,7 +99,8 @@ end subroutine PrepareTables
 !------------------------------------------FOURIER--------------------------------
 !!!This is the defining module function
 !!! It evaluates the integral
-!!!  int_0^infty   b db/2pi  J_num(b qT) F1
+!!!  int_0^infty   b db/2pi  J_num(b qT) F1  (b/qT)^num M^{2num}/num!
+!!! the prefactor M^{2num}/num! is included into the weights of Ogata ww
 function Fourier_ev(x,qT_in,mu,zeta,hadron)
     real(dp),intent(in)::x,mu,zeta,qT_in
     integer,intent(in)::hadron
@@ -154,10 +171,14 @@ function Fourier_ev(x,qT_in,mu,zeta,hadron)
             end if
     end if
     !!! result is scaled by qT [because the argument of Bessel was scaled bqT-> B]
-    Fourier_ev=integral/(qT**(TMDtypeN+2))
+    !!! the extra factor 1/k^n appears due to the defenition of Fourier-trnaform for TMD-n
+    Fourier_ev=integral/(qT**(2*TMDtypeN+2))
 
 end function Fourier_ev
 
+!!! It evaluates the integral
+!!!  int_0^infty   b db/2pi  J_num(b qT) F1  (b/qT)^num M^{2num}/num!
+!!! the prefactor M^{2num}/num! is included into the weights of Ogata ww
 function Fourier_opt(x,qT_in,hadron)
     real(dp),intent(in)::x,qT_in
     integer,intent(in)::hadron
@@ -228,6 +249,7 @@ function Fourier_opt(x,qT_in,hadron)
             end if
     end if
     !!! result is scaled by qT [because the argument of Bessel was scaled bqT-> B]
-    Fourier_opt=integral/(qT**(TMDtypeN+2))
+    !!! the extra factor 1/k^n appears due to the defenition of Fourier-trnaform for TMD-n
+    Fourier_opt=integral/(qT**(2*TMDtypeN+2))
 
 end function Fourier_opt

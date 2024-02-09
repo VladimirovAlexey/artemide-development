@@ -50,6 +50,7 @@ integer :: messageCounter
 !!!------------------------------ General parameters----------------------------------------------
 logical::includeGluon=.true.    !! gluons included/non-included (TRUE for lp TMDPDF!)
 integer::numOfHadrons=1         !! total number of hadrons to compute
+real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
 
 !!!------------------------------ Parameters of transform to KT-space -------------------------------------------
 
@@ -138,6 +139,10 @@ subroutine lpTMDPDF_Initialize(file,prefix)
 
     call MoveTO(51,'*p3  ')
     read(51,*) messageTrigger
+
+    call MoveTO(51,'*B   ')
+    call MoveTO(51,'*p2  ')
+    read(51,*) TMDmass
 
     call MoveTO(51,'*11  ')
     call MoveTO(51,'*p1  ')

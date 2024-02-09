@@ -1413,7 +1413,7 @@ Here, $S$ is the smoothing parameter. It should be small enough to guaranty non-
 
 \newpage
 
-\section{Modules computing optimal TMD distributions}
+\section{Modules computing TMD distributions}
 
 There are many TMD distributions each computed in a separate module. All TMD distributions are split in the following classes:
 \begin{itemize}
@@ -1483,6 +1483,12 @@ The functions are computed by the following rule
 where $f$, $d$, $h$ are collinear distributions of twist-2, and $[C\times h]_{\text{tw2}}$ is corresponding convolution;
 $T$ and $E$ are collinear distributions of twist-3, and $[C\times T]_{\text{tw3}}$, $[C\times E]_{\text{tw3}}$ are corresponding convolution; $F_{\text{NP}}(x,b)$ and $F^{\text{tw3}}_{\text{NP}}(x,b)$ are non-perturbative functions to be fit. NP functions are defined in the \texttt{XX\_model} modules, and share the same $\lambda_{\text{NP}}$ (array of parameters). This structure correctly reproduces the small-b properties of TMD-distributions. The convolutions are computed in separate modules see sec.\ref{TMD_OPE}, \ref{TMD_OPE_tw3}.
 
+The modules computes the optimal TMDs, and also evolved TMDs. Generally a TMD distribution is given by the expression
+\begin{eqnarray}\label{TMD:F=RF}
+F_f(x,b;\mu,\zeta)=R_f[b,(\mu,\zeta)\to(\mu,\zeta_{\mu})]\tilde F_f(x,b),
+\end{eqnarray}
+where $R$ is the TMD evolution kernel, $\tilde F$ is an optimal TMD distribution. 
+
 \subsubsection{INI-parameters}
 
 \begin{center}
@@ -1492,44 +1498,49 @@ $T$ and $E$ are collinear distributions of twist-3, and $[C\times T]_{\text{tw3}
 \hline\hline
 Entry &~~Type~~& Description
 \\\hline
-A.p1 & str & Order of the coefficient function. Could be N/A, LO, NLO,.. (see table below for details)
-\\\hline
-A.p2 & T/F & Trigger to prepare the grid (T=prepare). Preparation is done on the initialization stage.
-\\\hline
-A.p3 & T/F & Trigger to include the gluon TMD into the grid (T=include). Doubles the computation time. If not included, gluon contribution is $0$.
-\\\hline
-A.p4 & int$>$0 & Number of hadrons/grid to prepare. This must coincide with 1.??.p1 (corresponding PDF number in \texttt{QCDinput}). The type of TMD is dictated by the collinear PDF and $f_{\text{NP}}$.
-\\\hline
-A.p5 & T/F & Trigger the test of the grid (T=run the test). Take the same time as computation of the grid (by a single processor). Requires A.p2=T. Example Result is shown in sec.\ref{sec:OPE:grid1}. 
 \\\hline\hline
-B.p1 & int & Number of NP parameters.
+A.p1 & T/F & Include gluon into the computation. Usually gluon is computed by a separate rule, and switching off this option leads to $\sim 2$ increase in the computation velocity.
 \\\hline
-B.p2 & real & $B_{\text{MAX-ABS}}$, a large number such that $b>B_{\text{MAX-ABS}}$ the TMD is returned 0. (default 100).
+A.p2 & in & Number of hadrons. Specify maximum required number of hadrons.
 \\\hline\hline
-C.p1 & real & Tolerance for integration (default =$10^{-6}$)
+B.p1 & str & Order of the coefficient function. Could be N/A, LO, NLO,.. (see table below for details)
 \\\hline
-C.p2 & real & Tolerance general (used for check of variable modifications, etc. Does not affect integration precision). (default =$10^{-6}$)
+B.p2 & T/F & Trigger to prepare the grid (T=prepare). Preparation is done on the initialization stage.
 \\\hline
-C.p3 & int & Maximum number of iteration for adaptive integration. (default =$10^{4}$)
+B.p3 & T/F & Trigger the test of the grid (T=run the test). Take the same time as computation of the grid (by a single processor). Requires A.p2=T. Example Result is shown in sec.\ref{sec:OPE:grid1}. 
 \\\hline\hline
-D.p1 & real & $x_{\text{min}}$ for the grid (see (\ref{OPE:x-grid}))
+C.p1 & int & Number of NP parameters.
 \\\hline
-D.p2 & real & $p_x$ for the grid (see (\ref{OPE:x-grid}))
+C.p2 & real & $B_{\text{MAX-ABS}}$, a large number such that $b>B_{\text{MAX-ABS}}$ the TMD is returned 0. (default 100).
+\\\hline\hline
+D.p1 & real & Tolerance for integration (default =$10^{-6}$)
 \\\hline
-D.p3 & real & $b_{\text{min}}$ for the grid (see (\ref{OPE:b-grid})). [It is not related to parameter $b_{\min}$ of $b^*$-prescription!]
+D.p2 & real & Tolerance general (used for check of variable modifications, etc. Does not affect integration precision). (default =$10^{-6}$)
 \\\hline
-D.p4 & real & $b_{\max}$ for the grid (see (\ref{OPE:b-grid})) [It is not related to parameter $b_{\max}$ of $b^*$-prescription!]
+D.p3 & int & Maximum number of iteration for adaptive integration. (default =$10^{4}$)
+\\\hline\hline
+E.p1 & real & $x_{\text{min}}$ for the grid (see (\ref{OPE:x-grid}))
 \\\hline
-D.p5 & integer & Number of nodes in the x-grid
+E.p2 & real & $p_x$ for the grid (see (\ref{OPE:x-grid}))
 \\\hline
-D.p6 & integer & Number of nodes in the b-grid
-\\
-\hline\hline
+E.p3 & real & $b_{\text{min}}$ for the grid (see (\ref{OPE:b-grid})). [It is not related to parameter $b_{\min}$ of $b^*$-prescription!]
+\\\hline
+E.p4 & real & $b_{\max}$ for the grid (see (\ref{OPE:b-grid})) [It is not related to parameter $b_{\max}$ of $b^*$-prescription!]
+\\\hline
+E.p5 & integer & Number of nodes in the x-grid
+\\\hline
+E.p6 & integer & Number of nodes in the b-grid
+\\\hline\hline
+F.p1 & real & Tolerance use in the Fourier integral to the $k_T$-space (default =$10^{4}$)
+\\\hline
+F.p2 & real & Step for the Ogata quadrature (default =$10^{-3}$)
+\\\hline
+F.p3 & real & Minimal $k_T$ to compute. Below this number distribution is frozen. (default =$10^{-4}$)
+\\\hline\hline
 \end{tabular}
 \end{center}
 \begin{itemize}
-\item \texttt{wgtTMDPDF} has extra section E, which has the same fields as the section A, but responsible for twist-3 convolution.
-\item For \texttt{SiversTMDPDF}, \texttt{BoerMuldersTMDPDF} the convolution is twist-3. The section C, is absence since it is not yet implemented.
+\item \texttt{wgtTMDPDF} has extra section F and G, which are analogous to sections B and C, but responsible for twist-3 convolution. The section F is correspondingly section H.
 \end{itemize}
 
 \subsubsection{Functions}
@@ -1551,7 +1562,15 @@ Entry &~~Type~~& Description
 \\\hline
 \texttt{XX\_CurrentLambdaNP()} & real(:) & Returns the current vector for $\lambda_{\text{NP}}$.
 \\\hline\hline
-\texttt{XX\_lowScale5(x,bT,h)} & real(-5:5) & Returns the value of TMD distributions for given (x,b) (reals) and hadron h. The value is the vector over flavors. For $h<0$ the quark-distributions are replaced by anti-quark distributions and vice versa. I.e. $F(-h)=F(h)(5:-5:-1)$
+\texttt{XX\_lowScale5(x,bT,h)} & real(-5:5) & \red{TO BE REMOVED} Returns the value of TMD distributions for given (x,b) (reals) and hadron h. The value is the vector over flavors. For $h<0$ the quark-distributions are replaced by anti-quark distributions and vice versa. I.e. $F(-h)=F(h)(5:-5:-1)$
+\\\hline\hline
+\texttt{XX\_inB(x,bT,h)} & real(-5:5) & Returns the value of \blue{optimal} TMD distributions for given (x,b) (reals) and hadron h. The value is the vector over flavors. For $h<0$ the quark-distributions are replaced by anti-quark distributions and vice versa. I.e. $F(-h)=F(h)(5:-5:-1)$
+\\\hline
+\texttt{XX\_inB(x,bT,mu,zeta,h)} & real(-5:5) & Returns the value of \blue{evolved} TMD distributions (see (\ref{TMD:F=RF})) for given (x,b,$\mu$,$\zeta$) (reals) and hadron h. The value is the vector over flavors. For $h<0$ the quark-distributions are replaced by anti-quark distributions and vice versa. I.e. $F(-h)=F(h)(5:-5:-1)$. $\mu$ is in GeV. $\zeta$ in GeV$^2$.
+\\\hline
+\texttt{XX\_inKT(x,kT,h)} & real(-5:5) & Returns the value of \blue{optimal} TMD distributions \blue{in momentum space} (see sec.\ref{sec:Fourier_to_kt}) for given (x,$k_T$) (reals) and hadron h. The value is the vector over flavors. For $h<0$ the quark-distributions are replaced by anti-quark distributions and vice versa. I.e. $F(-h)=F(h)(5:-5:-1)$
+\\\hline
+\texttt{XX\_inKT(x,bT,mu,zeta,h)} & real(-5:5) & Returns the value of \blue{evolved} TMD distributions (see (\ref{TMD:F=RF})) \blue{in momentum space} (see sec.\ref{sec:Fourier_to_kt}) for given (x,$k_T$,$\mu$,$\zeta$) (reals) and hadron h. The value is the vector over flavors. For $h<0$ the quark-distributions are replaced by anti-quark distributions and vice versa. I.e. $F(-h)=F(h)(5:-5:-1)$. $\mu$ is in GeV. $\zeta$ in GeV$^2$.
 \\\hline\hline
 \end{tabular}
 \end{center}
@@ -1994,6 +2013,35 @@ In both cases, the variables $x$ and $y$ are defined as in eqn.(\ref{OPE:tw2:mai
 \label{sec:OPEtw3:grid1}
 
 \textbf{Not implemented yet}
+
+\subsection{Fourier to $k_T$ space}
+\label{sec:Fourier_to_kt}
+
+We define
+\begin{eqnarray}
+F(x,\vec k_T;\mu,\zeta)=\int \frac{d^2\vec b}{(2\pi)^2}F(x,\vec b;\mu,\zeta)e^{-i(\vec k_T \vec b)}.
+\end{eqnarray}
+Since all evaluated TMDs depends only on the modulus of $\vec b$, within the module we evaluate Hankel transformations. These transformations depends on the kind of TMD. Generally the integrals are
+\begin{eqnarray}\label{kT-J0}
+F(x,|\vec k_T|;\mu,\zeta)=\frac{M^{2n}}{n!}\int \frac{|b|d|\vec b|}{2\pi} \(\frac{|\vec  b|}{|k_T|}\)^{n} J_n(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta),
+\end{eqnarray}
+where the parameter $M$ is the mass-scale (defined globally for all modules). The value of $n$ dependents on the type of the TMD distributions. Particularly, there are
+\begin{itemize}
+\item For \texttt{uTMDPDF}, \texttt{uTMDFF}
+$$
+n=0,\qquad F(x,|\vec k_T|;\mu,\zeta)=\int \frac{d|\vec b|}{2\pi}|\vec  b| J_0(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta),
+$$
+
+\item For \texttt{SiversTMDPDF}, \texttt{BoerMuldersTMDPDF}, \texttt{wgtTMDPDF}
+$$
+n=1,\qquad F(x,|\vec k_T|;\mu,\zeta)=\frac{M^2}{k_T}\int \frac{d|\vec b|}{2\pi}|\vec  b|^2 J_1(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta),
+$$
+
+\item For \texttt{lpTMDPDF}
+$$
+n=2,\qquad F(x,|\vec k_T|;\mu,\zeta)=\frac{M^4}{2k_T^2}\int \frac{d|\vec b|}{2\pi}|\vec  b|^3 J_2(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta),
+$$
+\end{itemize}
 
 \renewcommand{\arraystretch}{1.5}
 \newpage
