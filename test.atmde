@@ -214,6 +214,14 @@
    1.0000000000000000E-003 
 *p3  : Minimum value of kT (below that value function is constant)
    0.0001
+   
+*G   : ---- Computation of Transverse Momentum Moments (TMM) ----
+*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
+   1.0000000000000000E-004
+*p2  : Ogata quadrature integration step
+   1.0000000000000000E-003 
+*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)
+   0.8
  
 # ---------------------------------------------------------------------------
 # ----                           PARAMETERS OF uTMDFF                   -----
@@ -264,13 +272,21 @@
 *p6  : Grid Size over B
          200
  
- *F   : ---- Transformation to KT-space ----
+*F   : ---- Transformation to KT-space ----
 *p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
    1.0000000000000000E-004
 *p2  : Ogata quadrature integration step
    1.0000000000000000E-003 
 *p3  : Minimum value of kT (below that value function is constant)
    0.0001
+   
+*G   : ---- Computation of Transverse Momentum Moments (TMM) ----
+*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
+   1.0000000000000000E-004
+*p2  : Ogata quadrature integration step
+   1.0000000000000000E-003 
+*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)
+   0.8
  
 # ---------------------------------------------------------------------------
 # ----                            PARAMETERS OF TMDs                    -----
@@ -483,13 +499,21 @@
 *p6  : Grid Size over B
          200
  
- *F   : ---- Transformation to KT-space ----
+*F   : ---- Transformation to KT-space ----
 *p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
    1.0000000000000000E-004
 *p2  : Ogata quadrature integration step
    1.0000000000000000E-003 
 *p3  : Minimum value of kT (below that value function is constant)
-   0.0001
+   0.0001   
+   
+*G   : ---- Computation of Transverse Momentum Moments (TMM) ----
+*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
+   1.0000000000000000E-004
+*p2  : Ogata quadrature integration step
+   1.0000000000000000E-003 
+*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)
+   0.8
    
 # ---------------------------------------------------------------------------
 # ----                         PARAMETERS OF SiversTMDPDF               -----
@@ -534,7 +558,15 @@
 *p2  : Ogata quadrature integration step
    1.0000000000000000E-003 
 *p3  : Minimum value of kT (below that value function is constant)
-   0.0001
+   0.0001   
+
+*G   : ---- Computation of Transverse Momentum Moments (TMM) ----
+*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
+   1.0000000000000000E-004
+*p2  : Ogata quadrature integration step
+   1.0000000000000000E-003 
+*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)
+   0.8
  
 # ---------------------------------------------------------------------------
 # ----                         PARAMETERS OF wgtTMDPDF                  -----
@@ -601,7 +633,15 @@
 *p2  : Ogata quadrature integration step
    1.0000000000000000E-003 
 *p3  : Minimum value of kT (below that value function is constant)
-   0.0001
+   0.0001   
+
+*I   : ---- Computation of Transverse Momentum Moments (TMM) ----
+*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
+   1.0000000000000000E-004
+*p2  : Ogata quadrature integration step
+   1.0000000000000000E-003 
+*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)
+   0.8
 
 # ---------------------------------------------------------------------------
 # ----                         PARAMETERS OF BoerMuldersTMDPDF          -----
@@ -647,6 +687,14 @@
    1.0000000000000000E-003 
 *p3  : Minimum value of kT (below that value function is constant)
    0.0001
+   
+*G   : ---- Computation of Transverse Momentum Moments (TMM) ----
+*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
+   1.0000000000000000E-004
+*p2  : Ogata quadrature integration step
+   1.0000000000000000E-003 
+*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)
+   0.8
 
 # ---------------------------------------------------------------------------
 # ----                           PARAMETERS OF TMDF-KPC-DY              -----

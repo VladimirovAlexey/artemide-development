@@ -76,7 +76,8 @@ Twist3Files=\
 $(SOURCEDIR)/Code/Twist3/placeHolder.f90
 
 KTspaceFiles=\
-$(SOURCEDIR)/Code/KTspace/Fourier.f90
+$(SOURCEDIR)/Code/KTspace/Fourier.f90\
+$(SOURCEDIR)/Code/KTspace/Moment.f90
 
 TMD_ADFiles=\
 $(SOURCEDIR)/Code/TMD_AD/AD_primary.f90 \

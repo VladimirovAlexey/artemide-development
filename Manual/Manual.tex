@@ -1571,6 +1571,10 @@ Entry &~~Type~~& Description
 \texttt{XX\_inKT(x,kT,h)} & real(-5:5) & Returns the value of \blue{optimal} TMD distributions \blue{in momentum space} (see sec.\ref{sec:Fourier_to_kt}) for given (x,$k_T$) (reals) and hadron h. The value is the vector over flavors. For $h<0$ the quark-distributions are replaced by anti-quark distributions and vice versa. I.e. $F(-h)=F(h)(5:-5:-1)$
 \\\hline
 \texttt{XX\_inKT(x,bT,mu,zeta,h)} & real(-5:5) & Returns the value of \blue{evolved} TMD distributions (see (\ref{TMD:F=RF})) \blue{in momentum space} (see sec.\ref{sec:Fourier_to_kt}) for given (x,$k_T$,$\mu$,$\zeta$) (reals) and hadron h. The value is the vector over flavors. For $h<0$ the quark-distributions are replaced by anti-quark distributions and vice versa. I.e. $F(-h)=F(h)(5:-5:-1)$. $\mu$ is in GeV. $\zeta$ in GeV$^2$.
+\\\hline
+\texttt{XX\_TMM\_G(x,mu,h)} & real(-5:5) & Returns the value of TMM $\mathcal{G}_{n,n}$ (see sec.\ref{sec:TMM}) for given (x,$\mu$) (reals) and hadron h. The value is the vector over flavors. For $h<0$ the quark-distributions are replaced by anti-quark distributions and vice versa.
+\\\hline
+\texttt{XX\_TMM\_X(x,mu,h)} & real(-5:5) & Returns the value of TMM $\mathcal{G}_{n+1,n}$ (see sec.\ref{sec:TMM}) for given (x,$\mu$) (reals) and hadron h. The value is the vector over flavors. For $h<0$ the quark-distributions are replaced by anti-quark distributions and vice versa.
 \\\hline\hline
 \end{tabular}
 \end{center}
@@ -2042,6 +2046,20 @@ $$
 n=2,\qquad F(x,|\vec k_T|;\mu,\zeta)=\frac{M^4}{2k_T^2}\int \frac{d|\vec b|}{2\pi}|\vec  b|^3 J_2(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta),
 $$
 \end{itemize}
+
+\subsection{TMMD}
+\label{sec:TMM}
+
+In ref.[2402.01836] the following TMMs are defined
+\begin{eqnarray}
+\mathcal{G}_{n,n}[F]=\mathcal{G}[F]&=&\frac{1}{n!}\int_0^\infty db \mu \(\frac{\mu b}{2}\)^n J_{n+1}(\mu b)F(x,b)
+\\
+\mathcal{G}_{n+1,n}[F]=\mathcal{X}[F]&=&\frac{1}{2M^2n!}\int_0^\infty db \mu^3 \(\frac{\mu b}{2}\)^n \frac{(n+1)J_{n+1}(\mu b)-J_{n+3}(\mu b)}{n+2}F(x,b)
+\\\nn
+&=&
+\frac{1}{2M^2n!}\int_0^\infty db \mu^3 \(\frac{\mu b}{2}\)^n \(J_{n+1}(\mu b)-\frac{J_{n+2}(\mu b)}{(\mu b)}\)F(x,b)
+\end{eqnarray}
+The correspond to the cut-integral over TMD and particular TMMs. The value of n is defined by the type of TMD (see sec.\ref{sec:Fourier_to_kt}).
 
 \renewcommand{\arraystretch}{1.5}
 \newpage

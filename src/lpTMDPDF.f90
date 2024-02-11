@@ -76,12 +76,25 @@ real(dp),dimension(1:hSegmentationNumber,1:Nmax)::ww
 !!!nodes of ogata quadrature
 real(dp),dimension(1:hSegmentationNumber,1:Nmax)::bb
 
+!!!------------------------------ Parameters of transform to TMM -------------------------------------------
+
+real(dp)::muTMM_min=0.8_dp  !!!!! minimal mu
+
+!!!!! I split the qT over runs qT<qTSegmentationBoundary
+!!!!! For TMM this split is the same as for inKT
+
+real(dp)::hOGATA_TMM,toleranceOGATA_TMM
+!!!weights of ogata quadrature
+real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::ww_TMM
+!!!nodes of ogata quadrature
+real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::bb_TMM
+
 !!-----------------------------------------------Public interface---------------------------------------------------
 
 public::lpTMDPDF_Initialize,lpTMDPDF_IsInitialized,lpTMDPDF_SetScaleVariation,lpTMDPDF_SetPDFreplica
 public::lpTMDPDF_SetLambdaNP,lpTMDPDF_CurrentLambdaNP
 public::lpTMDPDF_lowScale5
-public::lpTMDPDF_inB,lpTMDPDF_inKT
+public::lpTMDPDF_inB,lpTMDPDF_inKT,lpTMDPDF_TMM_G,lpTMDPDF_TMM_X
 
 interface lpTMDPDF_inB
     module procedure TMD_opt,TMD_ev
@@ -94,6 +107,7 @@ end interface
 contains
 
 INCLUDE 'Code/KTspace/Fourier.f90'
+INCLUDE 'Code/KTspace/Moment.f90'
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Interface subroutines!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -192,6 +206,15 @@ subroutine lpTMDPDF_Initialize(file,prefix)
     read(51,*) hOGATA
     call MoveTO(51,'*p3  ')
     read(51,*) kT_FREEZE
+
+    !!!!! ---- parameters of TMM-transformation
+    call MoveTO(51,'*G   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) toleranceOGATA_TMM
+    call MoveTO(51,'*p2  ')
+    read(51,*) hOGATA_TMM
+    call MoveTO(51,'*p3  ')
+    read(51,*) muTMM_min
 
     CLOSE (51, STATUS='KEEP')
 
@@ -376,5 +399,45 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
     TMD_ev(-4)=0_dp
     end if
 end function TMD_ev
+
+!!!!!!!! TMM G_{n,n} at (x,mu)
+function lpTMDPDF_TMM_G(x,mu,hadron)
+    real(dp)::lpTMDPDF_TMM_G(-5:5)
+    real(dp),intent(in):: x,mu
+    integer,intent(in)::hadron
+
+    lpTMDPDF_TMM_G=Moment_G(x,mu,hadron)
+
+    !!! forcefully set =0 below threshold
+    if(mu<mBOTTOM) then
+    lpTMDPDF_TMM_G(5)=0_dp
+    lpTMDPDF_TMM_G(-5)=0_dp
+    end if
+    if(mu<mCHARM) then
+    lpTMDPDF_TMM_G(4)=0_dp
+    lpTMDPDF_TMM_G(-4)=0_dp
+    end if
+
+end function lpTMDPDF_TMM_G
+
+!!!!!!!! TMM G_{n+1,n} at (x,mu)
+function lpTMDPDF_TMM_X(x,mu,hadron)
+    real(dp)::lpTMDPDF_TMM_X(-5:5)
+    real(dp),intent(in):: x,mu
+    integer,intent(in)::hadron
+
+    lpTMDPDF_TMM_X=Moment_X(x,mu,hadron)
+
+    !!! forcefully set =0 below threshold
+    if(mu<mBOTTOM) then
+    lpTMDPDF_TMM_X(5)=0_dp
+    lpTMDPDF_TMM_X(-5)=0_dp
+    end if
+    if(mu<mCHARM) then
+    lpTMDPDF_TMM_X(4)=0_dp
+    lpTMDPDF_TMM_X(-4)=0_dp
+    end if
+
+end function lpTMDPDF_TMM_X
 
 end module lpTMDPDF

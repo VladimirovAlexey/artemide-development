@@ -61,8 +61,6 @@ real(dp)::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value
 integer,parameter::Nmax=1000
 INCLUDE 'Tables/BesselZero1000.f90'
 
-logical:: convergenceLost=.false.
-
 !!!!! I split the qT over runs qT<qTSegmentationBoundary
 !!!!! In each segment I have the ogata quadrature with h=hOGATA*hSegmentationWeight
 !!!!! It helps to convergen integrals, since h(optimal) ~ qT
@@ -76,12 +74,25 @@ real(dp),dimension(1:hSegmentationNumber,1:Nmax)::ww
 !!!nodes of ogata quadrature
 real(dp),dimension(1:hSegmentationNumber,1:Nmax)::bb
 
+!!!------------------------------ Parameters of transform to TMM -------------------------------------------
+
+real(dp)::muTMM_min=0.8_dp  !!!!! minimal mu
+
+!!!!! I split the qT over runs qT<qTSegmentationBoundary
+!!!!! For TMM this split is the same as for inKT
+
+real(dp)::hOGATA_TMM,toleranceOGATA_TMM
+!!!weights of ogata quadrature
+real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::ww_TMM
+!!!nodes of ogata quadrature
+real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::bb_TMM
+
 !!-----------------------------------------------Public interface---------------------------------------------------
 
 public::uTMDPDF_Initialize,uTMDPDF_IsInitialized,uTMDPDF_SetScaleVariation,uTMDPDF_SetPDFreplica
 public::uTMDPDF_SetLambdaNP,uTMDPDF_CurrentLambdaNP
 public::uTMDPDF_lowScale5
-public::uTMDPDF_inB,uTMDPDF_inKT
+public::uTMDPDF_inB,uTMDPDF_inKT,uTMDPDF_TMM_G,uTMDPDF_TMM_X
 
 interface uTMDPDF_inB
     module procedure TMD_opt,TMD_ev
@@ -94,6 +105,7 @@ end interface
 contains
 
 INCLUDE 'Code/KTspace/Fourier.f90'
+INCLUDE 'Code/KTspace/Moment.f90'
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Interface subroutines!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -191,6 +203,15 @@ subroutine uTMDPDF_Initialize(file,prefix)
     read(51,*) hOGATA
     call MoveTO(51,'*p3  ')
     read(51,*) kT_FREEZE
+
+    !!!!! ---- parameters of TMM-transformation
+    call MoveTO(51,'*G   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) toleranceOGATA_TMM
+    call MoveTO(51,'*p2  ')
+    read(51,*) hOGATA_TMM
+    call MoveTO(51,'*p3  ')
+    read(51,*) muTMM_min
 
     CLOSE (51, STATUS='KEEP') 
 
@@ -376,5 +397,45 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
     end if
 
 end function TMD_ev
+
+!!!!!!!! TMM G_{n,n} at (x,mu)
+function uTMDPDF_TMM_G(x,mu,hadron)
+    real(dp)::uTMDPDF_TMM_G(-5:5)
+    real(dp),intent(in):: x,mu
+    integer,intent(in)::hadron
+
+    uTMDPDF_TMM_G=Moment_G(x,mu,hadron)
+
+    !!! forcefully set =0 below threshold
+    if(mu<mBOTTOM) then
+    uTMDPDF_TMM_G(5)=0_dp
+    uTMDPDF_TMM_G(-5)=0_dp
+    end if
+    if(mu<mCHARM) then
+    uTMDPDF_TMM_G(4)=0_dp
+    uTMDPDF_TMM_G(-4)=0_dp
+    end if
+
+end function uTMDPDF_TMM_G
+
+!!!!!!!! TMM G_{n+1,n} at (x,mu)
+function uTMDPDF_TMM_X(x,mu,hadron)
+    real(dp)::uTMDPDF_TMM_X(-5:5)
+    real(dp),intent(in):: x,mu
+    integer,intent(in)::hadron
+
+    uTMDPDF_TMM_X=Moment_X(x,mu,hadron)
+
+    !!! forcefully set =0 below threshold
+    if(mu<mBOTTOM) then
+    uTMDPDF_TMM_X(5)=0_dp
+    uTMDPDF_TMM_X(-5)=0_dp
+    end if
+    if(mu<mCHARM) then
+    uTMDPDF_TMM_X(4)=0_dp
+    uTMDPDF_TMM_X(-4)=0_dp
+    end if
+
+end function uTMDPDF_TMM_X
 
 end module uTMDPDF

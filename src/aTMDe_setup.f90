@@ -79,6 +79,7 @@ real(dp)::uTMDPDF_grid_xMin,uTMDPDF_grid_parX
 real(dp)::uTMDPDF_grid_bMin,uTMDPDF_grid_bMax
 integer::uTMDPDF_grid_SizeX,uTMDPDF_grid_SizeB
 real(dp)::uTMDPDF_hOGATA,uTMDPDF_toleranceOGATA,uTMDPDF_KT_FREEZE
+real(dp)::uTMDPDF_hOGATA_TMM,uTMDPDF_toleranceOGATA_TMM,uTMDPDF_muMIN_TMM
 
 !-------------------- uTMDFF parameters
 logical::include_uTMDFF
@@ -94,6 +95,7 @@ real(dp)::uTMDFF_grid_xMin,uTMDFF_grid_parX
 real(dp)::uTMDFF_grid_bMin,uTMDFF_grid_bMax
 integer::uTMDFF_grid_SizeX,uTMDFF_grid_SizeB
 real(dp)::uTMDFF_hOGATA,uTMDFF_toleranceOGATA,uTMDFF_KT_FREEZE
+real(dp)::uTMDFF_hOGATA_TMM,uTMDFF_toleranceOGATA_TMM,uTMDFF_muMIN_TMM
 
 !-------------------- lpTMDPDF parameters
 logical::include_lpTMDPDF
@@ -109,6 +111,7 @@ real(dp)::lpTMDPDF_grid_xMin,lpTMDPDF_grid_parX
 real(dp)::lpTMDPDF_grid_bMin,lpTMDPDF_grid_bMax
 integer::lpTMDPDF_grid_SizeX,lpTMDPDF_grid_SizeB
 real(dp)::lpTMDPDF_hOGATA,lpTMDPDF_toleranceOGATA,lpTMDPDF_KT_FREEZE
+real(dp)::lpTMDPDF_hOGATA_TMM,lpTMDPDF_toleranceOGATA_TMM,lpTMDPDF_muMIN_TMM
 
 !-------------------- SiversTMDPDF parameters
 logical::include_SiversTMDPDF
@@ -121,6 +124,7 @@ real(dp)::SiversTMDPDF_toleranceINT
 real(dp)::SiversTMDPDF_toleranceGEN
 integer::SiversTMDPDF_maxIteration
 real(dp)::SiversTMDPDF_hOGATA,SiversTMDPDF_toleranceOGATA,SiversTMDPDF_KT_FREEZE
+real(dp)::SiversTMDPDF_hOGATA_TMM,SiversTMDPDF_toleranceOGATA_TMM,SiversTMDPDF_muMIN_TMM
 
 !-------------------- wgtTMDPDF parameters
 logical::include_wgtTMDPDF
@@ -138,6 +142,7 @@ real(dp)::wgtTMDPDF_grid_xMin,wgtTMDPDF_grid_parX
 real(dp)::wgtTMDPDF_grid_bMin,wgtTMDPDF_grid_bMax
 integer::wgtTMDPDF_grid_SizeX,wgtTMDPDF_grid_SizeB
 real(dp)::wgtTMDPDF_hOGATA,wgtTMDPDF_toleranceOGATA,wgtTMDPDF_KT_FREEZE
+real(dp)::wgtTMDPDF_hOGATA_TMM,wgtTMDPDF_toleranceOGATA_TMM,wgtTMDPDF_muMIN_TMM
 
 !-------------------- BoerMuldersTMDPDF parameters
 logical::include_BoerMuldersTMDPDF
@@ -150,6 +155,7 @@ real(dp)::BoerMuldersTMDPDF_toleranceINT
 real(dp)::BoerMuldersTMDPDF_toleranceGEN
 integer::BoerMuldersTMDPDF_maxIteration
 real(dp)::BoerMuldersTMDPDF_hOGATA,BoerMuldersTMDPDF_toleranceOGATA,BoerMuldersTMDPDF_KT_FREEZE
+real(dp)::BoerMuldersTMDPDF_hOGATA_TMM,BoerMuldersTMDPDF_toleranceOGATA_TMM,BoerMuldersTMDPDF_muMIN_TMM
 
 !-------------------- TMDs parameters
 logical::include_TMDs
@@ -362,6 +368,9 @@ subroutine SetupDefault(order)
     uTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
     uTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
     uTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
+    uTMDPDF_toleranceOGATA_TMM=1.d-4    !!! OGATA tolerance (for TMM)
+    uTMDPDF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
+    uTMDPDF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
 
     !-------------------- parameters for UTMDFF
     include_uTMDFF=.false.!!! we do not initialize TMDFF by definition
@@ -384,6 +393,9 @@ subroutine SetupDefault(order)
     uTMDFF_toleranceOGATA=1.d-4    !!! OGATA tolerance
     uTMDFF_hOGATA=1.d-3            !!! OGATA integration step
     uTMDFF_KT_FREEZE=1.d-4         !!! min value of kT
+    uTMDFF_toleranceOGATA_TMM=1.d-4    !!! OGATA tolerance (for TMM)
+    uTMDFF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
+    uTMDFF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
 
     !-------------------- parameters for lpTMDPDF
     include_lpTMDPDF=.false.!!! we do not initialize TMDFF by definition
@@ -406,6 +418,9 @@ subroutine SetupDefault(order)
     lpTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
     lpTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
     lpTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
+    lpTMDPDF_toleranceOGATA_TMM=1.d-4    !!! OGATA tolerance (for TMM)
+    lpTMDPDF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
+    lpTMDPDF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
 
     !-------------------- parameters for SiversTMDPDF
     include_SiversTMDPDF=.false. !!! we do not initialize SiversTMDPDF by definition
@@ -422,6 +437,9 @@ subroutine SetupDefault(order)
     SiversTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
     SiversTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
     SiversTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
+    SiversTMDPDF_toleranceOGATA_TMM=1.d-4    !!! OGATA tolerance (for TMM)
+    SiversTMDPDF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
+    SiversTMDPDF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
     
     !-------------------- parameters for wgtTMDPDF
     include_wgtTMDPDF=.false.
@@ -448,6 +466,9 @@ subroutine SetupDefault(order)
     wgtTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
     wgtTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
     wgtTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
+    wgtTMDPDF_toleranceOGATA_TMM=1.d-4    !!! OGATA tolerance (for TMM)
+    wgtTMDPDF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
+    wgtTMDPDF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
     
     !-------------------- parameters for BoerMuldersTMDPDF
     include_BoerMuldersTMDPDF=.false. !!! we do not initialize BoerMuldersTMDPDF by definition
@@ -464,6 +485,9 @@ subroutine SetupDefault(order)
     BoerMuldersTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
     BoerMuldersTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
     BoerMuldersTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
+    BoerMuldersTMDPDF_toleranceOGATA_TMM=1.d-4    !!! OGATA tolerance (for TMM)
+    BoerMuldersTMDPDF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
+    BoerMuldersTMDPDF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
 
     !------------------ parameters for TMDs
     include_TMDs=.true.
@@ -844,6 +868,14 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) uTMDPDF_hOGATA
     write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
     write(51,*) uTMDPDF_KT_FREEZE
+    write(51,"(' ')")
+    write(51,"('*G   : ---- Computation of Transverse Momentum Moments (TMM) ----')")
+    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
+    write(51,*) uTMDPDF_toleranceOGATA_TMM
+    write(51,"('*p2  : Ogata quadrature integration step')")
+    write(51,*) uTMDPDF_hOGATA_TMM
+    write(51,"('*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)')")
+    write(51,*) uTMDPDF_muMIN_TMM
 
     write(51,"(' ')")
     write(51,"(' ')")
@@ -903,6 +935,14 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) uTMDFF_hOGATA
     write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
     write(51,*) uTMDFF_KT_FREEZE
+    write(51,"(' ')")
+    write(51,"('*G   : ---- Computation of Transverse Momentum Moments (TMM) ----')")
+    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
+    write(51,*) uTMDFF_toleranceOGATA_TMM
+    write(51,"('*p2  : Ogata quadrature integration step')")
+    write(51,*) uTMDFF_hOGATA_TMM
+    write(51,"('*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)')")
+    write(51,*) uTMDFF_muMIN_TMM
 
 
     write(51,"(' ')")
@@ -1137,6 +1177,14 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) lpTMDPDF_hOGATA
     write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
     write(51,*) lpTMDPDF_KT_FREEZE
+    write(51,"(' ')")
+    write(51,"('*G   : ---- Computation of Transverse Momentum Moments (TMM) ----')")
+    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
+    write(51,*) lpTMDPDF_toleranceOGATA_TMM
+    write(51,"('*p2  : Ogata quadrature integration step')")
+    write(51,*) lpTMDPDF_hOGATA_TMM
+    write(51,"('*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)')")
+    write(51,*) lpTMDPDF_muMIN_TMM
     
     write(51,"(' ')")
     write(51,"(' ')")
@@ -1184,6 +1232,14 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) SiversTMDPDF_hOGATA
     write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
     write(51,*) SiversTMDPDF_KT_FREEZE
+    write(51,"(' ')")
+    write(51,"('*G   : ---- Computation of Transverse Momentum Moments (TMM) ----')")
+    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
+    write(51,*) SiversTMDPDF_toleranceOGATA_TMM
+    write(51,"('*p2  : Ogata quadrature integration step')")
+    write(51,*) SiversTMDPDF_hOGATA_TMM
+    write(51,"('*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)')")
+    write(51,*) SiversTMDPDF_muMIN_TMM
     
     write(51,"(' ')")
     write(51,"(' ')")
@@ -1253,6 +1309,14 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) wgtTMDPDF_hOGATA
     write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
     write(51,*) wgtTMDPDF_KT_FREEZE
+    write(51,"(' ')")
+    write(51,"('*I   : ---- Computation of Transverse Momentum Moments (TMM) ----')")
+    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
+    write(51,*) wgtTMDPDF_toleranceOGATA_TMM
+    write(51,"('*p2  : Ogata quadrature integration step')")
+    write(51,*) wgtTMDPDF_hOGATA_TMM
+    write(51,"('*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)')")
+    write(51,*) wgtTMDPDF_muMIN_TMM
 
     write(51,"(' ')")
     write(51,"(' ')")
@@ -1300,6 +1364,14 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) BoerMuldersTMDPDF_hOGATA
     write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
     write(51,*) BoerMuldersTMDPDF_KT_FREEZE
+    write(51,"(' ')")
+    write(51,"('*G   : ---- Computation of Transverse Momentum Moments (TMM) ----')")
+    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
+    write(51,*) BoerMuldersTMDPDF_toleranceOGATA_TMM
+    write(51,"('*p2  : Ogata quadrature integration step')")
+    write(51,*) BoerMuldersTMDPDF_hOGATA_TMM
+    write(51,"('*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)')")
+    write(51,*) BoerMuldersTMDPDF_muMIN_TMM
 
     write(51,"(' ')")
     write(51,"(' ')")
@@ -1626,6 +1698,13 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) uTMDPDF_hOGATA
     call MoveTO(51,'*p3  ')
     read(51,*) uTMDPDF_KT_FREEZE
+    call MoveTO(51,'*G   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) uTMDPDF_toleranceOGATA_TMM
+    call MoveTO(51,'*p2  ')
+    read(51,*) uTMDPDF_hOGATA_TMM
+    call MoveTO(51,'*p3  ')
+    read(51,*) uTMDPDF_muMIN_TMM
 
     !# ----                           PARAMETERS OF uTMDFF                   -----
     call MoveTO(51,'*5   ')
@@ -1674,6 +1753,13 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) uTMDFF_grid_SizeX
     call MoveTO(51,'*p6  ')
     read(51,*) uTMDFF_grid_SizeB
+    call MoveTO(51,'*G   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) uTMDFF_toleranceOGATA_TMM
+    call MoveTO(51,'*p2  ')
+    read(51,*) uTMDFF_hOGATA_TMM
+    call MoveTO(51,'*p3  ')
+    read(51,*) uTMDFF_muMIN_TMM
 
 
     !# ----                            PARAMETERS OF TMDs                    -----
@@ -1879,6 +1965,13 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) lpTMDPDF_grid_SizeX
     call MoveTO(51,'*p6  ')
     read(51,*) lpTMDPDF_grid_SizeB
+    call MoveTO(51,'*G   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) lpTMDPDF_toleranceOGATA_TMM
+    call MoveTO(51,'*p2  ')
+    read(51,*) lpTMDPDF_hOGATA_TMM
+    call MoveTO(51,'*p3  ')
+    read(51,*) lpTMDPDF_muMIN_TMM
     
     !# ----                           PARAMETERS OF SiversTMDPDF                  -----
     call MoveTO(51,'*12   ')
@@ -1908,6 +2001,13 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) SiversTMDPDF_toleranceGEN
     call MoveTO(51,'*p3  ')
     read(51,*) SiversTMDPDF_maxIteration
+    call MoveTO(51,'*G   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) SiversTMDPDF_toleranceOGATA_TMM
+    call MoveTO(51,'*p2  ')
+    read(51,*) SiversTMDPDF_hOGATA_TMM
+    call MoveTO(51,'*p3  ')
+    read(51,*) SiversTMDPDF_muMIN_TMM
     
     !# ----                           PARAMETERS OF wgtTMDPDF                  -----
     call MoveTO(51,'*13   ')
@@ -1964,6 +2064,13 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) wgtTMDPDF_makeGrid_tw3
     call MoveTO(51,'*p3  ')
     read(51,*) wgtTMDPDF_runGridTest_tw3
+    call MoveTO(51,'*I   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) wgtTMDPDF_toleranceOGATA_TMM
+    call MoveTO(51,'*p2  ')
+    read(51,*) wgtTMDPDF_hOGATA_TMM
+    call MoveTO(51,'*p3  ')
+    read(51,*) wgtTMDPDF_muMIN_TMM
 
 
     !# ----                           PARAMETERS OF BoerMuldersTMDPDF                  -----
@@ -1994,6 +2101,13 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) BoerMuldersTMDPDF_toleranceGEN
     call MoveTO(51,'*p3  ')
     read(51,*) BoerMuldersTMDPDF_maxIteration
+    call MoveTO(51,'*G   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) BoerMuldersTMDPDF_toleranceOGATA_TMM
+    call MoveTO(51,'*p2  ')
+    read(51,*) BoerMuldersTMDPDF_hOGATA_TMM
+    call MoveTO(51,'*p3  ')
+    read(51,*) BoerMuldersTMDPDF_muMIN_TMM
 
     !# ----                            PARAMETERS OF TMDF-KPC              -----
     call MoveTO(51,'*15   ')

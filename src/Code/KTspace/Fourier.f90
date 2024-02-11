@@ -9,9 +9,9 @@
 !
 !	This part is devoted to the calculation of Fourier transform into kT-space.
 !
-!	v.3.00 Created (AV, 24.07.2023)
+!	v.3.00 Created (AV, 04.02.2024)
 !
-!				A.Vladimirov (24.07.2023)
+!				A.Vladimirov (04.02.2024)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!! the container file must include in the header
