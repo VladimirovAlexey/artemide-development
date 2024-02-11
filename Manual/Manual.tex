@@ -1537,10 +1537,16 @@ F.p2 & real & Step for the Ogata quadrature (default =$10^{-3}$)
 \\\hline
 F.p3 & real & Minimal $k_T$ to compute. Below this number distribution is frozen. (default =$10^{-4}$)
 \\\hline\hline
+G.p1 & real & Tolerance use in the Fourier integral for TMM (default =$10^{4}$)
+\\\hline
+G.p2 & real & Step for the Ogata quadrature for TMM computation (default =$10^{-3}$)
+\\\hline
+G.p3 & real & Minimal $\mu$ to compute. Below this number the program terminates. (default =$0.8$GeV)
+\\\hline\hline
 \end{tabular}
 \end{center}
 \begin{itemize}
-\item \texttt{wgtTMDPDF} has extra section F and G, which are analogous to sections B and C, but responsible for twist-3 convolution. The section F is correspondingly section H.
+\item \texttt{wgtTMDPDF} has extra section F and G, which are analogous to sections B and C, but responsible for twist-3 convolution. The section F,G,I is correspondingly sections H,I.
 \end{itemize}
 
 \subsubsection{Functions}
@@ -1575,6 +1581,18 @@ Entry &~~Type~~& Description
 \texttt{XX\_TMM\_G(x,mu,h)} & real(-5:5) & Returns the value of TMM $\mathcal{G}_{n,n}$ (see sec.\ref{sec:TMM}) for given (x,$\mu$) (reals) and hadron h. The value is the vector over flavors. For $h<0$ the quark-distributions are replaced by anti-quark distributions and vice versa.
 \\\hline
 \texttt{XX\_TMM\_X(x,mu,h)} & real(-5:5) & Returns the value of TMM $\mathcal{G}_{n+1,n}$ (see sec.\ref{sec:TMM}) for given (x,$\mu$) (reals) and hadron h. The value is the vector over flavors. For $h<0$ the quark-distributions are replaced by anti-quark distributions and vice versa.
+\\\hline\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\textbf{Functions unique for particular modules}
+\\
+\begin{tabular}{||p{5.5cm}||c||p{8.5cm}||}
+\hline\hline
+Entry &~~Type~~& Description
+\\\hline
+\texttt{uPDF\_uPDF(x1,x2,} \texttt{bt,mu,zeta,h1,h2)} & real(-5:5) & Returns the value of product $f_q f_{\bar q}$ evolved unpolarized TMD distributions for given (x,b) (reals) and hadrons $h_1$ and $h_2$. The value is the vector over flavors. If $h_{1,2}$ have the same sign the product is $f_q f_{\bar q}$, if $h_{1,2}$ have different signs the product is $f_q f_{q}$. This combination is used to compute Drell-Yan-type processes, and a bit faster than a direct multiplication.
 \\\hline\hline
 \end{tabular}
 \end{center}

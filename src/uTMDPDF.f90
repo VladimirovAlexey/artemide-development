@@ -398,6 +398,52 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
 
 end function TMD_ev
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PRODUCTS FOR DY!!!!!!!!!!!!!!!!!!!!!!
+!!! Product of quark*antiquark uTMDPDFs. Slightly faster then just product
+! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+function uPDF_uPDF(x1,x2,bt,muf,zetaf,hadron1,hadron2)
+    real(dp),dimension(-5:5)::uPDF_uPDF
+    real(dp),intent(in):: x1,x2,bt,muf,zetaf
+    integer,intent(in)::hadron1,hadron2
+    real(dp):: Rkernel, RkernelG
+    real(dp),dimension(-5:5)::tmd1,tmd2
+
+
+    tmd1=uTMDPDF_lowScale5(x1,bT,hadron1)
+    tmd2=uTMDPDF_lowScale5(x2,bT,hadron2)
+
+    !!!! both hadrons, so it is q*barq product
+    if(sign(1,hadron1)==sign(1,hadron1)) then
+        uPDF_uPDF=tmd1*(tmd2(5:-5:-1))
+    else !!!!! one hadron is anti-hadron, so it is q*q product
+        uPDF_uPDF=tmd1*tmd2
+    end if
+
+    if(includeGluon) then
+        !!! the evolution factor is squared because There is a product of two TMDs
+        Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)**2
+        RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)**2
+
+        uPDF_uPDF=uPDF_uPDF*&
+            (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
+
+    else
+        !!! the evolution factor is squared because There is a product of two TMDs
+        Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)**2
+        uPDF_uPDF=Rkernel*uPDF_uPDF
+    end if
+
+    !!! forcefully set =0 below threshold
+    if(muf<mBOTTOM) then
+        uPDF_uPDF(5)=0_dp
+        uPDF_uPDF(-5)=0_dp
+    end if
+    if(muf<mCHARM) then
+        uPDF_uPDF(4)=0_dp
+        uPDF_uPDF(-4)=0_dp
+    end if
+end function uPDF_uPDF
+
 !!!!!!!! TMM G_{n,n} at (x,mu)
 function uTMDPDF_TMM_G(x,mu,hadron)
     real(dp)::uTMDPDF_TMM_G(-5:5)
