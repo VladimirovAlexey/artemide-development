@@ -158,6 +158,17 @@ subroutine SiversTMDPDF_Initialize(file,prefix)
     call MoveTO(51,'*p2  ')
     read(51,*) TMDmass
 
+        !! TMDR
+    call MoveTO(51,'*3   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) initRequired
+    if(.not.initRequired) then
+        write(*,*) ErrorString('TMDR module MUST be included.',moduleName)
+        write(*,*) ErrorString('Check initialization-file. Evaluation stop.',moduleName)
+        CLOSE (51, STATUS='KEEP')
+        stop
+    end if
+
     call MoveTO(51,'*12   ')
     call MoveTO(51,'*p1  ')
     read(51,*) initRequired

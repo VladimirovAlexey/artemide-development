@@ -12,7 +12,12 @@ use aTMDe_Numerics
 use IntegrationRoutines
 use IO_functions
 use EWinput
-use TMDs_inKT
+use uTMDPDF
+use uTMDFF
+use lpTMDPDF
+use SiversTMDPDF
+use wgtTMDPDF
+use BoerMuldersTMDPDF
 
 implicit none
 
@@ -31,6 +36,14 @@ logical::started=.false.
 !! flag for loss of convergence
 logical:: convergenceLost=.false.
 
+logical::include_uTMDPDF
+logical::include_uTMDFF
+logical::include_lpTMDPDF
+logical::include_SiversTMDPDF
+logical::include_wgtTMDPDF
+logical::include_BoerMuldersTMDPDF
+
+!------------------------------------------Working variables------------------------------------------------------------
 !! tolerances for integration and general
 real(dp)::toleranceGEN
 real(dp)::toleranceINT
@@ -120,19 +133,45 @@ subroutine TMDF_KPC_Initialize(file,prefix)
 
     CLOSE (51, STATUS='KEEP')
 
+    !!! then we read it again from the beginning to fill parameters of other modules
+    OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
+
+    !! uTMDPDF
+    call MoveTO(51,'*4   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_uTMDPDF
+
+    !! uTMDFF
+    call MoveTO(51,'*5   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_uTMDFF
+
+    !! lpTMDPDF
+    call MoveTO(51,'*11  ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_lpTMDPDF
+
+    !! SiversTMDPDF
+    call MoveTO(51,'*12  ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_SiversTMDPDF
+
+    !! wgtTMDPDF
+    call MoveTO(51,'*13  ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_wgtTMDPDF
+
+    !! BoerMuldersTMDPDF
+    call MoveTO(51,'*14  ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_BoerMuldersTMDPDF
+
+    CLOSE (51, STATUS='KEEP')
+
     convergenceLost=.false.
     GlobalCounter=0
     LocalCounter=0
     messageCounter=0
-
-    if(.not.TMDs_inKT_IsInitialized()) then
-        if(outputLevel>1) write(*,*) '.. initializing TMDs (from ',moduleName,')'
-        if(present(prefix)) then
-            call TMDs_inKT_Initialize(file,prefix)
-        else
-            call TMDs_inKT_Initialize(file)
-        end if
-    end if
 
     if(.not.EWinput_IsInitialized()) then
         if(outputLevel>1) write(*,*) '.. initializing EWinput (from ',moduleName,')'
@@ -140,6 +179,60 @@ subroutine TMDF_KPC_Initialize(file,prefix)
             call EWinput_Initialize(file,prefix)
         else
             call EWinput_Initialize(file)
+        end if
+    end if
+
+    if(include_uTMDPDF .and. (.not.uTMDPDF_IsInitialized())) then
+        if(outputLevel>1) write(*,*) '.. initializing uTMDPDF (from ',moduleName,')'
+        if(present(prefix)) then
+            call uTMDPDF_Initialize(file,prefix)
+        else
+            call uTMDPDF_Initialize(file)
+        end if
+    end if
+
+    if(include_uTMDFF .and. (.not.uTMDFF_IsInitialized())) then
+        if(outputLevel>1) write(*,*) '.. initializing uTMDFF (from ',moduleName,')'
+        if(present(prefix)) then
+            call uTMDFF_Initialize(file,prefix)
+        else
+            call uTMDFF_Initialize(file)
+        end if
+    end if
+
+    if(include_lpTMDPDF .and. (.not.lpTMDPDF_IsInitialized())) then
+        if(outputLevel>1) write(*,*) '.. initializing lpTMDPDF (from ',moduleName,')'
+        if(present(prefix)) then
+            call lpTMDPDF_Initialize(file,prefix)
+        else
+            call lpTMDPDF_Initialize(file)
+        end if
+    end if
+
+    if(include_SiversTMDPDF .and. (.not.SiversTMDPDF_IsInitialized())) then
+        if(outputLevel>1) write(*,*) '.. initializing SiversTMDPDF (from ',moduleName,')'
+        if(present(prefix)) then
+            call SiversTMDPDF_Initialize(file,prefix)
+        else
+            call SiversTMDPDF_Initialize(file)
+        end if
+    end if
+
+    if(include_wgtTMDPDF .and. (.not.wgtTMDPDF_IsInitialized())) then
+        if(outputLevel>1) write(*,*) '.. initializing wgtTMDPDF (from ',moduleName,')'
+        if(present(prefix)) then
+            call wgtTMDPDF_Initialize(file,prefix)
+        else
+            call wgtTMDPDF_Initialize(file)
+        end if
+    end if
+
+    if(include_BoerMuldersTMDPDF .and. (.not.BoerMuldersTMDPDF_IsInitialized())) then
+        if(outputLevel>1) write(*,*) '.. initializing SiversTMDPDF (from ',moduleName,')'
+        if(present(prefix)) then
+            call BoerMuldersTMDPDF_Initialize(file,prefix)
+        else
+            call BoerMuldersTMDPDF_Initialize(file)
         end if
     end if
 

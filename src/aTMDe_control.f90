@@ -20,11 +20,9 @@ use wgtTMDPDF
 use BoerMuldersTMDPDF
 use uTMDFF
 use TMDR
-use TMDs
 use TMDF
 use TMDX_DY
 use TMDX_SIDIS
-use TMDs_inKT
 use TMDF_KPC
 use aTMDe_Setup
 implicit none
@@ -42,9 +40,9 @@ integer::messageTrigger=5
 !!!! indicator of the aTMDe_control intialization
 logical::isStarted=.false.
 !!!! indicators of modules usage  
-logical::include_EWinput,include_uTMDPDF,include_uTMDFF,include_TMDR,include_TMDs,include_TMDF
+logical::include_EWinput,include_uTMDPDF,include_uTMDFF,include_TMDR,include_TMDF
 logical::include_lpTMDPDF,include_SiversTMDPDF,include_wgtTMDPDF,include_BoerMuldersTMDPDF
-logical::include_TMDX_DY,include_TMDX_SIDIS,include_TMDs_inKT
+logical::include_TMDX_DY,include_TMDX_SIDIS
 logical::include_TMDF_KPC
 
 !!!! legths of non-perturbative arrays
@@ -162,17 +160,9 @@ subroutine artemide_Initialize(file,prefix,order)
         NPlength_uTMDFF=0
     end if
 
-    call MoveTO(51,'*6   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) include_TMDs
-
     call MoveTO(51,'*7   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_TMDF
-
-    call MoveTO(51,'*8   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) include_TMDs_inKT
 
     call MoveTO(51,'*9   ')
     call MoveTO(51,'*p1  ')
@@ -308,27 +298,11 @@ subroutine artemide_Initialize(file,prefix,order)
         end if
     end if
 
-    if(include_TMDs) then
-        if(present(prefix)) then
-            call TMDs_Initialize(constNAME,prefix)
-        else
-            call TMDs_Initialize(constNAME)
-        end if
-    end if
-
     if(include_TMDF) then
         if(present(prefix)) then
             call TMDF_Initialize(constNAME,prefix)
         else
             call TMDF_Initialize(constNAME)
-        end if
-    end if
-
-    if(include_TMDs_inKT) then
-        if(present(prefix)) then
-            call TMDs_inKT_Initialize(constNAME,prefix)
-        else
-            call TMDs_inKT_Initialize(constNAME)
         end if
     end if
 

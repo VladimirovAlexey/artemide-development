@@ -92,7 +92,7 @@ real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::bb_TMM
 public::uTMDPDF_Initialize,uTMDPDF_IsInitialized,uTMDPDF_SetScaleVariation,uTMDPDF_SetPDFreplica
 public::uTMDPDF_SetLambdaNP,uTMDPDF_CurrentLambdaNP
 public::uTMDPDF_lowScale5
-public::uTMDPDF_inB,uTMDPDF_inKT,uTMDPDF_TMM_G,uTMDPDF_TMM_X
+public::uTMDPDF_inB,uTMDPDF_inKT,uTMDPDF_TMM_G,uTMDPDF_TMM_X,uPDF_uPDF
 
 interface uTMDPDF_inB
     module procedure TMD_opt,TMD_ev
@@ -155,6 +155,17 @@ subroutine uTMDPDF_Initialize(file,prefix)
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p2  ')
     read(51,*) TMDmass
+
+    !! TMDR
+    call MoveTO(51,'*3   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) initRequired
+    if(.not.initRequired) then
+        write(*,*) ErrorString('TMDR module MUST be included.',moduleName)
+        write(*,*) ErrorString('Check initialization-file. Evaluation stop.',moduleName)
+        CLOSE (51, STATUS='KEEP')
+        stop
+    end if
 
     call MoveTO(51,'*4   ')
     call MoveTO(51,'*p1  ')

@@ -68,7 +68,7 @@ SELECT CASE(process)
 
   CASE (22) !A_2 ff-part
 
-    DY_KERNEL=(Q2**2+Lam*tau2**2+Q2*tau2*(-1+2*S**2-Lam))/Q2/tau2
+    DY_KERNEL=(Q2**2+Lam*tau2**2+Q2*tau2*(-1+2*S**2-Lam))/Q2/qT2
 
   CASE (23) !A_3 ff-part
 

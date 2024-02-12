@@ -7,6 +7,7 @@
 !
 !    ver 1.31: release (AV, 30.05.2018)
 !    ver 1.41: fixed potential bug in the initialisation order (AV, 28.02.2019)
+!    ver 3.00: removal of TMDs-module (AV, 12.02.2024)
 !
 !                A.Vladimirov (30.05.2018)
 !
@@ -14,17 +15,23 @@
 module TMDF
 use aTMDe_Numerics
 use IO_functions
-use TMDs
 use EWinput
+use uTMDPDF
+use uTMDFF
+use lpTMDPDF
+use SiversTMDPDF
+use wgtTMDPDF
+use BoerMuldersTMDPDF
+
 implicit none
 
 private
 !   public
 
 character (len=7),parameter :: moduleName="TMDF"
-character (len=5),parameter :: version="v2.05"
+character (len=5),parameter :: version="v3.00"
 !Last appropriate verion of constants-file
-integer,parameter::inputver=16
+integer,parameter::inputver=30
 
 !------------------------------------------Tables-----------------------------------------------------------------------
 integer,parameter::Nmax=1000
@@ -37,6 +44,13 @@ integer::messageTrigger=6
 logical::started=.false.
 
 logical:: convergenceLost=.false.
+
+logical::include_uTMDPDF
+logical::include_uTMDFF
+logical::include_lpTMDPDF
+logical::include_SiversTMDPDF
+logical::include_wgtTMDPDF
+logical::include_BoerMuldersTMDPDF
 
 !!!!! I split the qT over runs qT<qTSegmentationBoundary
 !!!!! In each segment I have the ogata quadrature with h=hOGATA*hSegmentationWeight
@@ -132,6 +146,42 @@ subroutine TMDF_Initialize(file,prefix)
 
     CLOSE (51, STATUS='KEEP') 
 
+    !!! then we read it again from the beginning to fill parameters of other modules
+    OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
+
+    !! uTMDPDF
+    call MoveTO(51,'*4   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_uTMDPDF
+
+    !! uTMDFF
+    call MoveTO(51,'*5   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_uTMDFF
+
+    !! lpTMDPDF
+    call MoveTO(51,'*11  ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_lpTMDPDF
+
+    !! SiversTMDPDF
+    call MoveTO(51,'*12  ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_SiversTMDPDF
+
+    !! wgtTMDPDF
+    call MoveTO(51,'*13  ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_wgtTMDPDF
+
+    !! BoerMuldersTMDPDF
+    call MoveTO(51,'*14  ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_BoerMuldersTMDPDF
+
+    CLOSE (51, STATUS='KEEP')
+
+
     if(outputLevel>1) write(*,*) 'arTeMiDe.TMDF: preparing Ogata tables'
     call PrepareTables()
     if(outputLevel>2) write(*,'(A,I4)') ' | Maximum number of nodes    :',Nmax
@@ -143,21 +193,67 @@ subroutine TMDF_Initialize(file,prefix)
     MaxCounter=0
     messageCounter=0
 
-    if(.not.TMDs_IsInitialized()) then
-        if(outputLevel>1) write(*,*) '.. initializing TMDs (from ',moduleName,')'
-        if(present(prefix)) then
-            call TMDs_Initialize(file,prefix)
-        else
-            call TMDs_Initialize(file)
-        end if
-    end if
-
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!! Initialization of submodules !!!!!!!!!!!!!!!!!!!!!!
     if(.not.EWinput_IsInitialized()) then
         if(outputLevel>1) write(*,*) '.. initializing EWinput (from ',moduleName,')'
         if(present(prefix)) then
             call EWinput_Initialize(file,prefix)
         else
             call EWinput_Initialize(file)
+        end if
+    end if
+
+    if(include_uTMDPDF .and. (.not.uTMDPDF_IsInitialized())) then
+        if(outputLevel>1) write(*,*) '.. initializing uTMDPDF (from ',moduleName,')'
+        if(present(prefix)) then
+            call uTMDPDF_Initialize(file,prefix)
+        else
+            call uTMDPDF_Initialize(file)
+        end if
+    end if
+
+    if(include_uTMDFF .and. (.not.uTMDFF_IsInitialized())) then
+        if(outputLevel>1) write(*,*) '.. initializing uTMDFF (from ',moduleName,')'
+        if(present(prefix)) then
+            call uTMDFF_Initialize(file,prefix)
+        else
+            call uTMDFF_Initialize(file)
+        end if
+    end if
+
+    if(include_lpTMDPDF .and. (.not.lpTMDPDF_IsInitialized())) then
+        if(outputLevel>1) write(*,*) '.. initializing lpTMDPDF (from ',moduleName,')'
+        if(present(prefix)) then
+            call lpTMDPDF_Initialize(file,prefix)
+        else
+            call lpTMDPDF_Initialize(file)
+        end if
+    end if
+
+    if(include_SiversTMDPDF .and. (.not.SiversTMDPDF_IsInitialized())) then
+        if(outputLevel>1) write(*,*) '.. initializing SiversTMDPDF (from ',moduleName,')'
+        if(present(prefix)) then
+            call SiversTMDPDF_Initialize(file,prefix)
+        else
+            call SiversTMDPDF_Initialize(file)
+        end if
+    end if
+
+    if(include_wgtTMDPDF .and. (.not.wgtTMDPDF_IsInitialized())) then
+        if(outputLevel>1) write(*,*) '.. initializing wgtTMDPDF (from ',moduleName,')'
+        if(present(prefix)) then
+            call wgtTMDPDF_Initialize(file,prefix)
+        else
+            call wgtTMDPDF_Initialize(file)
+        end if
+    end if
+
+    if(include_BoerMuldersTMDPDF .and. (.not.BoerMuldersTMDPDF_IsInitialized())) then
+        if(outputLevel>1) write(*,*) '.. initializing SiversTMDPDF (from ',moduleName,')'
+        if(present(prefix)) then
+            call BoerMuldersTMDPDF_Initialize(file,prefix)
+        else
+            call BoerMuldersTMDPDF_Initialize(file)
         end if
     end if
 
@@ -239,8 +335,8 @@ end subroutine TMDF_ResetCounters
     if(zeta1==zeta2) then
       FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,h1,h2)!!! -h2, to multiply quarks by anti-quarks in FAB
     else
-     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
+     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_inB(x2,b,mu,zeta2,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
 
      FAB=FA*FB
     end if
@@ -261,8 +357,8 @@ end subroutine TMDF_ResetCounters
     if(zeta1==zeta2) then
       FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,h1,h2)
     else
-     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
+     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_inB(x2,b,mu,zeta2,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
 
      FAB=FA*FB
     end if
@@ -283,8 +379,8 @@ end subroutine TMDF_ResetCounters
     if(zeta1==zeta2) then
       FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,h1,h2)
     else
-     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
+     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_inB(x2,b,mu,zeta2,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
 
      FAB=FA*FB
     end if
@@ -292,8 +388,8 @@ end subroutine TMDF_ResetCounters
     Integrand=XIntegrandForDYwithZgamma(FAB,Q2)
 !--------------------------------------------------------------------------------  
   CASE (4) !h1+h2-> W+
-     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
+     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
 
     Integrand=paramW_L*(&
     paramW_UD*(FA(2)*FB(-1)+FA(-1)*FB(2))&        !u*dbar+dbar*u
@@ -305,8 +401,8 @@ end subroutine TMDF_ResetCounters
     )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
 !--------------------------------------------------------------------------------  
   CASE (5) !h1+h2-> W-
-     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
+     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
 
     Integrand=paramW_L*(&
     paramW_UD*(FA(1)*FB(-2)+FA(-2)*FB(1))&        !d*ubar+ubar*d
@@ -318,8 +414,8 @@ end subroutine TMDF_ResetCounters
     )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
 !--------------------------------------------------------------------------------  
   CASE (6) !h1+h2-> W+ + W-
-     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
+     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
 
     Integrand=paramW_L*(&
     paramW_UD*(FA(2)*FB(-1)+FA(1)*FB(-2)+FA(-2)*FB(1)+FA(-1)*FB(2))&    !u*dbar+d*ubar+ubar*d+dbar*u
@@ -332,8 +428,8 @@ end subroutine TMDF_ResetCounters
 
 !--------------------------------------------------------------------------------  
   CASE (7) !h1+h2-> W+ (for zero-width)
-     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
+     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
 
     Integrand=&
     paramW_UD*(FA(2)*FB(-1)+FA(-1)*FB(2))&        !u*dbar+dbar*u
@@ -345,8 +441,8 @@ end subroutine TMDF_ResetCounters
 
 !--------------------------------------------------------------------------------  
   CASE (8) !h1+h2-> W- (for zero-width)
-     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
+     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
 
     Integrand=&
     paramW_UD*(FA(1)*FB(-2)+FA(-2)*FB(1))&        !d*ubar+ubar*d
@@ -358,8 +454,8 @@ end subroutine TMDF_ResetCounters
 
 !--------------------------------------------------------------------------------  
   CASE (9) !h1+h2-> W+- (for zero-width)
-     FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
-     FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
+     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
 
     Integrand=&
     paramW_UD*(FA(2)*FB(-1)+FA(1)*FB(-2)+FA(-2)*FB(1)+FA(-1)*FB(2))&    !u*dbar+d*ubar+ubar*d+dbar*u
@@ -371,30 +467,30 @@ end subroutine TMDF_ResetCounters
 
 !--------------------------------------------------------------------------------  
   CASE(10) !h1+h2 -> Higgs (unpol.part+lin.pol.part)
-    FA=uTMDPDF_50(x1,b,mu,zeta1,h1)
-    FB=uTMDPDF_50(x2,b,mu,zeta2,h2)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
     Integrand=FA(0)*FB(0) !!!! unpolarized part
 
-    FA=lpTMDPDF_50(x1,b,mu,zeta1,h1)
-    FB=lpTMDPDF_50(x2,b,mu,zeta2,h2)
+    FA=lpTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=lpTMDPDF_inB(x2,b,mu,zeta2,h2)
     Integrand=Integrand+FA(0)*FB(0) !!!! linearly polarized part
 !--------------------------------------------------------------------------------  
   CASE(11) !h1+h2 -> Higgs (unpol.part)
-    FA=uTMDPDF_50(x1,b,mu,zeta1,h1)
-    FB=uTMDPDF_50(x2,b,mu,zeta2,h2)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
     Integrand=FA(0)*FB(0)
   
 !--------------------------------------------------------------------------------  
   CASE(12) !h1+h2 -> Higgs (lin.pol.part)
-    FA=lpTMDPDF_50(x1,b,mu,zeta1,h1)
-    FB=lpTMDPDF_50(x2,b,mu,zeta2,h2)
+    FA=lpTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=lpTMDPDF_inB(x2,b,mu,zeta2,h2)
     Integrand=FA(0)*FB(0)
 
 !--------------------------------------------------------------------------------  
   CASE (101) !h1+Cu->gamma* !!this is for E288
     !!!! strictly hadron 1
-    FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
-    FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=uTMDPDF_inB(x2,b,mu,zeta2,1)
     Integrand=116d0/567d0*(FA(2)*FB(-2)+FA(-2)*FB(2))+136d0/567d0*(FA(-2)*FB(1)+FA(2)*FB(-1))&
           +34d0/567d0*(FA(-1)*FB(2)+FA(1)*FB(-2))+29d0/567d0*(FA(-1)*FB(1)+FA(1)*FB(-1))&
           +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
@@ -402,8 +498,8 @@ end subroutine TMDF_ResetCounters
   !--------------------------------------------------------------------------------  
   CASE (102) !h1+2H->gamma* !!this is for E772
     !!!! strictrly hadron 1
-    FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
-    FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=uTMDPDF_inB(x2,b,mu,zeta2,1)
     Integrand=2d0/9d0*(FA(2)*FB(-2)+FA(-2)*FB(2))+2d0/9d0*(FA(-2)*FB(1)+FA(2)*FB(-1))&
           +1d0/18d0*(FA(-1)*FB(2)+FA(1)*FB(-2))+1d0/18d0*(FA(-1)*FB(1)+FA(1)*FB(-1))&
           +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
@@ -411,8 +507,8 @@ end subroutine TMDF_ResetCounters
   CASE (103) !h1+W->gamma* !!this is for E537
     !!!! strictrly hadron 1
     !Wolfram has A=183,    Z=74,    N=109
-    FA=uTMDPDF_5(x1,b,mu,zeta1,h1)
-    FB=uTMDPDF_5(x2,b,mu,zeta2,1)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=uTMDPDF_inB(x2,b,mu,zeta2,1)
     Integrand=296d0/1647d0*(FA(-2)*FB(2)+FA(2)*FB(-2))+436d0/1647d0*(FA(-2)*FB(1)+FA(2)*FB(-1))&
 	      +109d0/1647d0*(FA(-1)*FB(2)+FA(1)*FB(-2))+74d0/1647d0*(FA(-1)*FB(1)+FA(1)*FB(-1))&
 	      +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
@@ -422,8 +518,8 @@ end subroutine TMDF_ResetCounters
   CASE (2001:2009) !p->hN where n=last number
     ! e_q^2 *F_q(A)*F_q(B)
     h=process-2000
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=FA(1)*FB(1)/9.d0&
       +FA(2)*FB(2)*4.d0/9.d0&
       +FA(3)*FB(3)/9.d0&
@@ -438,8 +534,8 @@ end subroutine TMDF_ResetCounters
     CASE (2011:2019) !d->hN where n=last number (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     h=process-2010
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=(FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
       +FA(3)*FB(3)/9.d0&
       +FA(4)*FB(4)*4d0/9.d0&
@@ -452,8 +548,8 @@ end subroutine TMDF_ResetCounters
     CASE (2021:2029) !p->bar-hN where n=last number
     ! e_q^2 *F_q(A)*F_bar-q(B)
     h=process-2020
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=FA(1)*FB(-1)/9.d0&
       +FA(2)*FB(-2)*4.d0/9.d0&
       +FA(3)*FB(-3)/9.d0&
@@ -468,8 +564,8 @@ end subroutine TMDF_ResetCounters
     CASE (2031:2039) !d->bar-hN where n=last number (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_bar-q(B)
     h=process-2030
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=(FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
       +FA(3)*FB(-3)/9.d0&
       +FA(4)*FB(-4)*4d0/9.d0&
@@ -482,8 +578,8 @@ end subroutine TMDF_ResetCounters
     CASE (2041:2049) !n->hN where n=last number (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
     h=process-2040
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=FA(2)*FB(1)/9.d0&
       +FA(1)*FB(2)*4.d0/9.d0&
       +FA(3)*FB(3)/9.d0&
@@ -498,8 +594,8 @@ end subroutine TMDF_ResetCounters
     CASE (2051:2059) !n->bar-hN where n=last number (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_bar-q(B)
     h=process-2050
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=FA(2)*FB(-1)/9.d0&
       +FA(1)*FB(-2)*4.d0/9.d0&
       +FA(3)*FB(-3)/9.d0&
@@ -514,8 +610,8 @@ end subroutine TMDF_ResetCounters
 !--------------------------------------------------------------------------------  
    CASE (2101) !p->h? where h?=h1+h2
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=FA(1)*FB(1)/9.d0&
       +FA(2)*FB(2)*4.d0/9.d0&
       +FA(3)*FB(3)/9.d0&
@@ -529,8 +625,8 @@ end subroutine TMDF_ResetCounters
 !--------------------------------------------------------------------------------  
     CASE (2102) !p->h? where h?=h1+h2+h3
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=FA(1)*FB(1)/9.d0&
       +FA(2)*FB(2)*4.d0/9.d0&
       +FA(3)*FB(3)/9.d0&
@@ -544,8 +640,8 @@ end subroutine TMDF_ResetCounters
 !--------------------------------------------------------------------------------  
     CASE (2103) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=(FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
       +FA(3)*FB(3)/9.d0&
       +FA(4)*FB(4)*4d0/9.d0&
@@ -557,8 +653,8 @@ end subroutine TMDF_ResetCounters
 !--------------------------------------------------------------------------------  
     CASE (2104) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=(FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
       +FA(3)*FB(3)/9.d0&
       +FA(4)*FB(4)*4d0/9.d0&
@@ -570,8 +666,8 @@ end subroutine TMDF_ResetCounters
 !--------------------------------------------------------------------------------  
    CASE (2105) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=FA(2)*FB(1)/9.d0&
       +FA(1)*FB(2)*4.d0/9.d0&
       +FA(3)*FB(3)/9.d0&
@@ -585,8 +681,8 @@ end subroutine TMDF_ResetCounters
 !--------------------------------------------------------------------------------  
     CASE (2106) !n->h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=FA(2)*FB(1)/9.d0&
       +FA(1)*FB(2)*4.d0/9.d0&
       +FA(3)*FB(3)/9.d0&
@@ -600,8 +696,8 @@ end subroutine TMDF_ResetCounters
 !------------------------------------------------------------------------------------
   CASE (2111) !p->bar h? where h?=h1+h2
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=FA(1)*FB(-1)/9.d0&
       +FA(2)*FB(-2)*4.d0/9.d0&
       +FA(3)*FB(-3)/9.d0&
@@ -615,8 +711,8 @@ end subroutine TMDF_ResetCounters
 !--------------------------------------------------------------------------------  
     CASE (2112) !p->bar h? where h?=h1+h2+h3
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=FA(1)*FB(-1)/9.d0&
       +FA(2)*FB(-2)*4.d0/9.d0&
       +FA(3)*FB(-3)/9.d0&
@@ -630,8 +726,8 @@ end subroutine TMDF_ResetCounters
 !--------------------------------------------------------------------------------  
     CASE (2113) !d->bar h? where h?=h1+h2 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=(FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
       +FA(3)*FB(-3)/9.d0&
       +FA(4)*FB(-4)*4d0/9.d0&
@@ -643,8 +739,8 @@ end subroutine TMDF_ResetCounters
 !--------------------------------------------------------------------------------  
     CASE (2114) !d->bar h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=(FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
       +FA(3)*FB(-3)/9.d0&
       +FA(4)*FB(-4)*4d0/9.d0&
@@ -656,8 +752,8 @@ end subroutine TMDF_ResetCounters
 !------------------------------------------------------------------------------------
   CASE (2115) !n->bar h? where h?=h1+h2 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=FA(2)*FB(-1)/9.d0&
       +FA(1)*FB(-2)*4.d0/9.d0&
       +FA(3)*FB(-3)/9.d0&
@@ -671,8 +767,8 @@ end subroutine TMDF_ResetCounters
 !--------------------------------------------------------------------------------  
     CASE (2116) !n->bar h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=FA(2)*FB(-1)/9.d0&
       +FA(1)*FB(-2)*4.d0/9.d0&
       +FA(3)*FB(-3)/9.d0&
@@ -690,8 +786,8 @@ end subroutine TMDF_ResetCounters
 !--------------------------------------------------------------------------------
     CASE (10001) !pp->gamma
         ! e_q^2 *F_q(A)*F_qbar(B)
-        FA=-SiversTMDPDF_5(x1,b,mu,zeta1,h1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-        FB=uTMDPDF_5(x2,b,mu,zeta2,-h2) !!! -h2, to multiply quarks by anti-quarks in FAB
+        FA=-SiversTMDPDF_inB(x1,b,mu,zeta1,h1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
+        FB=uTMDPDF_inB(x2,b,mu,zeta2,-h2) !!! -h2, to multiply quarks by anti-quarks in FAB
         FAB=FA*FB
         
         Integrand=-global_mass_scale*(&
@@ -707,15 +803,15 @@ end subroutine TMDF_ResetCounters
         +FAB(-5)/9d0)
     !--------------------------------------------------------------------------------  
     CASE (10003) !pp->Z+gamma
-        FA=-SiversTMDPDF_5(x1,b,mu,zeta1,h1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-        FB=uTMDPDF_5(x2,b,mu,zeta2,-h2) !!! -h2, to multiply quarks by anti-quarks in FAB
+        FA=-SiversTMDPDF_inB(x1,b,mu,zeta1,h1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
+        FB=uTMDPDF_inB(x2,b,mu,zeta2,-h2) !!! -h2, to multiply quarks by anti-quarks in FAB
         FAB=FA*FB
             
         Integrand=-global_mass_scale*XIntegrandForDYwithZgamma(FAB,Q2)
     !--------------------------------------------------------------------------------  
     CASE (10004) !pp-> W+
-        FA=-SiversTMDPDF_5(x1,b,mu,zeta1,h1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-        FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
+        FA=-SiversTMDPDF_inB(x1,b,mu,zeta1,h1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
+        FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
         
         Integrand=-global_mass_scale*paramW_L*(&
         paramW_UD*(FA(2)*FB(-1)+FA(-1)*FB(2))&        !u*dbar+dbar*u
@@ -727,8 +823,8 @@ end subroutine TMDF_ResetCounters
         )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
     !--------------------------------------------------------------------------------  
     CASE (10005) !pp-> W-
-        FA=-SiversTMDPDF_5(x1,b,mu,zeta1,h1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-        FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
+        FA=-SiversTMDPDF_inB(x1,b,mu,zeta1,h1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
+        FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
         
         Integrand=-global_mass_scale*paramW_L*(&
         paramW_UD*(FA(1)*FB(-2)+FA(-2)*FB(1))&        !d*ubar+ubar*d
@@ -741,8 +837,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (10011) !h+p(s)->gamma
     ! e_q^2 *F_q(A)*F_qbar(B)
-    FA=uTMDPDF_5(x1,b,mu,zeta2,h1)
-    FB=-SiversTMDPDF_5(x2,b,mu,zeta1,h2)    !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
+    FA=uTMDPDF_inB(x1,b,mu,zeta2,h1)
+    FB=-SiversTMDPDF_inB(x2,b,mu,zeta1,h2)    !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
     FAB=FA*(FB(5:-5:-1))
 
     !!!! extra factor -1 (total +1) is due to definition of Sivers, h1+h2(s)=-h1(s)+h2
@@ -761,8 +857,8 @@ end subroutine TMDF_ResetCounters
     CASE (12001:12009) !Sivers asymmetry p->hN where n=last number
     ! e_q^2 *F_q(A)*F_q(B)
     h=process-12000
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=-global_mass_scale*(&
         FA(1)*FB(1)/9.d0&
         +FA(2)*FB(2)*4.d0/9.d0&
@@ -778,8 +874,8 @@ end subroutine TMDF_ResetCounters
     CASE (12011:12019) !Sivers asymmetry d->hN where n=last number (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     h=process-12010
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=-global_mass_scale*(&
         (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
         +FA(3)*FB(3)/9.d0&
@@ -793,8 +889,8 @@ end subroutine TMDF_ResetCounters
     CASE (12021:12029) !Sivers asymmetry p->bar-hN where n=last number
     ! e_q^2 *F_q(A)*F_bar-q(B)
     h=process-12020
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=-global_mass_scale*(&
         FA(1)*FB(-1)/9.d0&
         +FA(2)*FB(-2)*4.d0/9.d0&
@@ -810,8 +906,8 @@ end subroutine TMDF_ResetCounters
     CASE (12031:12039) !Sivers asymmetry d->bar-hN where n=last number (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_bar-q(B)
     h=process-12030
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=-global_mass_scale*(&
         (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
         +FA(3)*FB(-3)/9.d0&
@@ -825,8 +921,8 @@ end subroutine TMDF_ResetCounters
     CASE (12041:12049) !Sivers asymmetry p->hN where n=last number  (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
     h=process-12040
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=-global_mass_scale*(&
         FA(2)*FB(1)/9.d0&
         +FA(1)*FB(2)*4.d0/9.d0&
@@ -842,8 +938,8 @@ end subroutine TMDF_ResetCounters
     CASE (12051:12059) !Sivers asymmetry p->bar-hN where n=last number (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_bar-q(B)
     h=process-12050
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=-global_mass_scale*(&
         FA(2)*FB(-1)/9.d0&
         +FA(1)*FB(-2)*4.d0/9.d0&
@@ -859,8 +955,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (12101) !p->h? where h?=h1+h2
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=-global_mass_scale*(&
         FA(1)*FB(1)/9.d0&
         +FA(2)*FB(2)*4.d0/9.d0&
@@ -875,8 +971,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (12102) !p->h? where h?=h1+h2+h3
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=-global_mass_scale*(&
         FA(1)*FB(1)/9.d0&
         +FA(2)*FB(2)*4.d0/9.d0&
@@ -891,8 +987,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (12103) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=-global_mass_scale*(&
         (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
         +FA(3)*FB(3)/9.d0&
@@ -905,8 +1001,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (12104) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=-global_mass_scale*(&
         (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
         +FA(3)*FB(3)/9.d0&
@@ -919,8 +1015,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (12105) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=-global_mass_scale*(&
         FA(2)*FB(1)/9.d0&
         +FA(1)*FB(2)*4.d0/9.d0&
@@ -935,8 +1031,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (12106) !n->h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=-global_mass_scale*(&
         FA(2)*FB(1)/9.d0&
         +FA(1)*FB(2)*4.d0/9.d0&
@@ -951,8 +1047,8 @@ end subroutine TMDF_ResetCounters
     !------------------------------------------------------------------------------------
     CASE (12111) !p->bar h? where h?=h1+h2
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=-global_mass_scale*(&
         FA(1)*FB(-1)/9.d0&
         +FA(2)*FB(-2)*4.d0/9.d0&
@@ -967,8 +1063,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (12112) !p->bar h? where h?=h1+h2+h3
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=-global_mass_scale*(&
         FA(1)*FB(-1)/9.d0&
         +FA(2)*FB(-2)*4.d0/9.d0&
@@ -983,8 +1079,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (12113) !d->bar h? where h?=h1+h2 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=-global_mass_scale*(&
         (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
         +FA(3)*FB(-3)/9.d0&
@@ -997,8 +1093,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (12114) !d->bar h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=-global_mass_scale*(&
         (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
         +FA(3)*FB(-3)/9.d0&
@@ -1011,8 +1107,8 @@ end subroutine TMDF_ResetCounters
     !------------------------------------------------------------------------------------
     CASE (12115) !n->bar h? where h?=h1+h2 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=-global_mass_scale*(&
         FA(2)*FB(-1)/9.d0&
         +FA(1)*FB(-2)*4.d0/9.d0&
@@ -1027,8 +1123,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (12116) !n->bar h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=SiversTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=-global_mass_scale*(&
         FA(2)*FB(-1)/9.d0&
         +FA(1)*FB(-2)*4.d0/9.d0&
@@ -1047,8 +1143,8 @@ end subroutine TMDF_ResetCounters
     CASE (13001:13009) !A_LT asymmetry p->hN where n=last number
     ! e_q^2 *F_q(A)*F_q(B)
     h=process-13000
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=+global_mass_scale*(&
         FA(1)*FB(1)/9.d0&
         +FA(2)*FB(2)*4.d0/9.d0&
@@ -1064,8 +1160,8 @@ end subroutine TMDF_ResetCounters
     CASE (13011:13019) !A_LT asymmetry d->hN where n=last number (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     h=process-13010
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=+global_mass_scale*(&
         (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
         +FA(3)*FB(3)/9.d0&
@@ -1079,8 +1175,8 @@ end subroutine TMDF_ResetCounters
     CASE (13021:13029) !A_LT asymmetry p->bar-hN where n=last number
     ! e_q^2 *F_q(A)*F_bar-q(B)
     h=process-13020
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=+global_mass_scale*(&
         FA(1)*FB(-1)/9.d0&
         +FA(2)*FB(-2)*4.d0/9.d0&
@@ -1096,8 +1192,8 @@ end subroutine TMDF_ResetCounters
     CASE (13031:13039) !A_LT asymmetry d->bar-hN where n=last number (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_bar-q(B)
     h=process-13030
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=+global_mass_scale*(&
         (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
         +FA(3)*FB(-3)/9.d0&
@@ -1111,8 +1207,8 @@ end subroutine TMDF_ResetCounters
     CASE (13041:13049) !A_LT asymmetry p->hN where n=last number  (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
     h=process-13040
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=+global_mass_scale*(&
         FA(2)*FB(1)/9.d0&
         +FA(1)*FB(2)*4.d0/9.d0&
@@ -1128,8 +1224,8 @@ end subroutine TMDF_ResetCounters
     CASE (13051:13059) !A_LT asymmetry p->bar-hN where n=last number (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_bar-q(B)
     h=process-13050
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,h)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
     Integrand=+global_mass_scale*(&
         FA(2)*FB(-1)/9.d0&
         +FA(1)*FB(-2)*4.d0/9.d0&
@@ -1145,8 +1241,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (13101) !p->h? where h?=h1+h2
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=+global_mass_scale*(&
         FA(1)*FB(1)/9.d0&
         +FA(2)*FB(2)*4.d0/9.d0&
@@ -1161,8 +1257,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (13102) !p->h? where h?=h1+h2+h3
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=+global_mass_scale*(&
         FA(1)*FB(1)/9.d0&
         +FA(2)*FB(2)*4.d0/9.d0&
@@ -1177,8 +1273,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (13103) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=+global_mass_scale*(&
         (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
         +FA(3)*FB(3)/9.d0&
@@ -1191,8 +1287,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (13104) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=+global_mass_scale*(&
         (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
         +FA(3)*FB(3)/9.d0&
@@ -1205,8 +1301,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (13105) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=+global_mass_scale*(&
         FA(2)*FB(1)/9.d0&
         +FA(1)*FB(2)*4.d0/9.d0&
@@ -1221,8 +1317,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (13106) !n->h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=+global_mass_scale*(&
         FA(2)*FB(1)/9.d0&
         +FA(1)*FB(2)*4.d0/9.d0&
@@ -1237,8 +1333,8 @@ end subroutine TMDF_ResetCounters
     !------------------------------------------------------------------------------------
     CASE (13111) !p->bar h? where h?=h1+h2
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=+global_mass_scale*(&
         FA(1)*FB(-1)/9.d0&
         +FA(2)*FB(-2)*4.d0/9.d0&
@@ -1253,8 +1349,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (13112) !p->bar h? where h?=h1+h2+h3
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=+global_mass_scale*(&
         FA(1)*FB(-1)/9.d0&
         +FA(2)*FB(-2)*4.d0/9.d0&
@@ -1269,8 +1365,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (13113) !d->bar h? where h?=h1+h2 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=+global_mass_scale*(&
         (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
         +FA(3)*FB(-3)/9.d0&
@@ -1283,8 +1379,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (13114) !d->bar h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=+global_mass_scale*(&
         (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
         +FA(3)*FB(-3)/9.d0&
@@ -1297,8 +1393,8 @@ end subroutine TMDF_ResetCounters
     !------------------------------------------------------------------------------------
     CASE (13115) !n->bar h? where h?=h1+h2 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
     Integrand=+global_mass_scale*(&
         FA(2)*FB(-1)/9.d0&
         +FA(1)*FB(-2)*4.d0/9.d0&
@@ -1313,8 +1409,8 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------  
     CASE (13116) !n->bar h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_bq(B)
-    FA=wgtTMDPDF_5(x1,b,mu,zeta1,1)
-    FB=uTMDFF_5(x2,b,mu,zeta2,1)+uTMDFF_5(x2,b,mu,zeta2,2)+uTMDFF_5(x2,b,mu,zeta2,3)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     Integrand=+global_mass_scale*(&
         FA(2)*FB(-1)/9.d0&
         +FA(1)*FB(-2)*4.d0/9.d0&
@@ -1329,15 +1425,15 @@ end subroutine TMDF_ResetCounters
     !--------------------------------------------------------------------------------
     !-------------------------SPECIAL DY CASES---------------------------------------  
     CASE (13200) !pp->Z+gamma        
-        FA=wgtTMDPDF_5(x1,b,mu,zeta1,h1)
-        FB=uTMDPDF_5(x2,b,mu,zeta2,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
+        FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
+        FB=uTMDPDF_inB(x2,b,mu,zeta2,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
         FAB=FA*FB
             
         Integrand=global_mass_scale*XIntegrandForDYwithZgamma_GTU(FAB,Q2)
     !--------------------------------------------------------------------------------  
     CASE (13201) !pp-> W+
-        FA=wgtTMDPDF_5(x1,b,mu,zeta1,h1)
-        FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
+        FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
+        FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
         
         Integrand=-global_mass_scale*paramW_L*(& !!! -1=is due to the -gL^2 in the coupling for lepton
         paramW_UD*(FA(2)*FB(-1)-FA(-1)*FB(2))&        !u*dbar+dbar*u
@@ -1349,8 +1445,8 @@ end subroutine TMDF_ResetCounters
         )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
     !--------------------------------------------------------------------------------  
     CASE (13202) !pp-> W-
-        FA=wgtTMDPDF_5(x1,b,mu,zeta1,h1)
-        FB=uTMDPDF_5(x2,b,mu,zeta2,h2)
+        FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
+        FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
         
         Integrand=-global_mass_scale*paramW_L*(& !!! -1=is due to the -gL^2 in the coupling for lepton
         paramW_UD*(FA(1)*FB(-2)-FA(-2)*FB(1))&        !d*ubar+ubar*d

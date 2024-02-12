@@ -157,9 +157,6 @@ integer::BoerMuldersTMDPDF_maxIteration
 real(dp)::BoerMuldersTMDPDF_hOGATA,BoerMuldersTMDPDF_toleranceOGATA,BoerMuldersTMDPDF_KT_FREEZE
 real(dp)::BoerMuldersTMDPDF_hOGATA_TMM,BoerMuldersTMDPDF_toleranceOGATA_TMM,BoerMuldersTMDPDF_muMIN_TMM
 
-!-------------------- TMDs parameters
-logical::include_TMDs
-
 !-------------------- TMDF parameters
 logical::include_TMDF
 real(dp)::TMDF_OGATAh,TMDF_tolerance
@@ -168,19 +165,6 @@ real(dp)::TMDF_mass
 !-------------------- TMDF-KPC-Dy parameters
 logical::include_TMDF_KPC
 real(dp)::TMDF_KPC_toleranceGEN,TMDF_KPC_toleranceINT
-
-!-------------------- TMDs-inKT parameters
-logical::include_TMDs_inKT
-real(dp)::TMDs_inKT_OGATAh,TMDs_inKT_tolerance
-real(dp)::TMDs_inKT_xMin,TMDs_inKT_kMin,TMDs_inKT_QMin,TMDs_inKT_QMax
-real(dp)::TMDs_inKT_parX,TMDs_inKT_ParK
-integer::TMDs_inKT_NX,TMDs_inKT_NQ,TMDs_inKT_NK
-logical::TMDs_inKT_incGrid_uTMDPDF,TMDs_inKT_incGrid_uTMDFF,TMDs_inKT_incGrid_lpTMDPDF,TMDs_inKT_incGrid_SiversTMDPDF,&
-        TMDs_inKT_incGrid_wgtTMDPDF,TMDs_inKT_incGrid_BoerMuldersTMDPDF
-integer::TMDs_inKT_numH_uTMDPDF,TMDs_inKT_numH_uTMDFF,TMDs_inKT_numH_lpTMDPDF,TMDs_inKT_numH_SiversTMDPDF,&
-        TMDs_inKT_numH_wgtTMDPDF, TMDs_inKT_numH_BoerMuldersTMDPDF
-logical::TMDs_inKT_incGluon_uTMDPDF,TMDs_inKT_incGluon_uTMDFF,TMDs_inKT_incGluon_lpTMDPDF,TMDs_inKT_incGluon_SiversTMDPDF,&
-        TMDs_inKT_incGluon_wgtTMDPDF,TMDs_inKT_incGluon_BoerMuldersTMDPDF
 
 !-------------------- TMDX-DY parameters
 logical::include_TMDX_DY
@@ -489,46 +473,11 @@ subroutine SetupDefault(order)
     BoerMuldersTMDPDF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
     BoerMuldersTMDPDF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
 
-    !------------------ parameters for TMDs
-    include_TMDs=.true.
-
     !------------------ parameters for TMDF
     include_TMDF=.true.
     TMDF_tolerance=0.0001d0    !tolerance (i.e. relative integration tolerance)
     TMDF_OGATAh=0.001d0        !Ogata quadrature integration step
     TMDF_mass=0.938272      !mass parameter that is used as reference dimension
-
-    !------------------ parameters for TMDs-inKT
-    include_TMDs_inKT=.false.
-    TMDs_inKT_tolerance=0.0001d0    !tolerance (i.e. relative integration tolerance)
-    TMDs_inKT_OGATAh=0.001d0        !Ogata quadrature integration step
-    TMDs_inKT_xMin=0.0001d0         !minimum x in the grid
-    TMDs_inKT_kMin=0.0001d0         !minimum kT in the grid
-    TMDs_inKT_QMin=1.d0             !minimum Q in the grid
-    TMDs_inKT_QMax=250.d0           !maximum Q in the grid
-    TMDs_inKT_parX=2.d0             !parameter of x grid
-    TMDs_inKT_ParK=2.5d0            !factor for maximum k value (park*Q)
-    TMDs_inKT_NX=200                !grid size in X
-    TMDs_inKT_NK=50                 !grid size in KT
-    TMDs_inKT_NQ=25                 !grid size in Q
-    TMDs_inKT_incGrid_uTMDPDF=.false.
-    TMDs_inKT_incGrid_uTMDFF=.false.
-    TMDs_inKT_incGrid_lpTMDPDF=.false.
-    TMDs_inKT_incGrid_SiversTMDPDF=.false.
-    TMDs_inKT_incGrid_wgtTMDPDF=.false.
-    TMDs_inKT_incGrid_BoerMuldersTMDPDF=.false.
-    TMDs_inKT_numH_uTMDPDF=0
-    TMDs_inKT_numH_uTMDFF=0
-    TMDs_inKT_numH_lpTMDPDF=0
-    TMDs_inKT_numH_SiversTMDPDF=0
-    TMDs_inKT_numH_wgtTMDPDF=0
-    TMDs_inKT_numH_BoerMuldersTMDPDF=0
-    TMDs_inKT_incGluon_uTMDPDF=.false.
-    TMDs_inKT_incGluon_uTMDFF=.false.
-    TMDs_inKT_incGluon_lpTMDPDF=.true.
-    TMDs_inKT_incGluon_SiversTMDPDF=.false.
-    TMDs_inKT_incGluon_wgtTMDPDF=.false.
-    TMDs_inKT_incGluon_BoerMuldersTMDPDF=.false.
 
     !------------------ parameters for TMDX-DY
     include_TMDX_DY=.true.
@@ -944,17 +893,6 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)')")
     write(51,*) uTMDFF_muMIN_TMM
 
-
-    write(51,"(' ')")
-    write(51,"(' ')")
-    write(51,"('# ---------------------------------------------------------------------------')")
-    write(51,"('# ----                            PARAMETERS OF TMDs                    -----')")
-    write(51,"('# ---------------------------------------------------------------------------')")
-    write(51,"('*6   :')")
-    write(51,"('*p1  : initialize TMDs module')")
-    write(51,*) include_TMDs
-
-
     write(51,"(' ')")
     write(51,"(' ')")
     write(51,"('# ---------------------------------------------------------------------------')")
@@ -971,77 +909,6 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*B   : ---- Global garameters of structure functions----')")
     write(51,"('*p1  : Mass parameter used in the structure function (mass of hadron)')")
     write(51,*) TMDF_mass
-
-
-    write(51,"(' ')")
-    write(51,"(' ')")
-    write(51,"('# ---------------------------------------------------------------------------')")
-    write(51,"('# ----                          PARAMETERS OF TMDs-inKT                 -----')")
-    write(51,"('# ---------------------------------------------------------------------------')")
-    write(51,"('*8   :')")
-    write(51,"('*p1  : initialize TMDs-inKT module')")
-    write(51,*) include_TMDs_inKT
-    write(51,"('*A   : ---- Numerical evaluation parameters ----')")
-    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
-    write(51,*) TMDs_inKT_tolerance
-    write(51,"('*p2  : Ogata quadrature integration step')")
-    write(51,*) TMDs_inKT_OGATAh
-    write(51,"('*B   : ---- General parameters of grid ----')")
-    write(51,"('*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough')")
-    write(51,*) TMDs_inKT_xMin
-    write(51,"('*p2  : Parameter for x-griding function (better not to change it)')")
-    write(51,*) TMDs_inKT_parX
-    write(51,"('*p3  : The minimum kT in grid, for smaller value the result is constant')")
-    write(51,*) TMDs_inKT_kMin
-    write(51,"('*p4  : The multiplicative factor for maximum kT (kT_max= par * Q)')")
-    write(51,*) TMDs_inKT_ParK
-    write(51,"('*p5  : The minimum Q in grid, make sure that it is enough')")
-    write(51,*) TMDs_inKT_QMin
-    write(51,"('*p6  : The maximum Q in grid, make sure that it is enough')")
-    write(51,*) TMDs_inKT_QMax
-    write(51,"('*p7  : Grid Size over X')")
-    write(51,*) TMDs_inKT_NX
-    write(51,"('*p8  : Grid Size over kT')")
-    write(51,*) TMDs_inKT_NK
-    write(51,"('*p9  : Grid Size over Q')")
-    write(51,*) TMDs_inKT_NQ
-    write(51,"('*C   : ---- Grids for each TMDPDF grid ----')")
-    write(51,"('*p1  : include grid for unpolarized TMDPDF')")
-    write(51,*) TMDs_inKT_incGrid_uTMDPDF
-    write(51,"('*p2  : number of hadrons in grid for unpolarized TMDPDF (by order strating with 1)')")
-    write(51,*) TMDs_inKT_numH_uTMDPDF
-    write(51,"('*p3  : include gluon into the grid for unpolarized TMDPDF')")
-    write(51,*) TMDs_inKT_incGluon_uTMDPDF
-    write(51,"('*p4  : include grid for unpolarized TMDFF')")
-    write(51,*) TMDs_inKT_incGrid_uTMDFF
-    write(51,"('*p5  : number of hadrons in grid for unpolarized TMDFF (by order strating with 1)')")
-    write(51,*) TMDs_inKT_numH_uTMDFF
-    write(51,"('*p6  : include gluon into the grid for unpolarized TMDFF')")
-    write(51,*) TMDs_inKT_incGluon_uTMDFF
-    write(51,"('*p7  : include grid for lin.pol. TMDPDF')")
-    write(51,*) TMDs_inKT_incGrid_lpTMDPDF
-    write(51,"('*p8  : number of hadrons in grid for lin.pol. TMDPDF (by order strating with 1)')")
-    write(51,*) TMDs_inKT_numH_lpTMDPDF
-    write(51,"('*p9  : include gluon into the grid for lin.pol.TMDPDF')")
-    write(51,*) TMDs_inKT_incGluon_lpTMDPDF
-    write(51,"('*p10 : include grid for SiversTMDPDF')")
-    write(51,*) TMDs_inKT_incGrid_SiversTMDPDF
-    write(51,"('*p11 : number of hadrons in grid for SiversTMDPDF (by order strating with 1)')")
-    write(51,*) TMDs_inKT_numH_SiversTMDPDF
-    write(51,"('*p12 : include gluon into the grid for SiversTMDPDF')")
-    write(51,*) TMDs_inKT_incGluon_SiversTMDPDF
-    write(51,"('*p13 : include grid for wgtTMDPDF')")
-    write(51,*) TMDs_inKT_incGrid_wgtTMDPDF
-    write(51,"('*p14 : number of hadrons in grid for wgtTMDPDF (by order strating with 1)')")
-    write(51,*) TMDs_inKT_numH_wgtTMDPDF
-    write(51,"('*p15 : include gluon into the grid for wgtTMDPDF')")
-    write(51,*) TMDs_inKT_incGluon_wgtTMDPDF
-    write(51,"('*p16 : include grid for BoerMuldersTMDPDF')")
-    write(51,*) TMDs_inKT_incGrid_BoerMuldersTMDPDF
-    write(51,"('*p17 : number of hadrons in grid for BoerMuldersTMDPDF (by order strating with 1)')")
-    write(51,*) TMDs_inKT_numH_BoerMuldersTMDPDF
-    write(51,"('*p18 : include gluon into the grid for BoerMuldersTMDPDF')")
-    write(51,*) TMDs_inKT_incGluon_BoerMuldersTMDPDF
 
     write(51,"(' ')")
     write(51,"(' ')")
@@ -1761,13 +1628,6 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p3  ')
     read(51,*) uTMDFF_muMIN_TMM
 
-
-    !# ----                            PARAMETERS OF TMDs                    -----
-    call MoveTO(51,'*6   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) include_TMDs
-
-
     !# ----                            PARAMETERS OF TMDF                    -----
     call MoveTO(51,'*7   ')
     call MoveTO(51,'*p1  ')
@@ -1780,74 +1640,6 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
     read(51,*) TMDF_mass
-
-
-
-    !# ----                          PARAMETERS OF TMDs-inKT                 -----
-    call MoveTO(51,'*8   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) include_TMDs_inKT
-    call MoveTO(51,'*A   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) TMDs_inKT_tolerance
-    call MoveTO(51,'*p2  ')
-    read(51,*) TMDs_inKT_OGATAh
-    call MoveTO(51,'*B   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) TMDs_inKT_xMin
-    call MoveTO(51,'*p2  ')
-    read(51,*) TMDs_inKT_parX
-    call MoveTO(51,'*p3  ')
-    read(51,*) TMDs_inKT_kMin
-    call MoveTO(51,'*p4  ')
-    read(51,*) TMDs_inKT_ParK
-    call MoveTO(51,'*p5  ')
-    read(51,*) TMDs_inKT_QMin
-    call MoveTO(51,'*p6  ')
-    read(51,*) TMDs_inKT_QMax
-    call MoveTO(51,'*p7  ')
-    read(51,*) TMDs_inKT_NX
-    call MoveTO(51,'*p8  ')
-    read(51,*) TMDs_inKT_NK
-    call MoveTO(51,'*p9  ')
-    read(51,*) TMDs_inKT_NQ
-    call MoveTO(51,'*C   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) TMDs_inKT_incGrid_uTMDPDF
-    call MoveTO(51,'*p2  ')
-    read(51,*) TMDs_inKT_numH_uTMDPDF
-    call MoveTO(51,'*p3  ')
-    read(51,*) TMDs_inKT_incGluon_uTMDPDF
-    call MoveTO(51,'*p4  ')
-    read(51,*) TMDs_inKT_incGrid_uTMDFF
-    call MoveTO(51,'*p5  ')
-    read(51,*) TMDs_inKT_numH_uTMDFF
-    call MoveTO(51,'*p6  ')
-    read(51,*) TMDs_inKT_incGluon_uTMDFF
-    call MoveTO(51,'*p7  ')
-    read(51,*) TMDs_inKT_incGrid_lpTMDPDF
-    call MoveTO(51,'*p8  ')
-    read(51,*) TMDs_inKT_numH_lpTMDPDF
-    call MoveTO(51,'*p9  ')
-    read(51,*) TMDs_inKT_incGluon_lpTMDPDF
-    call MoveTO(51,'*p10 ')
-    read(51,*) TMDs_inKT_incGrid_SiversTMDPDF
-    call MoveTO(51,'*p11 ')
-    read(51,*) TMDs_inKT_numH_SiversTMDPDF
-    call MoveTO(51,'*p12 ')
-    read(51,*) TMDs_inKT_incGluon_SiversTMDPDF
-    call MoveTO(51,'*p13 ')
-    read(51,*) TMDs_inKT_incGrid_wgtTMDPDF
-    call MoveTO(51,'*p14 ')
-    read(51,*) TMDs_inKT_numH_wgtTMDPDF
-    call MoveTO(51,'*p15 ')
-    read(51,*) TMDs_inKT_incGluon_wgtTMDPDF
-    call MoveTO(51,'*p16 ')
-    read(51,*) TMDs_inKT_incGrid_BoerMuldersTMDPDF
-    call MoveTO(51,'*p17 ')
-    read(51,*) TMDs_inKT_numH_BoerMuldersTMDPDF
-    call MoveTO(51,'*p18 ')
-    read(51,*) TMDs_inKT_incGluon_BoerMuldersTMDPDF
 
 
     !# ----                           PARAMETERS OF TMDX-DY                  -----
