@@ -93,7 +93,6 @@ real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::bb_TMM
 
 public::lpTMDPDF_Initialize,lpTMDPDF_IsInitialized,lpTMDPDF_SetScaleVariation,lpTMDPDF_SetPDFreplica
 public::lpTMDPDF_SetLambdaNP,lpTMDPDF_CurrentLambdaNP
-public::lpTMDPDF_lowScale5
 public::lpTMDPDF_inB,lpTMDPDF_inKT,lpTMDPDF_TMM_G,lpTMDPDF_TMM_X
 
 interface lpTMDPDF_inB
@@ -242,6 +241,7 @@ subroutine lpTMDPDF_Initialize(file,prefix)
     allocate(lambdaNP(1:lambdaNPlength))
 
     call PrepareTables()
+    call PrepareTablesTMM()
 
     if(.not.TMDR_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
@@ -316,39 +316,6 @@ function lpTMDPDF_CurrentLambdaNP()
 end function lpTMDPDF_CurrentLambdaNP
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
-!!!!!!! the function that actually returns the lpTMDPDF!
-function lpTMDPDF_lowScale5(x,bT,hadron)
-  real(dp),dimension(-5:5)::lpTMDPDF_lowScale5
-  real(dp),intent(in) :: x, bT
-  integer,intent(in)::hadron
-
-  !!! test boundaries
-    if(x>1d0) then
-        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
-        lpTMDPDF_lowScale5=0._dp
-        return
-    else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
-        lpTMDPDF_lowScale5=0._dp
-        return
-    else if(bT>BMAX_ABS) then
-        lpTMDPDF_lowScale5=0._dp
-        return
-    else if(x<1d-12) then
-        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
-        stop
-    else if(bT<0d0) then
-        write(*,*) ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
-        stop
-    end if
-
-    lpTMDPDF_lowScale5=lpTMDPDF_OPE_convolution(x,bT,hadron)*FNP(x,bT,hadron,lambdaNP)
-
-    if(hadron<0) lpTMDPDF_lowScale5=lpTMDPDF_lowScale5(5:-5:-1)  !! it makes no sense, because it is only gluon... but still
-
-end function lpTMDPDF_lowScale5
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
 
 !!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
 

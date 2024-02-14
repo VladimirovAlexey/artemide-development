@@ -95,7 +95,6 @@ public::wgtTMDPDF_Initialize,wgtTMDPDF_IsInitialized
 public::wgtTMDPDF_SetScaleVariation, wgtTMDPDF_SetScaleVariation_tw3
 public::wgtTMDPDF_SetPDFreplica,wgtTMDPDF_SetPDFreplica_tw3
 public::wgtTMDPDF_SetLambdaNP,wgtTMDPDF_CurrentLambdaNP
-public::wgtTMDPDF_lowScale5
 public::wgtTMDPDF_inB,wgtTMDPDF_inKT,wgtTMDPDF_TMM_G,wgtTMDPDF_TMM_X
 
 interface wgtTMDPDF_inB
@@ -239,6 +238,7 @@ subroutine wgtTMDPDF_Initialize(file,prefix)
     allocate(lambdaNP(1:lambdaNPlength))
 
     call PrepareTables()
+    call PrepareTablesTMM()
 
     if(.not.TMDR_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
@@ -326,40 +326,6 @@ function wgtTMDPDF_CurrentLambdaNP()
 end function wgtTMDPDF_CurrentLambdaNP
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
-!!!!!!! the function that actually returns the wgtTMDPDF!
-function wgtTMDPDF_lowScale5(x,bT,hadron)
-  real(dp),dimension(-5:5)::wgtTMDPDF_lowScale5
-  real(dp),intent(in) :: x, bT
-  integer,intent(in)::hadron
-
-  !!! test boundaries
-    if(x>1d0) then
-        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
-        wgtTMDPDF_lowScale5=0._dp
-        return
-    else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
-        wgtTMDPDF_lowScale5=0._dp
-        return
-    else if(bT>BMAX_ABS) then
-        wgtTMDPDF_lowScale5=0._dp
-        return
-    else if(x<1d-12) then
-        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
-        stop
-    else if(bT<0d0) then
-        write(*,*) ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
-        stop
-    end if
-
-    wgtTMDPDF_lowScale5=wgtTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)&
-        +wgtTMDPDF_OPE_tw3_convolution(x,bT,abs(hadron))*FNP_tw3(x,bT,abs(hadron),lambdaNP)
-
-    if(hadron<0) wgtTMDPDF_lowScale5=wgtTMDPDF_lowScale5(5:-5:-1)
-
-end function wgtTMDPDF_lowScale5
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
 
 !!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
 

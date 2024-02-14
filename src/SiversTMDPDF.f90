@@ -93,7 +93,6 @@ public::SiversTMDPDF_Initialize,SiversTMDPDF_IsInitialized
 public::SiversTMDPDF_SetScaleVariation_tw3
 public::SiversTMDPDF_SetPDFreplica_tw3
 public::SiversTMDPDF_SetLambdaNP,SiversTMDPDF_CurrentLambdaNP
-public::SiversTMDPDF_lowScale5
 public::SiversTMDPDF_inB,SiversTMDPDF_inKT,SiversTMDPDF_TMM_G,SiversTMDPDF_TMM_X
 
 interface SiversTMDPDF_inB
@@ -237,6 +236,7 @@ subroutine SiversTMDPDF_Initialize(file,prefix)
     allocate(lambdaNP(1:lambdaNPlength))
 
     call PrepareTables()
+    call PrepareTablesTMM()
 
     if(.not.TMDR_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
@@ -311,39 +311,6 @@ function SiversTMDPDF_CurrentLambdaNP()
 end function SiversTMDPDF_CurrentLambdaNP
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
-!!!!!!! the function that actually returns the SiversTMDPDF!
-function SiversTMDPDF_lowScale5(x,bT,hadron)
-  real(dp),dimension(-5:5)::SiversTMDPDF_lowScale5
-  real(dp),intent(in) :: x, bT
-  integer,intent(in)::hadron
-
-  !!! test boundaries
-    if(x>1d0) then
-        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
-        SiversTMDPDF_lowScale5=0._dp
-        return
-    else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
-        SiversTMDPDF_lowScale5=0._dp
-        return
-    else if(bT>BMAX_ABS) then
-        SiversTMDPDF_lowScale5=0._dp
-        return
-    else if(x<1d-12) then
-        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
-        stop
-    else if(bT<0d0) then
-        write(*,*) ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
-        stop
-    end if
-
-    SiversTMDPDF_lowScale5=SiversTMDPDF_OPE_tw3_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
-
-    if(hadron<0) SiversTMDPDF_lowScale5=SiversTMDPDF_lowScale5(5:-5:-1)
-
-end function SiversTMDPDF_lowScale5
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
 
 !!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
 

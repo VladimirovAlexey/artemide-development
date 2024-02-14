@@ -80,6 +80,10 @@ real(dp)::uTMDPDF_grid_bMin,uTMDPDF_grid_bMax
 integer::uTMDPDF_grid_SizeX,uTMDPDF_grid_SizeB
 real(dp)::uTMDPDF_hOGATA,uTMDPDF_toleranceOGATA,uTMDPDF_KT_FREEZE
 real(dp)::uTMDPDF_hOGATA_TMM,uTMDPDF_toleranceOGATA_TMM,uTMDPDF_muMIN_TMM
+logical::uTMDPDF_makeGrid_inKT,uTMDPDF_runGridTest_inKT
+real(dp)::uTMDPDF_xMIN_inKT,uTMDPDF_ktMIN_inKT,uTMDPDF_QMIN_inKT,uTMDPDF_QMAX_inKT
+real(dp)::uTMDPDF_parX_inKT,uTMDPDF_parK_inKT
+integer::uTMDPDF_NX_inKT,uTMDPDF_NK_inKT,uTMDPDF_NQ_inKT
 
 !-------------------- uTMDFF parameters
 logical::include_uTMDFF
@@ -355,6 +359,17 @@ subroutine SetupDefault(order)
     uTMDPDF_toleranceOGATA_TMM=1.d-4    !!! OGATA tolerance (for TMM)
     uTMDPDF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
     uTMDPDF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
+    uTMDPDF_makeGrid_inKT=.false.
+    uTMDPDF_runGridTest_inKT=.false.
+    uTMDPDF_xMIN_inKT=0.00001d0
+    uTMDPDF_ktMIN_inKT=0.001d0
+    uTMDPDF_QMIN_inKT=1.d0
+    uTMDPDF_QMAX_inKT=200.d0
+    uTMDPDF_parX_inKT=2.d0
+    uTMDPDF_parK_inKT=1.5d0
+    uTMDPDF_NX_inKT=200
+    uTMDPDF_NK_inKT=100
+    uTMDPDF_NQ_inKT=50
 
     !-------------------- parameters for UTMDFF
     include_uTMDFF=.false.!!! we do not initialize TMDFF by definition
@@ -825,6 +840,32 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) uTMDPDF_hOGATA_TMM
     write(51,"('*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)')")
     write(51,*) uTMDPDF_muMIN_TMM
+    write(51,"(' ')")
+    write(51,"('*H   : ---- Grid in KT-space ----')")
+    write(51,"('*p1  : Prepare grid')")
+    write(51,*) uTMDPDF_makeGrid_inKT
+    write(51,"('*p2  : run the test of the grid (takes some time)')")
+    write(51,*) uTMDPDF_runGridTest_inKT
+    write(51,"('*p3  : Minimal X in the grid')")
+    write(51,*) uTMDPDF_xMIN_inKT
+    write(51,"('*p4  : Minimal KT in the grid (below the value is frozen)')")
+    write(51,*) uTMDPDF_ktMIN_inKT
+    write(51,"('*p5  : Minimal Q in the grid')")
+    write(51,*) uTMDPDF_QMIN_inKT
+    write(51,"('*p6  : Maximal Q in the grid')")
+    write(51,*) uTMDPDF_QMAX_inKT
+    write(51,"('*p7  : Number of nodes in x-direction')")
+    write(51,*) uTMDPDF_NX_inKT
+    write(51,"('*p8  : Number of nodes in KT-direction')")
+    write(51,*) uTMDPDF_NK_inKT
+    write(51,"('*p9  : Number of nodes in Q-direction')")
+    write(51,*) uTMDPDF_NQ_inKT
+    write(51,"('*p10 : Parameter of x-griding function (better not to change it)')")
+    write(51,*) uTMDPDF_parX_inKT
+    write(51,"('*p11 : Upper limit for KT-grid (better not to change it)')")
+    write(51,*) uTMDPDF_parK_inKT
+    write(51,"(' ')")
+
 
     write(51,"(' ')")
     write(51,"(' ')")
@@ -1572,6 +1613,29 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) uTMDPDF_hOGATA_TMM
     call MoveTO(51,'*p3  ')
     read(51,*) uTMDPDF_muMIN_TMM
+    call MoveTO(51,'*H   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) uTMDPDF_makeGrid_inKT
+    call MoveTO(51,'*p2  ')
+    read(51,*) uTMDPDF_runGridTest_inKT
+    call MoveTO(51,'*p3  ')
+    read(51,*) uTMDPDF_xMIN_inKT
+    call MoveTO(51,'*p4  ')
+    read(51,*) uTMDPDF_ktMIN_inKT
+    call MoveTO(51,'*p5  ')
+    read(51,*) uTMDPDF_QMIN_inKT
+    call MoveTO(51,'*p6  ')
+    read(51,*) uTMDPDF_QMAX_inKT
+    call MoveTO(51,'*p7  ')
+    read(51,*) uTMDPDF_NX_inKT
+    call MoveTO(51,'*p8  ')
+    read(51,*) uTMDPDF_NK_inKT
+    call MoveTO(51,'*p9  ')
+    read(51,*) uTMDPDF_NQ_inKT
+    call MoveTO(51,'*p10 ')
+    read(51,*) uTMDPDF_parX_inKT
+    call MoveTO(51,'*p11 ')
+    read(51,*) uTMDPDF_parK_inKT
 
     !# ----                           PARAMETERS OF uTMDFF                   -----
     call MoveTO(51,'*5   ')

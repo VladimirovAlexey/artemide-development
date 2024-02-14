@@ -87,12 +87,22 @@ real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::ww_TMM
 !!!nodes of ogata quadrature
 real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::bb_TMM
 
+!!!------------------------------ Parameters of grid in KT space -------------------------------------------
+
+logical:: makeGrid_inKT,makeTest_inKT,isGridReady_inKT
+real(dp)::DeltaX_inKT,DeltaK_inKT, DeltaQ_inKT
+real(dp)::parX_inKT,parK_inKT
+real(dp)::xMin_inKT,KMin_inKT,Qmin_inKT,Qmax_inKT
+integer::NX_inKT,NK_inKT,NQ_inKT
+real(dp),allocatable::grid_inKT(:,:,:,:,:)
+
 !!-----------------------------------------------Public interface---------------------------------------------------
 
 public::uTMDPDF_Initialize,uTMDPDF_IsInitialized,uTMDPDF_SetScaleVariation,uTMDPDF_SetPDFreplica
 public::uTMDPDF_SetLambdaNP,uTMDPDF_CurrentLambdaNP
 public::uTMDPDF_lowScale5
 public::uTMDPDF_inB,uTMDPDF_inKT,uTMDPDF_TMM_G,uTMDPDF_TMM_X,uPDF_uPDF
+public::ExtractFromGrid_inKT
 
 interface uTMDPDF_inB
     module procedure TMD_opt,TMD_ev
@@ -106,6 +116,7 @@ contains
 
 INCLUDE 'Code/KTspace/Fourier.f90'
 INCLUDE 'Code/KTspace/Moment.f90'
+INCLUDE 'Code/KTspace/grid_inKT.f90'
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Interface subroutines!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -224,6 +235,31 @@ subroutine uTMDPDF_Initialize(file,prefix)
     call MoveTO(51,'*p3  ')
     read(51,*) muTMM_min
 
+    !!!!! ---- parameters of KT-grid
+    call MoveTO(51,'*H   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) makeGrid_inKT
+    call MoveTO(51,'*p2  ')
+    read(51,*) makeTest_inKT
+    call MoveTO(51,'*p3  ')
+    read(51,*) xMin_inKT
+    call MoveTO(51,'*p4  ')
+    read(51,*) KMin_inKT
+    call MoveTO(51,'*p5  ')
+    read(51,*) QMin_inKT
+    call MoveTO(51,'*p6  ')
+    read(51,*) QMax_inKT
+    call MoveTO(51,'*p7  ')
+    read(51,*) NX_inKT
+    call MoveTO(51,'*p8  ')
+    read(51,*) NK_inKT
+    call MoveTO(51,'*p9  ')
+    read(51,*) NQ_inKT
+    call MoveTO(51,'*p10 ')
+    read(51,*) parX_inKT
+    call MoveTO(51,'*p11 ')
+    read(51,*) parK_inKT
+
     CLOSE (51, STATUS='KEEP') 
 
 
@@ -235,7 +271,15 @@ subroutine uTMDPDF_Initialize(file,prefix)
 
     allocate(lambdaNP(1:lambdaNPlength))
 
+    if(makeGrid_inKT) then
+        allocate(grid_inKT(0:NX_inKT,0:NK_inKT,0:NQ_inKT,-5:5,1:numOfHadrons))
+
+        call Grid_Initialize()
+    end if
+    isGridReady_inKT=.false.
+
     call PrepareTables()
+    call PrepareTablesTMM()
 
     if(.not.TMDR_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
@@ -301,6 +345,12 @@ subroutine uTMDPDF_SetLambdaNP(lambdaIN)
 
     if(outputLevel>2) write(*,*) 'arTeMiDe.',moduleName,': NPparameters reset = (',lambdaNP,')'
     call ModelUpdate(lambdaNP)
+
+    if(makeGrid_inKT) then
+        call ComputeGrid_inKT()
+        isGridReady_inKT=.true.
+    end if
+
 end subroutine uTMDPDF_SetLambdaNP
 
 !!! returns current value of NP parameters

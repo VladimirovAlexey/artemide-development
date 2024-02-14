@@ -93,7 +93,6 @@ real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::bb_TMM
 
 public::uTMDFF_Initialize,uTMDFF_IsInitialized,uTMDFF_SetScaleVariation,uTMDFF_SetPDFreplica
 public::uTMDFF_SetLambdaNP,uTMDFF_CurrentLambdaNP
-public::uTMDFF_lowScale5
 public::uTMDFF_inB,uTMDFF_inKT,uTMDFF_TMM_G,uTMDFF_TMM_X
 
 interface uTMDFF_inB
@@ -238,6 +237,7 @@ subroutine uTMDFF_Initialize(file,prefix)
     allocate(lambdaNP(1:lambdaNPlength))
 
     call PrepareTables()
+    call PrepareTablesTMM()
 
     if(.not.TMDR_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
@@ -312,38 +312,6 @@ function uTMDFF_CurrentLambdaNP()
 end function uTMDFF_CurrentLambdaNP
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
-!!!!!!! the function that actually returns the uTMDFF!
-function uTMDFF_lowScale5(x,bT,hadron)
-  real(dp),dimension(-5:5)::uTMDFF_lowScale5
-  real(dp),intent(in) :: x, bT
-  integer,intent(in)::hadron
-
-  !!! test boundaries
-    if(x>1d0) then
-        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
-        uTMDFF_lowScale5=0._dp
-        return
-    else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
-        uTMDFF_lowScale5=0._dp
-        return
-    else if(bT>BMAX_ABS) then
-        uTMDFF_lowScale5=0._dp
-        return
-    else if(x<1d-12) then
-        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
-        stop
-    else if(bT<0d0) then
-        write(*,*) ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
-        stop
-    end if
-
-    uTMDFF_lowScale5=uTMDFF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
-
-    if(hadron<0) uTMDFF_lowScale5=uTMDFF_lowScale5(5:-5:-1)
-end function uTMDFF_lowScale5
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
 
 !!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
 

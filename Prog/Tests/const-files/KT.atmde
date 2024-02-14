@@ -227,7 +227,7 @@
 *p1  : Prepare grid
  T
 *p2  : run the test of the grid (takes some time)
- T
+ F
 *p3  : Minimal X in the grid
    1.0000000000000000E-005
 *p4  : Minimal KT in the grid (below the value is frozen)
@@ -241,7 +241,7 @@
 *p8  : Number of nodes in KT-direction
    100
 *p9  : Number of nodes in Q-direction
-   50
+   100
 *p10 : Parameter of x-griding function (better not to change it)
    2.0000000000000000
 *p11 : Upper limit for KT-grid (better not to change it)
