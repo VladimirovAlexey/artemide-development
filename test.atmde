@@ -225,9 +225,9 @@
    
 *H   : ---- Grid in KT-space ----
 *p1  : Prepare grid
- T
+ F
 *p2  : run the test of the grid (takes some time)
- T
+ F
 *p3  : Minimal X in the grid
    1.0000000000000000E-005
 *p4  : Minimal KT in the grid (below the value is frozen)

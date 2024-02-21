@@ -27,7 +27,7 @@ SELECT CASE(process)
 
   CASE (5) !Z-boson ~P3 f1f1
 
-    DY_KERNEL=1+tau2*(-1+S**2+Lam)/Q2/2
+    DY_KERNEL=1+tau2*(-1+S**2-Lam)/Q2/2
 
   CASE (6) !Z-boson ~P1A {f1f1}_A
 
@@ -88,7 +88,7 @@ SELECT CASE(process)
 
   CASE (32) !A_2 hh-part
 
-    DY_KERNEL=-tau2*(Q2**2*(-1+S**2+Lam)+tau2**2*Lam*(1+S**2-Lam)+Q2*tau2*(2*S**4+(Lam-1)**2-3*S**2*(1+Lam)))/(4*M2*Q2*qT2)
+    DY_KERNEL=tau2*(Q2**2*(-1+S**2+Lam)+tau2**2*Lam*(1+S**2-Lam)+Q2*tau2*(2*S**4+(Lam-1)**2-3*S**2*(1+Lam)))/(4*M2*Q2*qT2)
 
   CASE (35) !A_5 hh-part
 
