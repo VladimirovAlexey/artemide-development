@@ -91,6 +91,12 @@ real(dp), dimension(:,:,:,:), allocatable :: gridMain !!!! THIS IS HUGE(!) matri
 real(dp), dimension(:,:,:,:), allocatable :: interpolationParameters !!!! for b>bGrid_Max we interpolate
 integer::numberOfHadrons=1                !!!total number of hadrons to be stored
 
+
+real(dp), dimension(:,:,:,:,:,:), allocatable :: gridMain_Ch !!!! THIS IS HUGE(!) matrix for the grid
+real(dp),dimension(1:3)::xRanges,bRanges
+integer::xGridSize,bGridSize
+real(dp),allocatable,dimension(:)::xNodes,bNodes,xNodeFactors,bNodeFactors
+
 !!--------------------------------------Public interface-----------------------------------------
 public::uTMDFF_OPE_IsInitialized,uTMDFF_OPE_Initialize,uTMDFF_OPE_convolution
 public::uTMDFF_OPE_resetGrid,uTMDFF_OPE_testGrid,uTMDFF_OPE_SetPDFreplica,uTMDFF_OPE_SetScaleVariation

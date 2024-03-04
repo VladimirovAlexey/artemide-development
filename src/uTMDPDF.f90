@@ -73,7 +73,6 @@ real(dp)::hOGATA,toleranceOGATA
 real(dp),dimension(1:hSegmentationNumber,1:Nmax)::ww
 !!!nodes of ogata quadrature
 real(dp),dimension(1:hSegmentationNumber,1:Nmax)::bb
-
 !!!------------------------------ Parameters of transform to TMM -------------------------------------------
 
 real(dp)::muTMM_min=0.8_dp  !!!!! minimal mu

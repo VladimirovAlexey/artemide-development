@@ -70,12 +70,18 @@ function FNP(x,bT,hadron,lambdaNP)
    if(hadron==1) then
    
     bb=bT**2
+!    ART23
+!     wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)
+!     wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)
+!     wubar=lambdaNP(5)*(1-x)+x*lambdaNP(6)
+!     wdbar=lambdaNP(7)*(1-x)+x*lambdaNP(8)
+!     wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)
 
-    wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)
-    wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)
-    wubar=lambdaNP(5)*(1-x)+x*lambdaNP(6)
-    wdbar=lambdaNP(7)*(1-x)+x*lambdaNP(8)
-    wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)
+     wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)
+     wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)
+     wubar=lambdaNP(1)*(1-x)+x*lambdaNP(6)
+     wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(8)
+     wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)
 
 
     if(wu<0d0 .or. wd<0d0 .or. wubar<0d0 .or. wdbar<0d0 .or. wr<0d0) then
@@ -134,7 +140,7 @@ end function bSTAR
 pure function muOPE(bt,x,y,c4)
     real(dp),intent(in)::bt,x,y,c4
 
-    muOPE=C0_const*c4/bT+2d0
+    muOPE=C0_const*c4/bT+5d0
     
     if(muOPE>1000d0) then
         muOPE=1000d0
