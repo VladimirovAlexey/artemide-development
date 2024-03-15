@@ -75,8 +75,8 @@ real(dp)::uTMDPDF_BMAX_ABS
 real(dp)::uTMDPDF_toleranceINT
 real(dp)::uTMDPDF_toleranceGEN
 integer::uTMDPDF_maxIteration
-real(dp)::uTMDPDF_grid_xMin,uTMDPDF_grid_parX
-real(dp)::uTMDPDF_grid_bMin,uTMDPDF_grid_bMax
+integer::uTMDPDF_numSubGridsX,uTMDPDF_numSubGridsB
+real(dp),allocatable::uTMDPDF_subGridsX(:),uTMDPDF_subGridsB(:)
 integer::uTMDPDF_grid_SizeX,uTMDPDF_grid_SizeB
 real(dp)::uTMDPDF_hOGATA,uTMDPDF_toleranceOGATA,uTMDPDF_KT_FREEZE
 real(dp)::uTMDPDF_hOGATA_TMM,uTMDPDF_toleranceOGATA_TMM,uTMDPDF_muMIN_TMM
@@ -95,8 +95,8 @@ real(dp)::uTMDFF_BMAX_ABS
 real(dp)::uTMDFF_toleranceINT
 real(dp)::uTMDFF_toleranceGEN
 integer::uTMDFF_maxIteration
-real(dp)::uTMDFF_grid_xMin,uTMDFF_grid_parX
-real(dp)::uTMDFF_grid_bMin,uTMDFF_grid_bMax
+integer::uTMDFF_numSubGridsX,uTMDFF_numSubGridsB
+real(dp),allocatable::uTMDFF_subGridsX(:),uTMDFF_subGridsB(:)
 integer::uTMDFF_grid_SizeX,uTMDFF_grid_SizeB
 real(dp)::uTMDFF_hOGATA,uTMDFF_toleranceOGATA,uTMDFF_KT_FREEZE
 real(dp)::uTMDFF_hOGATA_TMM,uTMDFF_toleranceOGATA_TMM,uTMDFF_muMIN_TMM
@@ -111,8 +111,8 @@ real(dp)::lpTMDPDF_BMAX_ABS
 real(dp)::lpTMDPDF_toleranceINT
 real(dp)::lpTMDPDF_toleranceGEN
 integer::lpTMDPDF_maxIteration
-real(dp)::lpTMDPDF_grid_xMin,lpTMDPDF_grid_parX
-real(dp)::lpTMDPDF_grid_bMin,lpTMDPDF_grid_bMax
+integer::lpTMDPDF_numSubGridsX,lpTMDPDF_numSubGridsB
+real(dp),allocatable::lpTMDPDF_subGridsX(:),lpTMDPDF_subGridsB(:)
 integer::lpTMDPDF_grid_SizeX,lpTMDPDF_grid_SizeB
 real(dp)::lpTMDPDF_hOGATA,lpTMDPDF_toleranceOGATA,lpTMDPDF_KT_FREEZE
 real(dp)::lpTMDPDF_hOGATA_TMM,lpTMDPDF_toleranceOGATA_TMM,lpTMDPDF_muMIN_TMM
@@ -142,8 +142,8 @@ real(dp)::wgtTMDPDF_BMAX_ABS
 real(dp)::wgtTMDPDF_toleranceINT
 real(dp)::wgtTMDPDF_toleranceGEN
 integer::wgtTMDPDF_maxIteration
-real(dp)::wgtTMDPDF_grid_xMin,wgtTMDPDF_grid_parX
-real(dp)::wgtTMDPDF_grid_bMin,wgtTMDPDF_grid_bMax
+integer::wgtTMDPDF_numSubGridsX,wgtTMDPDF_numSubGridsB
+real(dp),allocatable::wgtTMDPDF_subGridsX(:),wgtTMDPDF_subGridsB(:)
 integer::wgtTMDPDF_grid_SizeX,wgtTMDPDF_grid_SizeB
 real(dp)::wgtTMDPDF_hOGATA,wgtTMDPDF_toleranceOGATA,wgtTMDPDF_KT_FREEZE
 real(dp)::wgtTMDPDF_hOGATA_TMM,wgtTMDPDF_toleranceOGATA_TMM,wgtTMDPDF_muMIN_TMM
@@ -347,12 +347,14 @@ subroutine SetupDefault(order)
     uTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     uTMDPDF_toleranceGEN=1.d-6!general tolerance
     uTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
-    uTMDPDF_grid_xMin=0.00001d0
-    uTMDPDF_grid_parX=2.d0
-    uTMDPDF_grid_bMin=1.d-6
-    uTMDPDF_grid_bMax=25.d0
-    uTMDPDF_grid_SizeX=400
-    uTMDPDF_grid_SizeB=200
+    uTMDPDF_numSubGridsX=4
+    allocate(uTMDPDF_subGridsX(0:uTMDPDF_numSubGridsX))
+    uTMDPDF_subGridsX=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
+    uTMDPDF_grid_SizeX=8
+    uTMDPDF_numSubGridsB=4
+    allocate(uTMDPDF_subGridsB(0:uTMDPDF_numSubGridsB))
+    uTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,25.d0/)
+    uTMDPDF_grid_SizeB=8
     uTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
     uTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
     uTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
@@ -383,12 +385,14 @@ subroutine SetupDefault(order)
     uTMDFF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     uTMDFF_toleranceGEN=1.d-6!general tolerance
     uTMDFF_maxIteration=10000    !maxIteration for adaptive integration
-    uTMDFF_grid_xMin=0.05d0
-    uTMDFF_grid_parX=2.d0
-    uTMDFF_grid_bMin=1.d-6
-    uTMDFF_grid_bMax=25.d0
-    uTMDFF_grid_SizeX=200
-    uTMDFF_grid_SizeB=200
+    uTMDFF_numSubGridsX=3
+    allocate(uTMDFF_subGridsX(0:uTMDFF_numSubGridsX))
+    uTMDFF_subGridsX=(/0.001d0,0.1d0,0.7d0,1.d0/)
+    uTMDFF_grid_SizeX=8
+    uTMDFF_numSubGridsB=4
+    allocate(uTMDFF_subGridsB(0:uTMDFF_numSubGridsB))
+    uTMDFF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,25.d0/)
+    uTMDFF_grid_SizeB=8
     uTMDFF_toleranceOGATA=1.d-4    !!! OGATA tolerance
     uTMDFF_hOGATA=1.d-3            !!! OGATA integration step
     uTMDFF_KT_FREEZE=1.d-4         !!! min value of kT
@@ -408,12 +412,14 @@ subroutine SetupDefault(order)
     lpTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     lpTMDPDF_toleranceGEN=1.d-6!general tolerance
     lpTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
-    lpTMDPDF_grid_xMin=0.00001d0
-    lpTMDPDF_grid_parX=2.d0
-    lpTMDPDF_grid_bMin=1.d-6
-    lpTMDPDF_grid_bMax=25.d0
-    lpTMDPDF_grid_SizeX=400
-    lpTMDPDF_grid_SizeB=200
+    lpTMDPDF_numSubGridsX=4
+    allocate(lpTMDPDF_subGridsX(0:lpTMDPDF_numSubGridsX))
+    lpTMDPDF_subGridsX=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
+    lpTMDPDF_grid_SizeX=8
+    lpTMDPDF_numSubGridsB=4
+    allocate(lpTMDPDF_subGridsB(0:lpTMDPDF_numSubGridsB))
+    lpTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,25.d0/)
+    lpTMDPDF_grid_SizeB=8
     lpTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
     lpTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
     lpTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
@@ -452,12 +458,14 @@ subroutine SetupDefault(order)
     wgtTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     wgtTMDPDF_toleranceGEN=1.d-6!general tolerance
     wgtTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
-    wgtTMDPDF_grid_xMin=0.001d0
-    wgtTMDPDF_grid_parX=2.d0
-    wgtTMDPDF_grid_bMin=1.d-6
-    wgtTMDPDF_grid_bMax=25.d0
-    wgtTMDPDF_grid_SizeX=200
-    wgtTMDPDF_grid_SizeB=200
+    wgtTMDPDF_numSubGridsX=3
+    allocate(wgtTMDPDF_subGridsX(0:wgtTMDPDF_numSubGridsX))
+    wgtTMDPDF_subGridsX=(/0.001d0,0.1d0,0.7d0,1.d0/)
+    wgtTMDPDF_grid_SizeX=8
+    wgtTMDPDF_numSubGridsB=4
+    allocate(wgtTMDPDF_subGridsB(0:wgtTMDPDF_numSubGridsB))
+    wgtTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,25.d0/)
+    wgtTMDPDF_grid_SizeB=8
     wgtTMDPDF_order_tw3=trim("NA")
     wgtTMDPDF_makeGrid_tw3=.false.
     wgtTMDPDF_withGluon_tw3=.false. !!! this is true by default
@@ -812,17 +820,17 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) uTMDPDF_maxIteration
     write(51,"(' ')")
     write(51,"('*E   : ---- (OPE) Parameters of grid ----')")
-    write(51,"('*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)')")
-    write(51,*) uTMDPDF_grid_xMin
-    write(51,"('*p2  : Parameter for x-griding function (better not to change it)')")
-    write(51,*) uTMDPDF_grid_parX
-    write(51,"('*p3  : the minimum bT in grid, for smaller value the result is constant')")
-    write(51,*) uTMDPDF_grid_bMin
-    write(51,"('*p4  : the maximum bT in grid, for larger b the approximate extrapolation is done')")
-    write(51,*) uTMDPDF_grid_bMax
-    write(51,"('*p5  : Grid Size over X')")
+    write(51,"('*p1  : Number of subgrids in X (required to read the next line)')")
+    write(51,*) uTMDPDF_numSubGridsX
+    write(51,"('*p2  : Intervals for subgrids in X (must include 1., as the last point)')")
+    write(51,*) uTMDPDF_subGridsX
+    write(51,"('*p3  : Number of nodes in the X-subgrid')")
     write(51,*) uTMDPDF_grid_SizeX
-    write(51,"('*p6  : Grid Size over B ')")
+    write(51,"('*p4  : Number of subgrids in B (required to read the next line)')")
+    write(51,*) uTMDPDF_numSubGridsB
+    write(51,"('*p5  : Intervals for subgrids in B (below and above ultimate points the value is frozen)')")
+    write(51,*) uTMDPDF_subGridsB
+    write(51,"('*p6  : Number of nodes in the B-subgrid ')")
     write(51,*) uTMDPDF_grid_SizeB
     write(51,"(' ')")
     write(51,"('*F   : ---- Transformation to KT-space ----')")
@@ -905,17 +913,17 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) uTMDFF_maxIteration
     write(51,"(' ')")
     write(51,"('*E   : ---- (OPE) Parameters of grid ----')")
-    write(51,"('*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)')")
-    write(51,*) uTMDFF_grid_xMin
-    write(51,"('*p2  : Parameter for x-griding function (better not to change it)')")
-    write(51,*) uTMDFF_grid_parX
-    write(51,"('*p3  : the minimum bT in grid, for smaller value the result is constant')")
-    write(51,*) uTMDFF_grid_bMin
-    write(51,"('*p4  : the maximum bT in grid, for larger b the approximate extrapolation is done')")
-    write(51,*) uTMDFF_grid_bMax
-    write(51,"('*p5  : Grid Size over X')")
+    write(51,"('*p1  : Number of subgrids in X (required to read the next line)')")
+    write(51,*) uTMDFF_numSubGridsX
+    write(51,"('*p2  : Intervals for subgrids in X (must include 1., as the last point)')")
+    write(51,*) uTMDFF_subGridsX
+    write(51,"('*p3  : Number of nodes in the X-subgrid')")
     write(51,*) uTMDFF_grid_SizeX
-    write(51,"('*p6  : Grid Size over B ')")
+    write(51,"('*p4  : Number of subgrids in B (required to read the next line)')")
+    write(51,*) uTMDFF_numSubGridsB
+    write(51,"('*p5  : Intervals for subgrids in B (below and above ultimate points the value is frozen)')")
+    write(51,*) uTMDFF_subGridsB
+    write(51,"('*p6  : Number of nodes in the B-subgrid ')")
     write(51,*) uTMDFF_grid_SizeB
     write(51,"(' ')")
     write(51,"('*F   : ---- Transformation to KT-space ----')")
@@ -1065,17 +1073,17 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) lpTMDPDF_maxIteration
     write(51,"(' ')")
     write(51,"('*E   : ---- (OPE) Parameters of grid ----')")
-    write(51,"('*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)')")
-    write(51,*) lpTMDPDF_grid_xMin
-    write(51,"('*p2  : Parameter for x-griding function (better not to change it)')")
-    write(51,*) lpTMDPDF_grid_parX
-    write(51,"('*p3  : the minimum bT in grid, for smaller value the result is constant')")
-    write(51,*) lpTMDPDF_grid_bMin
-    write(51,"('*p4  : the maximum bT in grid, for larger b the approximate extrapolation is done')")
-    write(51,*) lpTMDPDF_grid_bMax
-    write(51,"('*p5  : Grid Size over X')")
+    write(51,"('*p1  : Number of subgrids in X (required to read the next line)')")
+    write(51,*) lpTMDPDF_numSubGridsX
+    write(51,"('*p2  : Intervals for subgrids in X (must include 1., as the last point)')")
+    write(51,*) lpTMDPDF_subGridsX
+    write(51,"('*p3  : Number of nodes in the X-subgrid')")
     write(51,*) lpTMDPDF_grid_SizeX
-    write(51,"('*p6  : Grid Size over B ')")
+    write(51,"('*p4  : Number of subgrids in B (required to read the next line)')")
+    write(51,*) lpTMDPDF_numSubGridsB
+    write(51,"('*p5  : Intervals for subgrids in B (below and above ultimate points the value is frozen)')")
+    write(51,*) lpTMDPDF_subGridsB
+    write(51,"('*p6  : Number of nodes in the B-subgrid ')")
     write(51,*) lpTMDPDF_grid_SizeB
     write(51,"(' ')")
     write(51,"('*F   : ---- Transformation to KT-space ----')")
@@ -1187,17 +1195,17 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) wgtTMDPDF_maxIteration
     write(51,"(' ')")
     write(51,"('*E   : ---- OPE[tw2] Parameters of grid ----')")
-    write(51,"('*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)')")
-    write(51,*) wgtTMDPDF_grid_xMin
-    write(51,"('*p2  : Parameter for x-griding function (better not to change it)')")
-    write(51,*) wgtTMDPDF_grid_parX
-    write(51,"('*p3  : the minimum bT in grid, for smaller value the result is constant')")
-    write(51,*) wgtTMDPDF_grid_bMin
-    write(51,"('*p4  : the maximum bT in grid, for larger b the approximate extrapolation is done')")
-    write(51,*) wgtTMDPDF_grid_bMax
-    write(51,"('*p5  : Grid Size over X')")
+    write(51,"('*p1  : Number of subgrids in X (required to read the next line)')")
+    write(51,*) wgtTMDPDF_numSubGridsX
+    write(51,"('*p2  : Intervals for subgrids in X (must include 1., as the last point)')")
+    write(51,*) wgtTMDPDF_subGridsX
+    write(51,"('*p3  : Number of nodes in the X-subgrid')")
     write(51,*) wgtTMDPDF_grid_SizeX
-    write(51,"('*p6  : Grid Size over B ')")
+    write(51,"('*p4  : Number of subgrids in B (required to read the next line)')")
+    write(51,*) wgtTMDPDF_numSubGridsB
+    write(51,"('*p5  : Intervals for subgrids in B (below and above ultimate points the value is frozen)')")
+    write(51,*) wgtTMDPDF_subGridsB
+    write(51,"('*p6  : Number of nodes in the B-subgrid ')")
     write(51,*) wgtTMDPDF_grid_SizeB
     write(51,"(' ')")
     write(51,"('*F   : ---- OPE[tw3] main definitions ----')")
@@ -1588,15 +1596,19 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) uTMDPDF_maxIteration
     call MoveTO(51,'*E   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) uTMDPDF_grid_xMin
+    read(51,*) uTMDPDF_numSubGridsX
+    deallocate(uTMDPDF_subGridsX)
+    allocate(uTMDPDF_subGridsX(0:uTMDPDF_numSubGridsX))
     call MoveTO(51,'*p2  ')
-    read(51,*) uTMDPDF_grid_parX
+    read(51,*) uTMDPDF_subGridsX
     call MoveTO(51,'*p3  ')
-    read(51,*) uTMDPDF_grid_bMin
-    call MoveTO(51,'*p4  ')
-    read(51,*) uTMDPDF_grid_bMax
-    call MoveTO(51,'*p5  ')
     read(51,*) uTMDPDF_grid_SizeX
+    call MoveTO(51,'*p4  ')
+    read(51,*) uTMDPDF_numSubGridsB
+    deallocate(uTMDPDF_subGridsB)
+    allocate(uTMDPDF_subGridsB(0:uTMDPDF_numSubGridsB))
+    call MoveTO(51,'*p5  ')
+    read(51,*) uTMDPDF_subGridsB
     call MoveTO(51,'*p6  ')
     read(51,*) uTMDPDF_grid_SizeB
     call MoveTO(51,'*F   ')
@@ -1673,15 +1685,19 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) uTMDFF_maxIteration
     call MoveTO(51,'*E   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) uTMDFF_grid_xMin
+    read(51,*) uTMDFF_numSubGridsX
+    deallocate(uTMDFF_subGridsX)
+    allocate(uTMDFF_subGridsX(0:uTMDFF_numSubGridsX))
     call MoveTO(51,'*p2  ')
-    read(51,*) uTMDFF_grid_parX
+    read(51,*) uTMDFF_subGridsX
     call MoveTO(51,'*p3  ')
-    read(51,*) uTMDFF_grid_bMin
-    call MoveTO(51,'*p4  ')
-    read(51,*) uTMDFF_grid_bMax
-    call MoveTO(51,'*p5  ')
     read(51,*) uTMDFF_grid_SizeX
+    call MoveTO(51,'*p4  ')
+    read(51,*) uTMDFF_numSubGridsB
+    deallocate(uTMDFF_subGridsB)
+    allocate(uTMDFF_subGridsB(0:uTMDFF_numSubGridsB))
+    call MoveTO(51,'*p5  ')
+    read(51,*) uTMDFF_subGridsB
     call MoveTO(51,'*p6  ')
     read(51,*) uTMDFF_grid_SizeB
     call MoveTO(51,'*G   ')
@@ -1810,15 +1826,19 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) lpTMDPDF_maxIteration
     call MoveTO(51,'*E   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) lpTMDPDF_grid_xMin
+    read(51,*) lpTMDPDF_numSubGridsX
+    deallocate(lpTMDPDF_subGridsX)
+    allocate(lpTMDPDF_subGridsX(0:lpTMDPDF_numSubGridsX))
     call MoveTO(51,'*p2  ')
-    read(51,*) lpTMDPDF_grid_parX
+    read(51,*) lpTMDPDF_subGridsX
     call MoveTO(51,'*p3  ')
-    read(51,*) lpTMDPDF_grid_bMin
-    call MoveTO(51,'*p4  ')
-    read(51,*) lpTMDPDF_grid_bMax
-    call MoveTO(51,'*p5  ')
     read(51,*) lpTMDPDF_grid_SizeX
+    call MoveTO(51,'*p4  ')
+    read(51,*) lpTMDPDF_numSubGridsB
+    deallocate(lpTMDPDF_subGridsB)
+    allocate(lpTMDPDF_subGridsB(0:lpTMDPDF_numSubGridsB))
+    call MoveTO(51,'*p5  ')
+    read(51,*) lpTMDPDF_subGridsB
     call MoveTO(51,'*p6  ')
     read(51,*) lpTMDPDF_grid_SizeB
     call MoveTO(51,'*G   ')
@@ -1902,15 +1922,19 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) wgtTMDPDF_maxIteration
     call MoveTO(51,'*E   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) wgtTMDPDF_grid_xMin
+    read(51,*) wgtTMDPDF_numSubGridsX
+    deallocate(wgtTMDPDF_subGridsX)
+    allocate(wgtTMDPDF_subGridsX(0:wgtTMDPDF_numSubGridsX))
     call MoveTO(51,'*p2  ')
-    read(51,*) wgtTMDPDF_grid_parX
+    read(51,*) wgtTMDPDF_subGridsX
     call MoveTO(51,'*p3  ')
-    read(51,*) wgtTMDPDF_grid_bMin
-    call MoveTO(51,'*p4  ')
-    read(51,*) wgtTMDPDF_grid_bMax
-    call MoveTO(51,'*p5  ')
     read(51,*) wgtTMDPDF_grid_SizeX
+    call MoveTO(51,'*p4  ')
+    read(51,*) wgtTMDPDF_numSubGridsB
+    deallocate(wgtTMDPDF_subGridsB)
+    allocate(wgtTMDPDF_subGridsB(0:wgtTMDPDF_numSubGridsB))
+    call MoveTO(51,'*p5  ')
+    read(51,*) wgtTMDPDF_subGridsB
     call MoveTO(51,'*p6  ')
     read(51,*) wgtTMDPDF_grid_SizeB
     call MoveTO(51,'*F   ')

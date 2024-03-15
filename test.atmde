@@ -175,7 +175,7 @@
 *p1  : Order of coefficient function
  LO
 *p2  : Prepare grid
- F
+ T
 *p3  : run the test of the grid (takes some time)
  F
 
@@ -194,18 +194,19 @@
        10000
 
 *E   : ---- (OPE) Parameters of grid ----
-*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)
-   1.0000000000000001E-005
-*p2  : Parameter for x-griding function (better not to change it)
-   2.0000000000000000
-*p3  : the minimum bT in grid, for smaller value the result is constant
-   9.9999999999999995E-007
-*p4  : the maximum bT in grid, for larger b the approximate extrapolation is done
-   25.000000000000000
-*p5  : Grid Size over X
-         400
-*p6  : Grid Size over B
-         200
+*p1  : Number of subgrids in X (required to read the next line)
+   4
+*p2  : Intervals for subgrids in X (must include 1., as the last point)
+0.00001  0.001  0.1  0.7  1.
+*p3  : Number of nodes in the X-subgrid
+   16
+*p4  : Number of subgrids in B (required to read the next line)
+   4
+*p5  : Intervals for subgrids in B (below and above ultimate points the value is frozen)
+0.00001  0.01  0.2  2.  25.
+*p6  : Number of nodes in the B-subgrid
+   16
+
  
 *F   : ---- Transformation to KT-space ----
 *p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
@@ -283,18 +284,18 @@
        10000
 
 *E   : ---- (OPE) Parameters of grid ----
-*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)
-   5.0000000000000003E-002
-*p2  : Parameter for x-griding function (better not to change it)
-   2.0000000000000000
-*p3  : the minimum bT in grid, for smaller value the result is constant
-   9.9999999999999995E-007
-*p4  : the maximum bT in grid, for larger b the approximate extrapolation is done
-   25.000000000000000
-*p5  : Grid Size over X
-         200
-*p6  : Grid Size over B
-         200
+*p1  : Number of subgrids in X (required to read the next line)
+   3
+*p2  : Intervals for subgrids in X (must include 1., as the last point)
+0.001  0.1  0.5  1.
+*p3  : Number of nodes in the X-subgrid
+   8
+*p4  : Number of subgrids in B (required to read the next line)
+   4
+*p5  : Intervals for subgrids in B (below and above ultimate points the value is frozen)
+0.00001  0.01  0.2  2.  25.
+*p6  : Number of nodes in the B-subgrid
+   8
  
 *F   : ---- Transformation to KT-space ----
 *p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
@@ -433,18 +434,18 @@
        10000
 
 *E   : ---- (OPE) Parameters of grid ----
-*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)
-   1.0000000000000001E-005
-*p2  : Parameter for x-griding function (better not to change it)
-   2.0000000000000000
-*p3  : the minimum bT in grid, for smaller value the result is constant
-   9.9999999999999995E-007
-*p4  : the maximum bT in grid, for larger b the approximate extrapolation is done
-   25.000000000000000
-*p5  : Grid Size over X
-         400
-*p6  : Grid Size over B
-         200
+*p1  : Number of subgrids in X (required to read the next line)
+   4
+*p2  : Intervals for subgrids in X (must include 1., as the last point)
+0.00001  0.001  0.1  0.5  1.
+*p3  : Number of nodes in the X-subgrid
+   8
+*p4  : Number of subgrids in B (required to read the next line)
+   4
+*p5  : Intervals for subgrids in B (below and above ultimate points the value is frozen)
+0.00001  0.01  0.2  2.  25.
+*p6  : Number of nodes in the B-subgrid
+   8
  
 *F   : ---- Transformation to KT-space ----
 *p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
@@ -551,18 +552,18 @@
        10000
 
 *E   : ---- OPE[tw2] Parameters of grid ----
-*p1  : xGrid_Min the minimal value of x in grid (max=1), make sure that it is enough)
-   1.0000000000000001E-005
-*p2  : Parameter for x-griding function (better not to change it)
-   2.0000000000000000
-*p3  : the minimum bT in grid, for smaller value the result is constant
-   1.0000000000000001E-006
-*p4  : the maximum bT in grid, for larger approximate extrapolation is done
-   25.00000000000000
-*p5  : Grid Size over X
-         400
-*p6  : Grid Size over B
-         200
+*p1  : Number of subgrids in X (required to read the next line)
+   3
+*p2  : Intervals for subgrids in X (must include 1., as the last point)
+0.001  0.1  0.5  1.
+*p3  : Number of nodes in the X-subgrid
+   8
+*p4  : Number of subgrids in B (required to read the next line)
+   4
+*p5  : Intervals for subgrids in B (below and above ultimate points the value is frozen)
+0.00001  0.01  0.2  2.  25.
+*p6  : Number of nodes in the B-subgrid
+   8
 
 *F   : ---- OPE[tw3] main definitions ----
 *p1  : Order of coefficient function

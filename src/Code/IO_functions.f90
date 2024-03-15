@@ -81,6 +81,24 @@ contains
   end if
   write(streem,"(I5)") list(size(list))
  end subroutine writeShortIntegerList
+
+  !!! write list of Floats (F12.8) to streem spliting by commas
+ !!! used to fill constants-file
+ subroutine writeFloatList(streem, list)
+ integer::streem,i
+ real,intent(in)::list(:)
+
+  if(size(list)==0) then
+    write(*,*) ErrorString("Core-error: Passed 0-size array","IO")
+    stop
+  end if
+  if(size(list)>1) then
+    do i=1,size(list)-1
+      write(streem,"(F12.8,', ')",advance='no') list(i)
+    end do
+  end if
+  write(streem,"(F12.8)") list(size(list))
+ end subroutine writeFloatList
  
  !--------------------convertation
  !!! convert a real(dp) number to a string

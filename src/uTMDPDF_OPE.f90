@@ -18,12 +18,17 @@
 ! * only global variables are kept here
 ! * the most part of the code is universal, and shared by many such modules
 
+module Grid_uTMDPDF
+INCLUDE 'Code/Twist2/Twist2_ChGrid.f90'
+end module Grid_uTMDPDF
+
 module uTMDPDF_OPE
 use aTMDe_Numerics
 use IntegrationRoutines
 use IO_functions
 use QCDinput
 use uTMDPDF_model
+use Grid_uTMDPDF
 implicit none
 
 !------------------------LOCALs -----------------------------------------------
@@ -52,19 +57,10 @@ integer::messageCounter=0 !!! actual counter
 !!! Perturbative order
 integer :: orderMain=2 !! LO=0, NLO=1,...
 
-!!!! X-Grid parameters
-!! over x: i=0...Nx, x_0=xMin
-real(dp) :: xMin=0.00001_dp !!! min x 
-integer :: Nx=400 !!! number of points in grid
-real(dp) :: DeltaX !!! increment of grid
-real(dp) :: parX=2._dp !!! parameter of the grid
-
-!!!! B-Grid parameters
-!! over b: i=0...Nb, x_nB=BMax
+!!! Phase space limitations parameters
+real(dp) :: xMin=0.00001_dp !!! min x
 real(dp) :: BMAX=25._dp !!! maximum B
 real(dp) :: BMIN=1d-6 !!! minimum B
-integer :: NB=250 !!! number of points in grid
-real(dp) :: DeltaB !!! increment of grid
 
 !!!! Numerical parameters
 real(dp) :: toleranceINT=1d-6  !!! tolerance for numerical integration
@@ -99,7 +95,7 @@ integer::numberOfHadrons=1                !!!total number of hadrons to be store
 
 !!--------------------------------------Public interface-----------------------------------------
 public::uTMDPDF_OPE_IsInitialized,uTMDPDF_OPE_Initialize,uTMDPDF_OPE_convolution
-public::uTMDPDF_OPE_resetGrid,uTMDPDF_OPE_testGrid,uTMDPDF_OPE_SetPDFreplica,uTMDPDF_OPE_SetScaleVariation
+public::uTMDPDF_OPE_resetGrid,uTMDPDF_OPE_SetPDFreplica,uTMDPDF_OPE_SetScaleVariation
 public::uTMDPDF_X0_AS,uTMDPDF_OPE_PDF
 
 !!!!!!----FOR TEST
@@ -110,14 +106,8 @@ contains
 !! Coefficient function
 INCLUDE 'Code/uTMDPDF/coeffFunc.f90'
 
-!! X-grid routines
-INCLUDE 'Code/Twist2/Twist2Xgrid.f90'
-!! B-grid routines
-INCLUDE 'Code/Twist2/Twist2Bgrid.f90'
 !! Mellin convolution routine
 INCLUDE 'Code/Twist2/Twist2Convolution.f90'
-!! Grid operation
-INCLUDE 'Code/Twist2/Twist2Grid-XB.f90'
 
 !! Mellin convolution for AS-term
 INCLUDE 'Code/Twist2/Twist2-AS-term.f90'
@@ -136,6 +126,8 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     logical::initRequired
     character(len=8)::order_global
     integer::i,FILEver
+    real(dp),allocatable::subGridsX(:),subGridsB(:)
+    integer::gridSizeX,gridSizeB
 
     if(started) return
 
@@ -256,33 +248,33 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     !-------------Parameters of grid
     call MoveTO(51,'*E   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) xMin
+    read(51,*) i
+    allocate(subGridsX(0:i))
     call MoveTO(51,'*p2  ')
-    read(51,*) parX
+    read(51,*) subGridsX
     call MoveTO(51,'*p3  ')
-    read(51,*) BMIN
+    read(51,*) GridSizeX
     call MoveTO(51,'*p4  ')
-    read(51,*) BMAX
+    read(51,*) i
+    allocate(subGridsB(0:i))
     call MoveTO(51,'*p5  ')
-    read(51,*) NX
+    read(51,*) subGridsB
     call MoveTO(51,'*p6  ')
-    read(51,*) NB
-
-    if(outputLevel>2) then
-        write(*,*) 'Grid options:'
-        write(*,'(A,ES10.3)') ' |  xGrid_Min                 =',xMin
-        write(*,'(A,ES10.3,","ES10.3,"]")') ' |  bMIN        =[',bMIN,bMAX
-        write(*,'(A,I6,A,I6,A)') ' |  (GridSizeX,GridSizeB)     =(',NX,',',NB,')'
-        write(*,'(A,I3)')   ' |  hadrons to grid           =',numberOfHadrons
-    end if
+    read(51,*) GridSizeB
 
     CLOSE (51, STATUS='KEEP')
     c4_global=1d0
 
-    !!! call initializations for Grids
-    call XGrid_Initialize()
-    call BGrid_Initialize()
-    call TMDGrid_XB_Initialize()
+    xMin=subGridsX(0)
+    bMin=subGridsB(0)
+    bMax=subGridsB(size(subGridsB)-1)
+
+    if(abs(subGridsX(size(subGridsX)-1)-1)>toleranceGEN) then
+        write(*,*) ErrorString("The last subgrid in X must complete by x=1. Initialization terminated",moduleName)
+        stop
+    end if
+
+    call Twist2_ChGrid_Initialize(subGridsX,subGridsB,GridSizeX,GridSizeB,numberOfHadrons,withGluon,moduleName,outputLevel)
     
     !!! Model initialisation is called from the uTMDPDF-module
     
@@ -297,10 +289,9 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     gridReady=.false.
 
     if(useGrid) then
-        call MakeGrid()
+        call Twist2_ChGrid_MakeGrid(CxF_compute)
         gridReady=.true.
-
-        if(runTest) call TestGrid()
+        if(runTest) call TestGrid(CxF_compute)
     end if
 
     started=.true.
@@ -423,21 +414,12 @@ subroutine uTMDPDF_OPE_resetGrid()
     gridReady=.false.
     if(useGrid) then
         if(outputLevel>1) write(*,*) 'arTeMiDe ',moduleName,':  Grid Reset. with c4=',c4_global
-        call MakeGrid()
+
+        call Twist2_ChGrid_MakeGrid(CxF_compute)
 
         gridReady=.true.
     end if
 end subroutine uTMDPDF_OPE_resetGrid
-
-!!! This subroutine force reconstruction of the grid (if griding is ON)
-subroutine uTMDPDF_OPE_testGrid()
-    if(useGrid) then
-        if(.not.gridReady) then
-            call uTMDPDF_OPE_resetGrid()
-        end if
-        call TestGrid()
-    end if
-end subroutine uTMDPDF_OPE_testGrid
 
 !! call QCDinput to change the PDF replica number
 !! unset the grid, since it should be recalculated fro different PDF replica.

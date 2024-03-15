@@ -510,8 +510,6 @@ end function activeNf
       call evolvePDFM(index_of_uPDF(hadron),x,Q,inputPDF)
       
       xPDF=inputPDF(-5:5)
-      
-      
   end function xPDF
   
     !!!! return x*F(x,mu)

@@ -91,7 +91,7 @@ function CxF_compute(x,bT,hadron,includeGluon)
     end if
 
     !! drop the case of x>1
-    if(x>1._dp) then
+    if(x>1._dp-toleranceGEN) then
         CxF_compute=0._dp
         return
     end if

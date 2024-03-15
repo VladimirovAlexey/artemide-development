@@ -65,9 +65,7 @@ $(SOURCEDIR)/aTMDe_control.f90
 
 Twist2Files=\
 $(SOURCEDIR)/Code/Twist2/Twist2Convolution.f90 \
-$(SOURCEDIR)/Code/Twist2/Twist2Grid-XB.f90 \
-$(SOURCEDIR)/Code/Twist2/Twist2Xgrid.f90 \
-$(SOURCEDIR)/Code/Twist2/Twist2Bgrid.f90 \
+$(SOURCEDIR)/Code/Twist2/Twist2_ChGrid.f90 \
 $(SOURCEDIR)/Code/Twist2/Twist2-AS-term.f90
 
 Twist3Files=\

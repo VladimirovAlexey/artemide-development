@@ -1742,121 +1742,27 @@ TO BE WRITTEN
 
 For fitting procedure one often needs to evaluate TMDs multiple times. For example, for fit performed in \cite{Scimemi:2017etj} the evaluation of singe $\chi^2$ entry requires $\sim 16\times 10^6$ calls of \texttt{uTMDPDF{\_}..}. So, every call of \texttt{uTMDPDF{\_}..} at NNLO order, requires $\sim 200$ calls of pdfs, depending on $x$, $b$ and $\lambda$'s, in order to evaluate the integral over $y$. In such situations, it is much faster to make a grid of TMD distributions for a given set of non-pertrubative parameters (i.e. the grid is in $x$ and $b$), and then use this grid for the interpolation of TMD values. The calculation of a grid is not a very fast procedure, nonetheless, for large computation (number of TMD calls $>10^4-10^5$) is more efficient.
 
-The grid used in the artemide 3.0 is:
-
-\textbf{Arcosh grid with control parameter}
-\begin{eqnarray}\label{OPE:x-grid}
-i=0,...,N_x,\qquad 
-x_i=\frac{1}{\cosh^p\(\Delta_x(i-N_x)\)},\qquad \Delta_x=\frac{\text{arccosh}(1/x^{1/p}_{\text{min}})}{N_x},\qquad \text{inv}[x]=
-N_x-\frac{\text{arccosh}(1/x^{1/p})}{\Delta_x}.
-\end{eqnarray}
-This grid is alike logarithmic at small-x, but has extra points at $x\to 1$. Therefore, one does not need extra griding at large-x. The parameter $p$ gives extra flexibility. At $p_x>1$ the density of points at $x\to 1$ grows. 
-
-\textbf{Exponential grid with $b_{\text{min}}$} 
-\begin{eqnarray}\label{OPE:b-grid}
-b_i=B_{\text{min}} e^{-i \Delta_b},\qquad \Delta_b=\frac{1}{N_b}\ln\(\frac{b_{\text{min}}}{B_{\text{max}}}\),\qquad \text{inv}[b]=\frac{1}{\Delta_b}\ln\(\frac{b_{\text{min}}}{b}\).
-\end{eqnarray}
-This grid has a lot of points at small-b. and for $b<b_\text{min}$ one could freeze the value.
-
-The interpolation is cubic. The grid is build for the finite domain of $x\in(x_{\min},1)$ and $b\in(0,b_M)$. 
+The grid used in the artemide 3.0 is Chebyschev grid similar to the one described in [2112.09703]. Along each direction the phase-space is split into subgrids
+$[x_0,x_1,...,x_{n}]$ ($x_n=1$) and $[b_0,b_1,...,b_k]$. Within each subgrid there some amount of node, distributed as $\ln(x)$ and $\ln(b)$ over Chebyschev points. The interpolation is done by barycentric formula.
 \begin{itemize}
-\item For $x<x_{\min}$ the program will be terminated (with an error). 
-\item For $b<b_{\min}$ the code returns the value at $b_{\min}$ (default $b_{\min}=10^{-6}$). 
-\item For $b>b_{\max}$, the extrapolation is used:
-\begin{eqnarray}
-f(b)=\frac{a_1}{b}+\frac{a_2}{\ln b}
-\end{eqnarray}
-The values $a_{1,2}$ are found from the last two points of the grid $\{b_1,f_1\}$ and $\{b_2,f_2\}$. 
+\item For $x<x_0$ and $x>1$ the error is returned.
+\item For $b<b_0$ and $b>b_k$ the value at $b_0$ or $b_k$ is returned.
 \end{itemize}
-All these parameters can be changed in \texttt{constants} file.  However, we recommend to use default values, since they were checked. The check could be performed by the call \texttt{TestGrid()} subroutine of corresponding module. It computes values for central points of grids-cells from grid and from direct computation, and returns the average of $(f_{\text{exract}}/f_{\text{compued}}-1)$. This check can be also called by option in the \texttt{constants} file.
+All these parameters can be changed in \texttt{constants} file.  However, we recommend to use default values, since they were checked. The check could be performed by the call \texttt{TestGrid()} subroutine of corresponding module. It computes values for central points of grids-cells from grid and from direct computation. This check can be also called by option in the \texttt{constants} file.
 
-
-I have found that for uTMDPDF the grid with ($N_x=400$, $p_x=2$, $x_{\min}=10^{-5}$) and ($N_b=200$, $b_{\min}=10^{-6}$, $b_{\max}=25$) produce the interpolation quality as shown (test made at NNLO nnpdf31\_nnlo)
-\begin{lstlisting}[{style=DOS}]
- |              |     sBar    |     uBar    |     dBar    |   gluon     |      d      |      u      |      s      |
- |----------------------------------------------------------------------------------------------------------------|
- |    0<x<10^-4
- |----------------------------------------------------------------------------------------------------------------|
- |    0<b<  0.1 | 0.54343E-06 | 0.55266E-06 | 0.53386E-06 | 0.00000E+00 | 0.53123E-06 | 0.54800E-06 | 0.54349E-06 |
- |  0.1<b<   1. | 0.11250E-04 | 0.99226E-05 | 0.95747E-05 | 0.00000E+00 | 0.92241E-05 | 0.94273E-05 | 0.11300E-04 |
- |   1.<b<   5. | 0.38112E-04 | 0.40001E-04 | 0.32690E-04 | 0.00000E+00 | 0.32315E-04 | 0.39412E-04 | 0.38218E-04 |
- |   5.<b< BMAX | 0.48372E-04 | 0.53025E-04 | 0.43636E-04 | 0.00000E+00 | 0.43465E-04 | 0.52785E-04 | 0.48412E-04 |
- |----------------------------------------------------------------------------------------------------------------|
- |10^-4<x< 0.01
- |----------------------------------------------------------------------------------------------------------------|
- |    0<b<  0.1 | 0.44373E-06 | 0.40601E-06 | 0.41975E-06 | 0.00000E+00 | 0.37784E-06 | 0.34930E-06 | 0.44395E-06 |
- |  0.1<b<   1. | 0.93679E-05 | 0.66184E-05 | 0.57894E-05 | 0.00000E+00 | 0.35293E-05 | 0.44275E-05 | 0.92845E-05 |
- |   1.<b<   5. | 0.12521E-04 | 0.29436E-05 | 0.26138E-05 | 0.00000E+00 | 0.33127E-05 | 0.33215E-05 | 0.11045E-04 |
- |   5.<b< BMAX | 0.16492E-03 | 0.36479E-04 | 0.22847E-04 | 0.00000E+00 | 0.48635E-04 | 0.39458E-04 | 0.67263E-03 |
- |----------------------------------------------------------------------------------------------------------------|
- | 0.01<x<  0.1
- |----------------------------------------------------------------------------------------------------------------|
- |    0<b<  0.1 | 0.36916E-05 | 0.16644E-05 | 0.11713E-05 | 0.00000E+00 | 0.72487E-06 | 0.67086E-06 | 0.34891E-05 |
- |  0.1<b<   1. | 0.35591E-04 | 0.22837E-04 | 0.17531E-04 | 0.00000E+00 | 0.60829E-05 | 0.12328E-04 | 0.33161E-04 |
- |   1.<b<   5. | 0.51807E-03 | 0.12126E-04 | 0.93863E-05 | 0.00000E+00 | 0.70368E-05 | 0.34347E-05 | 0.41678E-03 |
- |   5.<b< BMAX | 0.19295E-03 | 0.23647E-01 | 0.20959E-03 | 0.00000E+00 | 0.11907E-02 | 0.10972E-03 | 0.32283E-03 |
- |----------------------------------------------------------------------------------------------------------------|
- |  0.1<x<  0.8
- |----------------------------------------------------------------------------------------------------------------|
- |    0<b<  0.1 | 0.26653E-02 | 0.12698E-02 | 0.29909E-03 | 0.00000E+00 | 0.21281E-03 | 0.26701E-04 | 0.93337E-03 |
- |  0.1<b<   1. | 0.28405E-02 | 0.42081E-02 | 0.29125E-02 | 0.00000E+00 | 0.62434E-03 | 0.12346E-03 | 0.84058E-02 |
- |   1.<b<   5. | 0.17468E-01 | 0.34065E-01 | 0.61586E-01 | 0.00000E+00 | 0.12291E-02 | 0.22105E-03 | 0.70745E-02 |
- |   5.<b< BMAX | 0.14342E-01 | 0.14207E+00 | 0.21854E+00 | 0.00000E+00 | 0.18476E-02 | 0.37234E-03 | 0.22346E-01 |
- |----------------------------------------------------------------------------------------------------------------|
- |  0.8<x<    1
- |----------------------------------------------------------------------------------------------------------------|
- |    0<b<  0.1 | 0.89323E-03 | 0.91579E-03 | 0.24787E-02 | 0.00000E+00 | 0.17615E-02 | 0.88343E-03 | 0.90570E-03 |
- |  0.1<b<   1. | 0.11133E-02 | 0.12141E-02 | 0.14404E-02 | 0.00000E+00 | 0.92049E-02 | 0.11007E-02 | 0.11588E-02 |
- |   1.<b<   5. | 0.71137E-03 | 0.12381E-02 | 0.11313E-02 | 0.00000E+00 | 0.97426E-02 | 0.64774E-03 | 0.10339E-02 |
- |   5.<b< BMAX | 0.79151E-03 | 0.19174E-02 | 0.12531E-02 | 0.00000E+00 | 0.75118E-02 | 0.66856E-03 | 0.17425E-02 |
- |----------------------------------------------------------------------------------------------------------------|
-\end{lstlisting}
-and another (test made at NNLO MSHT20nnlo)
-\begin{lstlisting}[{style=DOS}]
- |              |     sBar    |     uBar    |     dBar    |   gluon     |      d      |      u      |      s      |
- |----------------------------------------------------------------------------------------------------------------|
- |    0<x<10^-4
- |----------------------------------------------------------------------------------------------------------------|
- |    0<b<  0.1 | 0.11650E-05 | 0.11346E-05 | 0.11423E-05 | 0.00000E+00 | 0.11424E-05 | 0.11396E-05 | 0.11652E-05 |
- |  0.1<b<   1. | 0.11753E-03 | 0.10244E-03 | 0.10565E-03 | 0.00000E+00 | 0.10384E-03 | 0.10092E-03 | 0.11776E-03 |
- |   1.<b<   5. | 0.37190E-05 | 0.35364E-05 | 0.35956E-05 | 0.00000E+00 | 0.33541E-05 | 0.31261E-05 | 0.37422E-05 |
- |   5.<b< BMAX | 0.33373E-05 | 0.41269E-05 | 0.40635E-05 | 0.00000E+00 | 0.37846E-05 | 0.35646E-05 | 0.33547E-05 |
- |----------------------------------------------------------------------------------------------------------------|
- |10^-4<x< 0.01
- |----------------------------------------------------------------------------------------------------------------|
- |    0<b<  0.1 | 0.20660E-05 | 0.22980E-05 | 0.23392E-05 | 0.00000E+00 | 0.22987E-05 | 0.22387E-05 | 0.20747E-05 |
- |  0.1<b<   1. | 0.48562E-04 | 0.48204E-04 | 0.48411E-04 | 0.00000E+00 | 0.41674E-04 | 0.36914E-04 | 0.48751E-04 |
- |   1.<b<   5. | 0.71871E-05 | 0.74337E-05 | 0.10047E-04 | 0.00000E+00 | 0.80426E-05 | 0.71569E-05 | 0.73251E-05 |
- |   5.<b< BMAX | 0.27158E-04 | 0.14867E-02 | 0.17802E-03 | 0.00000E+00 | 0.19150E-03 | 0.11361E-03 | 0.29411E-04 |
- |----------------------------------------------------------------------------------------------------------------|
- | 0.01<x<  0.1
- |----------------------------------------------------------------------------------------------------------------|
- |    0<b<  0.1 | 0.25235E-05 | 0.14207E-05 | 0.12489E-05 | 0.00000E+00 | 0.71199E-06 | 0.77710E-06 | 0.24029E-05 |
- |  0.1<b<   1. | 0.43022E-04 | 0.31937E-04 | 0.25031E-04 | 0.00000E+00 | 0.65584E-05 | 0.14865E-04 | 0.38493E-04 |
- |   1.<b<   5. | 0.10195E-04 | 0.60127E-05 | 0.59895E-05 | 0.00000E+00 | 0.39661E-05 | 0.45043E-05 | 0.94613E-05 |
- |   5.<b< BMAX | 0.14108E-02 | 0.15608E-03 | 0.16798E-03 | 0.00000E+00 | 0.23174E-03 | 0.99539E-04 | 0.34846E-03 |
- |----------------------------------------------------------------------------------------------------------------|
- |  0.1<x<  0.8
- |----------------------------------------------------------------------------------------------------------------|
- |    0<b<  0.1 | 0.23264E-02 | 0.23508E-03 | 0.23301E-03 | 0.00000E+00 | 0.94527E-04 | 0.37975E-04 | 0.19354E-03 |
- |  0.1<b<   1. | 0.31564E-02 | 0.52721E-03 | 0.58486E-03 | 0.00000E+00 | 0.16827E-03 | 0.10961E-03 | 0.46416E-03 |
- |   1.<b<   5. | 0.46704E-03 | 0.11070E-02 | 0.18598E-02 | 0.00000E+00 | 0.11239E-03 | 0.37525E-04 | 0.13732E-02 |
- |   5.<b< BMAX | 0.14440E-02 | 0.80850E-03 | 0.76572E-02 | 0.00000E+00 | 0.15361E-03 | 0.57673E-04 | 0.18912E-02 |
- |----------------------------------------------------------------------------------------------------------------|
- |  0.8<x<    1
- |----------------------------------------------------------------------------------------------------------------|
- |    0<b<  0.1 | 0.21035E-02 | 0.46467E-02 | 0.38157E-02 | 0.00000E+00 | 0.21238E-02 | 0.19796E-02 | 0.65294E-02 |
- |  0.1<b<   1. | 0.15020E-02 | 0.15593E-02 | 0.15573E-02 | 0.00000E+00 | 0.15401E-02 | 0.15054E-02 | 0.17746E-02 |
- |   1.<b<   5. | 0.12826E-02 | 0.12936E-02 | 0.12934E-02 | 0.00000E+00 | 0.14148E-02 | 0.13307E-02 | 0.13065E-02 |
- |   5.<b< BMAX | 0.13151E-02 | 0.13234E-02 | 0.13232E-02 | 0.00000E+00 | 0.14735E-02 | 0.13732E-02 | 0.13325E-02 |
- |----------------------------------------------------------------------------------------------------------------|
-\end{lstlisting}
-I.e. the average accuracy for very large $x$ is $\sim 0.1\%$ (3 digits), for large $x$ is $\sim 0.01\%$ (4 digits) and better (5-6 digits) for the rest. The further improvement is slow, and seems to be limited by the precision of the integration routine. The examples are shown in fig.\ref{fig:OPE1}.
+\begin{tcolorbox}
+\begin{center}
+\textbf{\red{WARNING!}}
+\\
+LHAPDF produces the non-smooth interpolation (based on cubic splines), while the Chebychev interpolation is much smoother. Therefore, at some points the difference between Chebyshev and LHAPDF can the significant (up to $50\%$ and more if absolute value of function is small). Practically, one cannot push avarage precision better than $10^{-4}$. In a bulk, it is acceptable. If the grid is tested at smooth input function one can easily reach precision $\sim 10^{-8}$.
+\end{center}
+\end{tcolorbox}
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=\textwidth]{Figures/uTMDPDF_OPE.pdf}
-\caption{\label{fig:OPE1} Example of convolution (vs.b). Upper row is the convolution. Lower row is the ratio of extraction vs. computaion. The peak in vicinity $b\sim 0.4$ is the quark threshold.}
+\includegraphics[width=0.33\textwidth]{Figures/Grid_ex1.pdf}~~
+\includegraphics[width=0.33\textwidth]{Figures/Grid_ex2.pdf}
+\caption{\label{fig:OPE1} Example of precision extraction from the grid. (left) with LHAPDF (right) with smooth input function (similar to PDF). Both cases the N$^3$LO convolution with matching coefficient is included.}
 \end{center}
 \end{figure}
 
