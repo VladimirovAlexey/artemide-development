@@ -12,9 +12,15 @@
 !                A.Vladimirov (30.05.2018)
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+module TMDF_ogata
+INCLUDE 'Code/TMDF/Fourier_byOgata.f90'
+end module TMDF_ogata
+
 module TMDF
 use aTMDe_Numerics
 use IO_functions
+use TMDF_ogata
 use EWinput
 use uTMDPDF
 use uTMDFF
@@ -33,11 +39,7 @@ character (len=5),parameter :: version="v3.00"
 !Last appropriate verion of constants-file
 integer,parameter::inputver=30
 
-!------------------------------------------Tables-----------------------------------------------------------------------
-integer,parameter::Nmax=1000
-INCLUDE 'Tables/BesselZero1000.f90'
 !------------------------------------------Working variables------------------------------------------------------------
-
 integer::outputLevel=2
 !! variable that count number of WRNING mesagges. In order not to spam too much
 integer::messageTrigger=6
@@ -52,36 +54,18 @@ logical::include_SiversTMDPDF
 logical::include_wgtTMDPDF
 logical::include_BoerMuldersTMDPDF
 
-!!!!! I split the qT over runs qT<qTSegmentationBoundary
-!!!!! In each segment I have the ogata quadrature with h=hOGATA*hSegmentationWeight
-!!!!! It helps to convergen integrals, since h(optimal) ~ qT
-integer,parameter::hSegmentationNumber=5
-real(dp),dimension(1:hSegmentationNumber),parameter::hSegmentationWeight=(/0.001d0,0.01d0,0.1d0,1d0,5d0/)
-real(dp),dimension(1:hSegmentationNumber),parameter::qTSegmentationBoundary=(/0.001d0,0.01d0,0.1d0,1d0,50d0/)
-
-real(dp)::hOGATA,tolerance
-!!!weights of ogata quadrature
-real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::ww
-!!!nodes of ogata quadrature
-real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::bb
-
 real(dp):: global_mass_scale=0.938_dp
+real(dp):: qtMIN=0.0001d0
 
-
-integer::GlobalCounter
-integer::CallCounter
-integer::MaxCounter
 integer::messageCounter
 !-----------------------------------------Public interface--------------------------------------------------------------
-public::TMDF_Initialize,TMDF_ShowStatistic,TMDF_ResetCounters
+public::TMDF_Initialize,TMDF_ResetCounters
 public:: TMDF_F
 public::TMDF_convergenceISlost,TMDF_IsconvergenceLost,TMDF_IsInitialized
 
 public::Integrand
 
 contains
-
-INCLUDE 'Code/TMDF/Ogata.f90'
  
 function TMDF_IsInitialized()
     logical::TMDF_IsInitialized
@@ -95,6 +79,7 @@ subroutine TMDF_Initialize(file,prefix)
     character(len=300)::path
     logical::initRequired
     integer::FILEver
+    real(dp)::hOGATA,tolerance
 
     if(started) return
 
@@ -136,6 +121,8 @@ subroutine TMDF_Initialize(file,prefix)
     read(51,*) tolerance
     call MoveTO(51,'*p2  ')
     read(51,*) hOGATA
+    call MoveTO(51,'*p3  ')
+    read(51,*) qtMIN
     
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
@@ -181,16 +168,9 @@ subroutine TMDF_Initialize(file,prefix)
 
     CLOSE (51, STATUS='KEEP')
 
-
-    if(outputLevel>1) write(*,*) 'arTeMiDe.TMDF: preparing Ogata tables'
-    call PrepareTables()
-    if(outputLevel>2) write(*,'(A,I4)') ' | Maximum number of nodes    :',Nmax
-    if(outputLevel>1) write(*,*) 'arTeMiDe.TMDF: Ogata tables prepared'
+    call PrepareTables(tolerance,hOGATA)
 
     convergenceLost=.false.
-    GlobalCounter=0
-    CallCounter=0
-    MaxCounter=0
     messageCounter=0
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!! Initialization of submodules !!!!!!!!!!!!!!!!!!!!!!
@@ -276,32 +256,65 @@ subroutine TMDF_convergenceISlost()
     if(outputLevel>1) write(*,*) WarningString('convergenceLOST trigger ON',moduleName)
 end subroutine TMDF_convergenceISlost
   
-subroutine TMDF_ShowStatistic()
-    if(convergenceLost) then
-        write(*,*) '         TMDF statistics: convergence has been lost.'
-    else
-        write(*,'(A,ES12.3)') 'TMDF statistics               total calls of TMDs  :  ',Real(2*GlobalCounter)
-        write(*,'(A,ES12.3)') '                              total calls of TMDF_F :  ',Real(CallCounter)
-        write(*,'(A,F12.3)')  '                                         avarage M :  ',Real(GlobalCounter)/Real(CallCounter)
-        write(*,'(A,I12)')    '                                     maximum calls :  ',MaxCounter
-
-    end if
-end subroutine TMDF_ShowStatistic
-  
-  !passes the NP parameters to TMDs
+!passes the NP parameters to TMDs
 subroutine TMDF_ResetCounters()
-    if(outputLevel>2) call TMDF_ShowStatistic()
-
     convergenceLost=.false.
-
-    GlobalCounter=0
-    CallCounter=0
-    MaxCounter=0
     messageCounter=0
-
 end subroutine TMDF_ResetCounters
- 
- function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
+
+!!!This is the defining module function
+!!! It evaluates the integral
+!!!  int_0^infty   b^(n+1) db/2  Jn(b qT) zff F1 F2
+!!!
+function TMDF_F(Q2,qT,x1,x2,mu,zeta1,zeta2,process) result(integral_result)
+real(dp)::integral_result
+real(dp),intent(in)::qT,x1,x2,mu,zeta1,zeta2,Q2
+integer,dimension(1:3),intent(in)::process
+
+integer::n
+logical::ISconvergent
+
+if(x1>=1d0 .or. x2>=1d0) then
+  integral_result=0d0
+else if(TMDF_IsconvergenceLost()) then
+  !!!in the case of lost convergence we return huge number (divergent xSec)
+    integral_result=1d10
+else
+
+!!Here we set the order of Bessel
+if(process(1)<10000) then
+n=0
+else if(process(1)<20000) then
+n=1
+else if(process(1)<30000) then
+n=2
+else
+n=3
+end if
+
+if(qT<=qtMIN) then
+    call Fourier_byOgata(n,F_toInt,qtMIN,integral_result,ISconvergent)
+else
+    call Fourier_byOgata(n,F_toInt,qT,integral_result,ISconvergent)
+end if
+
+if(.not.ISconvergent) call TMDF_convergenceISlost
+end if
+
+contains
+
+function F_toInt(b)
+real(dp)::F_toInt
+real(dp),intent(in)::b
+
+F_toInt=Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process)
+
+end function F_toInt
+
+
+end function TMDF_F
+
+function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
  real(dp)::Integrand
  real(dp),intent(in)::b,x1,x2,mu,zeta1,zeta2,Q2
  integer,dimension(1:3),intent(in)::process_array
@@ -311,9 +324,6 @@ end subroutine TMDF_ResetCounters
  process=process_array(3) !! general process name
  h1=process_array(1)!! first hadron
  h2=process_array(2)!! second hadron
-
- !increment counter 
- GlobalCounter=GlobalCounter+1
  
  if(b>1000d0) then
   Integrand=0d0

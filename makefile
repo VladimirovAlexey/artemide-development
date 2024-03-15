@@ -102,7 +102,7 @@ wgtTMDPDFFiles=\
 $(SOURCEDIR)/Code/wgtTMDPDF/coeffFunc.f90
 
 TMDFFiles=\
-$(SOURCEDIR)/Code/TMDF/Ogata.f90
+$(SOURCEDIR)/Code/TMDF/Fourier_byOgata.f90
 
 TMDKPCFiles=\
 $(SOURCEDIR)/Code/TMDF_KPC/TMDpairs.f90\
