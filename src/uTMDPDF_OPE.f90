@@ -127,7 +127,6 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     character(len=8)::order_global
     integer::i,FILEver
     real(dp),allocatable::subGridsX(:),subGridsB(:)
-    integer::gridSizeX,gridSizeB
 
     if(started) return
 
@@ -252,15 +251,11 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     allocate(subGridsX(0:i))
     call MoveTO(51,'*p2  ')
     read(51,*) subGridsX
-    call MoveTO(51,'*p3  ')
-    read(51,*) GridSizeX
     call MoveTO(51,'*p4  ')
     read(51,*) i
     allocate(subGridsB(0:i))
     call MoveTO(51,'*p5  ')
     read(51,*) subGridsB
-    call MoveTO(51,'*p6  ')
-    read(51,*) GridSizeB
 
     CLOSE (51, STATUS='KEEP')
     c4_global=1d0
@@ -274,7 +269,7 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
         stop
     end if
 
-    call Twist2_ChGrid_Initialize(subGridsX,subGridsB,GridSizeX,GridSizeB,numberOfHadrons,withGluon,moduleName,outputLevel)
+    call Twist2_ChGrid_Initialize(path,'*4   ','*E   ',numberOfHadrons,withGluon,moduleName,outputLevel)
     
     !!! Model initialisation is called from the uTMDPDF-module
     

@@ -1971,6 +1971,94 @@ n=2,\qquad F(x,|\vec k_T|;\mu,\zeta)=\frac{M^4}{2k_T^2}\int \frac{d|\vec b|}{2\p
 $$
 \end{itemize}
 
+\textbf{Clenshaw-Curtis-Levin algorithm}. The following algorithm provides sufficient precision in the large range of $k_T$. It is a mixture of Clenshaw-Curtis quadrature and Levin differential-equation approach. First split the integral into ranges
+\begin{eqnarray}
+\{B_0,...,B_N\},
+\end{eqnarray}
+where $b_0$ is sufficiently small (default $B_0=10^{-6}$) and $B_n$ is sufficiently large (default $B_n\sim 25-100$). Then the integral is split as
+\begin{eqnarray}
+F(q)=\int_0^\infty db J_0(bq)f(b)= \sum_{n=1}^{N}\int_{B_{n-1}}^{B_{n}}db J_0(bq)f(b)+\Delta_0+\Delta_N,
+\end{eqnarray}
+where
+$$\Delta_0=\int_0^{B_0}db J_0(bq)f(b),\qquad \Delta_N=\int_{B_N}^\infty db J_0(bq)f(b).$$
+Then for each sector one can estimate integral using different approaches. Here, I use the approaches that are quadratures over the nodes of Chebishev polynomials with
+\begin{eqnarray}
+t_i=\cos \frac{i\pi}{K},
+\end{eqnarray}
+where $N$ is the size of the grid. So, for each interval $[B_{n-1},B_{n}]$ one defines a grid with (K+1) points (ultimate points enters two sub-grids). The points are distributed logarithmically. So
+\begin{eqnarray}
+b_{nk}=\exp\(\delta_n t_k+\bar b_n\),\qquad \delta_n=\frac{B_{n}-B_{n-1}}{2},\qquad \bar b_n=\frac{B_{n}+B_{n-1}}{2},
+\end{eqnarray}
+where $n\in [1,N]$ and $k\in [0,K]$. The integral is then defined as
+\begin{eqnarray}
+\int_{B_{n-1}}^{B_n}db J_0(bq)f(b)=\sum_{k=0}^K w_{nk}(q)f(b_{nk}),
+\end{eqnarray}
+where $w_{nk}(q)$ is precomputed by different algorithm.
+
+The \textit{Clenshaw-Curtis} quadrature leads to
+\begin{eqnarray}
+\int_{B_{n-1}}^{B_n}db J_0(bq)f(b)=\int_{-1}^1 dt \delta_n b(t) J_0(b(t))f(b(t))=\sum_{k=0}^K w^{\text{CC}}_{nk}(q)f(b_{nk}),
+\end{eqnarray}
+where
+\begin{eqnarray}
+w^{\text{CC}}_{nk}(q)=\delta_n b_{nk} J_0(b_{nk})a_k,\qquad a_k=\frac{4\beta_k}{K}\sum_{l=0,2,..}^{K}\frac{\beta_l}{1-l^2}\cos\frac{kl\pi}{K},
+\end{eqnarray}
+with $\beta_i=1/2$ for $i=1$ or $i=K$ and $\beta_i=1$ otherwise.
+
+The \textit{Levin} approach consists in the consideration of the differential system \textit{(to be written later)}, which can be bootstraped on the grid, and leads to the system of linear equations. In case of present integral it requires the inversion of the Matrix
+\begin{eqnarray}
+A(q)=
+\(\begin{array}{cc}
+\frac{D}{b \delta} & qI\\
+-q I & \frac{D}{b \delta}-\frac{I}{b}  
+\end{array}\),
+\end{eqnarray}
+where $D$ is the derivative matrix for the Chebyshev interpolation, and $1/b$ is understood as division by $b_i$ for corresponding row. The inverse of this matrix is made by Crout's method (the routine is derived from \texttt{https://github.com/Beliavsky/Matrix\_Inversion}). Then the weights are
+\begin{eqnarray}
+w^{\text{L}}_{nk}(q)=J_0(B_{n}q)A^{-1}_{1k}-J_0(B_{n-1}q)A^{-1}_{K+1,k}+J_1(B_{n}q)A^{-1}_{K+2,k}-J_1(B_{n-1}q)A^{-1}_{2K+2,k}.
+\end{eqnarray}
+Note, that it can be written as vector sum
+\begin{eqnarray}
+\vec w^{\text{L}}_{n}(q)=J_0(B_{n}q)\vec A^{-1}_{1}-J_0(B_{n-1}q)\vec A^{-1}_{K+1}+J_1(B_{n}q)\vec A^{-1}_{K+2}-J_1(B_{n-1}q)\vec A^{-1}_{2K+2},
+\end{eqnarray}
+where $\vec A_k$ is [1,K] part of the $k$'th row.
+
+This approaches are used in different ranges.
+\begin{itemize}
+\item \textit{Oscillatory integral} If the Bessel function is already oscillating in the range. In this case the integral is computed by Levin method.
+\item \textit{Stable integral} If the Bessel function is not yet oscillating in the range. In this case the Clenshaw-Curtis quadrature is used.
+\end{itemize}
+Basically, for small-(bq) one should use CC quadrature, and for other cases Levin quadrature. To distinguish these case I use the inequality
+\begin{eqnarray}
+w_{nk}(q)=
+\left\{
+\begin{array}{ll}
+w^{\text{CC}}_{nk}(q),& \text{if}~B_nq < j_0 \alpha,
+\\
+w^{\text{L}}_{nk}(q),&\text{otherwise,}
+\end{array}\right.%}
+\end{eqnarray}
+where $j_0$ is the first zero of Bessel function, and $\alpha$ is a parameter of order 1 (default $\alpha=1$). 
+
+Finally, the correction to the integral could be estimated. The tale correction is known [cite]
+\begin{eqnarray}
+\Delta_N\sim f(B_N),
+\end{eqnarray}
+so using sufficiently large $B_N$ we get very small correction. The first point correction can be estimated assuming smooth and non-singular behavior of $f(b)$
+\begin{eqnarray}
+\Delta_0=\int_0^{B_0} db J_0(b q)f(b)\simeq\int_0^{B_0} db J_0(b q) b \frac{f(B_0)}{B_0} = \frac{J_1(B_0 q)}{q}f(B_0)\simeq B_0\frac{f(B_0)}{2}.
+\end{eqnarray}
+Practically, I add ($n=1$, $k=K$ corresponds to $B_0$ node)
+\begin{eqnarray}
+w_{1K}\to  w_{1K}+\frac{J_1(B_0 q)}{q}.
+\end{eqnarray}
+
+\begin{center}
+\includegraphics[width=\textwidth]{Figures/ktGrid-Gauss-16}
+\\
+Example of Hankel transform. Test function is $f(b)=b e^{-2.1 b^2}(1+6.3 b^2+1.4 b^6)$. Shown is logarithm of ratio to the exact evaluation. Here the sub-grids are $B=\{0.00001,0.01,0.2,2., 8., 25.\}$ with $K=16$.
+\end{center}
+
 \subsection{TMMD}
 \label{sec:TMM}
 

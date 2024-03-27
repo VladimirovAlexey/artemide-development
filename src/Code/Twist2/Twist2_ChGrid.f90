@@ -33,6 +33,9 @@ integer::numXsubgrids,numBsubgrids
 real(dp),allocatable::xNodes(:),bNodes(:)
 !!!! xNodes & bNodes are the list of factors (-1)^i/2^%., there %=1 for i=0,NUM, and 0 otherwice
 real(dp),allocatable::xNodeFactors(:),bNodeFactors(:)
+!!!! xGridSize & bGridSize are the number of nodes in the subgrids
+!!!! number of nodes is made same for all subgrids, in order to simplify memory operation (store all nodes in single multi-array)
+integer::xGridSize,bGridSize
 !!!! utmost values of the grids
 real(dp)::xMIN,bMIN,bMAX
 !!!! number of hadrons
@@ -52,10 +55,6 @@ real(dp),allocatable::xIntervals(:),bIntervals(:),xMeans(:),bMeans(:)
 !!!! (subgrid in X,subgrid in B, grid in X, grid in B, flavor(-5:5), hadron)
 real(dp),allocatable::gridMain(:,:,:,:,:,:)
 
-!!!! xGridSize & bGridSize are the number of nodes in the subgrids
-!!!! number of nodes is made same for all subgrids, in order to simplify memory operation (store all nodes in single multi-array)
-integer::xGridSize,bGridSize
-
 public::Twist2_ChGrid_Initialize,Twist2_ChGrid_MakeGrid,ExtractFromGrid,TestGrid
 
 !!! this is interface for twist2-convolution function (-5:5)
@@ -74,10 +73,14 @@ contains
 !!!! prepare variables
 
 
-!!!!
-subroutine Twist2_ChGrid_Initialize(xRanges_in,bRanges_in,xGridSize_in,bGridSize_in,numH_in,withGluon_in,name,outLevel)
-real(dp),intent(in)::xRanges_in(:),bRanges_in(:)
-integer,intent(in)::xGridSize_in,bGridSize_in,outLevel,numH_in
+!!!! N
+!subroutine Twist2_ChGrid_Initialize(xRanges_in,bRanges_in,xGridSize_in,bGridSize_in,numH_in,withGluon_in,name,outLevel)
+subroutine Twist2_ChGrid_Initialize(path,moduleLine,gridLine,numH_in,withGluon_in,name,outLevel)
+!real(dp),intent(in)::xRanges_in(:),bRanges_in(:)
+!integer,intent(in)::xGridSize_in,bGridSize_in,outLevel,numH_in
+character(len=300)::path
+character(len=5),intent(in)::moduleLine,gridLine
+integer,intent(in)::outLevel,numH_in
 logical,intent(in)::withGluon_in
 character(*),intent(in)::name
 
@@ -87,16 +90,30 @@ integer::i
 parentModuleName=name
 outputLevel=outLevel
 
-!!!processing input parameters
-numXsubgrids=size(xRanges_in)-1
-numBsubgrids=size(bRanges_in)-1
-allocate(xRanges(0:numXsubgrids))
-allocate(bRanges(0:numBsubgrids))
+OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
+    !-------------Parameters of grid
+    call MoveTO(51,moduleLine)
+    call MoveTO(51,gridLine)
+    call MoveTO(51,'*p1  ')
+    read(51,*) i
+    numXsubgrids=i-1
+    allocate(xRanges(0:numXsubgrids))
+    call MoveTO(51,'*p2  ')
+    read(51,*) xRanges
+    call MoveTO(51,'*p3  ')
+    read(51,*) xGridSize
+    call MoveTO(51,'*p4  ')
+    read(51,*) i
+    numBsubgrids=i-1
+    allocate(bRanges(0:numBsubgrids))
+    call MoveTO(51,'*p5  ')
+    read(51,*) bRanges
+    call MoveTO(51,'*p6  ')
+    read(51,*) bGridSize
+CLOSE (51, STATUS='KEEP')
 
-xRanges=xRanges_in
-bRanges=bRanges_in
-xGridSize=xGridSize_in
-bGridSize=bGridSize_in
+
+! !!!processing input parameters
 xMIN=xRanges(0)
 bMIN=bRanges(0)
 bMAX=bRanges(numBsubgrids)

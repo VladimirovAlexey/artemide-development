@@ -32,6 +32,7 @@ aTMDeFILES = \
 $(SOURCEDIR)/Code/aTMDe_Numerics.f90 \
 $(SOURCEDIR)/Code/IO_functions.f90 \
 $(SOURCEDIR)/Code/IntegrationRoutines.f90 \
+$(SOURCEDIR)/Code/InverseMatrix.f90 \
 $(SOURCEDIR)/LeptonCutsDY.f90 \
 $(SOURCEDIR)/aTMDe_setup.f90 \
 $(SOURCEDIR)/QCDinput.f90 \
@@ -123,6 +124,7 @@ aTMDeOBJ = \
 $(OBJ)/aTMDe_Numerics.o \
 $(OBJ)/IO_functions.o \
 $(OBJ)/IntegrationRoutines.o \
+$(OBJ)/InverseMatrix.o \
 $(OBJ)/LeptonCutsDY.o \
 $(OBJ)/aTMDe_setup.o \
 $(OBJ)/QCDinput.o \
@@ -158,7 +160,8 @@ $(OBJ)/aTMDe_control.o
 aTMDeUTILITY = \
 $(OBJ)/aTMDe_Numerics.o \
 $(OBJ)/IO_functions.o \
-$(OBJ)/IntegrationRoutines.o
+$(OBJ)/IntegrationRoutines.o\
+$(OBJ)/InverseMatrix.o
 
 
 ################################################################### COMPILATION OF ARTEMIDE ####################################
@@ -186,6 +189,11 @@ $(OBJ)/IO_functions.o: $(SOURCEDIR)/Code/IO_functions.f90 $(OBJ)/aTMDe_Numerics.
 
 $(OBJ)/IntegrationRoutines.o: $(SOURCEDIR)/Code/IntegrationRoutines.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/IO_functions.o
 	$(FC) -c $(SOURCEDIR)/Code/IntegrationRoutines.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/InverseMatrix.o: $(SOURCEDIR)/Code/InverseMatrix.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/IO_functions.o
+	$(FC) -c $(SOURCEDIR)/Code/InverseMatrix.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
