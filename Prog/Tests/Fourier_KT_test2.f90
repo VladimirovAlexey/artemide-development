@@ -32,6 +32,10 @@ call artemide_SetNPparameters_uTMDPDF((/&
 0.353908d0,46.6064d0,0.115161d0,1.53235d0,&
 1.31966d0,0.434833d0, 0.0d0, 0.0d0/))
 
+
+! call testGrid_inKT()
+! stop
+
 ! ! FinQ2=Fourier_Levin_array(toFourier)
 ! ! !write(*,*) Fourier_Levin_array(toFourier)
 ! ! !write(*,*) FinQ2
@@ -53,31 +57,9 @@ call artemide_SetNPparameters_uTMDPDF((/&
 ! ! toFourier=Exp(-b)
 ! ! end function toFourier
 x=0.003d0
-f=2
-mu=2.2d0
+f=-2
+mu=38.50d0
 
-! write(*,*) "--------------------in B -------- mu=",mu
-! kT=0.00001
-! FinQ=uTMDPDF_inB(x,kT,mu,mu**2,1)
-! write(*,'("{",F5.2,",",F12.8,"},")',advance="no") kT,FinQ(f)
-!
-! do i=1,20
-! kT=0.01*i
-! FinQ=uTMDPDF_inB(x,kT,mu,mu**2,1)
-! write(*,'("{",F5.2,",",F12.8,"},")',advance="no") kT,FinQ(f)
-! end do
-!
-! do i=1,98
-! kT=0.2d0+i*0.1
-! FinQ=uTMDPDF_inB(x,kT,mu,mu**2,1)
-! write(*,'("{",F5.1,",",F12.8,"},")',advance="no") kT,FinQ(f)
-! end do
-! do i=1,20
-! kT=10.d0+i
-! FinQ=uTMDPDF_inB(x,kT,mu,mu**2,1)
-! write(*,'("{",F5.1,",",F12.8,"},")',advance="no") kT,FinQ(f)
-! end do
-! write(*,*) " "
 
 write(*,*) "--------------------in KT -------- mu=",mu
 do i=1,20

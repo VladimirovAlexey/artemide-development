@@ -100,7 +100,7 @@ real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::bb_TMM
 public::uTMDPDF_Initialize,uTMDPDF_IsInitialized,uTMDPDF_SetScaleVariation,uTMDPDF_SetPDFreplica
 public::uTMDPDF_SetLambdaNP,uTMDPDF_CurrentLambdaNP
 public::uTMDPDF_lowScale5
-public::uTMDPDF_inB,uTMDPDF_TMM_G,uTMDPDF_TMM_X,uPDF_uPDF,uTMDPDF_inKT
+public::uTMDPDF_inB,uTMDPDF_TMM_G,uTMDPDF_TMM_X,uPDF_uPDF,uTMDPDF_inKT,testGrid_inKT
 
 interface uTMDPDF_inB
     module procedure TMD_opt,TMD_ev
@@ -379,6 +379,21 @@ end function toGrid
 
 end subroutine
 
+subroutine testGrid_inKT()
+
+call TestGrid_inKT_internal(ToCompare)
+
+contains
+
+function ToCompare(x,kT,Q,h)
+real(dp),dimension(-5:5)::ToCompare
+real(dp),intent(in)::x,kT,Q
+integer,intent(in)::h
+ToCompare=TMD_ev_inKT(x,kT,Q,Q**2,h)
+end function ToCompare
+
+end subroutine testGrid_inKT
+
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
@@ -568,7 +583,7 @@ function TMD_grid_inKT(x,kT,mu,hadron)
     if(gridIsReady_inKT) then
         TMD_grid_inKT=ExtractFromGrid_inKT(x,kT,mu,hadron)
     else
-        write(*,*) "YOR ARE IDIOT!"
+        write(*,*) ErrorString("Attempt to extract TMD from grid, while grid is not ready. CHECK!",moduleName)
         stop
     end if
 

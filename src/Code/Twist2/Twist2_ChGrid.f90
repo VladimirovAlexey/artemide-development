@@ -518,7 +518,7 @@ write(*,*) "                                 ",parentModuleName
 write(*,*) "-------------------------------------------------------------------------------------------------"
 write(*,*) " The comparison is done by formula R=|X-Y|/(|Y|+0.0001),"
 write(*,*) " where X is values from the grid, Y is computed value."
-write(*,*) " The computation is done for central points in-betwen nodes."
+write(*,*) " The computation is done for central points in-between nodes."
 write(*,*) " For values R<0.01 the log10(R) is shown in []."
 write(*,*) "-------------------------------------------------------------------------------------------------"
 

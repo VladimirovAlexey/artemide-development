@@ -90,7 +90,18 @@ abstract interface
     end function function_inKT
 end interface
 
-public:: Initialize_GridInKT, PrepareGrid_inKT, ExtractFromGrid_inKT
+!!! this is interface for input into grid-testing function (-5:5)
+abstract interface
+    function TMD_atKT(x,kT,Q,h)
+        import::dp
+        real(dp),dimension(-5:5) :: TMD_atKT
+        real(dp), intent(in) ::x,Q,kT
+        integer,intent(in)::h
+
+    end function TMD_atKT
+end interface
+
+public:: Initialize_GridInKT, PrepareGrid_inKT, ExtractFromGrid_inKT, TestGrid_inKT_internal
 
 contains
 
@@ -544,5 +555,133 @@ ExtractFromGrid_inKT=ExtractFromGrid_inKT/x/kT**2
 !   end do
 
 end function ExtractFromGrid_inKT
+
+
+subroutine TestGrid_inKT_internal(F)
+procedure(TMD_atKT)::F
+real(dp),dimension(1:xGridSize)::xTestNodes,xTestValues
+real(dp),dimension(1:kGridSize)::kTestNodes,kTestValues
+real(dp),dimension(1:QGridSize)::QTestValues
+real(dp),dimension(1:xGridSize,1:kGridSize,1:QGridSize,-5:5)::fromGrid,fromExact
+integer::i,j,k,iX,jK,kQ,h,fv,totN
+real(dp),dimension(1:xGridSize)::res
+logical::showLine
+real(dp)::avBadness
+
+write(*,*) "---------------------------------INITIATE THE GRID-inKT TEST ------------------------------------"
+write(*,*) "                                 ",parentModuleName
+write(*,*) "-------------------------------------------------------------------------------------------------"
+write(*,*) " The comparison is done by formula R=|X-Y|/(|Y|+0.0001),"
+write(*,*) " where X is values from the grid, Y is computed value."
+write(*,*) " The computation is done for central points in-between nodes."
+write(*,*) " For values R<0.01 the log10(R) is shown in []."
+write(*,*) " To save the monito space, only the possibly problematic values are shown."
+write(*,*) " For the rest the average value is demonstrated."
+write(*,*) "-------------------------------------------------------------------------------------------------"
+
+!!!! locate the test nodes in the middle of the grid.
+do i=1,xGridSize
+xTestNodes(i)=cos((i-0.5d0)*pi/xGridSize)
+end do
+do i=1,kGridSize
+kTestNodes(i)=cos((i-0.5d0)*pi/kGridSize)
+end do
+do i=1,QGridSize
+QTestValues(i)=exp(lnQMIN+(i-0.5d0)*Qstep)
+end do
+
+do h=1,numH
+
+
+write(*,*) "-------------------------------------------------------------------------------------------------"
+write(*,*) color("                         HADRON =  ",c_yellow),h
+write(*,*) "-------------------------------------------------------------------------------------------------"
+do i=1,numXsubgrids
+do j=1,numKsubgrids
+do k=1,QGridSize
+  write(*,'(A,I3,", ",I3)') "----- Subgrid :",i,j
+  write(*,'(A,F10.6," <x< ",F10.6)') "----- ",xRanges(i-1),xRanges(i)
+  write(*,'(A,F10.6,"<kT< ",F10.6)') "----- ",kRanges(j-1),kRanges(j)
+
+  xTestValues=exp(xIntervals(i)*xTestNodes+xMeans(i))
+  kTestValues=exp(kIntervals(j)*kTestNodes+kMeans(j))
+
+  do iX=1,xGridSize
+  do jK=1,kGridSize
+  do kQ=1,QGridSize
+    fromGrid(iX,jK,kQ,-5:5)=ExtractFromGrid_inKT(xTestValues(iX),kTestValues(jK),QTestValues(kQ),h)
+    fromExact(iX,jK,kQ,-5:5)=F(xTestValues(iX),kTestValues(jK),QTestValues(kQ),h)
+  end do
+  end do
+  end do
+
+  do fv=-3,3
+  if(fv==0 .and. (.not.withGluon)) cycle !!!! skip gluons if they are not included
+
+  write(*,*) color("                         FLAVOR =  ",c_yellow),fv
+
+  write(*,'(A)',advance='no') "    kT   |   Q \ x ||"
+  do iX=xGridSize,2,-1
+    write(*,'(F8.4,"  ")',advance='no') xTestValues(iX)
+  end do
+  write(*,'(F8.4,"  ")') xTestValues(1)
+  write(*,'(A)',advance='no') "  -------|"
+  do iX=1,xGridSize-1
+    write(*,'(A)',advance='no') "----------"
+  end do
+  write(*,'(A)') "----------"
+
+    totN=1
+    avBadness=0._dp
+  do jK=kGridSize,2,-1
+  do kQ=1,QGridSize
+
+    showLine=.false.
+    do iX=xGridSize,1,-1
+        res(iX)=abs(fromGrid(iX,jK,kQ,fv)-fromExact(iX,jK,kQ,fv))/(abs(fromExact(iX,jK,kQ,fv))+0.0001d0)
+        avBadness=avBadness+res(iX)
+        totN=totN+1
+        if(res(iX)>0.01) showLine=.true.
+    end do
+
+    if(showLine) then
+        write(*,'(F8.4," |",F8.2," ||")',advance='no')  kTestValues(jK),QTestValues(kQ)
+
+        do iX=xGridSize,1,-1
+
+        if(res(iX)>0.01) then
+            write(*,'(F8.4)',advance='no') res(iX)
+        else
+            write(*,'("[",F6.2,"]")',advance='no') log10(res(iX))
+        end if
+
+        if(res(iX)>1.) then
+            write(*,'(A)',advance='no') color("!!",c_red_bold)
+        else if(res(iX)>0.1) then
+            write(*,'(A)',advance='no') color("!!",c_red)
+        else if(res(iX)>0.01) then
+            write(*,'(A)',advance='no') color("! ",c_yellow)
+        else
+            write(*,'(A)',advance='no') "  "
+        end if
+        end do
+
+        write(*,'(A)') " "
+    end if
+
+  end do
+  end do
+
+  write(*,'("  AVARAGE BADNESS FOR THIS SECTOR ",F16.12)')avBadness/totN
+
+  end do
+
+end do
+end do
+end do
+
+end do
+
+end subroutine TestGrid_inKT_internal
 
 !end module grid_inKT
