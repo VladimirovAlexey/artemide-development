@@ -35,7 +35,7 @@ function TestMU()
     logical::TestMU
     real(dp)::xR,yR,bR
     real(dp)::test1,test2
-    integer::i,j
+    integer::i
     TestMU=.false.
     do i=1,10
         call RANDOM_NUMBER(bR)
@@ -72,7 +72,7 @@ function CxF_compute(x,bT,hadron,includeGluon)
     logical,intent(in)::includeGluon
     real(dp):: bTcurrent,lx
 
-    real(dp),dimension(-5:5)::deltaPart,PLUSremnant, PLUSpart
+    real(dp),dimension(-5:5)::deltaPart,PLUSremnant
     real(dp):: muAt1,asAt1,LogAt1,NfAt1,Cqq,Cgg,Csingqq,Csinggg
     real(dp),dimension(1:3)::CplusAt1_gg,CplusAt1_qq
     real(dp),dimension(-5:5)::PDFat1

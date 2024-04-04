@@ -13,16 +13,18 @@
 !!! hard coefficeint taken from 1004.3653 up to 3-loop
 !!! it is evaluated at mu=Q
 function HardCoefficientDY(mu)
-    real(dp)::HardCoefficientDY,mu,LQ!=Log[Q^2/mu^2]=-2Log[c1]
-    real(dp)::alpha
+    real(dp)::HardCoefficientDY
+    real(dp),intent(in)::mu
+    real(dp)::alpha,LQ!=Log[Q^2/mu^2]=-2Log[c1]
     
     If(usePiresum) then 
     
     !!! this expression is get by expanding pi-resummedexponent and CV^2 to fixed order
     HardCoefficientDY=1.d0
+    alpha=As(mu*c2_global)
+
     if(orderH_global>=1) then
       LQ=-2d0*LOG(c2_global)
-      alpha=As(mu*c2_global)
       HardCoefficientDY=HardCoefficientDY+alpha*&
       (-16.946842488404727d0 + 8d0*LQ-2.6666666666666665d0*LQ**2)
     if(orderH_global>=2) then
@@ -43,9 +45,10 @@ function HardCoefficientDY(mu)
     else
     
     HardCoefficientDY=1.d0
+    alpha=As(mu*c2_global)
+
     if(orderH_global>=1) then
       LQ=-2d0*LOG(c2_global)
-      alpha=As(mu*c2_global)
       HardCoefficientDY=HardCoefficientDY+alpha*&
       (9.372102581166892d0 + 8d0*LQ-2.6666666666666665d0*LQ**2)
     if(orderH_global>=2) then
@@ -74,7 +77,8 @@ end function HardCoefficientDY
 !!! see [0808.3008]
 function PiResumFactor_q(alpha)
   real(dp)::PiResumFactor_q
-  real(dp)::alpha,aa,ArcT,LogA,UU
+  real(dp),intent(in)::alpha
+  real(dp)::aa,ArcT,LogA,UU
   
   ! Nf=5 everywhere
   
@@ -187,9 +191,11 @@ function HardCoefficientHIGGS(mu)
     If(usePiresum) then 
     
     HardCoefficientHIGGS=1.d0
+    alpha=As(mu*c2_global)
+
     if(orderH_global>=1) then
       LQ=-2d0*LOG(c2_global)
-      alpha=As(mu*c2_global)
+
       HardCoefficientHIGGS=HardCoefficientHIGGS+alpha*&
       (9.869604401089358d0 -6d0*LQ**2)
     if(orderH_global>=2) then
@@ -207,10 +213,10 @@ function HardCoefficientHIGGS(mu)
     else 
     
     HardCoefficientHIGGS=1.d0
-    
+    alpha=As(mu*c2_global)
+
     if(orderH_global>=1) then
       LQ=-2d0*LOG(c2_global)
-      alpha=As(mu*c2_global)
       HardCoefficientHIGGS=HardCoefficientHIGGS+alpha*&
       (69.0872308076255d0 -6d0*LQ**2)
     if(orderH_global>=2) then

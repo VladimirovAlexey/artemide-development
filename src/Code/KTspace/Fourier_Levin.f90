@@ -9,8 +9,8 @@
 !!!!
 !!!! This module performes the Fourier tranfomation to kT-space.
 !!!! It does it by the Levin method, and transform the Chebyshev grid to the Chebyshev grid.
-!!!! The result is the grid in the (x,kT,Q)-space [4D!]
-!!!!
+!!!! It precomputes the variable bValues (which is a list of b's)
+!!!! And the TranformationArray. Applying trnaformation array to the f(bValues), one get a grid in kT-space
 
 !     In the file that uses it add
 !module NAME
@@ -18,7 +18,7 @@
 !end module NAME
 !
 
-!module Fourier_overGrid
+!module Fourier_Levin
 
 use aTMDe_Numerics
 use IO_functions
@@ -28,14 +28,30 @@ implicit none
 
 private
 
-character(len=8),parameter :: moduleName="tw2-grid"
+character(len=7),parameter :: moduleName="Fourier"
 character(len=11):: parentModuleName
 integer::outputLevel
 
 
 !!!!---------- Variables about the grid in b-space
-!!!! bValues is the list of b-values required for the transform
+!!!! bValues is the list of b-values from all subgrids, collected in the single list
+!!!! It is used for the transform, and has the shape (1:lengthOfbValues)
 real(dp),allocatable::bValues(:)
+!!!! the length of bValues is =(numBsubgrids*(bGridSize+1))
+integer::lengthOfbValues
+!!!! bRanges are the list of values of subgrids for b
+!!!! Nodes are the list of values of nodes in the terms of T=[-1,1]
+!!!! NodeFactors are the list of factors (-1)^i/2^%., there %=1 for i=0,NUM, and 0 otherwice
+real(dp),allocatable::bRanges(:),bNodes(:),bNodeFactors(:)
+!!!! number of Subgrids
+integer::numBsubgrids
+!!!! number of nodes, it is the same for all subgrids of given class
+integer::bGridSize
+!!!! Intervals are the lists of (u_{k+1}-u_k)/2 for subgrids
+!!!! Means are the lists of (u_{k+1}+u_k)/2 for subgrids
+!!!! these are used to speed-up transformation from and to grids (the list are in the trnasformed variables)
+real(dp),allocatable::bIntervals(:),bMeans(:)
+
 
 !!!!---------- Variables about the grid in k-space
 !!!! kRanges are the list of values of subgrids for kT
@@ -46,26 +62,17 @@ real(dp),allocatable::kRanges(:),kNodes(:),kNodeFactors(:)
 integer::numKsubgrids
 !!!! number of nodes, it is the same for all subgrids of given class
 integer::kGridSize
+!!!! Intervals are the lists of (u_{k+1}-u_k)/2 for subgrids
+!!!! Means are the lists of (u_{k+1}+u_k)/2 for subgrids
+!!!! these are used to speed-up transformation from and to grids (the list are in the trnasformed variables)
+real(dp),allocatable::kIntervals(:),kMeans(:)
 
-!!!!---------- Variables about the grid in k-space
-!!!! kRanges are the list of values of subgrids for kT
-!!!! Nodes are the list of values of nodes in the terms of T=[-1,1]
-!!!! NodeFactors are the list of factors (-1)^i/2^%., there %=1 for i=0,NUM, and 0 otherwice
-real(dp),allocatable::xRanges(:),xNodes(:),xNodeFactors(:)
-!!!! number of Subgrids
-integer::numXsubgrids
-!!!! number of nodes, it is the same for all subgrids of given class
-integer::xGridSize
+!!!!--------- Variables concerning trnaformation to the kT-space
+!!!! The matrix or arrays (for each node in kT) to transform f(b)
+real(dp),allocatable::TranformationArray(:,:,:)
 
 
-!!!!---------- General parameters
-!!!! number of hadrons
-integer::numH
-!!!! include Gluon
-logical::withGluon
-!!!! utmost values of the grids
-real(dp)::QMIN,QMAX,kMIN,kMAX,xMIN
-
+real(dp),allocatable::CCweight(:)!!!!! weights of CC-quadrature
 real(dp)::zero=10.d-12
 !!!! first zero of bessel function J0,J1,...,J5
 real(dp),dimension(0:5),parameter::besselZERO=(/&
@@ -73,83 +80,75 @@ real(dp),dimension(0:5),parameter::besselZERO=(/&
 5.1356223018406825563014016901378_dp, 6.3801618959239835062366146419427_dp, &
 7.5883424345038043850696300079857_dp, 8.7714838159599540191228671334096_dp/)
 
-!!!! Intervals are the lists of (u_{k+1}-u_k)/2 for subgrids
-!!!! Means are the lists of (u_{k+1}+u_k)/2 for subgrids
-!!!! these are used to speed-up transformation from and to grids (the list are in the trnasformed variables)
-real(dp),allocatable::xIntervals(:),xMeans(:),kIntervals(:),kMeans(:),QIntervals(:),QMeans(:)
+public:: Initialize_Fourier_Levin,Fourier_Levin,Fourier_Levin_array,TestFourier
 
-public:: PrepareTransformationMatrix
+!!! this is interface for abstract TMD function (-5:5)
+abstract interface
+    function TMD_distribution(b)
+        import::dp
+        real(dp),dimension(-5:5) :: TMD_distribution
+        real(dp), intent(in) ::b
+    end function TMD_distribution
+end interface
 
 contains
 
 
-!!!!!! the parameters for q-grid and k-grid are to be read from the file (section for KT-grid)
-!!!!!! the parameters for x-grid and b-grid are to be read from the file (section for b-Grid)
-subroutine Initialize_Fourier_overGrid(name,outLevel,numH_in,withGluon_in)
+!!!!!! Initialization of parameters from the const-file
+subroutine Initialize_Fourier_Levin(path,moduleLine,gridLine,name,outLevel)
+character(len=*)::path
+character(len=5),intent(in)::moduleLine,gridLine
 integer,intent(in)::outLevel
 character(*),intent(in)::name
-integer,intent(in)::numH_in
-logical,intent(in)::withGluon_in
 
-!!!!---------- Variables about the grid in b-space
-real(dp),allocatable::bRanges(:)
-integer::numBsubgrids,bGridSize
 
-integer::i
+logical::prepareGrid
+integer::i,j,k
 
 parentModuleName=name
 outputLevel=outLevel
 
-!!!processing input parameters
-numXsubgrids=2
-numBsubgrids=4
-numKsubgrids=3
-allocate(xRanges(0:numXsubgrids))
-allocate(bRanges(0:numBsubgrids))
-allocate(kRanges(0:numKsubgrids))
+!!!! read input about b and kT-spaces
+OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
+    !-------------Parameters of grid in kT
+    call MoveTO(51,moduleLine)
+    call MoveTO(51,gridLine)
+    call MoveTO(51,'*p1  ')
+    read(51,*) prepareGrid
+    call MoveTO(51,'*p6  ')
+    read(51,*) numKsubgrids
+    allocate(kRanges(0:numKsubgrids))
+    call MoveTO(51,'*p7  ')
+    read(51,*) kRanges
+    call MoveTO(51,'*p8  ')
+    read(51,*) kGridSize
 
-xRanges=(/0.001d0,0.2d0,1.d0/)
-bRanges=(/0.00001d0,0.01d0,0.2d0,2.d0, 25.d0/)
-kRanges=(/0.001d0,2.d0, 20.d0,100.d0/)
-xGridSize=16
-bGridSize=16
-kGridSize=16
-xMIN=xRanges(0)
-kMIN=kRanges(0)
-kMAX=kRanges(numKsubgrids)
+    !-------------Parameters of grid in b
+    call MoveTO(51,'*p12 ')
+    read(51,*) numBsubgrids
+    allocate(bRanges(0:numBsubgrids))
+    call MoveTO(51,'*p13 ')
+    read(51,*) bRanges
+    call MoveTO(51,'*p14 ')
+    read(51,*) bGridSize
+CLOSE (51, STATUS='KEEP')
 
-numH=numH_in
-
-withGluon=withGluon_in
 
 !!!!allocation of lists
-
-allocate(xNodes(0:xGridSize))
 allocate(kNodes(0:kGridSize))
-allocate(xNodeFactors(0:xGridSize))
 allocate(kNodeFactors(0:kGridSize))
-
-allocate(xIntervals(1:numXsubgrids),xMeans(1:numXsubgrids))
 allocate(kIntervals(1:numKsubgrids),kMeans(1:numKsubgrids))
 
-!!!!filing the working variables
+allocate(bNodes(0:bGridSize))
+allocate(bNodeFactors(0:bGridSize))
+allocate(bIntervals(1:numBsubgrids),bMeans(1:numBsubgrids))
 
-xIntervals=(log(xRanges(1:numXsubgrids))-log(xRanges(0:numXsubgrids-1)))/2._dp
+allocate(CCweight(0:bGridSize))
+
+
+!!!!filing the working variables for K-grid
 kIntervals=(log(kRanges(1:numKsubgrids))-log(kRanges(0:numKsubgrids-1)))/2._dp
-xMeans=(log(xRanges(1:numXsubgrids))+log(xRanges(0:numXsubgrids-1)))/2._dp
 kMeans=(log(kRanges(1:numKsubgrids))+log(kRanges(0:numKsubgrids-1)))/2._dp
-
-xNodeFactors=1._dp
-
-do i=0,xGridSize
-  xNodes(i)=cos(i*pi/xGridSize)
-
-  if(i==0 .or. i==xGridSize) then
-    xNodeFactors(i)=xNodeFactors(i)/2
-  end if
-  if(mod(i,2)==1) xNodeFactors(i)=-xNodeFactors(i)
-
-end do
 
 kNodeFactors=1._dp
 
@@ -162,27 +161,8 @@ do i=0,kGridSize
   if(mod(i,2)==1) kNodeFactors(i)=-kNodeFactors(i)
 end do
 
-call PrepareTransformationMatrix(bGridSize,bRanges)
 
-end subroutine Initialize_Fourier_overGrid
-
-
-!!!!! This subroutine creates the transformation matrix from b to kT space
-!!!!! it incapsulates all variables and functions about the b-space, and makes the table of bValues
-subroutine PrepareTransformationMatrix(bGridSize,bRanges)
-integer,intent(in)::bGridSize
-real(dp),intent(in)::bRanges(0:)!(0:numBsubgrids)
-integer::numBsubgrids
-real(dp)::bIntervals(1:size(bRanges)-1),bMeans(1:size(bRanges)-1),tNodes(0:bGridSize),bNodeFactors(0:bGridSize)
-
-real(dp),dimension(0:bGridSize)::CCweight!!!!! weights of CC-quadrature
-
-integer::i,j,k
-real(dp)::FourierAtQ(1:((size(bRanges)-1)*(bGridSize+1)))
-real(dp)::TEST(1:((size(bRanges)-1)*(bGridSize+1)))
-real(dp)::dummy
-real(dp)::qTEST
-
+!!!!!!! now for the B-space
 numBsubgrids=size(bRanges)-1
 
 !!!!! filling working variables for b-grid
@@ -192,7 +172,7 @@ bMeans=(log(bRanges(1:numBsubgrids))+log(bRanges(0:numBsubgrids-1)))/2._dp
 bNodeFactors=1._dp
 
 do i=0,bGridSize
-  tNodes(i)=cos(i*pi/bGridSize)
+  bNodes(i)=cos(i*pi/bGridSize)
 
   if(i==0 .or. i==bGridSize) then
     bNodeFactors(i)=bNodeFactors(i)/2
@@ -201,7 +181,8 @@ do i=0,bGridSize
 end do
 
 !!!!!! make the list of required values of b
-allocate(bValues(1:(numBsubgrids*(bGridSize+1))))
+lengthOfbValues=numBsubgrids*(bGridSize+1)
+allocate(bValues(1:lengthOfbValues))
 k=1
 do i=1,numBsubgrids
 do j=0,bGridSize
@@ -213,70 +194,99 @@ end do
 !!!! precompute CCweights
 call CCweight_compute()
 
-k=1
-do i=1,numBsubgrids
-do j=0,bGridSize
-    dummy=BfromNode(i,j)
-    TEST(k)=dummy*Exp(-2.1_dp*dummy)*(1+dummy**2*6.3_dp+dummy**6*1.4_dp)
-    k=k+1
-end do
-end do
+if(prepareGrid) then
+    allocate(TranformationArray(1:numKsubgrids,0:kGridSize,1:lengthOfbValues))
+    call PrepareTransformationMatrix()
+    if(outLevel>=2) write(*,*) "Initialization of tables for Hankel transform over grid is done for "//trim(parentModuleName)
+end if
 
-do i=1,100
-qTEST=i/100._dp
-FourierAtQ=FourierArrayAtQ(qTEST)
-write(*,'("{",F8.4,",",F16.12,"},")',advance="no") qTEST,dot_product(FourierAtQ,TEST)
-end do
-write(*,*) " "
-write(*,*) "---- "
+end subroutine Initialize_Fourier_Levin
 
-do i=1,30
-qTEST=i
-FourierAtQ=FourierArrayAtQ(qTEST)
-write(*,'("{",F8.4,",",F24.18,"},")',advance="no") qTEST,qTEST**2*dot_product(FourierAtQ,TEST)
-end do
-write(*,*) " "
-write(*,*) "---- "
-
-do i=10,100
-qTEST=i*3
-FourierAtQ=FourierArrayAtQ(qTEST)
-write(*,'("{",F8.4,",",F24.18,"},")',advance="no") qTEST,qTEST**2*dot_product(FourierAtQ,TEST)
-end do
-write(*,*) " "
-write(*,*) "---- "
-stop
-
-!
-! do i=0,2*bGridSize+1
-! do j=0,2*bGridSize+1
-!     dummy=ElementOfLevinMatrix(i,j,3,100.d0)
-!     write(*,'(F9.4)',advance="no") dummy
-! end do
-! write(*,*) " "
-! end do
-! ! stop
-!
-! inv=InverseLevinOperator(1,21.2d0)
-! write(*,*) inv
-! inv=InverseLevinOperator(2,21.2d0)
-! write(*,*) inv
-! inv=InverseLevinOperator(3,21.2d0)
-! write(*,*) inv
-! inv=InverseLevinOperator(4,21.2d0)
-! write(*,*) inv
-
-stop
-
-contains
+!!!!! values of K computed from the nodes
+!!!!! n=subgrid, k=node
+pure function KfromNode(n,k)
+integer,intent(in)::n,k
+real(dp)::KfromNode
+KfromNode=exp(KIntervals(n)*KNodes(k)+KMeans(n))
+end function KfromNode
 
 !!!!! values of b computed from the nodes
 !!!!! n=subgrid, k=node
-function BfromNode(n,k)
+pure function BfromNode(n,k)
 integer,intent(in)::n,k
 real(dp)::BfromNode
-BfromNode=exp(bIntervals(n)*tNodes(k)+bMeans(n))
+BfromNode=exp(bIntervals(n)*bNodes(k)+bMeans(n))
 end function BfromNode
+
+!!!!! This subroutine creates the transformation matrix from b to kT space
+!!!!!! the transformation is kT^2\int_0^\infty db/(2pi) b J_0(b kT) F(b)
+!!!!! It works over the grid
+subroutine PrepareTransformationMatrix()
+integer::i,j
+
+!!!!! actually computation of the arrays for Fourier transform
+do i=1,numKsubgrids
+do j=0,kGridSize
+    TranformationArray(i,j,:)=FourierArrayAtQ(KfromNode(i,j))/pix2*KfromNode(i,j)**2
+end do
+end do
+
+end subroutine PrepareTransformationMatrix
+
+!!!!!! make the Fourier of the function F with the interface (-5:5)
+!!!!!! at the point kT (in GeV)
+!!!!!! the transformation is \int_0^\infty db/(2pi) b J_0(b q) F(b)
+function Fourier_Levin(F,kT)
+real(dp),intent(in)::kT
+real(dp),dimension(-5:5)::Fourier_Levin
+procedure(TMD_distribution)::F
+integer::i
+real(dp),dimension(1:lengthOfbValues)::Levin_Array
+
+Levin_Array=FourierArrayAtQ(kT)
+
+Fourier_Levin=0._dp
+do i=1,lengthOfbValues
+Fourier_Levin=Fourier_Levin+Levin_Array(i)*F(bValues(i))*bValues(i)
+end do
+Fourier_Levin=Fourier_Levin/pix2
+
+end function Fourier_Levin
+
+!!!!!! make the Fourier of the function F with the interface (-5:5)
+!!!!!! at the modes of kT-grid. Returns the list (1:numKsubgrids, 0:kGridSize,-5:5)
+!!!!!! the transformation is kT^2\int_0^\infty db/(2pi) b J_0(b kT) F(b)
+!!!!!! IMPORTANT THE RESULT IS MULTIPLIED by kT^2
+function Fourier_Levin_array(F2)
+real(dp),dimension(1:numKsubgrids, 0:kGridSize,-5:5)::Fourier_Levin_array
+procedure(TMD_distribution)::F2
+integer::i,j,ff
+real(dp),dimension(1:lengthOfbValues,-5:5)::Function_Array
+
+!!!! request array
+do i=1,lengthOfbValues
+Function_Array(i,:)=F2(bValues(i))*bValues(i)
+end do
+
+
+! write(*,*) "-------- kT values"
+! do i=1,numKsubgrids
+! do j=0,kGridSize
+! write(*,'(F8.4,",")',advance="no") KfromNode(i,j)
+! end do
+! end do
+! write(*,*)
+
+!!!!! factor kT^2/2pi is taken into account in the TranformationArray
+do i=1,numKsubgrids
+do j=0,kGridSize
+do ff=-5,5
+    Fourier_Levin_array(i,j,ff)=dot_product(TranformationArray(i,j,:),Function_Array(:,ff))
+end do
+end do
+end do
+
+end function Fourier_Levin_array
 
 !!!!! returns the array of weights, which should be multiplied by array of function at bNodes to get the Integral
 !!!!! \int_bMIN^bMAX J_0(b q) f(b) db
@@ -287,14 +297,21 @@ end function BfromNode
 !!!!! empirically I found that 1/2 workds good.
 function FourierArrayAtQ(q)
 real(dp),intent(in)::q
-real(dp),dimension(1:((size(bRanges)-1)*(bGridSize+1)))::FourierArrayAtQ
+real(dp),dimension(1:lengthOfbValues)::FourierArrayAtQ
 
 real(dp)::inv(0:bGridSize)
 integer::i
+real(dp)::valueTOswitch
+
+!!!! this is value at which I change CC to Levin.
+!!!! if (bq) is very small, the integral is not oscilating, and is better estimated by CC
+!!!! It should be compared with BesselZero.
+!!!! Empirically I found that it is better to put  as
+valueTOswitch=besselZERO(0)*bGridSize**2/128.d0
 
 !!!! if the integral is not oscilating, one better use CC-quadrature.
 do i=1,numBsubgrids
-    if(q*bRanges(i)<besselZERO(0)*2) then
+    if(q*bRanges(i)<valueTOswitch) then
         inv=InverseCCOperator(i,q)
     else
         inv=InverseLevinOperator(i,q)
@@ -305,7 +322,7 @@ end do
 !!!! This is the correction for the extremely small-b
 FourierArrayAtQ(bGridSize+1)=FourierArrayAtQ(bGridSize+1)+bessel_j1(bRanges(0)*q)/q
 
-end function FourierArrayAtQ
+contains
 
 !!!! returns the derivative matrix for Chebyshev grid (see 2.19 in [2112.09703])
 !!!! it does not contains the prefactor 1/b/([B-A]/2) recuired for proper derivative
@@ -414,8 +431,7 @@ real(dp),dimension(0:bGridSize)::InverseLevinOperator
 
 real(dp),dimension(0:2*bGridSize+1,0:2*bGridSize+1)::MM!!!! matrix to inverse
 real(dp),dimension(0:2*bGridSize+1,0:2*bGridSize+1)::invMM!!!! result of inverstion
-integer::i,j,k
-real(dp)::sum_em
+integer::i,j
 
 NUM=2*bGridSize+1
 
@@ -456,6 +472,9 @@ end do
 
 end function InverseCCOperator
 
+end function FourierArrayAtQ
+
+
 !!!! precomputes the CCweights
 !!!! the formula is
 !!!! w_j=beta(j)4/N sum_{k=0,2,..}^n beta[k] Cos[j k pi/n]/(1-k^2)
@@ -477,8 +496,79 @@ end do
 end subroutine CCweight_compute
 
 
-end subroutine PrepareTransformationMatrix
+!!!!! Some elementery check of Fourier
+subroutine TestFourier()
+real*8,dimension(-5:5)::FinQ
+real*8,dimension(-5:5)::fromMath
+
+write(*,*) " Checking some functions agains numerical integration in Mathematica "
+
+write(*,*) " ----- at kt=0.1"
+FinQ=Fourier_Levin(ToCheck,0.1d0)
+
+fromMath=(/0.3929447215912037d0, 0.02540379739979786d0, 0.908411878110134d0, &
+0.0005968092778014869d0, 0.6460648742389542d0, 0.06437676847530796d0, &
+0.7524510443091221d0, 0.49655034487385374d0, 0.34170225292532014d0, &
+-0.20752205491870596d0, -0.8852238038904702d0/)
+
+write(*,*) "Relative precision --->", FinQ/fromMath-1
+write(*,*) "Absolute precision --->", FinQ-fromMath
+
+write(*,*) " ----- at kt=1."
+
+FinQ=Fourier_Levin(ToCheck,1.d0)
+
+fromMath=(/0.11399663659959798d0, 0.0203822972275855d0, -0.042202327319864175d0, &
+0.04313149087386549d0, 0.07117361597522101d0, 0.02972110683414643d0, &
+0.06294594297527262d0, 0.449934673142791d0, 0.042891077569203635d0, &
+0.02520683225073642d0, 0.052674083664594376d0/)
+
+write(*,*) "Relative precision --->", FinQ/fromMath-1
+write(*,*) "Absolute precision --->", FinQ-fromMath
 
 
+write(*,*) " ----- at kt=10."
 
-!end module Fourier_overGrid
+FinQ=Fourier_Levin(ToCheck,10.d0)
+
+fromMath=(/1.8747707813265846d-11, 0.0003633011162405713d0, &
+-0.000013741292555857953d0, 0.00016380750398139264d0, &
+1.2046139297866576d-8, 0.00005000066812517099d0, &
+-0.001859693917933602d0, 0.004722227621666028d0, &
+-0.0002109411666441108d0, -0.000042730758216799126d0, &
+-0.0003707316746467484d0/)
+
+write(*,*) "Relative precision --->", FinQ/fromMath-1
+write(*,*) "Absolute precision --->", FinQ-fromMath
+
+write(*,*) " ----- at kt=100."
+
+FinQ=Fourier_Levin(ToCheck,100.d0)
+
+fromMath=(/6.425713317692464d-12, 3.9751415835768074d-7, &
+-1.5915162873903991d-10, 1.592026776123332d-7, &
+2.7850115402326854d-12, 4.776807258675328d-8, &
+-0.000017098111555254256d0, 4.710252392769662d-9, &
+-9.231843125300607d-7, -7.159579504948952d-7, &
+1.5037898670724917d-6/)
+
+write(*,*) "Relative precision --->", FinQ/fromMath-1
+write(*,*) "Absolute precision --->", FinQ-fromMath
+
+contains
+function ToCheck(b)
+real*8,dimension(-5:5)::ToCheck
+real*8,intent(in)::b
+
+ToCheck=(/exp(-0.2*b**2),exp(-2.5*b),exp(-b)*b**2,exp(-b)*Cos(b),&
+            (1.d0+0.2*b**2)/Cosh(b),1/(b**2+2.d0)*exp(-0.6*b), &
+            exp(-0.8*b)*(1+sqrt(b)+log(b)),1.d0/(b**8+0.1d0),&
+            Exp(-0.8*b)*b**(0.45), &
+            Exp(-0.8*b)*(b**(0.45)-b**(0.93)),&
+            Exp(-0.8*b)*(b**(0.45)*cos(3*b)-b**(0.93)*log(b)**2)            /)
+end function ToCheck
+
+end subroutine TestFourier
+
+
+!end module Fourier_Levin

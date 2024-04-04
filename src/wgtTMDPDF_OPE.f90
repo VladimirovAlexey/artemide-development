@@ -68,6 +68,9 @@ real(dp) :: toleranceINT=1d-6  !!! tolerance for numerical integration
 real(dp) :: toleranceGEN=1d-6  !!! tolerance for other purposes
 integer :: maxIteration=4000   !!! maximum iteration in the integrals (not used at the moment)
 
+!!!total number of hadrons to be used
+integer::numberOfHadrons=1
+
 logical(dp) :: IsMuYdependent = .true.  !!! if mu is y independent, computation is much(!) faster
 
 !!!! grid preparation
@@ -88,10 +91,7 @@ integer,parameter::parametrizationLength=4 !!![exact]
 real(dp) :: c4_global=1_dp  !!! scale variation parameter
 logical :: gridReady!!!!indicator that grid is ready to use. If it is .true., the TMD calculated from the grid
 
-!!!------------------------- SPECIAL VARIABLES FOR GRID (used by TMDGrid-XB)------------------
-real(dp), dimension(:,:,:,:), allocatable :: gridMain !!!! THIS IS HUGE(!) matrix for the grid
-real(dp), dimension(:,:,:,:), allocatable :: interpolationParameters !!!! for b>bGrid_Max we interpolate
-integer::numberOfHadrons=1                !!!total number of hadrons to be stored
+
 
 !!--------------------------------------Public interface-----------------------------------------
 public::wgtTMDPDF_OPE_IsInitialized,wgtTMDPDF_OPE_Initialize,wgtTMDPDF_OPE_convolution

@@ -59,8 +59,6 @@ real(dp)::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value
 integer,parameter::Nmax=1000
 INCLUDE 'Tables/BesselZero1000.f90'
 
-logical:: convergenceLost=.false.
-
 !!!!! I split the qT over runs qT<qTSegmentationBoundary
 !!!!! In each segment I have the ogata quadrature with h=hOGATA*hSegmentationWeight
 !!!!! It helps to convergen integrals, since h(optimal) ~ qT

@@ -40,7 +40,7 @@ function CxF_AS(x,mu,mu0,hadron,includeGluon)
     logical,intent(in)::includeGluon
     real(dp):: lx
 
-    real(dp),dimension(-5:5)::deltaPart,PLUSremnant, PLUSpart
+    real(dp),dimension(-5:5)::deltaPart,PLUSremnant
     real(dp):: asAt1,NfAt1,Cqq,Cgg,Csingqq,Csinggg
     real(dp),dimension(1:3)::CplusAt1_gg,CplusAt1_qq
     real(dp),dimension(-5:5)::PDFat1
@@ -209,8 +209,8 @@ function CxF_AS(x,mu,mu0,hadron,includeGluon)
     function FFplus(y)
         real(dp),dimension(-5:5)::FFplus
         real(dp),intent(in)::y
-        real(dp),dimension(1:3)::Cplus_qq,Cplus_gg,listLY
-        real(dp),dimension(-5:5)::PDF,inter1,inter2
+        real(dp),dimension(1:3)::listLY
+        real(dp),dimension(-5:5)::PDF,inter2
         real(dp)::dummy1,dummy2,ly
 
         !!! very rare error, if y~1 (up to machine precision) freeze it!
@@ -238,7 +238,6 @@ function CxF_AS(x,mu,mu0,hadron,includeGluon)
     !!!!! approximate integration of y~1. It is presice up to 5-6 digits for y~0.9999, and x<0.8
     function Integrate_largey()
         real(dp),dimension(-5:5)::Integrate_largey
-        real(dp),dimension(1:3)::Cplus_qq,Cplus_gg
         real(dp)::Aqq,Aqg,Agq,Agg,Aqqp,Aqqb,PDFsum
         real(dp),dimension(-5:5)::partPLUS,partReg,PDFs
         real(dp)::lY,dummy1,dummy2

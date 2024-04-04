@@ -95,16 +95,14 @@ OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
     call MoveTO(51,moduleLine)
     call MoveTO(51,gridLine)
     call MoveTO(51,'*p1  ')
-    read(51,*) i
-    numXsubgrids=i-1
+    read(51,*) numXsubgrids
     allocate(xRanges(0:numXsubgrids))
     call MoveTO(51,'*p2  ')
     read(51,*) xRanges
     call MoveTO(51,'*p3  ')
     read(51,*) xGridSize
     call MoveTO(51,'*p4  ')
-    read(51,*) i
-    numBsubgrids=i-1
+    read(51,*) numBsubgrids
     allocate(bRanges(0:numBsubgrids))
     call MoveTO(51,'*p5  ')
     read(51,*) bRanges
@@ -198,7 +196,7 @@ subroutine Twist2_ChGrid_MakeGrid(F)
   procedure(tw2_convolution)::F
   real(dp):: x_local,b_local
   integer:: iX,iB,h,jX,jB,n
-  real(dp)::b1,b2,time1,time2,f1,f2
+  real(dp)::time1,time2
   !$ real*8::omp_get_wtime
 
   call cpu_time(time1)
@@ -411,7 +409,7 @@ function ExtractFromGrid(x,bT,h)
     stop
   end if
 
-  if(x<XMin) then
+  if(x+zero<XMin) then
    write(*,*) ErrorString('The TMD with x ='//numToStr(x)//' is called. Current grid size is up to '//&
    numToStr(XMin)//'. Enlarge boundaries.',parentModuleName//"."//moduleName)
    write(*,*) 'arTeMiDe: evaluation STOP'
@@ -479,6 +477,14 @@ function ExtractFromGrid(x,bT,h)
 !      write(*,'(" Extracted value (x,b,f,h) =(",F6.5,", ",F6.2,", ",I2,", ",I2,") is computed to NaN")') &
 !             x,bT,h,i
 !       write(*,*) "==>",ExtractFromGrid
+!       write(*,*) " "
+!       write(*,*) "-->",interGrid(:,i)
+!       write(*,*) " "
+!       write(*,*) "T->",tX,tB
+!       write(*,*) " "
+!       write(*,*) "X->",tX-xNodes
+!       write(*,*) " "
+!       write(*,*) "B->",tB-bNodes
 !       stop
 !     end if
 !     if(abs(ExtractFromGrid(i))>1000000.d0) then

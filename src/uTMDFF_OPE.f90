@@ -62,6 +62,9 @@ real(dp) :: xMin=0.0001_dp !!! min x
 real(dp) :: BMAX=25._dp !!! maximum B
 real(dp) :: BMIN=1d-6 !!! minimum B
 
+!!!total number of hadrons to be used
+integer::numberOfHadrons=1
+
 !!!! Numerical parameters
 real(dp) :: toleranceINT=1d-6  !!! tolerance for numerical integration
 real(dp) :: toleranceGEN=1d-6  !!! tolerance for other purposes
@@ -81,17 +84,6 @@ integer,parameter::parametrizationLength=36
 !!!------------------------- DYNAMICAL-GLOBAL PARAMETERS -------------------
 real(dp) :: c4_global=1_dp  !!! scale variation parameter
 logical :: gridReady!!!!indicator that grid is ready to use. If it is .true., the TMD calculated from the grid
-
-!!!------------------------- SPECIAL VARIABLES FOR GRID (used by TMDGrid-XB)------------------
-real(dp), dimension(:,:,:,:), allocatable :: gridMain !!!! THIS IS HUGE(!) matrix for the grid
-real(dp), dimension(:,:,:,:), allocatable :: interpolationParameters !!!! for b>bGrid_Max we interpolate
-integer::numberOfHadrons=1                !!!total number of hadrons to be stored
-
-
-real(dp), dimension(:,:,:,:,:,:), allocatable :: gridMain_Ch !!!! THIS IS HUGE(!) matrix for the grid
-real(dp),dimension(1:3)::xRanges,bRanges
-integer::xGridSize,bGridSize
-real(dp),allocatable,dimension(:)::xNodes,bNodes,xNodeFactors,bNodeFactors
 
 !!--------------------------------------Public interface-----------------------------------------
 public::uTMDFF_OPE_IsInitialized,uTMDFF_OPE_Initialize,uTMDFF_OPE_convolution

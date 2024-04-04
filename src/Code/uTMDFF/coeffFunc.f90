@@ -40,7 +40,7 @@ end function parametrizationString
     !!! it is used to estimate integration error at z~1
 pure function parametrizationStringAt1(z)
   real(dp),intent(in)::z
-  real(dp)::lz,l1z,zz
+  real(dp)::l1z,zz
   real(dp),dimension(1:parametrizationLength)::parametrizationStringAt1
     zz=1d0-z
     l1z=Log(zz)
@@ -1191,42 +1191,42 @@ pure function Coeff_q_qp_reg(alpha,Nf,Lmu)
     
 end function Coeff_q_qp_reg
   
- subroutine CheckCoefficient(as,Nf,Lmu,z)
- real(dp)::Lmu,as,z,Nf
- real(dp), dimension(1:parametrizationLength)::func
- real(dp), dimension(1:3)::func1
- 
-
-  func=parametrizationString(z)
-
-  func1=(/1d0/(1d0-z),Log(1d0-z)/(1d0-z),Log(1d0-z)**2/(1d0-z)/)
-
-!  !!Q->Q
-!   call Set_CoeffSing1_q_q(as,Nf,Lmu)
-!   call Set_Coeff_q_q(as,Nf,Lmu)
-!   write(*,*) SUM(Coeff_q_q*func)!+SUM(CoeffSing1_q_q*func1)
-
-
-
-!   !!Q->G
-!   call Set_Coeff_q_g(as,Nf,Lmu)
-!   write(*,*) SUM(Coeff_q_g*func)
-
-!   !!Q->Q'
-!   call Set_Coeff_q_qp(as,Nf,Lmu)
-!   write(*,*) SUM(Coeff_q_qp*func)
+!  subroutine CheckCoefficient(as,Nf,Lmu,z)
+!  real(dp)::Lmu,as,z,Nf
+!  real(dp), dimension(1:parametrizationLength)::func
+!  real(dp), dimension(1:3)::func1
 !
-!   !!Q->Qbar
-!   call Set_Coeff_q_qb(as,Nf,Lmu)
-!   write(*,*) SUM(Coeff_q_qb*func)
 !
-!  !! G->Q
-!    call Set_Coeff_g_q(as,Nf,Lmu)
-!    write(*,*) SUM(Coeff_g_q*func)
+!   func=parametrizationString(z)
 !
-    !!G->G
-!   call Set_CoeffSing1_g_g(as,Nf,Lmu)
-!   call Set_Coeff_g_g(as,Nf,Lmu)
-!   write(*,*) SUM(Coeff_g_g*func)!+SUM(CoeffSing1_g_g*func1)
- 
- end subroutine CheckCoefficient
+!   func1=(/1d0/(1d0-z),Log(1d0-z)/(1d0-z),Log(1d0-z)**2/(1d0-z)/)
+!
+! !  !!Q->Q
+! !   call Set_CoeffSing1_q_q(as,Nf,Lmu)
+! !   call Set_Coeff_q_q(as,Nf,Lmu)
+! !   write(*,*) SUM(Coeff_q_q*func)!+SUM(CoeffSing1_q_q*func1)
+!
+!
+!
+! !   !!Q->G
+! !   call Set_Coeff_q_g(as,Nf,Lmu)
+! !   write(*,*) SUM(Coeff_q_g*func)
+!
+! !   !!Q->Q'
+! !   call Set_Coeff_q_qp(as,Nf,Lmu)
+! !   write(*,*) SUM(Coeff_q_qp*func)
+! !
+! !   !!Q->Qbar
+! !   call Set_Coeff_q_qb(as,Nf,Lmu)
+! !   write(*,*) SUM(Coeff_q_qb*func)
+! !
+! !  !! G->Q
+! !    call Set_Coeff_g_q(as,Nf,Lmu)
+! !    write(*,*) SUM(Coeff_g_q*func)
+! !
+!     !!G->G
+! !   call Set_CoeffSing1_g_g(as,Nf,Lmu)
+! !   call Set_Coeff_g_g(as,Nf,Lmu)
+! !   write(*,*) SUM(Coeff_g_g*func)!+SUM(CoeffSing1_g_g*func1)
+!
+!  end subroutine CheckCoefficient

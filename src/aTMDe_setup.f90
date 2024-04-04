@@ -78,12 +78,14 @@ integer::uTMDPDF_maxIteration
 integer::uTMDPDF_numSubGridsX,uTMDPDF_numSubGridsB
 real(dp),allocatable::uTMDPDF_subGridsX(:),uTMDPDF_subGridsB(:)
 integer::uTMDPDF_grid_SizeX,uTMDPDF_grid_SizeB
-real(dp)::uTMDPDF_hOGATA,uTMDPDF_toleranceOGATA,uTMDPDF_KT_FREEZE
-real(dp)::uTMDPDF_hOGATA_TMM,uTMDPDF_toleranceOGATA_TMM,uTMDPDF_muMIN_TMM
 logical::uTMDPDF_makeGrid_inKT,uTMDPDF_runGridTest_inKT
-real(dp)::uTMDPDF_xMIN_inKT,uTMDPDF_ktMIN_inKT,uTMDPDF_QMIN_inKT,uTMDPDF_QMAX_inKT
-real(dp)::uTMDPDF_parX_inKT,uTMDPDF_parK_inKT
-integer::uTMDPDF_NX_inKT,uTMDPDF_NK_inKT,uTMDPDF_NQ_inKT
+integer::uTMDPDF_numSubGridsX_inKT,uTMDPDF_numSubGridsKT_inKT,uTMDPDF_numSubGridsB_inKT
+real(dp),allocatable::uTMDPDF_subGridsX_inKT(:),uTMDPDF_subGridsB_inKT(:),uTMDPDF_subGridsKT_inKT(:)
+integer::uTMDPDF_grid_SizeX_inKT,uTMDPDF_grid_SizeB_inKT,uTMDPDF_grid_SizeKT_inKT
+real(dp)::uTMDPDF_minQ_inKT,uTMDPDF_maxQ_inKT
+integer::uTMDPDF_grid_SizeQ_inKT
+real(dp)::uTMDPDF_hOGATA_TMM,uTMDPDF_toleranceOGATA_TMM,uTMDPDF_muMIN_TMM
+
 
 !-------------------- uTMDFF parameters
 logical::include_uTMDFF
@@ -353,25 +355,29 @@ subroutine SetupDefault(order)
     uTMDPDF_grid_SizeX=8
     uTMDPDF_numSubGridsB=4
     allocate(uTMDPDF_subGridsB(0:uTMDPDF_numSubGridsB))
-    uTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,25.d0/)
+    uTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
     uTMDPDF_grid_SizeB=8
-    uTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
-    uTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
-    uTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
+    uTMDPDF_makeGrid_inKT=.false.
+    uTMDPDF_runGridTest_inKT=.false.
+    uTMDPDF_numSubGridsX_inKT=4
+    allocate(uTMDPDF_subGridsX_inKT(0:uTMDPDF_numSubGridsX_inKT))
+    uTMDPDF_subGridsX_inKT=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
+    uTMDPDF_grid_SizeX_inKT=16
+    uTMDPDF_numSubGridsKT_inKT=5
+    allocate(uTMDPDF_subGridsKT_inKT(0:uTMDPDF_numSubGridsKT_inKT))
+    uTMDPDF_subGridsKT_inKT=(/0.01d0,1.d0,5.d0,15.d0,50.d0,200.d0/)
+    uTMDPDF_grid_SizeKT_inKT=16
+    uTMDPDF_minQ_inKT=1.d0
+    uTMDPDF_maxQ_inKT=200.d0
+    uTMDPDF_grid_SizeQ_inKT=40
+    uTMDPDF_numSubGridsB_inKT=5
+    allocate(uTMDPDF_subGridsB_inKT(0:uTMDPDF_numSubGridsB_inKT))
+    uTMDPDF_subGridsB_inKT=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
+    uTMDPDF_grid_SizeB_inKT=16
     uTMDPDF_toleranceOGATA_TMM=1.d-4    !!! OGATA tolerance (for TMM)
     uTMDPDF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
     uTMDPDF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
-    uTMDPDF_makeGrid_inKT=.false.
-    uTMDPDF_runGridTest_inKT=.false.
-    uTMDPDF_xMIN_inKT=0.00001d0
-    uTMDPDF_ktMIN_inKT=0.001d0
-    uTMDPDF_QMIN_inKT=1.d0
-    uTMDPDF_QMAX_inKT=200.d0
-    uTMDPDF_parX_inKT=2.d0
-    uTMDPDF_parK_inKT=1.5d0
-    uTMDPDF_NX_inKT=200
-    uTMDPDF_NK_inKT=100
-    uTMDPDF_NQ_inKT=50
+
 
     !-------------------- parameters for UTMDFF
     include_uTMDFF=.false.!!! we do not initialize TMDFF by definition
@@ -757,8 +763,8 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*A   : ---- Main definitions ----')")
     write(51,"('*p1  : Order of evolution')")
     write(51,*) trim(TMDR_order)
-    write(51,"('*p2  : Override the general definition of the pertrubative order &
-    (in this case orders are defined by the list below))')")
+    write(51,&
+    "('*p2  : Override the general definition of the pertrubative order (in this case orders are defined by the list below))')")
     write(51,*) TMDR_override
     write(51,"('*p3  : Order of Gamma-cusp (LO=1-loop, NLO=2-loop, ...)')")
     write(51,*) trim(TMDR_orderGAMMA)
@@ -834,13 +840,35 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p6  : Number of nodes in the B-subgrid ')")
     write(51,*) uTMDPDF_grid_SizeB
     write(51,"(' ')")
-    write(51,"('*F   : ---- Transformation to KT-space ----')")
-    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
-    write(51,*) uTMDPDF_toleranceOGATA
-    write(51,"('*p2  : Ogata quadrature integration step')")
-    write(51,*) uTMDPDF_hOGATA
-    write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
-    write(51,*) uTMDPDF_KT_FREEZE
+    write(51,"('*F   : ---- Transform and grid in KT-space ----')")
+    write(51,"('*p1  : Prepare grid')")
+    write(51,*) uTMDPDF_makeGrid_inKT
+    write(51,"('*p2  : run the test of the grid (takes some time)')")
+    write(51,*) uTMDPDF_runGridTest_inKT
+    write(51,"('*p3  : Number of subgrids in X (required to read the next line)')")
+    write(51,*) uTMDPDF_numSubGridsX
+    write(51,"('*p4  : Intervals for subgrids in X (must include 1., as the last point)')")
+    write(51,*) uTMDPDF_subGridsX_inKT
+    write(51,"('*p5  : Number of nodes in the X-subgrid')")
+    write(51,*) uTMDPDF_grid_SizeX_inKT
+    write(51,"('*p6  : Number of subgrids in K (required to read the next line)')")
+    write(51,*) uTMDPDF_numSubGridsKT_inKT
+    write(51,"('*p7  : Intervals for subgrids in KT (below and above ultimate points the value is frozen)')")
+    write(51,*) uTMDPDF_subGridsKT_inKT
+    write(51,"('*p8  : Number of nodes in the KT-subgrid')")
+    write(51,*) uTMDPDF_grid_SizeKT_inKT
+    write(51,"('*p9  : Minimal Q in the grid')")
+    write(51,*) uTMDPDF_minQ_inKT
+    write(51,"('*p10 : Maximal Q in the grid')")
+    write(51,*) uTMDPDF_maxQ_inKT
+    write(51,"('*p11 : Number of nodes in the Q-grid')")
+    write(51,*) uTMDPDF_grid_SizeQ_inKT
+    write(51,"('*p12  : Number of subgrids in B (required to read the next line)')")
+    write(51,*) uTMDPDF_numSubGridsB
+    write(51,"('*p13  : Intervals for subgrids in B (below and above ultimate points the value is frozen)')")
+    write(51,*) uTMDPDF_subGridsB_inKT
+    write(51,"('*p14  : Number of nodes in the B-subgrid')")
+    write(51,*) uTMDPDF_grid_SizeB_inKT
     write(51,"(' ')")
     write(51,"('*G   : ---- Computation of Transverse Momentum Moments (TMM) ----')")
     write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
@@ -849,31 +877,6 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) uTMDPDF_hOGATA_TMM
     write(51,"('*p3  : Minimum value of mu [GeV] (below that value the computation is terminated)')")
     write(51,*) uTMDPDF_muMIN_TMM
-    write(51,"(' ')")
-    write(51,"('*H   : ---- Grid in KT-space ----')")
-    write(51,"('*p1  : Prepare grid')")
-    write(51,*) uTMDPDF_makeGrid_inKT
-    write(51,"('*p2  : run the test of the grid (takes some time)')")
-    write(51,*) uTMDPDF_runGridTest_inKT
-    write(51,"('*p3  : Minimal X in the grid')")
-    write(51,*) uTMDPDF_xMIN_inKT
-    write(51,"('*p4  : Minimal KT in the grid (below the value is frozen)')")
-    write(51,*) uTMDPDF_ktMIN_inKT
-    write(51,"('*p5  : Minimal Q in the grid')")
-    write(51,*) uTMDPDF_QMIN_inKT
-    write(51,"('*p6  : Maximal Q in the grid')")
-    write(51,*) uTMDPDF_QMAX_inKT
-    write(51,"('*p7  : Number of nodes in x-direction')")
-    write(51,*) uTMDPDF_NX_inKT
-    write(51,"('*p8  : Number of nodes in KT-direction')")
-    write(51,*) uTMDPDF_NK_inKT
-    write(51,"('*p9  : Number of nodes in Q-direction')")
-    write(51,*) uTMDPDF_NQ_inKT
-    write(51,"('*p10 : Parameter of x-griding function (better not to change it)')")
-    write(51,*) uTMDPDF_parX_inKT
-    write(51,"('*p11 : Upper limit for KT-grid (better not to change it)')")
-    write(51,*) uTMDPDF_parK_inKT
-    write(51,"(' ')")
 
 
     write(51,"(' ')")
@@ -1616,11 +1619,39 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) uTMDPDF_grid_SizeB
     call MoveTO(51,'*F   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) uTMDPDF_toleranceOGATA
+    read(51,*) uTMDPDF_makeGrid_inKT
     call MoveTO(51,'*p2  ')
-    read(51,*) uTMDPDF_hOGATA
+    read(51,*) uTMDPDF_runGridTest_inKT
     call MoveTO(51,'*p3  ')
-    read(51,*) uTMDPDF_KT_FREEZE
+    read(51,*) uTMDPDF_numSubGridsX_inKT
+    deallocate(uTMDPDF_subGridsX_inKT)
+    allocate(uTMDPDF_subGridsX_inKT(0:uTMDPDF_numSubGridsX_inKT))
+    call MoveTO(51,'*p4  ')
+    read(51,*) uTMDPDF_subGridsX_inKT
+    call MoveTO(51,'*p5  ')
+    read(51,*) uTMDPDF_grid_SizeX_inKT
+    call MoveTO(51,'*p6  ')
+    read(51,*) uTMDPDF_numSubGridsKT_inKT
+    deallocate(uTMDPDF_subGridsKT_inKT)
+    allocate(uTMDPDF_subGridsKT_inKT(0:uTMDPDF_numSubGridsKT_inKT))
+    call MoveTO(51,'*p7  ')
+    read(51,*) uTMDPDF_subGridsKT_inKT
+    call MoveTO(51,'*p8  ')
+    read(51,*) uTMDPDF_grid_SizeKT_inKT
+    call MoveTO(51,'*p9  ')
+    read(51,*) uTMDPDF_minQ_inKT
+    call MoveTO(51,'*p10 ')
+    read(51,*) uTMDPDF_maxQ_inKT
+    call MoveTO(51,'*p11 ')
+    read(51,*) uTMDPDF_grid_SizeQ_inKT
+    call MoveTO(51,'*p12 ')
+    read(51,*) uTMDPDF_numSubGridsB_inKT
+    deallocate(uTMDPDF_subGridsB_inKT)
+    allocate(uTMDPDF_subGridsB_inKT(0:uTMDPDF_numSubGridsB_inKT))
+    call MoveTO(51,'*p13 ')
+    read(51,*) uTMDPDF_subGridsB_inKT
+    call MoveTO(51,'*p14 ')
+    read(51,*) uTMDPDF_grid_SizeB_inKT
     call MoveTO(51,'*G   ')
     call MoveTO(51,'*p1  ')
     read(51,*) uTMDPDF_toleranceOGATA_TMM
@@ -1628,29 +1659,6 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) uTMDPDF_hOGATA_TMM
     call MoveTO(51,'*p3  ')
     read(51,*) uTMDPDF_muMIN_TMM
-    call MoveTO(51,'*H   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) uTMDPDF_makeGrid_inKT
-    call MoveTO(51,'*p2  ')
-    read(51,*) uTMDPDF_runGridTest_inKT
-    call MoveTO(51,'*p3  ')
-    read(51,*) uTMDPDF_xMIN_inKT
-    call MoveTO(51,'*p4  ')
-    read(51,*) uTMDPDF_ktMIN_inKT
-    call MoveTO(51,'*p5  ')
-    read(51,*) uTMDPDF_QMIN_inKT
-    call MoveTO(51,'*p6  ')
-    read(51,*) uTMDPDF_QMAX_inKT
-    call MoveTO(51,'*p7  ')
-    read(51,*) uTMDPDF_NX_inKT
-    call MoveTO(51,'*p8  ')
-    read(51,*) uTMDPDF_NK_inKT
-    call MoveTO(51,'*p9  ')
-    read(51,*) uTMDPDF_NQ_inKT
-    call MoveTO(51,'*p10 ')
-    read(51,*) uTMDPDF_parX_inKT
-    call MoveTO(51,'*p11 ')
-    read(51,*) uTMDPDF_parK_inKT
 
     !# ----                           PARAMETERS OF uTMDFF                   -----
     call MoveTO(51,'*5   ')
