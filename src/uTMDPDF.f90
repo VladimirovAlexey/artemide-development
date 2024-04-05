@@ -575,16 +575,29 @@ end function toFourier
 
 end function TMD_ev_inKT
 
+
+!!!!!!!! the function that actually returns the uTMDPDF evolved to (mu,mu^2) value
+!!!!!!! This is exactly what is stored in the grid. So if grid is buid attempt to extract from it.
 function TMD_grid_inKT(x,kT,mu,hadron)
     real(dp)::TMD_grid_inKT(-5:5)
     real(dp),intent(in):: x,kT,mu
     integer,intent(in)::hadron
 
     if(gridIsReady_inKT) then
-        TMD_grid_inKT=ExtractFromGrid_inKT(x,kT,mu,hadron)
-    else
+!         if(ISNAN(kT)) then
+!             write(*,*) "HERE",kT,x,mu
+!             stop
+!         end if
+
+        TMD_grid_inKT=ExtractFromGrid_inKT(x,kT,mu,abs(hadron))
+
+        if(hadron<0) TMD_grid_inKT=TMD_grid_inKT(5:-5:-1)
+
+    else if(makeGrid_inKT) then
         write(*,*) ErrorString("Attempt to extract TMD from grid, while grid is not ready. CHECK!",moduleName)
         stop
+    else
+        TMD_grid_inKT=TMD_ev_inKT(x,kT,mu,mu**2,hadron)
     end if
 
 end function TMD_grid_inKT

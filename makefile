@@ -9,6 +9,7 @@ aTMDeHOME       = $(PWD)
 FCompilator=f95 
 #PUT HERE extra flags for compilator (put "space" if not flags requared)
 Fflags= -O3 -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -fopenmp
+FflagsHARPY= -fopenmp
 #Fflags=  -O3 -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -Wall -fopenmp
 #path to fortran compilator (needed for f2py)
 Fpath=/usr/bin/f95
@@ -414,5 +415,5 @@ harpy-signature:
 	echo 'end python module artemide' >> $(HDIR)/artemide.pyf
 
 harpy: 
-	f2py -c --f90exec=$(Fpath) --f90flags=$(Fflags) $(FOPT) -lgomp -I$(MOD) $(aTMDeFILES) $(HDIR)/harpy.f90 $(HDIR)/artemide.pyf
+	f2py -c --f90exec=$(Fpath) --f90flags=$(FflagsHARPY) $(FOPT) -lgomp -I$(MOD) $(aTMDeFILES) $(HDIR)/harpy.f90 $(HDIR)/artemide.pyf
 	mv artemide*.so $(HDIR)

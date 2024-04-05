@@ -55,14 +55,14 @@
  
 *C   : ---- uFF sets----
 *p1  : total number of FFs to initialize (0= initialization is skipped)
-           2
+           0
 *p2  : reference number for hadrons
-    1,     2
+    0
 *p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
  DSS14_NLO_PionPlus
  DSS17_NLO_KaonPlus
 *p4  : list of initialization replicas
-    0,     0
+    0
  
 *D   : ----lpPDF sets----
 *p1  : total number of PDFs to initialize (0= initialization is skipped)

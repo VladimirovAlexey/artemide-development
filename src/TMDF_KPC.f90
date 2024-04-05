@@ -250,6 +250,7 @@ end subroutine TMDF_KPC_Initialize
 !!! proc1 = (int,int,int) is the process def for TMD*TMD, and for the integral kernel
 !!! proc2 = int is the process definition for the integral kernel
 !!! Q2, qT, x1,x2, mu are usual DY variables
+!!! NOTE: that Q2 is DY kinematic variable, and mu is the factorization scale
 !!! THIS IS A SYMMETRIC VERSION (i.e. it should contain only cos(theta)
 !!!-----
 !!! The integral is 2D, over theta and alpha (which are complicated combinations)
@@ -267,6 +268,7 @@ function KPC_DYconv(Q2,qT,x1,x2,mu,proc1)
     deltaT=qT**2/tau2
 
     KPC_DYconv=Integrate_GK(Integrand_forTheta,0._dp,pi,toleranceINT)
+    !KPC_DYconv=Integrate_k41(Integrand_forTheta,0._dp,pi)
     !write(*,*) "LC=",LocalCounter
 
 contains
@@ -290,6 +292,7 @@ function INT_overALPHA(Q2,tau2,deltaT,x1,x2,mu,proc1,cT)
     real(dp)::INT_overALPHA
 
     INT_overALPHA=Integrate_GK(Integrand_forALPHA,0._dp,piHalf,toleranceINT)
+    !INT_overALPHA=Integrate_k41(Integrand_forALPHA,0._dp,piHalf)
 
 contains
 
@@ -306,6 +309,10 @@ function Integrand_forALPHA(alpha)
     xi2=x2/2*(1-S+sqrt(Lam))
     K1=tau2/4*((1+S)**2-Lam)
     K2=tau2/4*((1-S)**2-Lam)
+
+    !!!! Some times K1 and K2 became too close to zero... and turns negative
+    if(K1<toleranceGEN) K1=toleranceGEN
+    if(K2<toleranceGEN) K2=toleranceGEN
 
     !!! it is devided by 2 (instead of 4), because the integral over cos(theta) is over (0,pi).
     Integrand_forALPHA=TMD_pair(Q2,xi1,xi2,k1,k2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,proc1(3))/2

@@ -430,15 +430,6 @@ ExtractFromGrid_inKT=0._dp
 return
 end if
 
-! write(*,*) "----->",XfromNode(3,5),QNodes(25)
-! do i=1,numKsubgrids
-! do j=0,kGridSize
-! write(*,'("{",F8.2,",",F12.8,"},")',advance="no") KfromNode(i,j), &
-! mainGRID(3,5,i,j,25,2,1)/XfromNode(3,5)
-! end do
-! end do
-! stop
-
 !!!! determining Q-node
 nQ=int((log(Q)-lnQMIN)/Qstep)
 if(nQ==0) then
@@ -522,34 +513,27 @@ else if(abs(deltaTQ(4))<zero) then
       ExtractFromGrid_inKT=interQ(4,:)
 else
 !!!!! interpolation
+!!!!! these are barycentric weights of Lagrange interpolation
 deltaTQ=(/-1,3,-3,1/)/deltaTQ/6._dp
 ExtractFromGrid_inKT=matmul(deltaTQ,interQ)/sum(deltaTQ)
 end if
 
 ExtractFromGrid_inKT=ExtractFromGrid_inKT/x/kT**2
 
-!!!!! these are barycentric weights of Lagrange interpolation
 
-
+!
+!
 !   do i=-5,5
-!     if(ISNAN(ExtractFromGrid(i))) then
-!      write(*,'(" Extracted value (x,b,f,h) =(",F6.5,", ",F6.2,", ",I2,", ",I2,") is computed to NaN")') &
-!             x,bT,h,i
-!       write(*,*) "==>",ExtractFromGrid
+!     if(ISNAN(ExtractFromGrid_inKT(i))) then
+!      write(*,'(" Extracted value (x,kT,Q,f,h) =(",F6.5,", ",F6.2,", ",F6.2,", ",I2,", ",I2,") is computed to NaN")') &
+!             x,kT,Q,h,i
+!       write(*,*) "==>",ExtractFromGrid_inKT
 !       stop
 !     end if
-!     if(abs(ExtractFromGrid(i))>1000000.d0) then
-!      write(*,'(" Extracted value (x,b,f,h) =(",F6.5,", ",F6.2,", ",I2,", ",I2,") is computed >10^6")') &
-!             x,bT,h,i
-!       write(*,*) "==>",ExtractFromGrid
-!       write(*,*) " "
-!       write(*,*) "-->",interGrid(:,i)
-!       write(*,*) " "
-!       write(*,*) "T->",tX,tB
-!       write(*,*) " "
-!       write(*,*) "X->",tX-xNodes
-!       write(*,*) " "
-!       write(*,*) "B->",tB-bNodes
+!     if(abs(ExtractFromGrid_inKT(i))>1.d12) then
+!      write(*,'(" Extracted value (x,kT,Q,f,h) =(",F6.5,", ",F12.8,", ",F6.2,", ",I2,", ",I2,") is computed >10^12")') &
+!             x,kT,Q,h,i
+!       write(*,*) "==>",ExtractFromGrid_inKT
 !       stop
 !     end if
 !   end do

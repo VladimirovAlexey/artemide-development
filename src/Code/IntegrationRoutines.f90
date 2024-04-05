@@ -22,9 +22,10 @@ implicit none
 
 private
 INCLUDE '../Tables/G7K15.f90'
+INCLUDE '../Tables/G20K41.f90'
 
 public::Integrate_S5,Integrate_SN,Integrate_SA,Integrate_SA_2D
-public::Integrate_G7,Integrate_K15,Integrate_GK
+public::Integrate_G7,Integrate_K15,Integrate_K41,Integrate_GK,Integrate_GK2041
 public::Integrate_GK_array5
 
 
@@ -288,6 +289,29 @@ function Integrate_K15(f,xMin,xMax)
     
 end function Integrate_K15
 
+!------------------------------------------- K15 --------------------------------------------
+
+!!! Kronrod 41-points
+!!! f::  function of 1 variable
+!!! xMin, and xMax boundaries of the integral. xMax>xMin !!
+function Integrate_K41(f,xMin,xMax)
+    real(dp)::f,Integrate_K41
+    real(dp),intent(in)::xMin,xMax
+    real(dp)::delta,av,inter
+    integer::i
+
+    delta=(xMax-xMin)/2._dp
+    av=(xMax+xMin)/2._dp
+
+    inter=0._dp
+    do i=1,41
+        inter=inter+Wi_k41(i)*f(Xi_k41(i)*delta+av)
+    end do
+
+    Integrate_K41=delta*inter
+
+end function Integrate_K41
+
 !------------------------------------------- GK7/15 --------------------------------------------
 
 !!! Gauss-Kronrod 7/15 adaptive
@@ -358,8 +382,8 @@ end function GK_Rec
 function Integrate_GK_array5(f,xMin,xMax,tolerance)
     real(dp),dimension(-5:5)::Integrate_GK_array5
     procedure(func_array5)::f
-    real(dp),intent(in)::xMin,xMax
-    real(dp)::delta,av,tolerance
+    real(dp),intent(in)::xMin,xMax,tolerance
+    real(dp)::delta,av
     real(dp), dimension(-5:5)::fI,g7,k15,eps
     integer::i
     logical::ISconvergent
@@ -403,8 +427,9 @@ recursive function GK_array5_Rec(f,xMin,xMax,eps) result(res)
     real(dp),dimension(-5:5)::res
     procedure(func_array5)::f
     real(dp),intent(in)::xMin,xMax
+    real(dp),dimension(-5:5),intent(in)::eps
     real(dp)::delta,av
-    real(dp),dimension(-5:5)::g7,k15,eps,fI
+    real(dp),dimension(-5:5)::g7,k15,fI
     integer::i
     logical::ISconvergent
     
@@ -435,5 +460,80 @@ recursive function GK_array5_Rec(f,xMin,xMax,eps) result(res)
     end if
     
 end function GK_array5_Rec
+
+
+
+!------------------------------------------- GK20/41 adaptive --------------------------------------------
+!!! Gauss-Kronrod 20/41 adaptive
+!!! f::  function of 1 variable
+!!! xMin, and xMax boundaries of the integral. xMax>xMin !!
+!!! tolerance is relative (it is wieghted by approximate value of integral)
+function Integrate_GK2041(f,xMin,xMax,tolerance)
+    real(dp)::f,Integrate_GK2041
+    real(dp),intent(in)::xMin,xMax,tolerance
+    real(dp)::delta,av,g7,k15,eps,fI
+    integer::i
+
+    delta=(xMax-xMin)/2._dp
+    av=(xMax+xMin)/2._dp
+
+    if(delta<zero) then
+        Integrate_GK2041=0._dp
+        return
+    end if
+
+    g7=0._dp
+    k15=0._dp
+    do i=1,41
+        fI=f(Xi_k41(i)*delta+av)
+        g7=g7+Wi_g20(i)*fI
+        k15=k15+Wi_k41(i)*fI
+    end do
+
+    eps=delta*abs(k15)*tolerance
+
+!    write(*,*) "-->",delta*abs(k15-g7),eps,delta*k15
+    if(abs(delta*k15)<zero) then
+        Integrate_GK2041=delta*k15
+    else if(delta*abs(k15-g7)>eps) then
+        Integrate_GK2041=GK2041_Rec(f,xMin,av,eps)+GK2041_Rec(f,av,xMax,eps)
+    else
+        Integrate_GK2041=delta*k15
+    end if
+
+end function Integrate_GK2041
+
+recursive function GK2041_Rec(f,xMin,xMax,eps) result(res)
+    real(dp)::f,res
+    real(dp),intent(in)::xMin,xMax,eps
+    real(dp)::delta,av,g7,k15,fI
+    integer::i
+
+    delta=(xMax-xMin)/2._dp
+    av=(xMax+xMin)/2._dp
+
+    if(delta<zero) then
+        res=0._dp
+        return
+    end if
+
+    g7=0._dp
+    k15=0._dp
+    do i=1,41
+        fI=f(Xi_k41(i)*delta+av)
+        g7=g7+Wi_g20(i)*fI
+        k15=k15+Wi_k41(i)*fI
+    end do
+
+    if(abs(delta*k15)<zero) then
+        res=delta*k15
+    else if(delta*abs(k15-g7)>eps) then
+        res=GK_Rec(f,xMin,av,eps)+GK_Rec(f,av,xMax,eps)
+    else
+        res=delta*k15
+    end if
+
+end function GK2041_Rec
+!!!!-------------------------------------------------------------------------------------------------------------
 
 end module IntegrationRoutines

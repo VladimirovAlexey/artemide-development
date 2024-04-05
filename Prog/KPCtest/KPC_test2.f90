@@ -1,7 +1,6 @@
 program example
 use aTMDe_control
 use TMDX_DY
-use TMDs
 implicit none
 
 integer,parameter::NUM=40
@@ -13,7 +12,8 @@ integer,dimension(1:NUM,1:4)::proc
 logical,dimension(1:NUM)::iC
 real*8,dimension(1:NUM,1:4)::cuts
 real*8,dimension(-5:5)::kkk
-
+real*8::time1,time2
+!$ real*8::omp_get_wtime
 
   call artemide_Initialize('KPC2.atmde',prefix='Prog/KPCtest/INI/')
   !call artemide_Initialize('LP2.atmde',prefix='Prog/KPCtest/INI/')
@@ -34,7 +34,7 @@ do i=1,NUM
   y(i)=-6.*(real(i)/NUM-0.5)
   !qt(i)=0.1d0+(i-1)*0.5
   qt(i)=1.d0
-  proc(i,1:4)=(/1,1,1,20/)  !!KPC
+  proc(i,1:4)=(/1,1,1,2/)  !!KPC
   !proc(i,1:4)=(/1,1,1,3/)   !! LP
   iC(i)=.false.
   cuts(i,1:4)=(/0d0,0d0,-100d0,100d0/)
@@ -42,12 +42,20 @@ do i=1,NUM
   !X(i)=kkk(1)
 end do
 
+call cpu_time(time1)
+!$ time1=omp_get_wtime()
+
 call xSec_DY_List_BINLESS(X,proc,s,qT,Q,y,iC,cuts)
 
+call cpu_time(time2)
+!$ time2=omp_get_wtime()
 
 do i=1,NUM
   !write(*,'("{",F12.8,",",F16.10,"},")') Q(i),4*qT(i)*Q(i)*X(i)
-  write(*,'("{",F12.8,",",F16.10,"},")') y(i),4*qT(i)*Q(i)*X(i)
+  write(*,'("{",F12.8,",",F16.10,"},")',advance="no") y(i),4*qT(i)*Q(i)*X(i)
 end do
+write(*,*) " "
+write(*,*) " "
+write(*,*) " COMPUTATION TIME:", time2-time1
 
 end program example
