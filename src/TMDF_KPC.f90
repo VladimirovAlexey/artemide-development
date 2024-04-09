@@ -267,13 +267,14 @@ function KPC_DYconv(Q2,qT,x1,x2,mu,proc1)
     tau2=Q2+qT**2
     deltaT=qT**2/tau2
 
-    KPC_DYconv=Integrate_GK(Integrand_forTheta,0._dp,pi,toleranceINT)
-    !KPC_DYconv=Integrate_k41(Integrand_forTheta,0._dp,pi)
+    !KPC_DYconv=Integrate_GK(Integrand_forTheta,0._dp,pi,toleranceINT)
+    KPC_DYconv=Integrate_GK(Integrand_forAlpha,0._dp,piHalf,toleranceINT)
     !write(*,*) "LC=",LocalCounter
 
 contains
 
-    function Integrand_forTheta(theta)
+!!!! This is integral over Theta over integral over Alpha
+function Integrand_forTheta(theta)
     real(dp)::Integrand_forTheta
     real(dp),intent(in)::theta
     real(dp)::cT
@@ -284,15 +285,28 @@ contains
 
 end function Integrand_forTheta
 
+!!!! This is integral over Alpha over integral over Theta
+function Integrand_forAlpha(alpha)
+    real(dp)::Integrand_forAlpha
+    real(dp),intent(in)::alpha
+    real(dp)::sA
+
+    sA=sin(alpha)
+
+    Integrand_forAlpha=INT_overTHETA(Q2,tau2,deltaT,x1,x2,mu,proc1,sA)
+
+end function Integrand_forAlpha
+
 end function KPC_DYconv
 
+
+!!! the integral over alpha at given theta
 function INT_overALPHA(Q2,tau2,deltaT,x1,x2,mu,proc1,cT)
     real(dp),intent(in)::Q2,tau2,deltaT,x1,x2,mu,cT
     integer,intent(in),dimension(1:3)::proc1
     real(dp)::INT_overALPHA
 
     INT_overALPHA=Integrate_GK(Integrand_forALPHA,0._dp,piHalf,toleranceINT)
-    !INT_overALPHA=Integrate_k41(Integrand_forALPHA,0._dp,piHalf)
 
 contains
 
@@ -301,7 +315,7 @@ function Integrand_forALPHA(alpha)
     real(dp),intent(in)::alpha
     real(dp)::S,Lam,xi1,xi2,K1,K2,sinA
 
-    sinA=cos(alpha)
+    sinA=sin(alpha)
     S=Sqrt(deltaT*sinA)*cT
     Lam=(1-deltaT)*(1-sinA)
 
@@ -316,11 +330,43 @@ function Integrand_forALPHA(alpha)
 
     !!! it is devided by 2 (instead of 4), because the integral over cos(theta) is over (0,pi).
     Integrand_forALPHA=TMD_pair(Q2,xi1,xi2,k1,k2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,proc1(3))/2
-
 end function Integrand_forALPHA
 
 end function INT_overALPHA
 
+!!! the integral over theta at given alpha
+function INT_overTHETA(Q2,tau2,deltaT,x1,x2,mu,proc1,sA)
+    real(dp),intent(in)::Q2,tau2,deltaT,x1,x2,mu,sA
+    integer,intent(in),dimension(1:3)::proc1
+    real(dp)::INT_overTHETA
+
+    INT_overTHETA=Integrate_GK(Integrand_forTHETA,0._dp,pi,toleranceINT)
+
+contains
+
+function Integrand_forTHETA(theta)
+    real(dp)::Integrand_forTHETA
+    real(dp),intent(in)::theta
+    real(dp)::S,Lam,xi1,xi2,K1,K2,cosT
+
+    cosT=cos(theta)
+    S=Sqrt(deltaT*sA)*cosT
+    Lam=(1-deltaT)*(1-sA)
+
+    xi1=x1/2*(1+S+sqrt(Lam))
+    xi2=x2/2*(1-S+sqrt(Lam))
+    K1=tau2/4*((1+S)**2-Lam)
+    K2=tau2/4*((1-S)**2-Lam)
+
+    !!!! Some times K1 and K2 became too close to zero... and turns negative
+    if(K1<toleranceGEN) K1=toleranceGEN
+    if(K2<toleranceGEN) K2=toleranceGEN
+
+    !!! it is devided by 2 (instead of 4), because the integral over cos(theta) is over (0,pi).
+    Integrand_forTHETA=TMD_pair(Q2,xi1,xi2,k1,k2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,proc1(3))/2
+end function Integrand_forTHETA
+
+end function INT_overTHETA
 
 !!!--------------------------------------------------------------------------------------------------
 !!!!!!!Functions which carry the trigger on convergences.... Its used in xSec, and probably in other places.

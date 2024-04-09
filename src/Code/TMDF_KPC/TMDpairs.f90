@@ -81,6 +81,34 @@ SELECT CASE(process(3))
 
     TMD_pair=XTMD_pairZpRm_A(FAB,Q2)
 
+  !--------------------------------------------------------------------------------
+  CASE (101) !h1+Cu->gamma* !!this is for E288
+    !!!! strictly hadron 1
+    FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
+    FB=uTMDPDF_inKT(x2,sqrt(k2),mu,1)
+
+    TMD_pair=116d0/567d0*(FA(2)*FB(-2)+FA(-2)*FB(2))+136d0/567d0*(FA(-2)*FB(1)+FA(2)*FB(-1))&
+          +34d0/567d0*(FA(-1)*FB(2)+FA(1)*FB(-2))+29d0/567d0*(FA(-1)*FB(1)+FA(1)*FB(-1))&
+          +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
+
+  !--------------------------------------------------------------------------------
+  CASE (102) !h1+2H->gamma* !!this is for E772
+    !!!! strictrly hadron 1
+    FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
+    FB=uTMDPDF_inKT(x2,sqrt(k2),mu,1)
+    TMD_pair=2d0/9d0*(FA(2)*FB(-2)+FA(-2)*FB(2))+2d0/9d0*(FA(-2)*FB(1)+FA(2)*FB(-1))&
+          +1d0/18d0*(FA(-1)*FB(2)+FA(1)*FB(-2))+1d0/18d0*(FA(-1)*FB(1)+FA(1)*FB(-1))&
+          +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
+  !--------------------------------------------------------------------------------
+  CASE (103) !h1+W->gamma* !!this is for E537
+    !!!! strictrly hadron 1
+    !Wolfram has A=183,    Z=74,    N=109
+    FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
+    FB=uTMDPDF_inKT(x2,sqrt(k2),mu,1)
+    TMD_pair=296d0/1647d0*(FA(-2)*FB(2)+FA(2)*FB(-2))+436d0/1647d0*(FA(-2)*FB(1)+FA(2)*FB(-1))&
+        +109d0/1647d0*(FA(-1)*FB(2)+FA(1)*FB(-2))+74d0/1647d0*(FA(-1)*FB(1)+FA(1)*FB(-1))&
+        +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
+
 
   CASE DEFAULT
     write(*,*) ErrorString('undefined process: ',moduleName),process

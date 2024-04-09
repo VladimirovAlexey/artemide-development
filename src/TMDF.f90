@@ -273,7 +273,6 @@ integer,dimension(1:3),intent(in)::process
 
 integer::n
 logical::ISconvergent
-
 if(x1>=1d0 .or. x2>=1d0) then
   integral_result=0d0
 else if(TMDF_IsconvergenceLost()) then

@@ -44,8 +44,8 @@ real(dp),public::rM_gZ_U, rM_gZ_D, rM_gZ_S, rM_gZ_C, rM_gZ_B, rM_gZ_L
 real(dp),public::paramW_UD,paramW_US,paramW_UB,paramW_CD,paramW_CS,paramW_CB,paramW_L
 
 !!-EW-boson parameters
-real(dp),public::GammaZ2,MZ2
-real(dp),public::GammaW2,MW2
+real(dp),public::GammaZ2,MZ2,MZ
+real(dp),public::GammaW2,MW2,MW
 
 !!-Higgs-boson parameters
 real(dp),public::MH2,GammaH2,VEVH
@@ -131,6 +131,7 @@ contains
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
     read(51,*) massZ     !!!!!!!!!!Z mass
+    MZ=massZ
     MZ2=massZ**2
     call MoveTO(51,'*p2  ')
     read(51,*) dummy
@@ -139,6 +140,7 @@ contains
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')
     read(51,*) massW     !!!!!!!!!!W mass
+    MW=massW
     MW2=massW**2
     call MoveTO(51,'*p2  ')
     read(51,*) dummy

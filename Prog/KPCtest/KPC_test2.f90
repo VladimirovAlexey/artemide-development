@@ -1,5 +1,6 @@
 program example
 use aTMDe_control
+use uTMDPDF
 use TMDX_DY
 implicit none
 
@@ -33,9 +34,9 @@ do i=1,NUM
   y(i)=2.5d0
   y(i)=-6.*(real(i)/NUM-0.5)
   !qt(i)=0.1d0+(i-1)*0.5
-  qt(i)=1.d0
-  proc(i,1:4)=(/1,1,1,2/)  !!KPC
-  !proc(i,1:4)=(/1,1,1,3/)   !! LP
+  qt(i)=10.d0
+  !proc(i,1:4)=(/1,1,1,2/)  !!KPC
+  proc(i,1:4)=(/1,1,1,3/)   !! LP
   iC(i)=.false.
   cuts(i,1:4)=(/0d0,0d0,-100d0,100d0/)
   !kkk=uTMDPDF_5(0.04d0,qt(i),Q(i),Q(i)*2,1)
@@ -53,6 +54,76 @@ call cpu_time(time2)
 do i=1,NUM
   !write(*,'("{",F12.8,",",F16.10,"},")') Q(i),4*qT(i)*Q(i)*X(i)
   write(*,'("{",F12.8,",",F16.10,"},")',advance="no") y(i),4*qT(i)*Q(i)*X(i)
+end do
+write(*,*) " "
+write(*,*) " "
+write(*,*) " COMPUTATION TIME:", time2-time1
+
+write(*,*) "---------------------------------------------------------"
+
+!!!! set up variables
+do i=1,NUM
+  Q(i)=50.d0
+  !Q(i)=1.5d0+(i-1)*1
+  s(i)=3841600.d0
+  !s(i)=(100.*Q(i))**2
+  y(i)=2.5d0
+  y(i)=-6.*(real(i)/NUM-0.5)
+  !qt(i)=0.1d0+(i-1)*0.5
+  qt(i)=10.d0
+  !proc(i,1:4)=(/1,1,1,2/)  !!KPC
+  proc(i,1:4)=(/1,1,1,3/)   !! LP
+  iC(i)=.false.
+  cuts(i,1:4)=(/0d0,0d0,-100d0,100d0/)
+  !kkk=uTMDPDF_5(0.04d0,qt(i),Q(i),Q(i)*2,1)
+  !X(i)=kkk(1)
+end do
+
+call cpu_time(time1)
+!$ time1=omp_get_wtime()
+
+call xSec_DY_List_BINLESS(X,proc,s,qT,Q,y,iC,cuts)
+
+call cpu_time(time2)
+!$ time2=omp_get_wtime()
+
+do i=1,NUM
+  !write(*,'("{",F12.8,",",F16.10,"},")') Q(i),4*qT(i)*Q(i)*X(i)
+  write(*,'("{",F12.8,",",F16.10,"},")',advance="no") y(i),4*qT(i)*Q(i)*X(i)
+end do
+write(*,*) " "
+write(*,*) " "
+write(*,*) " COMPUTATION TIME:", time2-time1
+
+write(*,*) "---------------------------------------------------------"
+
+!!!! set up variables
+do i=1,NUM
+  Q(i)=10.d0
+  !Q(i)=1.5d0+(i-1)*1
+  s(i)=(27.1d0)**2
+  !s(i)=(100.*Q(i))**2
+  y(i)=0.d0!-6.*(real(i)/NUM-0.5)
+  qt(i)=0.1d0+(i-1)*0.05
+  !proc(i,1:4)=(/1,1,1,2/)  !!KPC
+  proc(i,1:4)=(/1,1,1,3/)   !! LP
+  iC(i)=.false.
+  cuts(i,1:4)=(/0d0,0d0,-100d0,100d0/)
+  !kkk=uTMDPDF_inB(0.04d0,qt(i),Q(i),Q(i)*2,1)
+  !(i)=kkk(1)
+end do
+
+call cpu_time(time1)
+!$ time1=omp_get_wtime()
+
+call xSec_DY_List_BINLESS(X,proc,s,qT,Q,y,iC,cuts)
+
+call cpu_time(time2)
+!$ time2=omp_get_wtime()
+
+do i=1,NUM
+  !write(*,'("{",F12.8,",",F16.10,"},")') Q(i),4*qT(i)*Q(i)*X(i)
+  write(*,'("{",F12.8,",",F16.10,"},")',advance="no") qT(i),4*qT(i)*Q(i)*X(i)
 end do
 write(*,*) " "
 write(*,*) " "

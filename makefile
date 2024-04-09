@@ -8,8 +8,9 @@ aTMDeHOME       = $(PWD)
 #PUT YOUR FORTRAN COMPILER
 FCompilator=f95 
 #PUT HERE extra flags for compilator (put "space" if not flags requared)
-Fflags= -O3 -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -fopenmp
-FflagsHARPY= -fopenmp
+Fflags= -O3 -cpp -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -fopenmp
+# This should be as string because it is how f2py eats it.
+FflagsHARPY= '-O3 -cpp -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -fopenmp'
 #Fflags=  -O3 -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -Wall -fopenmp
 #path to fortran compilator (needed for f2py)
 Fpath=/usr/bin/f95

@@ -15,9 +15,14 @@ use TMDF_KPC
 use LeptonCutsDY
 use QCDinput
 use EWinput
+use IntegrationRoutines
 
 implicit none
 private
+
+!!!!!! 1=accurate but slow
+!!!!!! 2=fast but not accurate
+#define INTEGRATION_MODE 2
 
 !Current version of module
 character (len=7),parameter :: moduleName="TMDX-DY"
@@ -51,8 +56,6 @@ real::maxQbinSize=30.
 real(dp)::qTMin_ABS=0.0001d0
 
 real(dp)::c2_global!,muHard_global
-
-
 
 integer::GlobalCounter
 integer::CallCounter
@@ -129,6 +132,8 @@ subroutine TMDX_DY_Initialize(file,prefix)
   !$    read(51,*) i
   !$    call OMP_set_num_threads(i)
   !$    if(outputLevel>1) write(*,*) '    artemide.TMDX_DY: number of threads for parallel evaluation is set to ', i
+
+  !!! I also need MZ
 
   !!! go to section TMD-DY
   call MoveTO(51,'*9   ')
@@ -257,6 +262,9 @@ subroutine TMDX_DY_Initialize(file,prefix)
       end if
     end if
   end if
+
+  !!!!! initializing Lepton Cut module
+  call InitializeLeptonCutDY(toleranceINT,toleranceGEN)
 
   c2_global=1d0
 
@@ -446,7 +454,7 @@ function LeptonCutFactorLP(kin,proc1, includeCuts_in,CutParam)
   !!!!! lepton-cut prefactor
   if(includeCuts_in) then
     !!! here include cuts onf lepton tensor
-    LeptonCutFactorLP=CutFactor4(qT=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam)
+    LeptonCutFactorLP=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=-1)
   else
     !!! this is uncut lepton tensor
     LeptonCutFactorLP=(1+0.5d0*(kin(1)/kin(3))**2)
@@ -484,7 +492,7 @@ function PreFactorKPC(kin,proc1)
   CASE(2)
     !4 pi aEm^2/3 /Nc/Q^2/s
     ! the process=2 is for the xF-integration. It has extra weigth 2sqrt[(Q^2+q_T^2)/s] Cosh[y]
-    PreFactorKPC=pi2x2/9**(alphaEM(scaleMu)**2)/kin(2)*&
+    PreFactorKPC=pi2x2/9*(alphaEM(scaleMu)**2)/kin(2)*&
         HardCoefficientDY(scaleMu)*&
         hc2*1d9*&!from GeV to pb
         2._dp*kin(5)*cosh(kin(6))
@@ -519,9 +527,7 @@ function LeptonCutFactorKPC(kin,proc1, includeCuts_in,CutParam)
   CASE(1,2) !!! P0
     if(includeCuts_in) then
       !!! here include cuts onf lepton tensor
-      LeptonCutFactorKPC=1.d0!CutFactor4(qT=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam)
-      write(*,*) "CUTS are not yet realised in KPC case"
-      stop
+      LeptonCutFactorKPC=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=0)
     else
       !!! this is uncut lepton tensor
       LeptonCutFactorKPC=1._dp
@@ -533,9 +539,7 @@ function LeptonCutFactorKPC(kin,proc1, includeCuts_in,CutParam)
     !!!!! lepton-cut prefactor
     if(includeCuts_in) then
       !!! here include cuts onf lepton tensor
-      LeptonCutFactorKPC=1.d0!CutFactor4(qT=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam)
-      write(*,*) "CUTS are not yet realised in KPC case"
-      stop
+      LeptonCutFactorKPC=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=0)
     else
       !!! this is uncut lepton tensor
       LeptonCutFactorKPC=1._dp
@@ -698,11 +702,17 @@ function Xsec_Yint(var,process,incCut,CutParam,ymin_in,ymax_in)
         ymax=ymax_Check
     end if!!!!! else case: automatically taken into account
 
-    Xsec_Yint=2d0*integralOverYpoint_S(var,process,incCut,CutParam,0d0,ymax)!!! factor 2 because the process is symmetric
+#if INTEGRATION_MODE==1
+    !!!! slower but accurate
+    Xsec_Yint=2*Integrate_SA(integrandOverY,0._dp,ymax,toleranceINT)
+#elif INTEGRATION_MODE==2
+   !!!! fast but not that accurate
+    Xsec_Yint=2*Integrate_G7(integrandOverY,0._dp,ymax)
+#endif
 
   else !!!non-symmetric integral!!!!!!!!
     if(ymax<ymin_check .or. ymin>ymax_check) then !!! the case then y is outside physicsl region
-      Xsec_Yint=0d0
+      Xsec_Yint=0._dp
     else
     if(ymax > ymax_check) then
       ymax=yMax_check
@@ -711,88 +721,27 @@ function Xsec_Yint(var,process,incCut,CutParam,ymin_in,ymax_in)
       ymin=ymin_check
     end if!!!!! else case: automatically taken into account
 
-    Xsec_Yint=integralOverYpoint_S(var,process,incCut,CutParam,ymin,ymax)
+#if INTEGRATION_MODE==1
+    !!!! slower but accurate
+    Xsec_Yint=Integrate_SA(integrandOverY,ymin,ymax,toleranceINT)
+#elif INTEGRATION_MODE==2
+    !!!! fast but not that accurate
+    Xsec_Yint=Integrate_G7(integrandOverY,ymin,ymax)
+#endif
 
     end if
 end if
 
+contains
+
+function integrandOverY(y)
+real(dp),intent(in)::y
+real(dp)::integrandOverY
+call SetY(y,var)
+integrandOverY=xSec(var,process,incCut,CutParam)
+end function integrandOverY
+
 end function Xsec_Yint
-
-!--------------Simpsons--------------------
-!!!! parameter valueMax remembers the approximate value of integral to weight the tolerance.
-!!!! evaluation is done by adaptive simpson
-!!!! First we evaluate over 5 points and estimate the integral, and then split it to 3+3 and send to adaptive
-!!!! Thus minimal number of points =9
-function integralOverYpoint_S(var,process,incCut,CutParam,yMin_in,yMax_in)
-  real(dp),dimension(1:7)::var
-  logical,intent(in)::incCut
-  real(dp),dimension(1:4),intent(in)::CutParam
-  integer,dimension(1:4),intent(in)::process
-  real(dp) ::integralOverYpoint_S
-  real(dp) :: X1,X2,X3,X4,X5
-  real(dp) :: y2,y3,y4,deltay
-  real(dp) :: yMin_in,yMax_in
-  real(dp)::valueMax
-
-  deltay=yMax_in-yMin_in
-  y2=yMin_in+deltay/4d0
-  y3=yMin_in+deltay/2d0
-  y4=yMax_in-deltay/4d0
-
-  call SetY(yMin_in,var)
-  X1= xSec(var,process,incCut,CutParam)
-  call SetY(y2,var)
-  X2= xSec(var,process,incCut,CutParam)
-  call SetY(y3,var)
-  X3= xSec(var,process,incCut,CutParam)
-  call SetY(y4,var)
-  X4= xSec(var,process,incCut,CutParam)
-  call SetY(yMax_in,var)
-  X5= xSec(var,process,incCut,CutParam)
-
-  !!approximate integral value
-  valueMax=deltay*(X1+4d0*X2+2d0*X3+4d0*X4+X5)/12d0
-
-  integralOverYpoint_S=IntegralOverYpoint_S_Rec(var,process,incCut,CutParam,yMin_in,y3,X1,X2,X3,valueMax)+&
-    IntegralOverYpoint_S_Rec(var,process,incCut,CutParam,y3,yMax_in,X3,X4,X5,valueMax)
-end function integralOverYpoint_S
-  
-!!!! X1,X3,X5 are cross-sections at end (X1,X5) and central (X3) points of integraitons
-recursive function integralOverYpoint_S_Rec(var,process,incCut,CutParam,yMin_in,yMax_in,X1,X3,X5,valueMax) result(interX)
-  real(dp),dimension(1:7) ::var
-  logical,intent(in)::incCut
-  real(dp),dimension(1:4),intent(in)::CutParam
-  integer,dimension(1:4),intent(in)::process
-  real(dp) :: interX,X1,X2,X3,X4,X5
-  real(dp) :: valueAB,valueACB
-  real(dp) :: yMin_in,yMax_in,y2,y3,y4,deltay
-  real(dp),intent(in)::valueMax
-
-  deltay=yMax_in-yMin_in
-  y2=yMin_in+deltay/4d0
-  y3=yMin_in+deltay/2d0
-  y4=yMax_in-deltay/4d0
-
-
-  call SetY(y2,var)
-  X2= xSec(var,process,incCut,CutParam)
-
-  call SetY(y4,var)
-  X4= xSec(var,process,incCut,CutParam)
-
-  valueAB=deltay*(X1+4d0*X3+X5)/6d0
-  valueACB=deltay*(X1+4d0*X2+2d0*X3+4d0*X4+X5)/12d0
-
-  If(ABS((valueACB-valueAB)/valueMax)>toleranceINT) then
-  interX=integralOverYpoint_S_Rec(var,process,incCut,CutParam,yMin_in,y3,X1,X2,X3,valueMax)&
-    +integralOverYpoint_S_Rec(var,process,incCut,CutParam,y3,yMax_in,X3,X4,X5,valueMax)
-  else
-  interX=valueACB
-  end if
-
-end function integralOverYpoint_S_Rec
-  
-  
   
 !---------------------------------INTEGRATED over Y over Q---------------------------------------------------------------
 !!!! No need for check over Y they take a place within y-integration for each value of Q(!)
@@ -815,100 +764,49 @@ function Xsec_Qint_Yint(var,process,incCut,CutParam,Qmin_in,Qmax_in,ymin_in,ymax
     return
   end if
 
+!!!! slower but accurate
+#if INTEGRATION_MODE==1
   !!! check how many maxQbins is inside the integration range (+1)
   numSec=INT((Qmax_in-Qmin_in)/maxQbinSize)+1
 
+  !!! if the bin is smaller than maxQbinSize, integrate as is
   if(numSec==1) then
-    !!! if the bin is smaller than maxQbinSize, integrate as is
-    Xsec_Qint_Yint=Xsec_Qint_Yint_in(var,process,incCut,CutParam,Qmin_in,Qmax_in,ymin_in,ymax_in)
+
+    Xsec_Qint_Yint=Integrate_SA(integrandOverQ,Qmin_in,Qmax_in,toleranceINT)
   else
     !!! else divide to smaler bins and sum the integrals
     dQ=(Qmax_in-Qmin_in)/numSec !!! size of new bins
 
-    Xsec_Qint_Yint=0d0
+    Xsec_Qint_Yint=0._dp
     do i=0,numSec-1
       Xsec_Qint_Yint=Xsec_Qint_Yint + &
-          Xsec_Qint_Yint_in(var,process,incCut,CutParam,Qmin_in+i*dQ,Qmin_in+(i+1)*dQ,ymin_in,ymax_in)
+          Integrate_SA(integrandOverQ,Qmin_in+i*dQ,Qmin_in+(i+1)*dQ,toleranceINT)
     end do
   end if
+!!!! slower but accurate
+#elif INTEGRATION_MODE==2
+!!!! in this case I only check for the Z-boson peak
+!!!! if it is in the region, I integrate over it specially
+  if(Qmin_in<MZ-2 .and. MZ+2<QMax_in) then
+    Xsec_Qint_Yint=Integrate_G7(integrandOverQ,Qmin_in,MZ-2)
+    Xsec_Qint_Yint=Xsec_Qint_Yint+Integrate_G7(integrandOverQ,MZ-2,MZ+2)
+    Xsec_Qint_Yint=Xsec_Qint_Yint+Integrate_G7(integrandOverQ,MZ+2,Qmax_in)
+  else
+    Xsec_Qint_Yint=Integrate_G7(integrandOverQ,Qmin_in,Qmax_in)
+  end if
+#endif
+
+contains
+
+function integrandOverQ(Q)
+real(dp),intent(in)::Q
+real(dp)::integrandOverQ
+call SetQ(Q,var)
+integrandOverQ=2*Q*Xsec_Yint(var,process,incCut,CutParam,yMin_in,yMax_in)
+end function integrandOverQ
+
 end function Xsec_Qint_Yint
 
-!--------------Simpsons--------------------
-!!!! parameter valueMax remembers the initial value of integral to weight the tolerance.
-!!!! First we evaluate over 5 points and estimate the integral, and then split it to 3+3 and send to adaptive
-!!!! Thus minimal number of points =9
-!!!! taking into account minimum calls of y-integral we have  =81 points
-function Xsec_Qint_Yint_in(var,process,incCut,CutParam,Qmin_in,Qmax_in,ymin_in,ymax_in)
-  real(dp),dimension(1:7)::var
-  logical,intent(in)::incCut
-  real(dp),dimension(1:4),intent(in)::CutParam
-  integer,dimension(1:4),intent(in)::process
-  real(dp),intent(in) :: yMin_in,yMax_in,QMin_in,QMax_in
-  real(dp):: Xsec_Qint_Yint_in
-  real(dp) :: X1,X2,X3,X4,X5
-  real(dp)::valueMax,Q2,Q3,Q4,deltaQ
-
-  deltaQ=QMax_in-QMin_in
-  Q2=QMin_in+deltaQ/4d0
-  Q3=QMin_in+deltaQ/2d0
-  Q4=QMax_in-deltaQ/4d0
-
-  call SetQ(QMin_in,var)
-  X1=2*QMin_in*Xsec_Yint(var,process,incCut,CutParam,yMin_in,yMax_in)
-
-  call SetQ(Q2,var)
-  X2=2*Q2*Xsec_Yint(var,process,incCut,CutParam,yMin_in,yMax_in)
-
-  call SetQ(Q3,var)
-  X3=2*Q3*Xsec_Yint(var,process,incCut,CutParam,yMin_in,yMax_in)
-
-  call SetQ(Q4,var)
-  X4=2*Q4*Xsec_Yint(var,process,incCut,CutParam,yMin_in,yMax_in)
-
-  call SetQ(QMax_in,var)
-  X5=2*QMax_in*Xsec_Yint(var,process,incCut,CutParam,yMin_in,yMax_in)
-
-    !!approximate integral value
-  valueMax=deltaQ*(X1+4d0*X2+2d0*X3+4d0*X4+X5)/12d0
-
-  Xsec_Qint_Yint_in=IntegralOverQYpoint_S_Rec(var,process,incCut,CutParam,QMin_in,Q3,yMin_in,yMax_in,X1,X2,X3,valueMax)+&
-  IntegralOverQYpoint_S_Rec(var,process,incCut,CutParam,Q3,QMax_in,yMin_in,yMax_in,X3,X4,X5,valueMax)
-end function Xsec_Qint_Yint_in
-  
-!!!! X1,X3,X5 are cross-sections at end (X1,X5) and central (X3) points of integraitons
-recursive function integralOverQYpoint_S_Rec(var,process,incCut,CutParam,&
-                QMin_in,QMax_in,yMin_in,yMax_in,X1,X3,X5,valueMax) result(interX)
-  real(dp),dimension(1:7)::var
-  logical,intent(in)::incCut
-  real(dp),dimension(1:4),intent(in)::CutParam
-  integer,dimension(1:4),intent(in)::process
-  real(dp) :: interX,X1,X2,X3,X4,X5
-  real(dp) :: valueAB,valueACB
-  real(dp) :: yMin_in,yMax_in,QMin_in,QMax_in,Q2,Q3,Q4,deltaQ
-  real(dp),intent(in)::valueMax
-
-  deltaQ=QMax_in-QMin_in
-  Q2=QMin_in+deltaQ/4d0
-  Q3=QMin_in+deltaQ/2d0
-  Q4=QMax_in-deltaQ/4d0
-
-  call SetQ(Q2,var)
-  X2=2*Q2*Xsec_Yint(var,process,incCut,CutParam,yMin_in,yMax_in)
-
-  call SetQ(Q4,var)
-  X4=2*Q4*Xsec_Yint(var,process,incCut,CutParam,yMin_in,yMax_in)
-
-  valueAB=deltaQ*(X1+4d0*X3+X5)/6d0
-  valueACB=deltaQ*(X1+4d0*X2+2d0*X3+4d0*X4+X5)/12d0
-
-  If(ABS((valueACB-valueAB)/valueMax)>toleranceINT) then
-    interX=integralOverQYpoint_S_Rec(var,process,incCut,CutParam,QMin_in,Q3,yMin_in,yMax_in,X1,X2,X3,valueMax)&
-    +integralOverQYpoint_S_Rec(var,process,incCut,CutParam,Q3,Qmax_in,yMin_in,yMax_in,X3,X4,X5,valueMax)
-  else
-    interX=valueACB
-  end if
-end function integralOverQYpoint_S_Rec
-  
 !---------------------------------INTEGRATED over Y over Q over pT-------------------------------------------------------------
 !!!!! In fact, this is the main evaluator.
 !!!integration over PT is made by Num-sections
@@ -979,70 +877,24 @@ function Xsec_PTint_Qint_Yint(process,incCut,CutParam,s_in,qt_min_in,qt_max_in,Q
 
 
   if(qt_min<qTMin_ABS) then
-    var=kinematicArray(qTMin_ABS,s_in,(Q_min+Q_max)/2d0,(ymin_in+ymax_in)/2d0)
+    var=kinematicArray(qTMin_ABS,s_in,(Q_min+Q_max)/2,(ymin_in+ymax_in)/2)
   else
-    var=kinematicArray(qt_min,s_in,(Q_min+Q_max)/2d0,(ymin_in+ymax_in)/2d0)
+    var=kinematicArray(qt_min,s_in,(Q_min+Q_max)/2,(ymin_in+ymax_in)/2)
   end if
 
-  X0=2d0*qt_min*Xsec_Qint_Yint(var,process,incCut,CutParam,Q_min,Q_max,ymin_in,ymax_in)
+  Xsec_PTint_Qint_Yint=Integrate_SN(integrandOverQT,qt_min,qt_max,Num)
 
-  call Xsec_PTint_Qint_Yint_0(process,incCut,CutParam,s_in,qt_min,qt_max,Q_min,Q_max,ymin_in,ymax_in,Num,Xfin,X0)
-  Xsec_PTint_Qint_Yint=Xfin
+contains
+
+function integrandOverQT(qT)
+real(dp),intent(in)::qT
+real(dp)::integrandOverQT
+call SetQT(qT,var)
+integrandOverQT=2*qT*Xsec_Qint_Yint(var,process,incCut,CutParam,Q_min,Q_max,ymin_in,ymax_in)
+end function integrandOverQT
 
 end function Xsec_PTint_Qint_Yint
-  
-  
-!!!integration over PT is made by Num-sections
-!!!N even
-!!! X0 is value of the function at qt_min input
-!!! X0 is value of the function at qt_max output
-!!! !!! Xfin is value of the cross-section
-subroutine Xsec_PTint_Qint_Yint_0(process,incCut,CutParam,s_in,qt_min,qt_max,Q_min,Q_max,ymin_in,ymax_in,Num,Xfin,X0)
-  real(dp),dimension(1:7)::var
-  logical,intent(in)::incCut
-  real(dp),dimension(1:4),intent(in)::CutParam
-  integer,dimension(1:4),intent(in)::process
-  real(dp):: Xfin,X0
-  real(dp):: ymin_in,ymax_in,Q_min,Q_max,qt_min,qt_max,s_in
-  integer :: i,Num
 
-  real(dp)::deltaQT,qT_cur,inter
-
-  if(mod(num,2)>0) then
-    write(*,*) 'ERROR: arTeMiDe_DY: number of Simpson sections is odd. Evaluation stop.'
-    stop
-  end if
-
-  deltaQT=(qt_max-qt_min)/Num
-  inter=X0!!!first term is calculated eqarlier
-
-  var=kinematicArray(qt_min,s_in,(Q_min+Q_max)/2d0,(ymin_in+ymax_in)/2d0)
-
-  !!!! even terms
-  do i=1,Num-1,2
-  qT_cur=qt_min+i*deltaQT
-  call SetQT(qT_cur,var)
-  inter=inter+8d0*qt_cur*Xsec_Qint_Yint(var,process,incCut,CutParam,Q_min,Q_max,ymin_in,ymax_in)
-  end do
-
-  if(Num>2) then
-  !!!! odd terms
-  do i=2,Num-2,2
-  qT_cur=qt_min+i*deltaQT
-  call SetQT(qT_cur,var)
-  inter=inter+4d0*qt_cur*Xsec_Qint_Yint(var,process,incCut,CutParam,Q_min,Q_max,ymin_in,ymax_in)
-  end do
-  end if
-
-  call SetQT(qT_max,var)
-  X0=2d0*qt_max*Xsec_Qint_Yint(var,process,incCut,CutParam,Q_min,Q_max,ymin_in,ymax_in)!!!! last term
-  inter=inter+X0
-
-  Xfin=deltaQT/3d0*inter
-
-end subroutine Xsec_PTint_Qint_Yint_0
-
-  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!THE MAIN INTERFACE TO CROSS-SECTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

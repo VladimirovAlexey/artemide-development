@@ -338,12 +338,12 @@
 *p1  : Order of coefficient function
  N4LO
 *p2  : Utilize KPC formula (T=KPC formula, F=LP formula)
- T
+ F
 *p3  : Use resummation of pi^2-corrections in hard coefficient
  F
 *B   : ---- Numerical evaluation parameters ----
 *p1  : Tolerance general (variable comparision, etc.)
-   1.0000000000000000E-006
+   1.0000000000000000E-008
 *p2  : Tolerance (relative tolerance for bin-integration routines, except pt-integration)
    1.0000000000000000E-004
 *p3  : Minimal number of sections for pt-integration
