@@ -6,8 +6,6 @@ interface
 
 
 module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
-    use tmds
-    use tmds_inkt
     use tmdx_dy
     use tmdx_sidis
     use atmde_control
@@ -384,6 +382,17 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
         integer intent(in) :: listlength
         real*8 dimension(listlength) :: dy_xsec_list
     end function dy_xsec_list
+    function dy_xsec_list_approximate(process,s,qt,q,y,includecuts,cutparameters,listlength) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        integer dimension(:,:),intent(in) :: process
+        real*8 dimension(:),intent(in) :: s
+        real*8 dimension(:,:),intent(in) :: qt
+        real*8 dimension(:,:),intent(in) :: q
+        real*8 dimension(:,:),intent(in) :: y
+        logical dimension(:),intent(in) :: includecuts
+        real*8 dimension(:,:),intent(in) :: cutparameters
+        integer intent(in) :: listlength
+        real*8 dimension(listlength) :: dy_xsec_list_approximate
+    end function dy_xsec_list_approximate
     function dy_xsec_binless_list(process,s,qt,q,y,includecuts,cutparameters,listlength) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         integer dimension(:,:),intent(in) :: process
         real*8 dimension(:),intent(in) :: s

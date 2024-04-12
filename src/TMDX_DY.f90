@@ -67,7 +67,7 @@ logical::started=.false.
 
 public::TMDX_DY_Initialize,TMDX_DY_SetScaleVariation,&
 TMDX_DY_ShowStatistic,TMDX_DY_ResetCounters,TMDX_DY_IsInitialized
-public::  xSec_DY,xSec_DY_List,xSec_DY_List_BINLESS
+public::  xSec_DY,xSec_DY_List,xSec_DY_List_BINLESS,xSec_DY_List_APPROXIMATE
 
 interface xSec_DY
   module procedure MainInterface_AsAAAloo
@@ -524,7 +524,7 @@ function LeptonCutFactorKPC(kin,proc1, includeCuts_in,CutParam)
 
   !!!!!!!!!!!!!!!
   SELECT CASE(proc1)
-  CASE(1,2) !!! P0
+  CASE(1,2,101,102,103) !!! P0
     if(includeCuts_in) then
       !!! here include cuts onf lepton tensor
       LeptonCutFactorKPC=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=0)
@@ -816,10 +816,10 @@ function Xsec_PTint_Qint_Yint(process,incCut,CutParam,s_in,qt_min_in,qt_max_in,Q
   logical,intent(in)::incCut
   real(dp),dimension(1:4),intent(in)::CutParam
   integer,dimension(1:4),intent(in)::process
-  real(dp):: Xsec_PTint_Qint_Yint,X0,Xfin
+  real(dp):: Xsec_PTint_Qint_Yint
   real(dp),intent(in):: ymin_in,ymax_in,Q_min_in,Q_max_in,qt_min_in,qt_max_in,s_in
   real(dp):: Q_min,Q_max,qt_min,qt_max,s
-  integer :: Num
+  integer,intent(in) :: Num
 
   if(TMDF_IsconvergenceLost()) then
     Xsec_PTint_Qint_Yint=1d9
@@ -894,6 +894,211 @@ integrandOverQT=2*qT*Xsec_Qint_Yint(var,process,incCut,CutParam,Q_min,Q_max,ymin
 end function integrandOverQT
 
 end function Xsec_PTint_Qint_Yint
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!APROXIMATE VERSION OF THE SAME ROUTINES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !---------------------------------INTEGRATED over Y---------------------------------------------------------------
+
+
+!!!function for integration over Y
+function Xsec_Yint_APROX(var,process,incCut,CutParam,ymin_in,ymax_in)
+  real(dp),dimension(1:7) :: var
+  logical,intent(in)::incCut
+  real(dp),dimension(1:4),intent(in)::CutParam
+  real(dp) :: Xsec_Yint_APROX
+  real(dp) :: ymin, ymax,ymin_in,ymax_in
+  real(dp) :: ymin_Check,ymax_Check
+  integer,dimension(1:4),intent(in)::process
+
+  if(TMDF_IsconvergenceLost()) then
+    Xsec_Yint_APROX=1d9
+    return
+  end if
+
+  !!! evaluate correspnding y's
+  !!! in the case process=2 the integral is over xF
+  if(process(1)==2) then
+    ymin=yFromXF(ymin_in,var)
+    ymax=yFromXF(ymax_in,var)
+  else
+    ymin=ymin_in
+    ymax=ymax_in
+  end if
+
+  ymin_Check=log(var(5))+0.000000001d0
+  ymax_Check=-log(var(5))-0.000000001d0
+
+  if(IsySymmetric(process(1)) .and. (ABS(ymax+ymin)<toleranceGEN)) then!!! symetric integral
+    if(ymax > ymax_check) then
+        ymax=ymax_Check
+    end if!!!!! else case: automatically taken into account
+
+    Xsec_Yint_APROX=2*Integrate_G3(integrandOverY,0._dp,ymax)
+
+  else !!!non-symmetric integral!!!!!!!!
+    if(ymax<ymin_check .or. ymin>ymax_check) then !!! the case then y is outside physicsl region
+      Xsec_Yint_APROX=0._dp
+    else
+    if(ymax > ymax_check) then
+      ymax=yMax_check
+    end if!!!!! else case: automatically taken into account
+    if(ymin < ymin_check) then
+      ymin=ymin_check
+    end if!!!!! else case: automatically taken into account
+
+    Xsec_Yint_APROX=Integrate_G3(integrandOverY,ymin,ymax)
+
+    end if
+end if
+
+contains
+
+function integrandOverY(y)
+real(dp),intent(in)::y
+real(dp)::integrandOverY
+call SetY(y,var)
+integrandOverY=xSec(var,process,incCut,CutParam)
+end function integrandOverY
+
+end function Xsec_Yint_APROX
+
+!---------------------------------INTEGRATED over Y over Q---------------------------------------------------------------
+!!!! No need for check over Y they take a place within y-integration for each value of Q(!)
+
+!!!! to integrate over Q I use adaptive Simpson. (defined below)
+!!!! before the integration over Q I check the size of Q-bin,
+!!!! if Q-bin is large I split desect the integration range to smaller
+function Xsec_Qint_Yint_APROX(var,process,incCut,CutParam,Qmin_in,Qmax_in,ymin_in,ymax_in)
+  real(dp),dimension(1:7)::var
+  logical,intent(in)::incCut
+  real(dp),dimension(1:4),intent(in)::CutParam
+  integer,dimension(1:4),intent(in)::process
+  real(dp),intent(in) :: yMin_in,yMax_in,QMin_in,QMax_in
+  real(dp):: Xsec_Qint_Yint_APROX
+  integer::numSec,i
+  real(dp)::dQ
+
+  if(TMDF_IsconvergenceLost()) then
+    Xsec_Qint_Yint_APROX=1d9
+    return
+  end if
+
+!!!! in this case I only check for the Z-boson peak
+!!!! if it is in the region, I integrate over it specially
+  if(Qmin_in<MZ-3 .and. MZ+3<QMax_in) then
+    Xsec_Qint_Yint_APROX=Integrate_G3(integrandOverQ,Qmin_in,MZ-3)
+    Xsec_Qint_Yint_APROX=Xsec_Qint_Yint_APROX+Integrate_G7(integrandOverQ,MZ-3,MZ+3)
+    Xsec_Qint_Yint_APROX=Xsec_Qint_Yint_APROX+Integrate_G3(integrandOverQ,MZ+3,Qmax_in)
+  else
+    Xsec_Qint_Yint_APROX=Integrate_G3(integrandOverQ,Qmin_in,Qmax_in)
+  end if
+
+contains
+
+function integrandOverQ(Q)
+real(dp),intent(in)::Q
+real(dp)::integrandOverQ
+call SetQ(Q,var)
+integrandOverQ=2*Q*Xsec_Yint_APROX(var,process,incCut,CutParam,yMin_in,yMax_in)
+end function integrandOverQ
+
+end function Xsec_Qint_Yint_APROX
+
+!---------------------------------INTEGRATED over Y over Q over pT-------------------------------------------------------------
+!!!!! In fact, this is the main evaluator.
+!!!integration over PT is made by Num-sections
+!!!N even
+function Xsec_PTint_Qint_Yint_APROX(process,incCut,CutParam,s_in,qt_min_in,qt_max_in,Q_min_in,Q_max_in,ymin_in,ymax_in)
+  real(dp),dimension(1:7)::var
+  logical,intent(in)::incCut
+  real(dp),dimension(1:4),intent(in)::CutParam
+  integer,dimension(1:4),intent(in)::process
+  real(dp):: Xsec_PTint_Qint_Yint_APROX
+  real(dp),intent(in):: ymin_in,ymax_in,Q_min_in,Q_max_in,qt_min_in,qt_max_in,s_in
+  real(dp):: Q_min,Q_max,qt_min,qt_max,s
+
+  if(TMDF_IsconvergenceLost()) then
+    Xsec_PTint_Qint_Yint_APROX=1d9
+    return
+  end if
+
+  !!!------------------------- checking Q----------
+  if(Q_min_in<0.9d0) then
+    call Warning_Raise('Attempt to compute xSec with Q<0.9.',messageCounter,messageTrigger,moduleName)
+    write(*,*) "Qmin =",Q_min_in," (Qmin set to 1.GeV)"
+    Q_min=1._dp
+  else
+    Q_min=Q_min_in
+  end if
+
+  if(Q_max_in<Q_min) then
+    call Warning_Raise('Attempt to compute xSec with Qmax<Qmin. RESULT 0',messageCounter,messageTrigger,moduleName)
+    Xsec_PTint_Qint_Yint_APROX=0._dp
+    return
+  end if
+  Q_max=Q_max_in
+
+  !!!------------------------- checking S----------
+  if(s_in<0.9d0) then
+    call Warning_Raise('Attempt to compute xSec with s<0.9.',messageCounter,messageTrigger,moduleName)
+    write(*,*) "s =",s_in," (s set to Qmin)"
+    s=Q_min
+  else
+    s=s_in
+  end if
+
+  !!!------------------------- checking PT----------
+  if(qT_min_in<0.0d0) then
+    call Warning_Raise('Attempt to compute xSec with qT<0.',messageCounter,messageTrigger,moduleName)
+    write(*,*) "qTmin =",qT_min_in," (qTmin set to 0.GeV)"
+    qT_min=1._dp
+  else
+    qT_min=qT_min_in
+  end if
+
+  if(qT_max_in<qT_min) then
+    call Warning_Raise('Attempt to compute xSec with qTmax<qTmin. RESULT 0',messageCounter,messageTrigger,moduleName)
+    Xsec_PTint_Qint_Yint_APROX=0._dp
+    return
+  end if
+  qT_max=qT_max_in
+
+  !!!------------------------- checking Y----------
+
+  if(ymax_in<ymin_in) then
+    call Warning_Raise('Attempt to compute xSec with Ymax<Ymin. RESULT 0',messageCounter,messageTrigger,moduleName)
+    Xsec_PTint_Qint_Yint_APROX=0._dp
+    return
+  end if
+
+
+  if(qt_min<qTMin_ABS) then
+    var=kinematicArray(qTMin_ABS,s_in,(Q_min+Q_max)/2,(ymin_in+ymax_in)/2)
+  else
+    var=kinematicArray(qt_min,s_in,(Q_min+Q_max)/2,(ymin_in+ymax_in)/2)
+  end if
+
+  if(qt_max-qt_min<0.5d0) then
+    !!!! for small bins just compute at the center
+    call SetQT((qT_min+qT_min)/2,var)
+    Xsec_PTint_Qint_Yint_APROX=(qT_max**2-qT_min**2)&
+        *Xsec_Qint_Yint_APROX(var,process,incCut,CutParam,Q_min,Q_max,ymin_in,ymax_in)
+  else
+    Xsec_PTint_Qint_Yint_APROX=Integrate_G3(integrandOverQT,qt_min,qt_max)
+  end if
+
+contains
+
+function integrandOverQT(qT)
+real(dp),intent(in)::qT
+real(dp)::integrandOverQT
+call SetQT(qT,var)
+integrandOverQT=2*qT*Xsec_Qint_Yint_APROX(var,process,incCut,CutParam,Q_min,Q_max,ymin_in,ymax_in)
+end function integrandOverQT
+
+end function Xsec_PTint_Qint_Yint_APROX
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!THE MAIN INTERFACE TO CROSS-SECTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1111,5 +1316,90 @@ end subroutine MainInterface_AsAAAloo
     !$OMP END PARALLEL DO
     deallocate(vv)
   end subroutine xSec_DY_List_BINLESS
+
+
+  !!!! This subroutine simplifies all integrations to few points
+  !!!! It is very inaccurate, but very fast
+  subroutine xSec_DY_List_APPROXIMATE(X,process,s,qT,Q,y,includeCuts,CutParameters)
+    integer,intent(in),dimension(:,:)::process            !the number of process
+    real(dp),intent(in),dimension(:)::s                !Mandelshtam s
+    real(dp),intent(in),dimension(:,:)::qT            !(qtMin,qtMax)
+    real(dp),intent(in),dimension(:,:)::Q                !(Qmin,Qmax)
+    real(dp),intent(in),dimension(:,:)::y                !(ymin,ymax)
+    logical,intent(in),dimension(:)::includeCuts        !include cuts
+    real(dp),intent(in),dimension(:,:)::CutParameters            !(p1,p2,eta1,eta2)
+    real(dp),dimension(:),intent(out)::X
+    integer :: i,length
+
+    length=size(s)
+
+  !!! cheking sizes
+  if(size(X)/=length) then
+    write(*,*) ErrorString('xSec_DY_List: sizes of xSec and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('Evaluation stop',moduleName)
+    stop
+  end if
+  if(size(process,1)/=length) then
+    write(*,*) ErrorString('xSec_DY_List: sizes of process and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('Evaluation stop',moduleName)
+    stop
+  end if
+  if(size(qT,1)/=length) then
+    write(*,*) ErrorString('xSec_DY_List: sizes of qT and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('Evaluation stop',moduleName)
+    stop
+  end if
+  if(size(y,1)/=length) then
+    write(*,*) ErrorString('xSec_DY_List: sizes of y and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('Evaluation stop',moduleName)
+    stop
+  end if
+  if(size(Q,1)/=length) then
+    write(*,*) ErrorString('xSec_DY_List: sizes of Q and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('Evaluation stop',moduleName)
+    stop
+  end if
+  if(size(includeCuts)/=length) then
+    write(*,*) ErrorString('xSec_DY_List: sizes of includeCuts and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('Evaluation stop',moduleName)
+    stop
+  end if
+  if(size(CutParameters,1)/=length) then
+    write(*,*) ErrorString('xSec_DY_List: sizes of CutParameters and s lists are not equal.',moduleName)
+    write(*,*) ErrorString('Evaluation stop',moduleName)
+    stop
+  end if
+  if(size(process,2)/=4) then
+    write(*,*) ErrorString('xSec_DY_List: process list must be (:,1:4).',moduleName)
+    write(*,*) ErrorString('Evaluation stop',moduleName)
+    stop
+  end if
+  if(size(qT,2)/=2) then
+    write(*,*) ErrorString('xSec_DY_List: qt list must be (:,1:2).',moduleName)
+    write(*,*) ErrorString('Evaluation stop',moduleName)
+    stop
+  end if
+  if(size(y,2)/=2) then
+    write(*,*) ErrorString('xSec_DY_List: y list must be (:,1:2).',moduleName)
+    write(*,*) ErrorString('Evaluation stop',moduleName)
+    stop
+  end if
+  if(size(Q,2)/=2) then
+    write(*,*) ErrorString('xSec_DY_List: Q list must be (:,1:2).',moduleName)
+    write(*,*) ErrorString('Evaluation stop',moduleName)
+    stop
+  end if
+
+
+    CallCounter=CallCounter+length
+
+    !$OMP PARALLEL DO DEFAULT(SHARED)
+
+     do i=1,length
+       X(i)=Xsec_PTint_Qint_Yint_APROX(process(i,1:4),includeCuts(i),CutParameters(i,1:4),&
+                s(i),qT(i,1),qT(i,2),Q(i,1),Q(i,2),y(i,1),y(i,2))
+     end do
+    !$OMP END PARALLEL DO
+  end subroutine xSec_DY_List_APPROXIMATE
   
 end module TMDX_DY

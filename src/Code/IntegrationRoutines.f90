@@ -25,7 +25,7 @@ INCLUDE '../Tables/G7K15.f90'
 INCLUDE '../Tables/G20K41.f90'
 
 public::Integrate_S5,Integrate_SN,Integrate_SA,Integrate_SA_2D
-public::Integrate_G7,Integrate_K15,Integrate_K41,Integrate_GK,Integrate_GK2041
+public::Integrate_G3,Integrate_G7,Integrate_K15,Integrate_K41,Integrate_GK,Integrate_GK2041
 public::Integrate_GK_array5
 
 
@@ -38,6 +38,10 @@ real(dp),dimension(1:5,1:5),parameter::SA5_2D_w=reshape((/1._dp,4._dp,2._dp,4._d
                                                   2._dp,8._dp,4._dp,8._dp,2._dp,&
                                                   4._dp,16._dp,8._dp,16._dp,4._dp,&
                                                   1._dp,4._dp,2._dp,4._dp,1._dp/)/144._dp,shape(SA5_2D_w))
+
+!!! parameters for Gauss quadrature with 3 points
+real(dp), parameter, dimension(1:3) :: Xi_g3 = (/-sqrt(0.6_dp),0._dp,sqrt(0.6_dp)/)
+real(dp), parameter, dimension(1:3) :: Wi_g3 = (/5._dp/9._dp,8._dp/9._dp,5._dp/9._dp/)
 
 !!! this is interface for function (-5:5) in the integration
 abstract interface 
@@ -242,6 +246,24 @@ recursive function SA2D_Rec(f,x1,x3,x5,y1,y3,y5,fIn,eps) result(res)
 
 end function SA2D_Rec
 
+!------------------------------------------- G3 --------------------------------------------
+
+!!! Gauss 3-points (very inaccurate only for estimations)
+!!! f::  function of 1 variable
+!!! xMin, and xMax boundaries of the integral. xMax>xMin !!
+function Integrate_G3(f,xMin,xMax)
+    real(dp)::f,Integrate_G3
+    real(dp),intent(in)::xMin,xMax
+    real(dp)::delta,av
+
+    delta=(xMax-xMin)/2._dp
+    av=(xMax+xMin)/2._dp
+
+    Integrate_G3=delta*(Wi_g3(1)*f(Xi_g3(1)*delta+av)&
+                        +Wi_g3(2)*f(Xi_g3(2)*delta+av)&
+                        +Wi_g3(3)*f(Xi_g3(3)*delta+av))
+
+end function Integrate_G3
 
 !------------------------------------------- G7 --------------------------------------------
 

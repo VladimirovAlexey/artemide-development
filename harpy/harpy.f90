@@ -616,6 +616,21 @@ contains
     call xSec_DY_List(DY_xSec_List,process,s,qT,Q,y,includeCuts,CutParameters)
   
   end function DY_xSec_List
+
+  function DY_xSec_List_APPROXIMATE(process,s,qT,Q,y,includeCuts,CutParameters,ListLength)
+    integer,intent(in)::ListLength
+    integer,intent(in),dimension(:,:)::process			!the number of process
+    real*8,intent(in),dimension(:)::s				!Mandelshtam s
+    real*8,intent(in),dimension(:,:)::qT			!(qtMin,qtMax)
+    real*8,intent(in),dimension(:,:)::Q				!(Qmin,Qmax)
+    real*8,intent(in),dimension(:,:)::y				!(ymin,ymax)
+    logical,intent(in),dimension(:)::includeCuts		!include cuts
+    real*8,intent(in),dimension(:,:)::CutParameters	!(p1,p2,eta1,eta2)
+    real*8,dimension(1:ListLength)::DY_xSec_List_APPROXIMATE
+
+    call xSec_DY_List_APPROXIMATE(DY_xSec_List_APPROXIMATE,process,s,qT,Q,y,includeCuts,CutParameters)
+
+  end function DY_xSec_List_APPROXIMATE
   
   function DY_xSec_BINLESS_List(process,s,qT,Q,y,includeCuts,CutParameters,ListLength)
     integer,intent(in)::ListLength
