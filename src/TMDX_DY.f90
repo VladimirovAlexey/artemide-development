@@ -453,8 +453,9 @@ function LeptonCutFactorLP(kin,proc1, includeCuts_in,CutParam)
 
   !!!!! lepton-cut prefactor
   if(includeCuts_in) then
-    !!! here include cuts onf lepton tensor
-    LeptonCutFactorLP=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=-1)
+    !!! here include cuts on the lepton tensor
+    LeptonCutFactorLP=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=-2)
+    !LeptonCutFactorLP=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=-1)
   else
     !!! this is uncut lepton tensor
     LeptonCutFactorLP=(1+0.5d0*(kin(1)/kin(3))**2)
@@ -484,13 +485,13 @@ function PreFactorKPC(kin,proc1)
   case(0)
     PreFactorKPC=1d0
   CASE(1)
-!     !4 pi aEm^2/3 /Nc/Q^2/s
+!     !4 pi aEm^2/3 /Nc/s
     PreFactorKPC=pi2x2/9*(alphaEM(scaleMu)**2)/kin(2)*&
         HardCoefficientDY(scaleMu)*&
         hc2*1d9!from GeV to pb
 
   CASE(2)
-    !4 pi aEm^2/3 /Nc/Q^2/s
+    !4 pi aEm^2/3 /Nc/s
     ! the process=2 is for the xF-integration. It has extra weigth 2sqrt[(Q^2+q_T^2)/s] Cosh[y]
     PreFactorKPC=pi2x2/9*(alphaEM(scaleMu)**2)/kin(2)*&
         HardCoefficientDY(scaleMu)*&
@@ -522,32 +523,45 @@ function LeptonCutFactorKPC(kin,proc1, includeCuts_in,CutParam)
   integer,intent(in)::proc1
   real(dp)::LeptonCutFactorKPC
 
+  if(includeCuts_in) then
+      !!! here include cuts onf lepton tensor
   !!!!!!!!!!!!!!!
   SELECT CASE(proc1)
-  CASE(1,2,101,102,103) !!! P0
-    if(includeCuts_in) then
-      !!! here include cuts onf lepton tensor
-      LeptonCutFactorKPC=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=0)
-    else
-      !!! this is uncut lepton tensor
-      LeptonCutFactorKPC=1._dp
-    end if
-  CASE(20,21,22,23,24,30,31,32,35,36) !!! Angular coefficients
-    LeptonCutFactorKPC=1._dp !!!! there could not be a cut
-  CASE DEFAULT
+  CASE(1,2,101,102,103) !!! UU
+      LeptonCutFactorKPC=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=-1)
 
-    !!!!! lepton-cut prefactor
-    if(includeCuts_in) then
-      !!! here include cuts onf lepton tensor
+  CASE(20,30) !!! Angular coefficients A0
       LeptonCutFactorKPC=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=0)
-    else
-      !!! this is uncut lepton tensor
-      LeptonCutFactorKPC=1._dp
-    end if
+
+  CASE(21,31) !!! Angular coefficients  A1
+      LeptonCutFactorKPC=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=1)
+
+  CASE(22,32) !!! Angular coefficients A2
+      LeptonCutFactorKPC=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=2)
+
+  CASE(23) !!! Angular coefficients A3
+      LeptonCutFactorKPC=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=3)
+
+  CASE(24) !!! Angular coefficients A4
+      LeptonCutFactorKPC=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=4)
+
+  CASE(35) !!! Angular coefficients A5
+      LeptonCutFactorKPC=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=5)
+
+  CASE(36) !!! Angular coefficients A6
+      LeptonCutFactorKPC=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=6)
+
+  CASE DEFAULT
+      !!! default is spherical cut-factor
+      LeptonCutFactorKPC=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=-1)
 
   END SELECT
 
 
+  else
+    !!! this is uncut lepton tensor
+    LeptonCutFactorKPC=1._dp
+  end if
 
 end function LeptonCutFactorKPC
 
@@ -622,7 +636,7 @@ function xSec(var,process,incCut,CutParam)
     x2=var(5)/var(7)
 
     !!! setting values of scales
-    scaleZeta=var(4)+exactScales*var(1)**2  !! zeta=Q2+qT^2
+    scaleZeta=var(4)  !! zeta=Q2
     scaleMu=sqrt(scaleZeta)
 
     !!!!! compute cross-section for each process

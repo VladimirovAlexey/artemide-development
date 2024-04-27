@@ -2059,7 +2059,7 @@ w_{1K}\to  w_{1K}+\frac{J_1(B_0 q)}{q}.
 Example of Hankel transform. Test function is $f(b)=b e^{-2.1 b^2}(1+6.3 b^2+1.4 b^6)$. Shown is logarithm of ratio to the exact evaluation. Here the sub-grids are $B=\{0.00001,0.01,0.2,2., 8., 25.\}$ with $K=16$.
 \end{center}
 
-\subsection{TMMD}
+\subsection{TMM}
 \label{sec:TMM}
 
 In ref.[2402.01836] the following TMMs are defined
@@ -3415,46 +3415,26 @@ The factor $\mathcal{P}$ is the fiducial-cut factor (multiplied within the \text
 1 & 1 & $e_q^2 f_1 f_1$ & $\mathcal{P}_0$ & Unpolarized DY 
 \\\hline
 2 & 1 (\blue{$=K_1$}) & $ \Delta^{GG'} z^{GG'}_{+\ell}z^{GG'}_{+f} f_1 f_1$ & $\mathcal{P}_0$ & Z-boson main term $\sim \mathcal{P}_0$
-\\\hline
-3 & $\frac{\tau^2}{2Q^2}(-1+S^2+\Lambda)$ & $ \Delta^{GG'} z^{GG'}_{+\ell}z^{GG'}_{+f} f_1 f_1$(\blue{$=F_1$}) & $\mathcal{P}_1$ & Z-boson term $\sim \mathcal{P}_1$
-\\\hline
-4 & $\frac{\tau^2}{Q^2}S\sqrt{\Lambda}$ & $ \Delta^{GG'} z^{GG'}_{+\ell}z^{GG'}_{+f} f_1 f_1$(\blue{$=F_1$}) & $\mathcal{P}_2$ & Z-boson term $\sim \mathcal{P}_2$
-\\\hline
-5 & $1+\frac{\tau^2}{2Q^2}(-1+S^2-\Lambda)$ & $ \Delta^{GG'} z^{GG'}_{+\ell}z^{GG'}_{+f} f_1 f_1$(\blue{$=F_1$}) & $\mathcal{P}_3$ & Z-boson term $\sim \mathcal{P}_3$
-\\\hline
-6 & $-2 \frac{S \tau}{Q}$ & $ \Delta^{GG'} z^{GG'}_{-\ell}z^{GG'}_{-f} \{f_1 f_1\}_A$ & $\mathcal{P}_{1A}$ & Z-boson term $\sim \mathcal{P}_{1A}$
-\\\hline
-7 & $-2 \frac{\sqrt{\Lambda} \tau}{Q}$ & $ \Delta^{GG'} z^{GG'}_{-\ell}z^{GG'}_{-f} \{f_1 f_1\}_A$(\blue{$=F_6$}) & $\mathcal{P}_{2A}$ & Z-boson term $\sim \mathcal{P}_{2A}$
-\\\hline
-8 & \scalebox{0.7}{$\frac{\tau^2 }{8M^2Q^2}(-1+S^2+\Lambda)(2Q^2+\tau^2(-1+S^2-\Lambda))$} & $ \Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{+f} h^\perp_1 h^\perp_1$ & $\mathcal{P}_1$ & Z-boson term $\sim \mathcal{P}_1$
-\\\hline
-9 & $\frac{\tau^2 S\sqrt{\Lambda}}{4M^2Q^2}(2Q^2+\tau^2(-1+S^2-\Lambda))$ & $ \Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{+f} h^\perp_1 h^\perp_1$(\blue{$=F_8$}) & $\mathcal{P}_2$ & Z-boson term $\sim \mathcal{P}_2$
-\\\hline
-10 & $\frac{\tau^4}{8M^2Q^2}((S-1)^2-\Lambda)((S+1)^2-\Lambda)$ & $ \Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{+f} h^\perp_1 h^\perp_1$(\blue{$=F_8$}) & $\mathcal{P}_3$ & Z-boson term $\sim \mathcal{P}_3$
-\\\hline
-11 & \scalebox{0.7}{$-\frac{\tau^3\sqrt{\Lambda}}{4M^2Q^2q_T}(Q^2(1+S^2-\Lambda)+\tau^2(-1+S^2+\Lambda))$} & $ i\Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{-f} \{h^\perp_1 h^\perp_1\}_A$ & $\mathcal{P}_4$ & Z-boson term $\sim \mathcal{P}_4$
-\\\hline
-12 & $-\frac{\tau^3S}{4M^2Q^2q_T}(Q^2(-1+S^2-\Lambda)+2\tau^2 \Lambda)$ & $ i\Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{-f} \{h^\perp_1 h^\perp_1\}_A$(\blue{$=F_{11}$}) & $\mathcal{P}_5$ & Z-boson term $\sim \mathcal{P}_5$
 \\\hline\hline
-20 & $1-\frac{\tau^2 \Lambda}{Q^2}$ & $ \Delta^{GG'} z^{GG'}_{+\ell}z^{GG'}_{+f} f_1 f_1$(\blue{$=F_{1}$}) & 1 & $f_1f_1$ part of angular coefficient $A_0$
+20 & $1-\frac{\tau^2 \Lambda}{Q^2}$ & $ \Delta^{GG'} z^{GG'}_{+\ell}z^{GG'}_{+f} f_1 f_1$(\blue{$=F_{1}$}) & 1 & $f_1f_1$ part of angular coefficient $A_0$. Also the part of $Z$-boson production $\sim \mathcal{P}_0$.
 \\\hline
-21 & $\frac{\tau^2 S\sqrt{\Lambda}}{Q q_T}$ & $ \Delta^{GG'} z^{GG'}_{+\ell}z^{GG'}_{+f} f_1 f_1$(\blue{$=F_{1}$}) & 1 & $f_1f_1$ part of angular coefficient $A_1$
+21 & $\frac{\tau^2 S\sqrt{\Lambda}}{Q q_T}$ & $ \Delta^{GG'} z^{GG'}_{+\ell}z^{GG'}_{+f} f_1 f_1$(\blue{$=F_{1}$}) & 1 & $f_1f_1$ part of angular coefficient $A_1$. Also the part of $Z$-boson production $\sim \mathcal{P}_1$.
 \\\hline
-22 & $\frac{Q^4+\Lambda \tau^4+Q^2\tau^2(-1+2S^2-\Lambda)}{Q^2 q^2_T}$ & $ \Delta^{GG'} z^{GG'}_{+\ell}z^{GG'}_{+f} f_1 f_1$(\blue{$=F_{1}$}) & 1 & $f_1f_1$ part of angular coefficient $A_2$
+22 & $\frac{Q^4+\Lambda \tau^4+Q^2\tau^2(-1+2S^2-\Lambda)}{Q^2 q^2_T}$ & $ \Delta^{GG'} z^{GG'}_{+\ell}z^{GG'}_{+f} f_1 f_1$(\blue{$=F_{1}$}) & 1 & $f_1f_1$ part of angular coefficient $A_2$. Also the part of $Z$-boson production $\sim \mathcal{P}_1$.
 \\\hline
-23 & $-2S\frac{\tau}{q_T}$ & $ \Delta^{GG'} z^{GG'}_{-\ell}z^{GG'}_{-f} \{f_1 f_1\}_A$(\blue{$=F_{6}$}) & 1 & $f_1f_1$ part of angular coefficient $A_3$
+23 & $-2S\frac{\tau}{q_T}$ & $ \Delta^{GG'} z^{GG'}_{-\ell}z^{GG'}_{-f} \{f_1 f_1\}_A$(\blue{$=F_{6}$}) & 1 & $f_1f_1$ part of angular coefficient $A_3$. Also the part of $Z$-boson production $\sim \mathcal{P}_3$.
 \\\hline
-24 & $-2\sqrt{\Lambda}\frac{\tau}{Q}$ & $ \Delta^{GG'} z^{GG'}_{-\ell}z^{GG'}_{-f} \{f_1 f_1\}_A$(\blue{$=F_{6}$}) & 1 & $f_1f_1$ part of angular coefficient $A_4$
+24 & $-2\sqrt{\Lambda}\frac{\tau}{Q}$ & $ \Delta^{GG'} z^{GG'}_{-\ell}z^{GG'}_{-f} \{f_1 f_1\}_A$(\blue{$=F_{6}$}) & 1 & $f_1f_1$ part of angular coefficient $A_4$. Also the part of $Z$-boson production $\sim \mathcal{P}_4$.
 \\\hline
-30 & $-\frac{\tau^2}{4M^2Q^2}(Q^2(-1+S^2+\Lambda)+(1+S^2-\Lambda)\Lambda\tau^2)$ & $ \Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{+f} h^\perp_1 h^\perp_1$(\blue{$=F_{8}$}) & 1 & $h_1h_1$ part of angular coefficient $A_0$
+30 & $-\frac{\tau^2}{4M^2Q^2}(Q^2(-1+S^2+\Lambda)+(1+S^2-\Lambda)\Lambda\tau^2)$ & $ \Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{+f} h^\perp_1 h^\perp_1$(\blue{$=F_{8}$}) & 1 & $h_1h_1$ part of angular coefficient $A_0$. Also the part of $Z$-boson production $\sim \mathcal{P}_0$.
 \\\hline
-31 & $\frac{\tau^2S\sqrt{\Lambda}}{4M^2Qq_T}(2Q^2+(-1+S^2-\Lambda)\tau^2)$ & $ \Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{+f} h^\perp_1 h^\perp_1$(\blue{$=F_{8}$}) & 1 & $h_1h_1$ part of angular coefficient $A_1$
+31 & $\frac{\tau^2S\sqrt{\Lambda}}{4M^2Qq_T}(2Q^2+(-1+S^2-\Lambda)\tau^2)$ & $ \Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{+f} h^\perp_1 h^\perp_1$(\blue{$=F_{8}$}) & 1 & $h_1h_1$ part of angular coefficient $A_1$. Also the part of $Z$-boson production $\sim \mathcal{P}_1$.
 \\\hline
-32 & \scalebox{0.7}{$\frac{\tau^2}{4M^2Q^2q_T^2}(Q^4(-1+S^2+\Lambda)+\tau^4 \Lambda(1+S^2-\Lambda)$} \scalebox{0.7}{~~~~~$+Q^2\tau^2(2S^4+(\Lambda-1)^2-3S^2(1+\Lambda)))$} & $ \Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{+f} h^\perp_1 h^\perp_1$(\blue{$=F_{8}$}) & 1 & $h_1h_1$ part of angular coefficient $A_2$
+32 & \scalebox{0.7}{$\frac{\tau^2}{4M^2Q^2q_T^2}(Q^4(-1+S^2+\Lambda)+\tau^4 \Lambda(1+S^2-\Lambda)$} \scalebox{0.7}{~~~~~$+Q^2\tau^2(2S^4+(\Lambda-1)^2-3S^2(1+\Lambda)))$} & $ \Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{+f} h^\perp_1 h^\perp_1$(\blue{$=F_{8}$}) & 1 & $h_1h_1$ part of angular coefficient $A_2$. Also the part of $Z$-boson production $\sim \mathcal{P}_2$.
 \\\hline
-35 & \scalebox{0.7}{$-\frac{\tau^3\sqrt{\Lambda}}{4M^2Qq_T^2}(Q^2(1+S^2-\Lambda)+\tau^2(-1+S^2+\Lambda))$} & $ i\Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{-f} \{h^\perp_1 h^\perp_1\}_A$(\blue{$=F_{11}$}) & 1 & $h_1h_1$ part of angular coefficient $A_5$
+35 & \scalebox{0.7}{$-\frac{\tau^3\sqrt{\Lambda}}{4M^2Qq_T^2}(Q^2(1+S^2-\Lambda)+\tau^2(-1+S^2+\Lambda))$} & $ i\Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{-f} \{h^\perp_1 h^\perp_1\}_A$(\blue{$=F_{11}$}) & 1 & $h_1h_1$ part of angular coefficient $A_5$. Also the part of $Z$-boson production $\sim \mathcal{P}_5$.
 \\\hline
-36 & $-\frac{\tau^3S}{4M^2Q^2q_T}(Q^2(-1+S^2-\Lambda)+2\Lambda\tau^2)$ & $ i\Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{-f} \{h^\perp_1 h^\perp_1\}_A$(\blue{$=F_{11}$}) & 1 & $h_1h_1$ part of angular coefficient $A_6$
+36 & $-\frac{\tau^3S}{4M^2Q^2q_T}(Q^2(-1+S^2-\Lambda)+2\Lambda\tau^2)$ & $ i\Delta^{GG'} z^{GG'}_{+\ell}r^{GG'}_{-f} \{h^\perp_1 h^\perp_1\}_A$(\blue{$=F_{11}$}) & 1 & $h_1h_1$ part of angular coefficient $A_6$. Also the part of $Z$-boson production $\sim \mathcal{P}_6$.
 \\\hline
 101 & 1 & $\Ds R^{Cu}_{\bar f f'}e_f e_{f'} $ & $\mathcal{P}_0$ & Unpolarized DY on \textit{Cu}
 \\\hline

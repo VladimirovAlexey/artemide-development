@@ -7,9 +7,10 @@ integer::i,t
 
 call InitializeLeptonCutDY(0.1d-4,1.d-8)
 
-t=8
+t=-1
 
 CP=(/20.d0,20.d0,-2.1d0,2.1d0/)
+!CP=(/0.d0,0.d0,-200.1d0,200.1d0/)
 
 Q=91.d0
 y=0.1

@@ -658,3 +658,5 @@
    1.0000000000000000E-006
 *p2  : Tolerance (Integration tollerance)
    1.0000000000000000E-004
+*p3  : Minimum qT value (below the qT-value is frozen)
+   1.0000000000000000E-003

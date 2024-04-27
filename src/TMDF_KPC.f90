@@ -47,6 +47,7 @@ logical::include_BoerMuldersTMDPDF
 !! tolerances for integration and general
 real(dp)::toleranceGEN
 real(dp)::toleranceINT
+real(dp)::qTMIN
 
 !increment counters
 integer::GlobalCounter=0 !!!total counter of calls of TMD pairs
@@ -127,6 +128,8 @@ subroutine TMDF_KPC_Initialize(file,prefix)
     read(51,*) toleranceGEN
     call MoveTO(51,'*p2  ')
     read(51,*) toleranceINT
+    call MoveTO(51,'*p3  ')
+    read(51,*) qTMIN
 
     if(outputLevel>2) write(*,'(A,ES8.2)') ' | tolerance general    : ',toleranceGEN
     if(outputLevel>2) write(*,'(A,ES8.2)') ' | tolerance integral   : ',toleranceINT
@@ -255,12 +258,18 @@ end subroutine TMDF_KPC_Initialize
 !!!-----
 !!! The integral is 2D, over theta and alpha (which are complicated combinations)
 !!! First evaluate over theta (0,pi), then over alpha (0,pi/2)
-function KPC_DYconv(Q2,qT,x1,x2,mu,proc1)
-    real(dp),intent(in)::Q2,qT,x1,x2,mu
+function KPC_DYconv(Q2,qT_in,x1,x2,mu,proc1)
+    real(dp),intent(in)::Q2,qT_in,x1,x2,mu
     integer,intent(in),dimension(1:3)::proc1
     real(dp)::KPC_DYconv
 
-    real(dp)::tau2,deltaT
+    real(dp)::tau2,deltaT,qT
+
+    if(qT_in<qTMIN) then
+        qT=qTMIN
+    else
+        qT=qT_in
+    end if
 
     LocalCounter=0
 

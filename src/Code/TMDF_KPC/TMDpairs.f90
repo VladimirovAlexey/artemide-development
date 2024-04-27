@@ -48,7 +48,7 @@ SELECT CASE(process(3))
       +FAB(-5)/9d0
 
  !--------------------------------------------------------------------------------
-  CASE (2,3,4,5,20,21,22) !Delta^{GG'}z_{+l}z_{+f}f1f1
+  CASE (2,20,21,22) !Delta^{GG'}z_{+l}z_{+f}f1f1
 
      FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
      FB=uTMDPDF_inKT(x2,sqrt(k2),mu,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
@@ -58,7 +58,7 @@ SELECT CASE(process(3))
 
 
   !--------------------------------------------------------------------------------
-  CASE (6,7,23,24) !Delta^{GG'}z_{-l}z_{-f}{f1f1}_A
+  CASE (23,24) !Delta^{GG'}z_{-l}z_{-f}{f1f1}_A
      FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
      FB=uTMDPDF_inKT(x2,sqrt(k2),mu,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
      FAB=FA*FB
@@ -66,7 +66,7 @@ SELECT CASE(process(3))
     TMD_pair=XTMD_pairZmZm_A(FAB,Q2)
 
   !--------------------------------------------------------------------------------
-  CASE (8,9,10,30,31,32) !Delta^{GG'}z_{+l}r_{+f}h1h1
+  CASE (30,31,32) !Delta^{GG'}z_{+l}r_{+f}h1h1
      FA=BoerMuldersTMDPDF_inKT(x1,sqrt(k1),mu,mu**2,h1)
      FB=BoerMuldersTMDPDF_inKT(x2,sqrt(k2),mu,mu**2,-h2)!!! -h2, to myltiply quarks by anti-quarks in FAB
      FAB=FA*FB
@@ -74,7 +74,7 @@ SELECT CASE(process(3))
     TMD_pair=XTMD_pairZpRp(FAB,Q2)
 
   !--------------------------------------------------------------------------------
-  CASE (11,12,35,36) !Delta^{GG'}z_{+l}r_{-f}{h1h1}_A
+  CASE (35,36) !Delta^{GG'}z_{+l}r_{-f}{h1h1}_A
      FA=BoerMuldersTMDPDF_inKT(x1,sqrt(k1),mu,mu**2,h1)
      FB=BoerMuldersTMDPDF_inKT(x2,sqrt(k2),mu,mu**2,-h2)!!! -h2, to myltiply quarks by anti-quarks in FAB
      FAB=FA*FB

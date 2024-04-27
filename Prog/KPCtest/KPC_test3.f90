@@ -3,7 +3,7 @@ use aTMDe_control
 use TMDX_DY
 implicit none
 
-integer,parameter::NUM=40
+integer,parameter::NUM=1
 
 integer::i
 
@@ -33,11 +33,11 @@ do i=1,NUM
   !s(i)=(100.*Q(i))**2
   y(i,1:2)=(/-2.4d0,2.4d0/)
   !y(i)=-6.*(real(i)/NUM-0.5)
-  qt(i,1:2)=(/0.1d0+(i-1)*0.5,0.1d0+i*0.5/)
+  qt(i,1:2)=(/0.0d0+(i-1)*0.5,0.1d0+i*0.5/)
 
-  !proc(i,1:4)=(/1,1,1,2/)  !!KPC
-  proc(i,1:4)=(/1,1,1,3/)   !! LP
-  iC(i)=.true.
+  proc(i,1:4)=(/1,1,1,21/)  !!KPC
+  !proc(i,1:4)=(/1,1,1,3/)   !! LP
+  iC(i)=.false.
   cuts(i,1:4)=(/20.d0,15.d0,-1.5d0,1.5d0/)
 end do
 

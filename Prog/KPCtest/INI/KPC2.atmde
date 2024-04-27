@@ -338,7 +338,7 @@
 *p1  : Order of coefficient function
  N4LO
 *p2  : Utilize KPC formula (T=KPC formula, F=LP formula)
- F
+ T
 *p3  : Use resummation of pi^2-corrections in hard coefficient
  F
 *B   : ---- Numerical evaluation parameters ----
@@ -658,3 +658,5 @@
    1.0000000000000000E-006
 *p2  : Tolerance (Integration tollerance)
    1.0000000000000000E-004
+*p3  : Minimum qT value (below the value is frozen)
+   1.0000000000000000E-003

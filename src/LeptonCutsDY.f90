@@ -163,67 +163,69 @@ w=b*b-a*a
 R=b*Cosh(uu)-a
 
 SELECT CASE(Cut_Type)
-  CASE(-1)
+  CASE(-2)
   !!!! usual LP cut factor
+
   integralEtaExactUNDEFINED=-a*atan((a+b)/sqrt(w)*tanh(uu/2))/w**3.5*(2*w+(6*w-5)*(1+del2))&
-            -(w*(R**2*(11 - 6*w) - 2*w + a*R*(-5 + 6*w)) + 3*R**2*(-5 + 6*w)*(1 + del2))*b*sinh(uu)/6/(w*R)**3
+           -(w*(R**2*(11 - 6*w) - 2*w + a*R*(-5 + 6*w)) + 3*R**2*(-5 + 6*w)*(1 + del2))*b*sinh(uu)/6/(w*R)**3
+
+  CASE(-1)
+  !!!! Puu cut factor
+  integralEtaExactUNDEFINED=-a*atan((a+b)/sqrt(w)*tanh(uu/2))/w**2.5*(1+2*w)&
+            -(a*R*w - 2*w**2 + R**2*(3 + 5*w + 3*(1 + 2*w)*del2))*sinh(uu)/6/b/w**2/R**3
+
   CASE(0)
   !!!! P0 factor
-  integralEtaExactUNDEFINED=-2*a*atan((a+b)/sqrt(w)*tanh(uu/2))/w**3.5*(5+(c+w)*(2*w-5))&
-            +(5*a*c*R*w+2*c*w*w+R*R*(c*(15-11*w)-3*(5+w*(2*w-5))))*b*sinh(uu)/3/(w*R)**3
+  integralEtaExactUNDEFINED=a*atan((a+b)/sqrt(w)*tanh(uu/2))/w**2.5/2*(3-2*w)&
+            +(a*R*w - 2*w**2 + R**2*(3 - 3*c - 2*w)*del2)*sinh(uu)/4/b/R**3/w**2
 
   CASE(1)
   !!!! P1 factor
-  integralEtaExactUNDEFINED=-1._dp/del2*(&
-            a*b*b*atan((a+b)/sqrt(w)*tanh(uu/2))/w**3.5_dp*(5-4*w+2*c*(2*w-5))&
-            -(4*b**8*c**3 + 2*(-1 + c)**2*(-2 + 2*c + (a - R)*R) &
-              + b**4*(8*(-1 + c)*c*(-1 + 2*c) + a*c*(3 + 4*c)*R + (-3 + c*(3 + 8*c))*R**2) &
-              + 2*b**6*c*(-6*c**2 + 6*R**2 + c*(5 + 2*(a - 4*R)*R)) &
-              - b**2*(-1 + c)*(2 + 12*c**2 - a*R + R**2 + 2*c*(-7 + 5*(a - R)*R))&
-            )*sinh(uu)/6/b/(w*R)**3)
+
+  integralEtaExactUNDEFINED=-(2*cos(phi)-3*R*sqrt(del2))/3/b**2/R**3
 
   CASE(2)
   !!!! P2 factor
-  integralEtaExactUNDEFINED=-(2*a-3*R*del2)/3/(b*R)**2/R/del2
+  integralEtaExactUNDEFINED=-a*atan((a+b)/sqrt(w)*tanh(uu/2))/2/w**3.5*(10 + w*(-11 + 2*w) + 2*c*(-5 + 2*w))&
+            -(-30 - 90*del2 + 33*w - 2*w**2*(1 + 2*w) + 2*c*del2*R**2*(-15 + 11*w) + b**6*(30 - 33*w + 6*w**2) &
+            - 3*del2**3*(10 + w*(-11 + 2*w)) + 3*del2**2*(-3 + R**2)*(10 + w*(-11 + 2*w)) &
+            + del2*(a*R*(10 - 10*c - 11*w)*w + w*(99 - 2*w*(7 + w)) + R**2*(60 + w*(-85 + 29*w)))&
+            )*sinh(uu)/12/b/(R*w)**3/del2
 
   CASE(3)
   !!!! P3 factor
-  integralEtaExactUNDEFINED=-1._dp/del2*(&
-            a*atan((a+b)/sqrt(w)*tanh(uu/2))/w**3.5_dp*((5-4*w)*(1-del2)+2*c*(2*w-5))&
-            -(a*R*(5 + 10*c - 4*w)*w + 2*(1 + 2*c - 2*w)*w**2 &
-            + R**2*(c*(30 - 22*w) + (3 - 3*del2 + w)*(-5 + 4*w)))&
-            *sinh(uu)*b/6/(w*R)**3)
+  integralEtaExactUNDEFINED=(a*b*atan((a+b)/sqrt(w)*tanh(uu/2))/w**2.5*(2*w-3)&
+            +(a**3 - a*(1 + del2) + del2*R*(-3 + 3*c + 2*w))*sinh(uu)/2/(w*R)**2)/sqrt(del2)
+
   CASE(4)
   !!!! P4 factor
-  integralEtaExactUNDEFINED=-sin(phi)*(&
-            2*b*atan((a+b)/sqrt(w)*tanh(uu/2))/w**3.5_dp*((5-3*w)+c*(2*w-5))&
-            +(2*a**5 - 4*a**3*(1 + del2) + 2*a*(1 + del2)**2 &
-            + a*R**2*(15 + del2*(15 - 9*w) - 11*w) + del2*R*(5 - 5*c - 3*w)*w)&
-            *sinh(uu)/3/(w*R)**3/del2)
+  integralEtaExactUNDEFINED=1/2/b/R**2
+
   CASE(5)
   !!!! P5 factor
-  integralEtaExactUNDEFINED=-2*sin(phi)/3/b/R**3
+  integralEtaExactUNDEFINED=sin(phi)/sqrt(del2)*(&
+            2*del2*b*atan((a+b)/sqrt(w)*tanh(uu/2))/w**3.5_dp*(-5+3*w+c*(5-2*w))&
+            +(-2*a**5 + 4*a**3*(1 + del2) - a*(1 + del2)*(2 + 2*del2 + 15*R**2) &
+            + a*(11 + 9*del2)*R**2*w + del2*R*w*(-5 + 5*c + 3*w))&
+            *sinh(uu)/3/(w*R)**3)
 
   CASE(6)
-  !!!! P1A=P6 factor
-  integralEtaExactUNDEFINED=1._dp/del2*(&
-            a*b*atan((a+b)/sqrt(w)*tanh(uu/2))/w**2.5_dp*(3-2*w)&
-            +(a - a**3 + del2*(a + R*(3 - 3*c - 2*w)))&
-            *sinh(uu)/2/(w*R)**2)
+  !!!! P6 factor
+  integralEtaExactUNDEFINED=2*sin(phi)/3/b/R**3
   CASE(7)
   !!!! P2A=P7 factor
   integralEtaExactUNDEFINED=-1._dp/2/b/R**2
 
   CASE(8)
   !!!! P3A=P8 factor
-  integralEtaExactUNDEFINED=sin(phi)/sqrt(del2)*(&
-            2*atan((a+b)/sqrt(w)*tanh(uu/2))/w**2.5_dp*(3-2*w+3*del2)&
-            +(3*a*R+w)*b*sinh(uu)/(w*R)**2)
+  integralEtaExactUNDEFINED=sin(phi)*(&
+            atan((a+b)/sqrt(w)*tanh(uu/2))/w**2.5_dp*(3-2*w+3*del2)&
+            +(3*a*R+w)*b*sinh(uu)/2/(w*R)**2)
 
   CASE DEFAULT
-  !!!! P0 factor
-  integralEtaExactUNDEFINED=-2*a*atan((a+b)/sqrt(w)*tanh(uu/2))/w**3.5*(5+(c+w)*(2*w-5))&
-            +(5*a*c*R*w+2*c*w*w+R*R*(c*(15-11*w)-3*(5+w*(2*w-5))))*b*sinh(uu)/3/(w*R)**3
+  !!!! Puu factor
+  integralEtaExactUNDEFINED=-a*atan((a+b)/sqrt(w)*tanh(uu/2))/w**2.5*(1+2*w)&
+            -(a*R*w - 2*w**2 + R**2*(3 + 5*w + 3*(1 + 2*w)*del2))*sinh(uu)/6/b/w**2/R**3
 END SELECT
 
 

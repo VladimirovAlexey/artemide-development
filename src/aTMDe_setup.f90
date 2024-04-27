@@ -168,9 +168,9 @@ logical::include_TMDF
 real(dp)::TMDF_OGATAh,TMDF_tolerance,TMDF_qTMIN
 real(dp)::TMDF_mass
 
-!-------------------- TMDF-KPC-Dy parameters
+!-------------------- TMDF-KPC-DY parameters
 logical::include_TMDF_KPC
-real(dp)::TMDF_KPC_toleranceGEN,TMDF_KPC_toleranceINT
+real(dp)::TMDF_KPC_toleranceGEN,TMDF_KPC_toleranceINT,TMDF_KPC_qTMIN
 
 !-------------------- TMDX-DY parameters
 logical::include_TMDX_DY
@@ -542,6 +542,7 @@ subroutine SetupDefault(order)
     include_TMDF_KPC=.true.
     TMDF_KPC_toleranceGEN=0.000001d0  !tolerance general (i.e. comparison etc)
     TMDF_KPC_toleranceINT=0.0001d0    !tolerance integration (i.e. relative integration tolerance)
+    TMDF_KPC_qTMIN=0.001d0            !minimal value of qT (below the value is frozen)
 
 end subroutine SetupDefault
 
@@ -1311,6 +1312,8 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDF_KPC_toleranceGEN
     write(51,"('*p2  : Tolerance integral (Integration tollerance)')")
     write(51,*) TMDF_KPC_toleranceINT
+    write(51,"('*p3  : Minimum qT value (below the qT-value is frozen)')")
+    write(51,*) TMDF_KPC_qTMIN
 
     CLOSE (51, STATUS='KEEP')
     if(outputLevel>1) write(*,*) 'aTMDe_setup: Constans file is made.'
@@ -2014,6 +2017,8 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) TMDF_KPC_toleranceGEN
     call MoveTO(51,'*p2  ')
     read(51,*) TMDF_KPC_toleranceINT
+    call MoveTO(51,'*p3  ')
+    read(51,*) TMDF_KPC_qTMIN
 
     CLOSE (51, STATUS='KEEP') 
 
