@@ -160,7 +160,12 @@ real(dp)::BoerMuldersTMDPDF_BMAX_ABS
 real(dp)::BoerMuldersTMDPDF_toleranceINT
 real(dp)::BoerMuldersTMDPDF_toleranceGEN
 integer::BoerMuldersTMDPDF_maxIteration
-real(dp)::BoerMuldersTMDPDF_hOGATA,BoerMuldersTMDPDF_toleranceOGATA,BoerMuldersTMDPDF_KT_FREEZE
+logical::BoerMuldersTMDPDF_makeGrid_inKT,BoerMuldersTMDPDF_runGridTest_inKT
+integer::BoerMuldersTMDPDF_numSubGridsX_inKT,BoerMuldersTMDPDF_numSubGridsKT_inKT,BoerMuldersTMDPDF_numSubGridsB_inKT
+real(dp),allocatable::BoerMuldersTMDPDF_subGridsX_inKT(:),BoerMuldersTMDPDF_subGridsB_inKT(:),BoerMuldersTMDPDF_subGridsKT_inKT(:)
+integer::BoerMuldersTMDPDF_grid_SizeX_inKT,BoerMuldersTMDPDF_grid_SizeB_inKT,BoerMuldersTMDPDF_grid_SizeKT_inKT
+real(dp)::BoerMuldersTMDPDF_minQ_inKT,BoerMuldersTMDPDF_maxQ_inKT
+integer::BoerMuldersTMDPDF_grid_SizeQ_inKT
 real(dp)::BoerMuldersTMDPDF_hOGATA_TMM,BoerMuldersTMDPDF_toleranceOGATA_TMM,BoerMuldersTMDPDF_muMIN_TMM
 
 !-------------------- TMDF parameters
@@ -495,9 +500,23 @@ subroutine SetupDefault(order)
     BoerMuldersTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     BoerMuldersTMDPDF_toleranceGEN=1.d-6!general tolerance
     BoerMuldersTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
-    BoerMuldersTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
-    BoerMuldersTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
-    BoerMuldersTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
+    BoerMuldersTMDPDF_makeGrid_inKT=.false.
+    BoerMuldersTMDPDF_runGridTest_inKT=.false.
+    BoerMuldersTMDPDF_numSubGridsX_inKT=4
+    allocate(BoerMuldersTMDPDF_subGridsX_inKT(0:BoerMuldersTMDPDF_numSubGridsX_inKT))
+    BoerMuldersTMDPDF_subGridsX_inKT=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
+    BoerMuldersTMDPDF_grid_SizeX_inKT=16
+    BoerMuldersTMDPDF_numSubGridsKT_inKT=5
+    allocate(BoerMuldersTMDPDF_subGridsKT_inKT(0:BoerMuldersTMDPDF_numSubGridsKT_inKT))
+    BoerMuldersTMDPDF_subGridsKT_inKT=(/0.01d0,1.d0,5.d0,15.d0,50.d0,200.d0/)
+    BoerMuldersTMDPDF_grid_SizeKT_inKT=16
+    BoerMuldersTMDPDF_minQ_inKT=1.d0
+    BoerMuldersTMDPDF_maxQ_inKT=200.d0
+    BoerMuldersTMDPDF_grid_SizeQ_inKT=40
+    BoerMuldersTMDPDF_numSubGridsB_inKT=5
+    allocate(BoerMuldersTMDPDF_subGridsB_inKT(0:BoerMuldersTMDPDF_numSubGridsB_inKT))
+    BoerMuldersTMDPDF_subGridsB_inKT=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
+    BoerMuldersTMDPDF_grid_SizeB_inKT=16
     BoerMuldersTMDPDF_toleranceOGATA_TMM=1.d-4    !!! OGATA tolerance (for TMM)
     BoerMuldersTMDPDF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
     BoerMuldersTMDPDF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
@@ -847,7 +866,7 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p2  : run the test of the grid (takes some time)')")
     write(51,*) uTMDPDF_runGridTest_inKT
     write(51,"('*p3  : Number of subgrids in X (required to read the next line)')")
-    write(51,*) uTMDPDF_numSubGridsX
+    write(51,*) uTMDPDF_numSubGridsX_inKT
     write(51,"('*p4  : Intervals for subgrids in X (must include 1., as the last point)')")
     write(51,*) uTMDPDF_subGridsX_inKT
     write(51,"('*p5  : Number of nodes in the X-subgrid')")
@@ -865,7 +884,7 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p11 : Number of nodes in the Q-grid')")
     write(51,*) uTMDPDF_grid_SizeQ_inKT
     write(51,"('*p12  : Number of subgrids in B (required to read the next line)')")
-    write(51,*) uTMDPDF_numSubGridsB
+    write(51,*) uTMDPDF_numSubGridsB_inKT
     write(51,"('*p13  : Intervals for subgrids in B (below and above ultimate points the value is frozen)')")
     write(51,*) uTMDPDF_subGridsB_inKT
     write(51,"('*p14  : Number of nodes in the B-subgrid')")
@@ -1280,13 +1299,35 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"(' ')")
     write(51,"('*E   : ---- (OPE) Parameters of grid ----')")
     write(51,"(' ')")
-    write(51,"('*F   : ---- Transformation to KT-space ----')")
-    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
-    write(51,*) BoerMuldersTMDPDF_toleranceOGATA
-    write(51,"('*p2  : Ogata quadrature integration step')")
-    write(51,*) BoerMuldersTMDPDF_hOGATA
-    write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
-    write(51,*) BoerMuldersTMDPDF_KT_FREEZE
+    write(51,"('*F   : ---- Transform and grid in KT-space ----')")
+    write(51,"('*p1  : Prepare grid')")
+    write(51,*) BoerMuldersTMDPDF_makeGrid_inKT
+    write(51,"('*p2  : run the test of the grid (takes some time)')")
+    write(51,*) BoerMuldersTMDPDF_runGridTest_inKT
+    write(51,"('*p3  : Number of subgrids in X (required to read the next line)')")
+    write(51,*) BoerMuldersTMDPDF_numSubGridsX_inKT
+    write(51,"('*p4  : Intervals for subgrids in X (must include 1., as the last point)')")
+    write(51,*) BoerMuldersTMDPDF_subGridsX_inKT
+    write(51,"('*p5  : Number of nodes in the X-subgrid')")
+    write(51,*) BoerMuldersTMDPDF_grid_SizeX_inKT
+    write(51,"('*p6  : Number of subgrids in K (required to read the next line)')")
+    write(51,*) BoerMuldersTMDPDF_numSubGridsKT_inKT
+    write(51,"('*p7  : Intervals for subgrids in KT (below and above ultimate points the value is frozen)')")
+    write(51,*) BoerMuldersTMDPDF_subGridsKT_inKT
+    write(51,"('*p8  : Number of nodes in the KT-subgrid')")
+    write(51,*) BoerMuldersTMDPDF_grid_SizeKT_inKT
+    write(51,"('*p9  : Minimal Q in the grid')")
+    write(51,*) BoerMuldersTMDPDF_minQ_inKT
+    write(51,"('*p10 : Maximal Q in the grid')")
+    write(51,*) BoerMuldersTMDPDF_maxQ_inKT
+    write(51,"('*p11 : Number of nodes in the Q-grid')")
+    write(51,*) BoerMuldersTMDPDF_grid_SizeQ_inKT
+    write(51,"('*p12  : Number of subgrids in B (required to read the next line)')")
+    write(51,*) BoerMuldersTMDPDF_numSubGridsB_inKT
+    write(51,"('*p13  : Intervals for subgrids in B (below and above ultimate points the value is frozen)')")
+    write(51,*) BoerMuldersTMDPDF_subGridsB_inKT
+    write(51,"('*p14  : Number of nodes in the B-subgrid')")
+    write(51,*) BoerMuldersTMDPDF_grid_SizeB_inKT
     write(51,"(' ')")
     write(51,"('*G   : ---- Computation of Transverse Momentum Moments (TMM) ----')")
     write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
@@ -1997,6 +2038,41 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) BoerMuldersTMDPDF_toleranceGEN
     call MoveTO(51,'*p3  ')
     read(51,*) BoerMuldersTMDPDF_maxIteration
+    call MoveTO(51,'*F   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) BoerMuldersTMDPDF_makeGrid_inKT
+    call MoveTO(51,'*p2  ')
+    read(51,*) BoerMuldersTMDPDF_runGridTest_inKT
+    call MoveTO(51,'*p3  ')
+    read(51,*) BoerMuldersTMDPDF_numSubGridsX_inKT
+    deallocate(BoerMuldersTMDPDF_subGridsX_inKT)
+    allocate(BoerMuldersTMDPDF_subGridsX_inKT(0:BoerMuldersTMDPDF_numSubGridsX_inKT))
+    call MoveTO(51,'*p4  ')
+    read(51,*) BoerMuldersTMDPDF_subGridsX_inKT
+    call MoveTO(51,'*p5  ')
+    read(51,*) BoerMuldersTMDPDF_grid_SizeX_inKT
+    call MoveTO(51,'*p6  ')
+    read(51,*) BoerMuldersTMDPDF_numSubGridsKT_inKT
+    deallocate(BoerMuldersTMDPDF_subGridsKT_inKT)
+    allocate(BoerMuldersTMDPDF_subGridsKT_inKT(0:BoerMuldersTMDPDF_numSubGridsKT_inKT))
+    call MoveTO(51,'*p7  ')
+    read(51,*) BoerMuldersTMDPDF_subGridsKT_inKT
+    call MoveTO(51,'*p8  ')
+    read(51,*) BoerMuldersTMDPDF_grid_SizeKT_inKT
+    call MoveTO(51,'*p9  ')
+    read(51,*) BoerMuldersTMDPDF_minQ_inKT
+    call MoveTO(51,'*p10 ')
+    read(51,*) BoerMuldersTMDPDF_maxQ_inKT
+    call MoveTO(51,'*p11 ')
+    read(51,*) BoerMuldersTMDPDF_grid_SizeQ_inKT
+    call MoveTO(51,'*p12 ')
+    read(51,*) BoerMuldersTMDPDF_numSubGridsB_inKT
+    deallocate(BoerMuldersTMDPDF_subGridsB_inKT)
+    allocate(BoerMuldersTMDPDF_subGridsB_inKT(0:BoerMuldersTMDPDF_numSubGridsB_inKT))
+    call MoveTO(51,'*p13 ')
+    read(51,*) BoerMuldersTMDPDF_subGridsB_inKT
+    call MoveTO(51,'*p14 ')
+    read(51,*) BoerMuldersTMDPDF_grid_SizeB_inKT
     call MoveTO(51,'*G   ')
     call MoveTO(51,'*p1  ')
     read(51,*) BoerMuldersTMDPDF_toleranceOGATA_TMM

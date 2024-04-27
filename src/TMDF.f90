@@ -495,6 +495,18 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     FB=lpTMDPDF_inB(x2,b,mu,zeta2,h2)
     Integrand=FA(0)*FB(0)
 
+!--------------------------------------------------------------------------------
+  CASE(24) !h1+h2 -> A4
+    if(zeta1==zeta2) then
+      FAB=uPDF_uPDF(x1,x2,b,mu,zeta1,h1,h2)
+    else
+     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+     FB=uTMDPDF_inB(x2,b,mu,zeta2,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
+
+     FAB=FA*FB
+    end if
+    Integrand=-2*XTMD_pairZmZm_A(FAB,Q2)
+
 !--------------------------------------------------------------------------------  
   CASE (101) !h1+Cu->gamma* !!this is for E288
     !!!! strictly hadron 1
@@ -1596,5 +1608,40 @@ function XIntegrandForDYwithZgamma_GTU(FAB,Q2)
      
 end function XIntegrandForDYwithZgamma_GTU
 
+!!! Combination Delta^{GG'} z_{-l}z_{-f} {FF}_A
+function XTMD_pairZmZm_A(FAB,Q2)
+     real(dp)::XTMD_pairZmZm_A
+     real(dp),intent(in)::Q2
+    !!cross-seciton parameters
+     real(dp),dimension(-5:5),intent(in):: FAB
+
+     XTMD_pairZmZm_A=&  !zM_gg =0
+     zM_gZ_L*(& !gamma-Z interference
+      zM_gZ_U*FAB(2)&
+      +zM_gZ_D*FAB(1)&
+      +zM_gZ_S*FAB(3)&
+      +zM_gZ_C*FAB(4)&
+      +zM_gZ_B*FAB(5)&
+      -zM_gZ_U*FAB(-2)&
+      -zM_gZ_D*FAB(-1)&
+      -zM_gZ_S*FAB(-3)&
+      -zM_gZ_C*FAB(-4)&
+      -zM_gZ_B*FAB(-5))*&
+      2d0*Q2*(Q2-MZ2)/((Q2-MZ2)**2+GammaZ2*MZ2)&
+     +&!ZZ-contributions
+       zM_ZZ_L*(&
+       zM_ZZ_U*FAB(2)&
+      +zM_ZZ_D*FAB(1)&
+      +zM_ZZ_S*FAB(3)&
+      +zM_ZZ_C*FAB(4)&
+      +zM_ZZ_B*FAB(5)&
+      -zM_ZZ_U*FAB(-2)&
+      -zM_ZZ_D*FAB(-1)&
+      -zM_ZZ_S*FAB(-3)&
+      -zM_ZZ_C*FAB(-4)&
+      -zM_ZZ_B*FAB(-5))*&
+      Q2*Q2/((Q2-MZ2)**2+GammaZ2*MZ2)
+
+end function XTMD_pairZmZm_A
 
 end module TMDF

@@ -80,7 +80,6 @@ real(dp),dimension(1:hSegmentationNumber),parameter::qTSegmentationBoundary=(/0.
 
 !!!------------------------------ Parameters of transform in KT space and KT-grid ------------------------------
 logical::makeGrid_inKT,gridIsReady_inKT
-integer::numKsubgrids,kGridSize
 
 !!!------------------------------ Parameters of transform to TMM -------------------------------------------
 
@@ -218,10 +217,6 @@ subroutine uTMDPDF_Initialize(file,prefix)
     call MoveTO(51,'*F   ')
     call MoveTO(51,'*p1  ')
     read(51,*) makeGrid_inKT
-    call MoveTO(51,'*p6  ')
-    read(51,*) numKsubgrids
-    call MoveTO(51,'*p8  ')
-    read(51,*) kGridSize
 
     !!!!! ---- parameters of TMM-transformation
     call MoveTO(51,'*G   ')
@@ -377,7 +372,7 @@ function toGrid(x_in,Q_in,h_in,arraySize1,arraySize2)
     toGrid=Fourier_Levin_array(toFourier)
 end function toGrid
 
-end subroutine
+end subroutine updateGrid_inKT
 
 subroutine testGrid_inKT()
 

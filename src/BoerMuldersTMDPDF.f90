@@ -7,6 +7,14 @@
 !
 !				A.Vladimirov (29.01.2024)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+module Fourier_Levin_BMTMDPDF
+INCLUDE 'Code/KTspace/Fourier_Levin.f90'
+end module Fourier_Levin_BMTMDPDF
+
+module gridInKT_BMTMDPDF
+INCLUDE 'Code/KTspace/grid_inKT.f90'
+end module gridInKT_BMTMDPDF
+
 module BoerMuldersTMDPDF
 use aTMDe_Numerics
 use IO_functions
@@ -14,6 +22,8 @@ use QCDinput
 use TMDR
 use BoerMuldersTMDPDF_OPE
 use BoerMuldersTMDPDF_model
+use Fourier_Levin_BMTMDPDF
+use gridInKT_BMTMDPDF
 
 implicit none
 !------------------------LOCALs -----------------------------------------------
@@ -53,7 +63,6 @@ real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
 !!!------------------------------ Parameters of transform to KT-space -------------------------------------------
 
 integer,parameter::TMDtypeN=1 !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD)
-real(dp)::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value
 
 !----Ogata Tables---
 integer,parameter::Nmax=1000
@@ -66,11 +75,9 @@ integer,parameter::hSegmentationNumber=7
 real(dp),dimension(1:hSegmentationNumber),parameter::hSegmentationWeight=(/0.0001d0,0.001d0,0.01d0,1d0,2d0,5d0,10d0/)
 real(dp),dimension(1:hSegmentationNumber),parameter::qTSegmentationBoundary=(/0.001d0,0.01d0,0.1d0,10d0,50d0,100d0,200d0/)
 
-real(dp)::hOGATA,toleranceOGATA
-!!!weights of ogata quadrature
-real(dp),dimension(1:hSegmentationNumber,1:Nmax)::ww
-!!!nodes of ogata quadrature
-real(dp),dimension(1:hSegmentationNumber,1:Nmax)::bb
+!!!------------------------------ Parameters of transform in KT space and KT-grid ------------------------------
+logical::makeGrid_inKT,gridIsReady_inKT
+integer::numKsubgrids,kGridSize
 
 !!!------------------------------ Parameters of transform to TMM -------------------------------------------
 
@@ -98,12 +105,12 @@ interface BoerMuldersTMDPDF_inB
 end interface
 
 interface BoerMuldersTMDPDF_inKT
-    module procedure Fourier_opt,Fourier_ev
+    module procedure TMD_opt_inKT,TMD_ev_inKT, TMD_grid_inKT
 end interface
 
 contains
 
-INCLUDE 'Code/KTspace/Fourier.f90'
+!INCLUDE 'Code/KTspace/Fourier.f90'
 INCLUDE 'Code/KTspace/Moment.f90'
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Interface subroutines!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -204,14 +211,14 @@ subroutine BoerMuldersTMDPDF_Initialize(file,prefix)
     call MoveTO(51,'*p2  ')
     read(51,*) toleranceGEN
 
-    !!!!! ---- parameters of KT-transformation
+    !!!!! ---- parameters kT-transform and grid
     call MoveTO(51,'*F   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) toleranceOGATA
-    call MoveTO(51,'*p2  ')
-    read(51,*) hOGATA
-    call MoveTO(51,'*p3  ')
-    read(51,*) kT_FREEZE
+    read(51,*) makeGrid_inKT
+    call MoveTO(51,'*p6  ')
+    read(51,*) numKsubgrids
+    call MoveTO(51,'*p8  ')
+    read(51,*) kGridSize
 
     !!!!! ---- parameters of TMM-transformation
     call MoveTO(51,'*G   ')
@@ -232,7 +239,15 @@ subroutine BoerMuldersTMDPDF_Initialize(file,prefix)
 
     allocate(lambdaNP(1:lambdaNPlength))
 
-    call PrepareTables()
+    call Initialize_Fourier_Levin(path,'*14  ','*F   ',moduleName,outputLevel)
+    if(makeGrid_inKT) then
+        write(*,*) "GRID FOR BM is COMPUTED with J0"
+        stop
+        call Initialize_GridInKT(path,'*14  ','*F   ',numOfHadrons,includeGluon,moduleName,outputLevel)
+    end if
+
+    gridIsReady_inKT=.false.
+
     call PrepareTablesTMM()
 
     if(.not.TMDR_IsInitialized()) then
@@ -261,6 +276,7 @@ subroutine BoerMuldersTMDPDF_Initialize(file,prefix)
 
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.BoerMuldersTMDPDF '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) ' '
+!!!   The grid in KT can be done only after some non-perturbative values are inset
 end subroutine BoerMuldersTMDPDF_Initialize
 
 !!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
@@ -296,9 +312,14 @@ subroutine BoerMuldersTMDPDF_SetLambdaNP(lambdaIN)
 
     lambdaNP=lambdaIN
     call ModelUpdate(lambdaNP)
+    gridIsReady_inKT=.false.
 
     if(outputLevel>2) write(*,*) 'arTeMiDe.',moduleName,': NPparameters reset = (',lambdaNP,')'
-    call ModelUpdate(lambdaNP)
+
+    if(makeGrid_inKT) then
+        call updateGrid_inKT()
+        gridIsReady_inKT=.true.
+    end if
 end subroutine BoerMuldersTMDPDF_SetLambdaNP
 
 !!! returns current value of NP parameters
@@ -306,6 +327,64 @@ function BoerMuldersTMDPDF_CurrentLambdaNP()
     real(dp),dimension(1:lambdaNPlength)::BoerMuldersTMDPDF_CurrentLambdaNP
     BoerMuldersTMDPDF_CurrentLambdaNP=lambdaNP
 end function BoerMuldersTMDPDF_CurrentLambdaNP
+
+!!!!! Function that constracts the grid in KT-space
+!!!!! I take the TMD and send it to Fourier, and then resend it to the grid...
+subroutine updateGrid_inKT()
+real(dp)::Q,x
+integer::h
+
+call PrepareGrid_inKT(toGrid)
+
+contains
+
+function toFourier(b)
+    real(dp),dimension(-5:5) :: toFourier
+    real(dp), intent(in) ::b
+    real(dp):: Rkernel,RkernelG
+
+    if(includeGluon) then
+    Rkernel=TMDR_Rzeta(b,Q,Q**2,1)
+    RkernelG=TMDR_Rzeta(b,Q,Q**2,0)
+
+    toFourier=BoerMuldersTMDPDF_OPE_tw3_convolution(x,b,abs(h))*FNP(x,b,abs(h),lambdaNP)*&
+        (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
+
+    else
+        Rkernel=TMDR_Rzeta(b,Q,Q**2,1)
+        toFourier=Rkernel*BoerMuldersTMDPDF_OPE_tw3_convolution(x,b,abs(h))*FNP(x,b,abs(h),lambdaNP)
+    end if
+end function toFourier
+
+function toGrid(x_in,Q_in,h_in,arraySize1,arraySize2)
+    integer,intent(in)::arraySize1,arraySize2
+    real(dp),dimension(1:arraySize1,0:arraySize2,-5:5) :: toGrid
+    real(dp), intent(in) ::x_in,Q_in
+    integer,intent(in)::h_in
+
+    x=x_in
+    Q=Q_in
+    h=h_in
+
+    toGrid=Fourier_Levin_array(toFourier)
+end function toGrid
+
+end subroutine updateGrid_inKT
+
+! subroutine testGrid_inKT()
+!
+! call TestGrid_inKT_internal(ToCompare)
+!
+! contains
+!
+! function ToCompare(x,kT,Q,h)
+! real(dp),dimension(-5:5)::ToCompare
+! real(dp),intent(in)::x,kT,Q
+! integer,intent(in)::h
+! ToCompare=TMD_ev_inKT(x,kT,Q,Q**2,h)
+! end function ToCompare
+!
+! end subroutine testGrid_inKT
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
@@ -373,6 +452,113 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
     end if
 
 end function TMD_ev
+
+!!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
+
+!!!!!!! the function that actually returns the uTMDPDF optimal value
+function TMD_opt_inKT(x,kT,hadron)
+  real(dp),dimension(-5:5)::TMD_opt_inKT
+  real(dp),intent(in) :: x, kT
+  integer,intent(in)::hadron
+
+  !!! test boundaries
+    if(x>1d0) then
+        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
+        TMD_opt_inKT=0._dp
+        return
+     else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
+        TMD_opt_inKT=0._dp
+        return
+    else if(x<1d-12) then
+        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
+        stop
+    else if(kT<0d0) then
+        write(*,*) ErrorString('Called kT<0. kT='//numToStr(kT)//' . Evaluation STOP',moduleName)
+        stop
+    end if
+
+    TMD_opt_inKT=Fourier_Levin(toFourier,kT)
+
+    if(hadron<0) TMD_opt_inKT=TMD_opt_inKT(5:-5:-1)
+
+    contains
+
+    function toFourier(b)
+        real(dp),dimension(-5:5) :: toFourier
+        real(dp), intent(in) ::b
+        toFourier=BoerMuldersTMDPDF_OPE_tw3_convolution(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)
+    end function toFourier
+
+end function TMD_opt_inKT
+!
+!!!!!!!! the function that actually returns the uTMDPDF evolved to (mu,zeta) value
+function TMD_ev_inKT(x,kT,muf,zetaf,hadron)
+    real(dp)::TMD_ev_inKT(-5:5)
+    real(dp),intent(in):: x,kT,muf,zetaf
+    integer,intent(in)::hadron
+    real(dp):: Rkernel,RkernelG
+
+    TMD_ev_inKT=Fourier_Levin(toFourier,kT)
+
+    if(hadron<0) TMD_ev_inKT=TMD_ev_inKT(5:-5:-1)
+
+    !!! forcefully set =0 below threshold
+    if(muf<mBOTTOM) then
+    TMD_ev_inKT(5)=0_dp
+    TMD_ev_inKT(-5)=0_dp
+    end if
+    if(muf<mCHARM) then
+    TMD_ev_inKT(4)=0_dp
+    TMD_ev_inKT(-4)=0_dp
+    end if
+
+contains
+
+function toFourier(b)
+    real(dp),dimension(-5:5) :: toFourier
+    real(dp), intent(in) ::b
+
+    if(includeGluon) then
+    Rkernel=TMDR_Rzeta(b,muf,zetaf,1)
+    RkernelG=TMDR_Rzeta(b,muf,zetaf,0)
+
+    toFourier=BoerMuldersTMDPDF_OPE_tw3_convolution(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)*&
+        (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
+
+    else
+        Rkernel=TMDR_Rzeta(b,muf,zetaf,1)
+        toFourier=Rkernel*BoerMuldersTMDPDF_OPE_tw3_convolution(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)
+    end if
+end function toFourier
+
+end function TMD_ev_inKT
+
+
+!!!!!!!! the function that actually returns the uTMDPDF evolved to (mu,mu^2) value
+!!!!!!! This is exactly what is stored in the grid. So if grid is buid attempt to extract from it.
+function TMD_grid_inKT(x,kT,mu,hadron)
+    real(dp)::TMD_grid_inKT(-5:5)
+    real(dp),intent(in):: x,kT,mu
+    integer,intent(in)::hadron
+
+    if(gridIsReady_inKT) then
+!         if(ISNAN(kT)) then
+!             write(*,*) "HERE",kT,x,mu
+!             stop
+!         end if
+
+        TMD_grid_inKT=ExtractFromGrid_inKT(x,kT,mu,abs(hadron))
+
+        if(hadron<0) TMD_grid_inKT=TMD_grid_inKT(5:-5:-1)
+
+    else if(makeGrid_inKT) then
+        write(*,*) ErrorString("Attempt to extract TMD from grid, while grid is not ready. CHECK!",moduleName)
+        stop
+    else
+        TMD_grid_inKT=TMD_ev_inKT(x,kT,mu,mu**2,hadron)
+    end if
+
+end function TMD_grid_inKT
 
 !!!!!!!! TMM G_{n,n} at (x,mu)
 function BoerMuldersTMDPDF_TMM_G(x,mu,hadron)
