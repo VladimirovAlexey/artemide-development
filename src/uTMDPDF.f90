@@ -238,7 +238,7 @@ subroutine uTMDPDF_Initialize(file,prefix)
 
     allocate(lambdaNP(1:lambdaNPlength))
 
-    call Initialize_Fourier_Levin(path,'*4   ','*F   ',moduleName,outputLevel)
+    call Initialize_Fourier_Levin(path,'*4   ','*F   ',moduleName,outputLevel,TMDtypeN)
     if(makeGrid_inKT) then
         call Initialize_GridInKT(path,'*4   ','*F   ',numOfHadrons,includeGluon,moduleName,outputLevel)
     end if

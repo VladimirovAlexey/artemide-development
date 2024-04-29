@@ -68,25 +68,17 @@ function FNP(x,bT,hadron,lambdaNP)
     real(dp),intent(in)::lambdaNP(:)
 
     real(dp)::bProfile
-    real(dp)::FNPu,FNPd,FNPs,FNPsea,Normu,Normd,Normsea,YY
+    real(dp)::FNPq,FNPqBar,NormQ
 
     !!! profile in b is common for all (5 parameters)    
-    YY=(lambdaNP(1)+x*lambdaNP(2))*(bT**2)/sqrt(1d0+Abs(lambdaNP(3))*x**2*bT**2)
-    bProfile=exp(-YY)
-    !bProfile=1d0/cosh((lambdaNP(1)+x**2*lambdaNP(2))*bT)
+    bProfile=1.d0/cosh(lambdaNP(1)*bT)
     
     !!! u-quark(3 parameters)
-    Normu=(3d0+lambdaNP(7)+lambdaNP(8)*(1+lambdaNP(7)))/((lambdaNP(7)+1d0)*(lambdaNP(7)+2d0)*(lambdaNP(7)+3d0))    
-    FNPu=lambdaNP(6)*(1-x)*x**lambdaNP(7)*(1+lambdaNP(8)*x)/Normu
-    !!! d-quark(3 parameters)
-    Normd=(3d0+lambdaNP(10)+lambdaNP(11)*(1+lambdaNP(10)))/((lambdaNP(10)+1d0)*(lambdaNP(10)+2d0)*(lambdaNP(10)+3d0))    
-    FNPd=lambdaNP(9)*(1-x)*x**lambdaNP(10)*(1+lambdaNP(11)*x)/Normd
-    !!! sea-quark(3 parameters)
-    Normsea=1d0/((lambdaNP(13)+1d0)*(lambdaNP(13)+2d0))    
-    FNPs=lambdaNP(12)*(1-x)*x**lambdaNP(13)/Normsea
-    FNPsea=lambdaNP(14)*(1-x)*x**lambdaNP(13)/Normsea
+    NormQ=2d0/(lambdaNP(2)+1)/(lambdaNP(2)+2)/(lambdaNP(2)+3)
+    FNPq=lambdaNP(3)*(1-x)**2*x**lambdaNP(2)/NormQ
+    FNPqBar=lambdaNP(4)*(1-x)**2*x**lambdaNP(2)/NormQ
     
-    FNP=bProfile*(/0d0,0d0,FNPsea,FNPsea,FNPsea,0d0,FNPd,FNPu,FNPs,0d0,0d0/)
+    FNP=bProfile*(/0d0,0d0,0d0,FNPqBar,FNPqBar,0d0,FNPq,FNPq,0d0,0d0,0d0/)
 
 end function FNP
   

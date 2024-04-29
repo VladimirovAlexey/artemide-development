@@ -32,6 +32,9 @@ character(len=7),parameter :: moduleName="Fourier"
 character(len=11):: parentModuleName
 integer::outputLevel
 
+!!!! General parameters
+real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
+integer::TMDtypeN !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD)
 
 !!!!---------- Variables about the grid in b-space
 !!!! bValues is the list of b-values from all subgrids, collected in the single list
@@ -95,10 +98,16 @@ contains
 
 
 !!!!!! Initialization of parameters from the const-file
-subroutine Initialize_Fourier_Levin(path,moduleLine,gridLine,name,outLevel)
+!!! path: path to INI-file
+!!! moduleLine: "*12  " the line for the module input
+!!! gridLine: "*F  " the line for the KT-grid input within the module section
+!!! name: name of the parent module (for messages)
+!!! outLevel: output Level (for messages)
+!!! TMDt: is the type of KT-trnasform for TMD (n=0, b J_0;  n=1 b^2 J_1)
+subroutine Initialize_Fourier_Levin(path,moduleLine,gridLine,name,outLevel,TMDt)
 character(len=*)::path
 character(len=5),intent(in)::moduleLine,gridLine
-integer,intent(in)::outLevel
+integer,intent(in)::outLevel,TMDt
 character(*),intent(in)::name
 
 
@@ -108,8 +117,15 @@ integer::i,j,k
 parentModuleName=name
 outputLevel=outLevel
 
+TMDtypeN=TMDt
+
 !!!! read input about b and kT-spaces
 OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
+    !------------- General parameters
+    call MoveTO(51,'*0   ')
+    call MoveTO(51,'*B   ')
+    call MoveTO(51,'*p2  ')
+    read(51,*) TMDmass
     !-------------Parameters of grid in kT
     call MoveTO(51,moduleLine)
     call MoveTO(51,gridLine)
@@ -219,23 +235,40 @@ BfromNode=exp(bIntervals(n)*bNodes(k)+bMeans(n))
 end function BfromNode
 
 !!!!! This subroutine creates the transformation matrix from b to kT space
-!!!!!! the transformation is kT^2\int_0^\infty db/(2pi) b J_0(b kT) F(b)
+!!!!! the transformation is
+!!!!! for TMDtypeN=0:  kT^2\int_0^\infty db/(2pi) J_0(b kT) [b F(b)]
+!!!!! for TMDtypeN=1:  kT^2 M^2/kT\int_0^\infty db/(2pi) J_1(b kT) [b^2 F(b)]
 !!!!! It works over the grid
 subroutine PrepareTransformationMatrix()
 integer::i,j
 
-!!!!! actually computation of the arrays for Fourier transform
-do i=1,numKsubgrids
-do j=0,kGridSize
-    TranformationArray(i,j,:)=FourierArrayAtQ(KfromNode(i,j))/pix2*KfromNode(i,j)**2
-end do
-end do
+    !!!!! actually computation of the arrays for Fourier transform
+SELECT CASE(TMDtypeN)
+    CASE(0) !!!! uTMDPDF, and similar
+        do i=1,numKsubgrids
+        do j=0,kGridSize
+            TranformationArray(i,j,:)=FourierArrayAtQ(KfromNode(i,j))/pix2*KfromNode(i,j)**2
+        end do
+        end do
+    CASE(1) !!!! SiversTMDPDF, and similar
+        do i=1,numKsubgrids
+        do j=0,kGridSize
+            TranformationArray(i,j,:)=FourierArrayAtQ(KfromNode(i,j))/pix2*(TMDMass**2)*KfromNode(i,j)
+        end do
+        end do
+    CASE DEFAULT
+        write(*,*) ErrorString("Fourier_Levin: Unknown TMDtype. Presently impleneted only types 0,1",parentModuleName)
+        stop
+
+END SELECT
 
 end subroutine PrepareTransformationMatrix
 
 !!!!!! make the Fourier of the function F with the interface (-5:5)
 !!!!!! at the point kT (in GeV)
-!!!!!! the transformation is \int_0^\infty db/(2pi) b J_0(b q) F(b)
+!!!!!! the transformation is
+!!!!!! for TMDtypeN=0:  \int_0^\infty db/(2pi) b J_0(b q) F(b)
+!!!!!! for TMDtypeN=1:  M^2/kT\int_0^\infty db/(2pi) b^2 J_1(b q) F(b)
 function Fourier_Levin(F,kT)
 real(dp),intent(in)::kT
 real(dp),dimension(-5:5)::Fourier_Levin
@@ -245,17 +278,33 @@ real(dp),dimension(1:lengthOfbValues)::Levin_Array
 
 Levin_Array=FourierArrayAtQ(kT)
 
-Fourier_Levin=0._dp
-do i=1,lengthOfbValues
-Fourier_Levin=Fourier_Levin+Levin_Array(i)*F(bValues(i))*bValues(i)
-end do
-Fourier_Levin=Fourier_Levin/pix2
+SELECT CASE(TMDtypeN)
+    CASE(0) !!! uTMDPDF, and similar
+        Fourier_Levin=0._dp
+        do i=1,lengthOfbValues
+        Fourier_Levin=Fourier_Levin+Levin_Array(i)*F(bValues(i))*bValues(i)
+        end do
+        Fourier_Levin=Fourier_Levin/pix2
+
+    CASE(1) !!! SiversTMDPDF, and similar
+        Fourier_Levin=0._dp
+        do i=1,lengthOfbValues
+        Fourier_Levin=Fourier_Levin+Levin_Array(i)*F(bValues(i))*bValues(i)*bValues(i)
+        end do
+        Fourier_Levin=Fourier_Levin/pix2*TMDMass*TMDMass/kT
+    CASE DEFAULT
+        write(*,*) ErrorString("Fourier_Levin: Unknown TMDtype. Presently impleneted only types 0,1",parentModuleName)
+        stop
+
+END SELECT
 
 end function Fourier_Levin
 
 !!!!!! make the Fourier of the function F with the interface (-5:5)
 !!!!!! at the modes of kT-grid. Returns the list (1:numKsubgrids, 0:kGridSize,-5:5)
-!!!!!! the transformation is kT^2\int_0^\infty db/(2pi) b J_0(b kT) F(b)
+!!!!!! the transformation is
+!!!!!! TMDtypeN=0:   kT^2\int_0^\infty db/(2pi) b J_0(b kT) F(b)
+!!!!!! TMDtypeN=1:   kT^2 M**2/kT\int_0^\infty db/(2pi) b^2 J_1(b kT) F(b)
 !!!!!! IMPORTANT THE RESULT IS MULTIPLIED by kT^2
 function Fourier_Levin_array(F2)
 real(dp),dimension(1:numKsubgrids, 0:kGridSize,-5:5)::Fourier_Levin_array
@@ -264,20 +313,19 @@ integer::i,j,ff
 real(dp),dimension(1:lengthOfbValues,-5:5)::Function_Array
 
 !!!! request array
-do i=1,lengthOfbValues
-Function_Array(i,:)=F2(bValues(i))*bValues(i)
-end do
+if(TMDtypeN==0) then
+    do i=1,lengthOfbValues
+    Function_Array(i,:)=F2(bValues(i))*bValues(i)
+    end do
+else if(TMDtypeN==1) then
+    do i=1,lengthOfbValues
+    Function_Array(i,:)=F2(bValues(i))*bValues(i)*bValues(i)
+    end do
+!!!!!
+end if
 
-
-! write(*,*) "-------- kT values"
-! do i=1,numKsubgrids
-! do j=0,kGridSize
-! write(*,'(F8.4,",")',advance="no") KfromNode(i,j)
-! end do
-! end do
-! write(*,*)
-
-!!!!! factor kT^2/2pi is taken into account in the TranformationArray
+!!!!! TMDtypeN=0: factor kT^2/2pi is taken into account in the TranformationArray
+!!!!! TMDtypeN=1: factor kT^2/2pi M^2/kT is taken into account in the TranformationArray
 do i=1,numKsubgrids
 do j=0,kGridSize
 do ff=-5,5
@@ -289,7 +337,8 @@ end do
 end function Fourier_Levin_array
 
 !!!!! returns the array of weights, which should be multiplied by array of function at bNodes to get the Integral
-!!!!! \int_bMIN^bMAX J_0(b q) f(b) db
+!!!!! for TMDtypeN=0: \int_bMIN^bMAX J_0(b q) f(b) db
+!!!!! for TMDtypeN=1: \int_bMIN^bMAX J_1(b q) f(b) db
 !!!!! for the grids with bMAX*q<besselZERO*a, CC-quadrature is used, otherwise Levin
 !!!!! the parameter a is any reasonable number
 !!!!! --> if q is too small, the Levin matrix became unstable
@@ -307,7 +356,7 @@ real(dp)::valueTOswitch
 !!!! if (bq) is very small, the integral is not oscilating, and is better estimated by CC
 !!!! It should be compared with BesselZero.
 !!!! Empirically I found that it is better to put  as
-valueTOswitch=besselZERO(0)*bGridSize**2/128.d0
+valueTOswitch=besselZERO(TMDtypeN)*bGridSize**2/128.d0
 
 !!!! if the integral is not oscilating, one better use CC-quadrature.
 do i=1,numBsubgrids
@@ -320,7 +369,10 @@ do i=1,numBsubgrids
 end do
 
 !!!! This is the correction for the extremely small-b
-FourierArrayAtQ(bGridSize+1)=FourierArrayAtQ(bGridSize+1)+bessel_j1(bRanges(0)*q)/q
+!!!! It is needed only for type=0, because in other cases, the integral drops fast at b->0.
+if(TMDtypeN==0) then
+    FourierArrayAtQ(bGridSize+1)=FourierArrayAtQ(bGridSize+1)+bessel_j1(bRanges(0)*q)/q
+end if
 
 contains
 
@@ -449,16 +501,26 @@ invMM=inverse(MM)
 !!!!! constract the transformation array
 !!!!! NOTE: that t->1 corresponds to the lower limit, and t->-1 corresponds to the upper limit
 
-InverseLevinOperator=invMM(0,0:bGridSize)*bessel_j0(BfromNode(n,0)*q) &
-                    -invMM(bGridSize,0:bGridSize)*bessel_j0(BfromNode(n,bGridSize)*q) &
-                    +invMM(bGridSize+1,0:bGridSize)*bessel_j1(BfromNode(n,0)*q) &
-                    -invMM(NUM,0:bGridSize)*bessel_j1(BfromNode(n,bGridSize)*q)
+!!!! for type=0, I take the upper part of the matrix
+!!!! for type=1, I take the lower part of the matrix
+if(TMDtypeN==0) then
+    InverseLevinOperator=invMM(0,0:bGridSize)*bessel_j0(BfromNode(n,0)*q) &
+                        -invMM(bGridSize,0:bGridSize)*bessel_j0(BfromNode(n,bGridSize)*q) &
+                        +invMM(bGridSize+1,0:bGridSize)*bessel_j1(BfromNode(n,0)*q) &
+                        -invMM(NUM,0:bGridSize)*bessel_j1(BfromNode(n,bGridSize)*q)
+else if(TMDtypeN==1) then
+    InverseLevinOperator=invMM(0,bGridSize+1:NUM)*bessel_j0(BfromNode(n,0)*q) &
+                        -invMM(bGridSize,bGridSize+1:NUM)*bessel_j0(BfromNode(n,bGridSize)*q) &
+                        +invMM(bGridSize+1,bGridSize+1:NUM)*bessel_j1(BfromNode(n,0)*q) &
+                        -invMM(NUM,bGridSize+1:NUM)*bessel_j1(BfromNode(n,bGridSize)*q)
+!!!
+end if
 end function InverseLevinOperator
 
 
 !!!!! in some cases (very small q), the Levin-integration is not good.
 !!!!! in these caes it is convenient to use Clenshaw Curtis since it uses the same nodes
-!!!!! this function computes the cuadrature for the integral int J_0(bq)f[b] in the range n.
+!!!!! this function computes the cuadrature for the integral int J_0,1(bq)f[b] in the range n.
 function InverseCCOperator(n,q)
 real(dp),intent(in)::q
 integer,intent(in)::n
@@ -466,9 +528,16 @@ real(dp),dimension(0:bGridSize)::InverseCCOperator
 
 integer::i
 
-do i=0,bGridSize
-    InverseCCOperator(i)=bIntervals(n)*BfromNode(n,i)*bessel_j0(q*BfromNode(n,i))*CCweight(i)
-end do
+if(TMDtypeN==0) then
+    do i=0,bGridSize
+        InverseCCOperator(i)=bIntervals(n)*BfromNode(n,i)*bessel_j0(q*BfromNode(n,i))*CCweight(i)
+    end do
+else if(TMDtypeN==1) then
+    do i=0,bGridSize
+        InverseCCOperator(i)=bIntervals(n)*BfromNode(n,i)*bessel_j1(q*BfromNode(n,i))*CCweight(i)
+    end do
+!!!!!
+end if
 
 end function InverseCCOperator
 
@@ -506,10 +575,17 @@ write(*,*) " Checking some functions agains numerical integration in Mathematica
 write(*,*) " ----- at kt=0.1"
 FinQ=Fourier_Levin(ToCheck,0.1d0)
 
-fromMath=(/0.3929447215912037d0, 0.02540379739979786d0, 0.908411878110134d0, &
-0.0005968092778014869d0, 0.6460648742389542d0, 0.06437676847530796d0, &
-0.7524510443091221d0, 0.49655034487385374d0, 0.34170225292532014d0, &
--0.20752205491870596d0, -0.8852238038904702d0/)
+if(TMDtypeN==0) then
+    fromMath=(/0.3929447215912037d0, 0.02540379739979786d0, 0.908411878110134d0, &
+    0.0005968092778014869d0, 0.6460648742389542d0, 0.06437676847530796d0, &
+    0.7524510443091221d0, 0.49655034487385374d0, 0.34170225292532014d0, &
+    -0.20752205491870596d0, -0.8852238038904702d0/)
+else if(TMDtypeN==1) then
+    fromMath=(/0.9823618039802421d0, 0.012174343801820444d0, 9.06266059229002d0, &
+    -0.11935315213851815d0, 4.541014304087042d0, 0.15178780213084256d0, &
+    5.168792156074321d0, 0.09872312114251779d0, 2.2245572492432713d0, &
+    -2.6574335853522753d0, -15.058420056309387d0/)
+end if
 
 write(*,*) "Relative precision --->", FinQ/fromMath-1
 write(*,*) "Absolute precision --->", FinQ-fromMath
@@ -518,10 +594,17 @@ write(*,*) " ----- at kt=1."
 
 FinQ=Fourier_Levin(ToCheck,1.d0)
 
-fromMath=(/0.11399663659959798d0, 0.0203822972275855d0, -0.042202327319864175d0, &
-0.04313149087386549d0, 0.07117361597522101d0, 0.02972110683414643d0, &
-0.06294594297527262d0, 0.449934673142791d0, 0.042891077569203635d0, &
-0.02520683225073642d0, 0.052674083664594376d0/)
+if(TMDtypeN==0) then
+    fromMath=(/0.11399663659959798d0, 0.0203822972275855d0, -0.042202327319864175d0, &
+    0.04313149087386549d0, 0.07117361597522101d0, 0.02972110683414643d0, &
+    0.06294594297527262d0, 0.449934673142791d0, 0.042891077569203635d0, &
+    0.02520683225073642d0, 0.052674083664594376d0/)
+else if(TMDtypeN==1) then
+    fromMath=(/0.28499159149899156d0, 0.008434054025207796d0, 0.10550581829966166d0, &
+    -0.036137949441505786d0, 0.20024316087784436d0, 0.0341951163735701d0, &
+    0.28005386757983064d0, 0.0898582807695214d0, 0.12755305478600654d0, &
+    -0.00580021860141175d0, 0.166640906427954d0/)
+end if
 
 write(*,*) "Relative precision --->", FinQ/fromMath-1
 write(*,*) "Absolute precision --->", FinQ-fromMath
@@ -531,12 +614,20 @@ write(*,*) " ----- at kt=10."
 
 FinQ=Fourier_Levin(ToCheck,10.d0)
 
-fromMath=(/1.8747707813265846d-11, 0.0003633011162405713d0, &
--0.000013741292555857953d0, 0.00016380750398139264d0, &
-1.2046139297866576d-8, 0.00005000066812517099d0, &
--0.001859693917933602d0, 0.004722227621666028d0, &
--0.0002109411666441108d0, -0.000042730758216799126d0, &
--0.0003707316746467484d0/)
+if(TMDtypeN==0) then
+    fromMath=(/1.8747707813265846d-11, 0.0003633011162405713d0, &
+    -0.000013741292555857953d0, 0.00016380750398139264d0, &
+    1.2046139297866576d-8, 0.00005000066812517099d0, &
+    -0.001859693917933602d0, 0.004722227621666028d0, &
+    -0.0002109411666441108d0, -0.000042730758216799126d0, &
+    -0.0003707316746467484d0/)
+else if(TMDtypeN==1) then
+    fromMath=(/8.099077398321386d-12, 0.000010257913870971234d0, &
+    -6.756609413191178d-7, 5.004781471890181d-6, &
+    1.9618241621743556d-9, 1.5567616589336672d-6, &
+    -0.000036821940886544876d0, -0.0005685540405296604d0, &
+    -4.5882687402352425d-6, 2.0882166810469566d-7, -0.000014544430739799435d0/)
+end if
 
 write(*,*) "Relative precision --->", FinQ/fromMath-1
 write(*,*) "Absolute precision --->", FinQ-fromMath
@@ -545,12 +636,19 @@ write(*,*) " ----- at kt=100."
 
 FinQ=Fourier_Levin(ToCheck,100.d0)
 
-fromMath=(/6.425713317692464d-12, 3.9751415835768074d-7, &
--1.5915162873903991d-10, 1.592026776123332d-7, &
-2.7850115402326854d-12, 4.776807258675328d-8, &
--0.000017098111555254256d0, 4.710252392769662d-9, &
--9.231843125300607d-7, -7.159579504948952d-7, &
-1.5037898670724917d-6/)
+if(TMDtypeN==0) then
+    fromMath=(/6.425713317692464d-12, 3.9751415835768074d-7, &
+    -1.5915162873903991d-10, 1.592026776123332d-7, &
+    2.7850115402326854d-12, 4.776807258675328d-8, &
+    -0.000017098111555254256d0, 4.710252392769662d-9, &
+    -9.231843125300607d-7, -7.159579504948952d-7, &
+    1.5037898670724917d-6/)
+else if(TMDtypeN==1) then
+    fromMath=(/-1.881595114202385d-13, 1.19195798619532d-10, &
+    -5.81190425910394d-13, 4.777034783574835d-11, -2.08572815045325d-13, 1.4363876501514724d-11, &
+    -3.4829308907710516d-9, 2.6416349924401557d-11, -2.2449589346930395d-10, -1.6357764325066223d-10, &
+    3.277343692223922d-10/)
+end if
 
 write(*,*) "Relative precision --->", FinQ/fromMath-1
 write(*,*) "Absolute precision --->", FinQ-fromMath
