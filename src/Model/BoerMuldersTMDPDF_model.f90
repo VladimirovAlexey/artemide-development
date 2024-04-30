@@ -74,11 +74,10 @@ function FNP(x,bT,hadron,lambdaNP)
     bProfile=1.d0/cosh(lambdaNP(1)*bT)
     
     !!! u-quark(3 parameters)
-    NormQ=2d0/(lambdaNP(2)+1)/(lambdaNP(2)+2)/(lambdaNP(2)+3)
-    FNPq=lambdaNP(3)*(1-x)**2*x**lambdaNP(2)/NormQ
-    FNPqBar=lambdaNP(4)*(1-x)**2*x**lambdaNP(2)/NormQ
+    FNPq=abs(lambdaNP(2))*x**lambdaNP(3)*(1-x)**lambdaNP(4)
+    FNPqBar=lambdaNP(2)*x**lambdaNP(3)*(1-x)**lambdaNP(4)
     
-    FNP=bProfile*(/0d0,0d0,0d0,FNPqBar,FNPqBar,0d0,FNPq,FNPq,0d0,0d0,0d0/)
+    FNP=bProfile*(/FNPqBar,FNPqBar,FNPqBar,FNPqBar,FNPqBar,0d0,FNPq,FNPq,FNPq,FNPq,FNPq/)
 
 end function FNP
   

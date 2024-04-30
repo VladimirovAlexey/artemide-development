@@ -15,6 +15,7 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
     use siverstmdpdf
     use lptmdpdf
     use wgttmdpdf
+    use boermulderstmdpdf
     use tmdr_model
     use tmdr
     logical, optional :: started=.false.
@@ -44,6 +45,9 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
     subroutine setlambda_wgttmdpdf(lambdain) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         real*8 dimension(:),intent(in) :: lambdain
     end subroutine setlambda_wgttmdpdf
+    subroutine setlambda_boermulderstmdpdf(lambdain) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 dimension(:),intent(in) :: lambdain
+    end subroutine setlambda_boermulderstmdpdf
     subroutine setscalevariation(c1_in,c2_in,c3_in,c4_in) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         real*8 :: c1_in
         real*8 :: c2_in
@@ -205,6 +209,20 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
         integer :: hadron
         real*8 dimension(11) :: wgttmdpdf_50_optimal
     end function wgttmdpdf_50_optimal
+    function boermulderstmdpdf_evolved(x,bt,muf,zetaf,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 :: x
+        real*8 :: bt
+        real*8 :: muf
+        real*8 :: zetaf
+        integer :: hadron
+        real*8 dimension(11) :: boermulderstmdpdf_evolved
+    end function boermulderstmdpdf_evolved
+    function boermulderstmdpdf_optimal(x,bt,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 :: x
+        real*8 :: bt
+        integer :: hadron
+        real*8 dimension(11) :: boermulderstmdpdf_optimal
+    end function boermulderstmdpdf_optimal
     function utmdpdf_kt_5_evolved(x,bt,muf,zetaf,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         real*8 :: x
         real*8 :: bt
@@ -361,6 +379,20 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
         integer :: hadron
         real*8 dimension(11) :: wgttmdpdf_kt_50_optimal
     end function wgttmdpdf_kt_50_optimal
+    function boermulderstmdpdf_kt_evolved(x,bt,muf,zetaf,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 :: x
+        real*8 :: bt
+        real*8 :: muf
+        real*8 :: zetaf
+        integer :: hadron
+        real*8 dimension(11) :: boermulderstmdpdf_kt_evolved
+    end function boermulderstmdpdf_kt_evolved
+    function boermulderstmdpdf_kt_optimal(x,bt,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 :: x
+        real*8 :: bt
+        integer :: hadron
+        real*8 dimension(11) :: boermulderstmdpdf_kt_optimal
+    end function boermulderstmdpdf_kt_optimal
     function dy_xsec_single(process,s,qt,q,y,includecuts,cutparameters) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         integer dimension(4),intent(in) :: process
         real*8 intent(in) :: s

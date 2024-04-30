@@ -16,6 +16,7 @@ use uTMDFF
 use SiversTMDPDF
 use lpTMDPDF
 use wgtTMDPDF
+use BoerMuldersTMDPDF
 use TMDR_model
 use TMDR
 
@@ -40,47 +41,53 @@ contains
    call artemide_ShowStatistics()
   end  subroutine ShowStatistics
 
-  !!!Sets the non-pertrubative parameters lambda
+  !!!Sets the non-perturbative parameters lambda
   subroutine SetLambda_Main(lambdaIN)
     real*8,intent(in)::lambdaIN(:)
     call artemide_SetNPparameters(lambdaIN)
   end subroutine SetLambda_Main  
   
-    !!!Sets the non-pertrubative parameters lambda
+    !!!Sets the non-perturbative parameters lambda
   subroutine SetLambda_TMDR(lambdaIN)
     real*8,intent(in)::lambdaIN(:)
     call artemide_SetNPparameters_TMDR(lambdaIN)
   end subroutine SetLambda_TMDR
   
-      !!!Sets the non-pertrubative parameters lambda
+      !!!Sets the non-perturbative parameters lambda
   subroutine SetLambda_uTMDPDF(lambdaIN)
     real*8,intent(in)::lambdaIN(:)
     call artemide_SetNPparameters_uTMDPDF(lambdaIN)
   end subroutine SetLambda_uTMDPDF
   
-  !!!Sets the non-pertrubative parameters lambda
+  !!!Sets the non-perturbative parameters lambda
   subroutine SetLambda_uTMDFF(lambdaIN)
     real*8,intent(in)::lambdaIN(:)
     call artemide_SetNPparameters_uTMDFF(lambdaIN)
   end subroutine SetLambda_uTMDFF
   
-  !!!Sets the non-pertrubative parameters lambda
+  !!!Sets the non-perturbative parameters lambda
   subroutine SetLambda_lpTMDPDF(lambdaIN)
     real*8,intent(in)::lambdaIN(:)
     call artemide_SetNPparameters_lpTMDPDF(lambdaIN)
   end subroutine SetLambda_lpTMDPDF
   
-  !!!Sets the non-pertrubative parameters lambda
+  !!!Sets the non-perturbative parameters lambda
   subroutine SetLambda_SiversTMDPDF(lambdaIN)
     real*8,intent(in)::lambdaIN(:)
     call artemide_SetNPparameters_SiversTMDPDF(lambdaIN)
   end subroutine SetLambda_SiversTMDPDF
   
-    !!!Sets the non-pertrubative parameters lambda
+    !!!Sets the non-perturbative parameters lambda
   subroutine SetLambda_wgtTMDPDF(lambdaIN)
     real*8,intent(in)::lambdaIN(:)
     call artemide_SetNPparameters_wgtTMDPDF(lambdaIN)
   end subroutine SetLambda_wgtTMDPDF
+
+      !!!Sets the non-perturbative parameters lambda
+  subroutine SetLambda_BoerMuldersTMDPDF(lambdaIN)
+    real*8,intent(in)::lambdaIN(:)
+    call artemide_SetNPparameters_BoerMuldersTMDPDF(lambdaIN)
+  end subroutine SetLambda_BoerMuldersTMDPDF
   
   
   !!!! this routine set the variations of scales
@@ -335,6 +342,30 @@ contains
   wgtTMDPDF_50_Optimal=wgtTMDPDF_inB(x,bt,hadron)
     
   end function wgtTMDPDF_50_Optimal
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!BoerMuldersTMDPDF
+  !!!!!!!! BoerMulders TMDFF
+  ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+  function BoerMuldersTMDPDF_Evolved(x,bt,muf,zetaf,hadron)
+    real*8:: BoerMuldersTMDPDF_Evolved(-5:5)
+    real*8:: x,bt,muf,zetaf
+    integer::hadron
+
+  BoerMuldersTMDPDF_Evolved=BoerMuldersTMDPDF_inB(x,bt,muf,zetaf,hadron)
+
+  end function BoerMuldersTMDPDF_Evolved
+
+    !!!!!!!! BoerMulders TMDPDF
+  ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+  function BoerMuldersTMDPDF_Optimal(x,bt,hadron)
+    real*8:: BoerMuldersTMDPDF_Optimal(-5:5)
+    real*8:: x,bt
+    integer::hadron
+
+  BoerMuldersTMDPDF_Optimal=BoerMuldersTMDPDF_inB(x,bt,hadron)
+
+  end function BoerMuldersTMDPDF_Optimal
   
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -579,6 +610,28 @@ contains
   wgtTMDPDF_kT_50_Optimal=wgtTMDPDF_inKT(x,bt,hadron)
     
   end function wgtTMDPDF_kT_50_Optimal
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!! BoerMulders TMDPDF
+  ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+  function BoerMuldersTMDPDF_kT_Evolved(x,bt,muf,zetaf,hadron)
+    real*8:: BoerMuldersTMDPDF_kT_Evolved(-5:5)
+    real*8:: x,bt,muf,zetaf
+    integer::hadron
+
+  BoerMuldersTMDPDF_kT_Evolved=BoerMuldersTMDPDF_inKT(x,bt,muf,zetaf,hadron)
+
+  end function BoerMuldersTMDPDF_kT_Evolved
+
+  ! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+  function BoerMuldersTMDPDF_kT_Optimal(x,bt,hadron)
+    real*8:: BoerMuldersTMDPDF_kT_Optimal(-5:5)
+    real*8:: x,bt
+    integer::hadron
+
+  BoerMuldersTMDPDF_kT_Optimal=BoerMuldersTMDPDF_inKT(x,bt,hadron)
+
+  end function BoerMuldersTMDPDF_kT_Optimal
   
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

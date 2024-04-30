@@ -241,8 +241,6 @@ subroutine BoerMuldersTMDPDF_Initialize(file,prefix)
 
     call Initialize_Fourier_Levin(path,'*14  ','*F   ',moduleName,outputLevel,TMDtypeN)
     if(makeGrid_inKT) then
-        write(*,*) "GRID FOR BM is COMPUTED with J0"
-        stop
         call Initialize_GridInKT(path,'*14  ','*F   ',numOfHadrons,includeGluon,moduleName,outputLevel)
     end if
 

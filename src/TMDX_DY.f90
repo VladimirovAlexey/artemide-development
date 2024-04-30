@@ -612,17 +612,14 @@ end function NumPT_auto
 !!! this is help function which evaluate xSec at single qt (without lists) with only prefactor 2
 !!!! this is extended (and default) version of xSec, which include all parameters
 function xSec(var,process,incCut,CutParam)
-  real(dp):: xSec,FF,LC,XX
+  real(dp):: xSec,FF,LC
   real(dp)::x1,x2,scaleMu,scaleZeta
   real(dp),dimension(1:7),intent(in)::var
   logical,intent(in)::incCut
   real(dp),dimension(1:4),intent(in)::CutParam
-  integer,dimension(:),intent(in)::process
-  integer::numProc,i
+  integer,dimension(1:4),intent(in)::process
 
   GlobalCounter=GlobalCounter+1
-
-  numProc=size(process)
 
   !!!!!!!!!!!!!!!!!!!! COMPUTATION WITH KPC
   if(useKPC) then
@@ -639,18 +636,11 @@ function xSec(var,process,incCut,CutParam)
     scaleZeta=var(4)  !! zeta=Q2
     scaleMu=sqrt(scaleZeta)
 
-    !!!!! compute cross-section for each process
-    XX=0._dp
+    FF=KPC_DYconv(var(4),var(1),x1,x2,scaleMu*c2_global,process(2:4))
+    LC=LeptonCutFactorKPC(var,process(4),incCut,CutParam)
 
-    do i=4, numProc
-      if(process(i)/=0) then
-        FF=KPC_DYconv(var(4),var(1),x1,x2,scaleMu*c2_global,(/process(2),process(3),process(i)/))
-        LC=LeptonCutFactorKPC(var,process(i),incCut,CutParam)
-        XX=XX+FF*LC
-      end if
-    end do
+    xSec=PreFactorKPC(var,process(1))*FF*LC
 
-    xSec=PreFactorKPC(var,process(1))*XX
   !!!!!!!!!!!!!!!!!!!! COMPUTATION WITHOUT KPC
   else
     if(TMDF_IsconvergenceLost()) then
@@ -667,14 +657,10 @@ function xSec(var,process,incCut,CutParam)
     scaleMu=sqrt(scaleZeta)
 
     !!!!! compute cross-section for each process
-    XX=0._dp
-    do i=4, numProc
-      FF=TMDF_F(var(4),var(1),x1,x2,scaleMu*c2_global,scaleZeta,scaleZeta,(/process(2),process(3),process(i)/))
-      LC=LeptonCutFactorLP(var,process(i),incCut,CutParam)
-      XX=XX+LC*FF
-    end do
+    FF=TMDF_F(var(4),var(1),x1,x2,scaleMu*c2_global,scaleZeta,scaleZeta,process(2:4))
+    LC=LeptonCutFactorLP(var,process(4),incCut,CutParam)
 
-    xSec=PreFactor2(var,process(1))*XX
+    xSec=PreFactor2(var,process(1))*FF*LC
   end if
 
   !write(*,*) "{",var(4),",",x1,"},"!,z1

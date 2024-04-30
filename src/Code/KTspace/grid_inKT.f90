@@ -286,11 +286,11 @@ end do
 
 if(outputlevel>1) then
 if(numH>1) then
-    write(*,'(" ",A,": Grids are built  (",I3," x",I3,")x(",I3," x",I3,")x",I3,"  calc.time=",F6.2,"s. ")')&
-    moduleName, numXsubgrids,xGridSize,numKsubgrids,kGridSize,QGridSize, time2-time1
+    write(*,'(" ",A,": Grids in KT are built  (",I3," x",I3,")x(",I3," x",I3,")x",I3,"  calc.time=",F6.2,"s. ")')&
+    parentModuleName, numXsubgrids,xGridSize,numKsubgrids,kGridSize,QGridSize, time2-time1
 else
-    write(*,'(" ",A,": Grid is built  (",I3," x",I3,")x(",I3," x",I3,")x",I3,"  calc.time=",F6.2,"s. ")')&
-    moduleName, numXsubgrids,xGridSize,numKsubgrids,kGridSize,QGridSize, time2-time1
+    write(*,'(" ",A,": Grid in KT is built  (",I3," x",I3,")x(",I3," x",I3,")x",I3,"  calc.time=",F6.2,"s. ")')&
+    parentModuleName, numXsubgrids,xGridSize,numKsubgrids,kGridSize,QGridSize, time2-time1
 end if
 end if
 

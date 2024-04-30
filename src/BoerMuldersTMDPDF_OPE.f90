@@ -185,10 +185,6 @@ subroutine BoerMuldersTMDPDF_OPE_Initialize(file,prefix)
     call MoveTO(51,'*p2  ')
     read(51,*) useGridTW3
     call MoveTO(51,'*p3  ')
-    read(51,*) withGluonTW3
-    call MoveTO(51,'*p4  ')
-    read(51,*) numberOfHadrons
-    call MoveTO(51,'*p5  ')
     read(51,*) runTestTW3
 
     !!!!! ---- parameters of numerical evaluation

@@ -193,6 +193,25 @@ def setNPparameters_wgtTMDPDF(l):
         raise TypeError()
 
 
+def setNPparameters_BM_TMDPDF(l):
+    """
+    Setting NP parameters for the model of BoerMuldersTMDPDF
+
+    Parameters
+    ----------
+    l : float array or integer
+        list of NP parameters, or the number of replica (if supported by model)
+
+    Returns
+    -------
+    None.
+
+    """
+    if isinstance(l,list) or isinstance(l,numpy.ndarray):
+        artemide.harpy.setlambda_boermulderstmdpdf(numpy.asfortranarray(l))    
+    else:
+        raise TypeError()
+
 def varyScales(c1,c2,c3,c4):
     """
     Set new scale variation parameters
@@ -648,7 +667,7 @@ def get_SiversTMDPDF(x,b,h,mu=-1.,zeta=-1.,includeGluon=False):
         
 def get_wgtTMDPDF(x,b,h,mu=-1.,zeta=-1.,includeGluon=False):
     """
-    Return the string of wgt TMDPDF 
+    Return the string of Boer-Mulders TMDPDF 
     (bbar,cbar,sbar,ubar,dbar,gluon,d,u,s,c,b)
     If both mu and zeta are not specified (or negative) return optimal
     if only mu is positive returns evolved to mu,mu^2
@@ -713,6 +732,65 @@ def get_wgtTMDPDF(x,b,h,mu=-1.,zeta=-1.,includeGluon=False):
             return artemide.harpy.wgttmdpdf_50_evolved(x,b_internal,mu,zeta,h)
         else:
             return artemide.harpy.wgttmdpdf_5_evolved(x,b_internal,mu,zeta,h)
+        
+def get_BM_TMDPDF(x,b,h,mu=-1.,zeta=-1.,includeGluon=False):
+    """
+    Return the string of wgt TMDPDF 
+    (bbar,cbar,sbar,ubar,dbar,gluon,d,u,s,c,b)
+    If both mu and zeta are not specified (or negative) return optimal
+    if only mu is positive returns evolved to mu,mu^2
+    if mu and zeta are positive returns evolved to mu,zeta
+    
+     
+
+    Parameters
+    ----------
+    x : float in [0,1]
+        Bjorken x
+    b : float >0
+        spatial parameter
+    h : integer 1,2,3,...
+        Hadron number
+    mu : float, optional
+        Scale of TMD mu [GeV]. The default is -1.
+    zeta : float, optional
+        Scale of TMD zeta [GeV]. The default is -1.
+    includeGluon : bool, optional
+        Include gluons or not. The default is False.
+
+    Returns
+    -------
+    [list of float]
+       (bbar,cbar,sbar,ubar,dbar,gluon,d,u,s,c,b)
+
+    """
+    
+    if not isinstance(x, float):
+        raise ValueError("parameter x must be float")
+    elif (x<0.) or (x>1.):
+        raise ValueError("parameter x must be in [0,1]")
+    if not isinstance(b, float):
+        raise ValueError("parameter b must be float")
+    elif (b<0.):
+        b_internal=-b
+    else:
+        b_internal=b
+    if not isinstance(h, int):
+        raise ValueError("parameter h must be integer")
+    elif h<1:
+        raise ValueError("parameter h expected to be positive integer")
+        
+    if not isinstance(mu, float):
+        raise ValueError("parameter mu must be float")
+    if not isinstance(zeta, float):
+        raise ValueError("parameter zeta must be float")
+    
+    if mu<0.:
+        return artemide.harpy.boermulderstmdpdf_optimal(x,b_internal,h)
+    elif zeta<0:
+        return artemide.harpy.boermulderstmdpdf_evolved(x,b_internal,mu,mu**2,h)
+    else:
+        return artemide.harpy.boermulderstmdpdf_evolved(x,b_internal,mu,zeta,h)
 
 ###############################################################################
 
@@ -1041,6 +1119,64 @@ def get_wgtTMDPDF_kT(x,kT,h,mu=-1.,zeta=-1.,includeGluon=False):
             return artemide.harpy.wgttmdpdf_kt_50_evolved(x,kT_internal,mu,zeta,h)
         else:
             return artemide.harpy.wgttmdpdf_kt_5_evolved(x,kT_internal,mu,zeta,h)
+        
+def get_BM_TMDPDF_kT(x,kT,h,mu=-1.,zeta=-1.,includeGluon=False):
+    """
+    Return the string of Boer-Mulders T TMDPDF  in kT-space
+    (bbar,cbar,sbar,ubar,dbar,gluon,d,u,s,c,b)
+    If both mu and zeta are not specified (or negative) return optimal
+    if mu is positive returns evolved to mu,mu^2
+    
+     
+
+    Parameters
+    ----------
+    x : float in [0,1]
+        Bjorken x
+    kT : float >0
+        spatial parameter
+    h : integer 1,2,3,...
+        Hadron number
+    mu : float, optional
+        Scale of TMD mu [GeV]. The default is -1.
+    zeta : float, optional
+        Scale of TMD zeta [GeV]. The default is -1.
+    includeGluon : bool, optional
+        Include gluons or not. The default is False.
+
+    Returns
+    -------
+    [list of float]
+       (bbar,cbar,sbar,ubar,dbar,gluon,d,u,s,c,b)
+
+    """
+    
+    if not isinstance(x, float):
+        raise ValueError("parameter x must be float")
+    elif (x<0.) or (x>1.):
+        raise ValueError("parameter x must be in [0,1]")
+    if not isinstance(kT, float):
+        raise ValueError("parameter kT must be float")
+    elif (kT<0.):
+        kT_internal=-kT
+    else:
+        kT_internal=kT
+    if not isinstance(h, int):
+        raise ValueError("parameter h must be integer")
+    elif h<1:
+        raise ValueError("parameter h expected to be positive integer")
+        
+    if not isinstance(mu, float):
+        raise ValueError("parameter mu must be float")
+    if not isinstance(zeta, float):
+        raise ValueError("parameter zeta must be float")
+    
+    if mu<0.:
+        return artemide.harpy.boermulderstmdpdf_kt_optimal(x,kT_internal,h)
+    elif zeta<0:
+        return artemide.harpy.boermulderstmdpdf_kt_evolved(x,kT_internal,mu,mu**2,h)
+    else:
+        return artemide.harpy.boermulderstmdpdf_kt_evolved(x,kT_internal,mu,zeta,h)
 
 def get_uPDF(x,mu,h):
     """
