@@ -48,14 +48,13 @@ SELECT CASE(process(3))
       +FAB(-5)/9d0
 
  !--------------------------------------------------------------------------------
-  CASE (2,20,21,22) !Delta^{GG'}z_{+l}z_{+f}f1f1
+  CASE (2,20,21,22,29) !Delta^{GG'}z_{+l}z_{+f}f1f1
 
      FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
      FB=uTMDPDF_inKT(x2,sqrt(k2),mu,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
      FAB=FA*FB
 
      TMD_pair=XTMD_pairZpZp(FAB,Q2)
-
 
   !--------------------------------------------------------------------------------
   CASE (23,24) !Delta^{GG'}z_{-l}z_{-f}{f1f1}_A

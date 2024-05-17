@@ -71,11 +71,12 @@ function FNP(x,bT,hadron,lambdaNP)
     real(dp)::FNPq,FNPqBar,NormQ
 
     !!! profile in b is common for all (5 parameters)    
-    bProfile=1.d0/cosh(lambdaNP(1)*bT)
+    bProfile=Exp(-lambdaNP(1)*bT**2)!x**(lambdaNP(1)*bT**2)!1.d0/cosh(lambdaNP(1)*bT)
+    NormQ=1.d0!/(1+lambdaNP(3))/(2+lambdaNP(3))
     
     !!! u-quark(3 parameters)
-    FNPq=abs(lambdaNP(2))*x**lambdaNP(3)*(1-x)**lambdaNP(4)
-    FNPqBar=lambdaNP(2)*x**lambdaNP(3)*(1-x)**lambdaNP(4)
+    FNPq=abs(lambdaNP(2))*x**lambdaNP(3)*(1-x)**lambdaNP(4)/NormQ
+    FNPqBar=lambdaNP(2)*x**lambdaNP(3)*(1-x)**lambdaNP(4)/NormQ
     
     FNP=bProfile*(/FNPqBar,FNPqBar,FNPqBar,FNPqBar,FNPqBar,0d0,FNPq,FNPq,FNPq,FNPq,FNPq/)
 

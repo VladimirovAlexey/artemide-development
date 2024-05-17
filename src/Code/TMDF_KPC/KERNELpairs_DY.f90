@@ -4,9 +4,11 @@
 !!!
 !!! Q2, tau2, qT2 external variables
 !!! S, Lambda -- integration variables
+!!! sA=sin(alpha)
+!!! cT=cos(theta)
 !!! process -- integer that specifies process
-function DY_KERNEL(Q2,tau2,qT2,S,Lam,process)
-real(dp),intent(in)::Q2,tau2,qT2,S,Lam
+function DY_KERNEL(Q2,tau2,qT2,S,Lam,sA,cT,process)
+real(dp),intent(in)::Q2,tau2,qT2,S,Lam,sA,cT
 integer,intent(in)::process
 real(dp)::DY_KERNEL
 
@@ -20,7 +22,7 @@ SELECT CASE(process)
   !---------------------------------
   CASE (20) !A_0 ff-part
 
-    DY_KERNEL=1-tau2*Lam/Q2
+    DY_KERNEL=sA*sA!1-tau2*Lam/Q2
 
   CASE (21) !A_1 ff-part
 
@@ -37,6 +39,11 @@ SELECT CASE(process)
   CASE (24) !A_4 ff-part
 
     DY_KERNEL=-2*sqrt(Lam*tau2/Q2)
+
+  !---------------------------------
+  CASE (29) !Sigma_UU+Sigma_0/2 ff-part (for normalization of nu)
+
+    DY_KERNEL=1.5_dp-tau2*Lam/Q2/2
 
   CASE (30) !A_0 hh-part
 

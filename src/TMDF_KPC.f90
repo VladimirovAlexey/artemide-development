@@ -246,6 +246,126 @@ subroutine TMDF_KPC_Initialize(file,prefix)
 
 end subroutine TMDF_KPC_Initialize
 
+!!!------------------------------------------------------------------
+!!!-- This function organizes the ratios and asymetries if needed
+!!!-- it is because they should be computed before integrations
+!!!
+function KPC_DYconv(Q2,qT_in,x1,x2,mu,proc1)
+    real(dp),intent(in)::Q2,qT_in,x1,x2,mu
+    integer,intent(in),dimension(1:3)::proc1
+    real(dp)::KPC_DYconv
+
+    real(dp)::S1,S2,S3,S4
+
+    SELECT CASE(proc1(3))
+    CASE(200)!!! A_0 assymetry
+        S1=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),20/))
+        S2=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),30/))
+        S3=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),2/))
+        if(Abs(S3)<toleranceGEN) then
+            call Warning_Raise('normalization cross-section in 0.',messageCounter,messageTrigger,moduleName)
+            S3=toleranceGEN
+        end if
+        KPC_DYconv=(S1+S2)/S3
+
+    CASE(201)!!! A_1 assymetry
+        S1=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),21/))
+        S2=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),31/))
+        S3=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),2/))
+        if(Abs(S3)<toleranceGEN) then
+            call Warning_Raise('normalization cross-section in 0.',messageCounter,messageTrigger,moduleName)
+            S3=toleranceGEN
+        end if
+        KPC_DYconv=(S1+S2)/S3
+
+    CASE(202)!!! A_2 assymetry
+        S1=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),22/))
+        S2=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),32/))
+        S3=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),2/))
+        if(Abs(S3)<toleranceGEN) then
+            call Warning_Raise('normalization cross-section in 0.',messageCounter,messageTrigger,moduleName)
+            S3=toleranceGEN
+        end if
+        KPC_DYconv=(S1+S2)/S3
+
+    CASE(203)!!! A_3 assymetry
+        S1=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),23/))
+        S3=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),2/))
+        if(Abs(S3)<toleranceGEN) then
+            call Warning_Raise('normalization cross-section in 0.',messageCounter,messageTrigger,moduleName)
+            S3=toleranceGEN
+        end if
+        KPC_DYconv=S1/S3
+
+    CASE(204)!!! A_4 assymetry
+        S1=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),24/))
+        S3=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),2/))
+        if(Abs(S3)<toleranceGEN) then
+            call Warning_Raise('normalization cross-section in 0.',messageCounter,messageTrigger,moduleName)
+            S3=toleranceGEN
+        end if
+
+        KPC_DYconv=S1/S3
+
+    CASE(205)!!! A_5 assymetry
+        S2=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),35/))
+        S3=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),2/))
+        if(Abs(S3)<toleranceGEN) then
+            call Warning_Raise('normalization cross-section in 0.',messageCounter,messageTrigger,moduleName)
+            S3=toleranceGEN
+        end if
+        KPC_DYconv=S2/S3
+
+    CASE(206)!!! A_6 assymetry
+        S2=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),36/))
+        S3=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),2/))
+        if(Abs(S3)<toleranceGEN) then
+            call Warning_Raise('normalization cross-section in 0.',messageCounter,messageTrigger,moduleName)
+            S3=toleranceGEN
+        end if
+        KPC_DYconv=S2/S3
+
+    CASE(210)!!! lambda assymetry
+        S1=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),20/))
+        S2=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),30/))
+        S3=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),29/))
+        if(Abs(S3+S2/2)<toleranceGEN) then
+            call Warning_Raise('normalization cross-section in 0.',messageCounter,messageTrigger,moduleName)
+            KPC_DYconv=1-2*(S1+S2)/toleranceGEN
+        else
+            KPC_DYconv=1-2*(S1+S2)/(S3+S2/2)
+        end if
+
+    CASE(211)!!! mu assymetry
+        S1=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),21/))
+        S2=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),31/))
+        S3=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),29/))
+        S4=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),30/))
+        if(Abs(S3+S4/2)<toleranceGEN) then
+            call Warning_Raise('normalization cross-section in 0.',messageCounter,messageTrigger,moduleName)
+            KPC_DYconv=(S1+S2)/toleranceGEN
+        else
+            KPC_DYconv=(S1+S2)/(S3+S4/2)
+        end if
+
+    CASE(212)!!! nu assymetry
+        S1=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),22/))
+        S2=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),32/))
+        S3=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),29/))
+        S4=DYconv_elementary(Q2,qT_in,x1,x2,mu,(/proc1(1),proc1(2),30/))
+        if(Abs(S3+S4/2)<toleranceGEN) then
+            call Warning_Raise('normalization cross-section in 0.',messageCounter,messageTrigger,moduleName)
+            KPC_DYconv=(S1+S2)/toleranceGEN
+        else
+            KPC_DYconv=(S1+S2)/(S3+S4/2)
+        end if
+
+
+    CASE DEFAULT
+        !!!! if it is not a special case, compute as is
+        KPC_DYconv=DYconv_elementary(Q2,qT_in,x1,x2,mu,proc1)
+ END SELECT
+end function KPC_DYconv
 
 !!!--------------------------------------------------------------------------------------------------
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -258,10 +378,10 @@ end subroutine TMDF_KPC_Initialize
 !!!-----
 !!! The integral is 2D, over theta and alpha (which are complicated combinations)
 !!! First evaluate over theta (0,pi), then over alpha (0,pi/2)
-function KPC_DYconv(Q2,qT_in,x1,x2,mu,proc1)
+function DYconv_elementary(Q2,qT_in,x1,x2,mu,proc1)
     real(dp),intent(in)::Q2,qT_in,x1,x2,mu
     integer,intent(in),dimension(1:3)::proc1
-    real(dp)::KPC_DYconv
+    real(dp)::DYconv_elementary
 
     real(dp)::tau2,deltaT,qT
 
@@ -276,8 +396,8 @@ function KPC_DYconv(Q2,qT_in,x1,x2,mu,proc1)
     tau2=Q2+qT**2
     deltaT=qT**2/tau2
 
-    !KPC_DYconv=Integrate_GK(Integrand_forTheta,0._dp,pi,toleranceINT)
-    KPC_DYconv=Integrate_GK(Integrand_forAlpha,0._dp,piHalf,toleranceINT)
+    !DYconv_elementary=Integrate_GK(Integrand_forTheta,0._dp,pi,toleranceINT)
+    DYconv_elementary=Integrate_GK(Integrand_forAlpha,0._dp,piHalf,toleranceINT)
     !write(*,*) "LC=",LocalCounter
 
 contains
@@ -306,7 +426,7 @@ function Integrand_forAlpha(alpha)
 
 end function Integrand_forAlpha
 
-end function KPC_DYconv
+end function DYconv_elementary
 
 
 !!! the integral over alpha at given theta
@@ -324,9 +444,13 @@ function Integrand_forALPHA(alpha)
     real(dp),intent(in)::alpha
     real(dp)::S,Lam,xi1,xi2,K1,K2,sinA
 
+    !sinA=sin(alpha)
+    !S=Sqrt(deltaT*sinA)*cT
+    !Lam=(1-deltaT)*(1-sinA)
+
     sinA=sin(alpha)
-    S=Sqrt(deltaT*sinA)*cT
-    Lam=(1-deltaT)*(1-sinA)
+    S=Sqrt(deltaT)*sinA*cT
+    Lam=(1-deltaT)*(1-sinA*sinA)
 
     xi1=x1/2*(1+S+sqrt(Lam))
     xi2=x2/2*(1-S+sqrt(Lam))
@@ -338,7 +462,7 @@ function Integrand_forALPHA(alpha)
     if(K2<toleranceGEN) K2=toleranceGEN
 
     !!! it is devided by 2 (instead of 4), because the integral over cos(theta) is over (0,pi).
-    Integrand_forALPHA=TMD_pair(Q2,xi1,xi2,k1,k2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,proc1(3))/2
+    Integrand_forALPHA=TMD_pair(Q2,xi1,xi2,K1,K2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,sinA,cT,proc1(3))*sinA
 end function Integrand_forALPHA
 
 end function INT_overALPHA
@@ -359,8 +483,10 @@ function Integrand_forTHETA(theta)
     real(dp)::S,Lam,xi1,xi2,K1,K2,cosT
 
     cosT=cos(theta)
-    S=Sqrt(deltaT*sA)*cosT
-    Lam=(1-deltaT)*(1-sA)
+    !S=Sqrt(deltaT*sA)*cosT
+    !Lam=(1-deltaT)*(1-sA)
+    S=Sqrt(deltaT)*sA*cosT
+    Lam=(1-deltaT)*(1-sA*sA)
 
     xi1=x1/2*(1+S+sqrt(Lam))
     xi2=x2/2*(1-S+sqrt(Lam))
@@ -372,7 +498,7 @@ function Integrand_forTHETA(theta)
     if(K2<toleranceGEN) K2=toleranceGEN
 
     !!! it is devided by 2 (instead of 4), because the integral over cos(theta) is over (0,pi).
-    Integrand_forTHETA=TMD_pair(Q2,xi1,xi2,k1,k2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,proc1(3))/2
+    Integrand_forTHETA=TMD_pair(Q2,xi1,xi2,K1,K2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,sA,cosT,proc1(3))*sA
 end function Integrand_forTHETA
 
 end function INT_overTHETA

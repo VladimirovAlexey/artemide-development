@@ -22,7 +22,7 @@ private
 
 !!!!!! 1=accurate but slow
 !!!!!! 2=fast but not accurate
-#define INTEGRATION_MODE 2
+#define INTEGRATION_MODE 1
 
 !Current version of module
 character (len=7),parameter :: moduleName="TMDX-DY"
@@ -636,10 +636,16 @@ function xSec(var,process,incCut,CutParam)
     scaleZeta=var(4)  !! zeta=Q2
     scaleMu=sqrt(scaleZeta)
 
-    FF=KPC_DYconv(var(4),var(1),x1,x2,scaleMu*c2_global,process(2:4))
-    LC=LeptonCutFactorKPC(var,process(4),incCut,CutParam)
+    if(process(4)>=200 .and. process(4)<300) then
+      !!!!! these numbers are reseurved for ratios, thus not prefactors
+      xSec=KPC_DYconv(var(4),var(1),x1,x2,scaleMu*c2_global,process(2:4))
 
-    xSec=PreFactorKPC(var,process(1))*FF*LC
+    else
+      FF=KPC_DYconv(var(4),var(1),x1,x2,scaleMu*c2_global,process(2:4))
+      LC=LeptonCutFactorKPC(var,process(4),incCut,CutParam)
+
+      xSec=PreFactorKPC(var,process(1))*FF*LC
+    end if
 
   !!!!!!!!!!!!!!!!!!!! COMPUTATION WITHOUT KPC
   else
@@ -1080,9 +1086,9 @@ function Xsec_PTint_Qint_Yint_APROX(process,incCut,CutParam,s_in,qt_min_in,qt_ma
     var=kinematicArray(qt_min,s_in,(Q_min+Q_max)/2,(ymin_in+ymax_in)/2)
   end if
 
-  if(qt_max-qt_min<0.5d0) then
+  if(qt_max-qt_min<0.25d0) then
     !!!! for small bins just compute at the center
-    call SetQT((qT_min+qT_min)/2,var)
+    call SetQT((qT_min+qT_max)/2,var)
     Xsec_PTint_Qint_Yint_APROX=(qT_max**2-qT_min**2)&
         *Xsec_Qint_Yint_APROX(var,process,incCut,CutParam,Q_min,Q_max,ymin_in,ymax_in)
   else
