@@ -194,12 +194,12 @@ SELECT CASE(Cut_Type)
 
   CASE(3)
   !!!! P3 factor
-  integralEtaExactUNDEFINED=(a*b*atan((a+b)/sqrt(w)*tanh(uu/2))/w**2.5*(2*w-3)&
+  integralEtaExactUNDEFINED=-(a*b*atan((a+b)/sqrt(w)*tanh(uu/2))/w**2.5*(2*w-3)&
             +(a**3 - a*(1 + del2) + del2*R*(-3 + 3*c + 2*w))*sinh(uu)/2/(w*R)**2)/sqrt(del2)
 
   CASE(4)
   !!!! P4 factor
-  integralEtaExactUNDEFINED=1/2/b/R**2
+  integralEtaExactUNDEFINED=1._dp/2/b/R**2
 
   CASE(5)
   !!!! P5 factor
@@ -211,14 +211,11 @@ SELECT CASE(Cut_Type)
 
   CASE(6)
   !!!! P6 factor
-  integralEtaExactUNDEFINED=2*sin(phi)/3/b/R**3
-  CASE(7)
-  !!!! P2A=P7 factor
-  integralEtaExactUNDEFINED=-1._dp/2/b/R**2
+  integralEtaExactUNDEFINED=-2._dp*sin(phi)/3/b/R**3
 
-  CASE(8)
+  CASE(7)
   !!!! P3A=P8 factor
-  integralEtaExactUNDEFINED=sin(phi)*(&
+  integralEtaExactUNDEFINED=-sin(phi)*(&
             atan((a+b)/sqrt(w)*tanh(uu/2))/w**2.5_dp*(3-2*w+3*del2)&
             +(3*a*R+w)*b*sinh(uu)/2/(w*R)**2)
 

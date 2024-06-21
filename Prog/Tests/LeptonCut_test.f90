@@ -7,13 +7,19 @@ integer::i,t
 
 call InitializeLeptonCutDY(0.1d-4,1.d-8)
 
-t=-1
+t=4
 
 CP=(/20.d0,20.d0,-2.1d0,2.1d0/)
 !CP=(/0.d0,0.d0,-200.1d0,200.1d0/)
 
 Q=91.d0
-y=0.1
+y=1.5
+
+RR=CutFactor(20.d0,Q,y,CP,t)
+
+write(*,*)RR
+
+stop
 
 write(*,*) "------------------ vs KT ---------------------------------"
 
@@ -25,12 +31,36 @@ write(*,'("{",F12.8,",",F16.10,"},")',advance="no") qT,RR
 end do
 write(*,*) " "
 
-write(*,*) "------------------ vs y ---------------------------------"
+write(*,*) "------------------ vs y (qT=0.)---------------------------------"
 
-qT=5.d0
+qT=0.0001d0
 
-do i=0,40
-y=-2.d0+0.1*i
+do i=0,42
+y=-2.1d0+0.1*i
+RR=CutFactor(qT,Q,y,CP,t)
+
+write(*,'("{",F12.8,",",F16.10,"},")',advance="no") y,RR
+end do
+write(*,*) " "
+
+write(*,*) "------------------ vs y (qT=10.)---------------------------------"
+
+qT=10.d0
+
+do i=0,42
+y=-2.1d0+0.1*i
+RR=CutFactor(qT,Q,y,CP,t)
+
+write(*,'("{",F12.8,",",F16.10,"},")',advance="no") y,RR
+end do
+write(*,*) " "
+
+write(*,*) "------------------ vs y (qT=25.)---------------------------------"
+
+qT=25.d0
+
+do i=0,42
+y=-2.1d0+0.1*i
 RR=CutFactor(qT,Q,y,CP,t)
 
 write(*,'("{",F12.8,",",F16.10,"},")',advance="no") y,RR

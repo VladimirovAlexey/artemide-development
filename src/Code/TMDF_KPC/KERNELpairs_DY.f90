@@ -34,11 +34,11 @@ SELECT CASE(process)
 
   CASE (23) !A_3 ff-part
 
-    DY_KERNEL=-2*S*sqrt(tau2/qT2)
+    DY_KERNEL=2*S*sqrt(tau2/qT2)
 
   CASE (24) !A_4 ff-part
 
-    DY_KERNEL=-2*sqrt(Lam*tau2/Q2)
+    DY_KERNEL=2*sqrt(Lam*tau2/Q2)
 
   !---------------------------------
   CASE (29) !Sigma_UU+Sigma_0/2 ff-part (for normalization of nu)

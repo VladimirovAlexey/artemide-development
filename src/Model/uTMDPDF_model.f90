@@ -65,7 +65,7 @@ function FNP(x,bT,hadron,lambdaNP)
   real(dp),intent(in)::lambdaNP(:)
   real*8::FNP0,FNPu,FNPd,FNPubar,FNPdbar,FNPr
 
-   real*8::bb,w1,w2,wu,wd,wubar,wdbar,wr,l1x,lx
+   real*8::bb,w1,w2,wu,wd,wubar,wdbar,wr,lx,lEX
    
    if(hadron==1) then
    
@@ -78,11 +78,12 @@ function FNP(x,bT,hadron,lambdaNP)
 !     wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)
 !
     lx=log(x)
-     wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)-x*lx*lambdaNP(5)+lambdaNP(11)*lx**2
-     wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)-x*lx*lambdaNP(7)+lambdaNP(11)*lx**2
-     wubar=lambdaNP(1)*(1-x)+x*lambdaNP(6)+lambdaNP(11)*lx**2
-     wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(8)+lambdaNP(11)*lx**2
-     wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)+lambdaNP(11)*lx**2
+
+     wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)-lX*lambdaNP(5)/100
+     wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)-lX*lambdaNP(7)/100
+     wubar=lambdaNP(1)*(1-x)+x*lambdaNP(6)-lX*lambdaNP(5)/100
+     wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(8)-lX*lambdaNP(7)/100
+     wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)
 
 
     if(wu<0d0 .or. wd<0d0 .or. wubar<0d0 .or. wdbar<0d0 .or. wr<0d0) then
@@ -104,13 +105,10 @@ function FNP(x,bT,hadron,lambdaNP)
 !         FNPr=Exp(-wr*bb)
     end if
 
-
     FNP=(/&
     FNPr,FNPr,FNPr,FNPubar,FNPdbar,&
     exp(-0.5d0*bb),&
     FNPd,FNPu,FNPr,FNPr,FNPr/)
-
-
 
   else 
       bb=bT**2

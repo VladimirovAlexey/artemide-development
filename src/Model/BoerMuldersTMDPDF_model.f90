@@ -68,17 +68,22 @@ function FNP(x,bT,hadron,lambdaNP)
     real(dp),intent(in)::lambdaNP(:)
 
     real(dp)::bProfile
-    real(dp)::FNPq,FNPqBar,NormQ
+    real(dp)::FNPq,FNPqBar,NormQ,lx
 
+    if(x>=0.9999d0) then
+        FNP=0._dp
+    else
     !!! profile in b is common for all (5 parameters)    
-    bProfile=Exp(-lambdaNP(1)*bT**2)!x**(lambdaNP(1)*bT**2)!1.d0/cosh(lambdaNP(1)*bT)
-    NormQ=1.d0!/(1+lambdaNP(3))/(2+lambdaNP(3))
+    bProfile=1._dp/cosh(lambdaNP(1)*bT)
+    NormQ=GAMMA(lambdaNP(3)+1)/2**(lambdaNP(3)+1)
+    lx=log(1._dp/x)
     
     !!! u-quark(3 parameters)
-    FNPq=abs(lambdaNP(2))*x**lambdaNP(3)*(1-x)**lambdaNP(4)/NormQ
-    FNPqBar=lambdaNP(2)*x**lambdaNP(3)*(1-x)**lambdaNP(4)/NormQ
+    FNPq=abs(lambdaNP(2))*x*lx**lambdaNP(3)/NormQ
+    FNPqBar=lambdaNP(2)*x*lx**lambdaNP(3)/NormQ
     
     FNP=bProfile*(/FNPqBar,FNPqBar,FNPqBar,FNPqBar,FNPqBar,0d0,FNPq,FNPq,FNPq,FNPq,FNPq/)
+    end if
 
 end function FNP
   
