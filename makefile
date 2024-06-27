@@ -23,6 +23,8 @@ FOPT=$(shell lhapdf-config --ldflags)
 #FOPT=-L/home/vla18041/LinkData2/LHAPDF/Installation/lib -lLHAPDF -lstdc++
 #FOPT=-L/home/alexey/WorkingFiles/LHAPDF/Intallation/lib -lLHAPDF -lstdc++
 
+
+
 ################################################################### LIST OF FILES ####################################
 SOURCEDIR       = $(aTMDeHOME)/src
 BIN		= $(aTMDeHOME)/bin
@@ -170,7 +172,11 @@ $(OBJ)/InverseMatrix.o
 ################################################################### COMPILATION OF ARTEMIDE ####################################
 FC=$(FCompilator) $(Fflags)
 
+DUMMY=$(shell shopt -s nullglob)
+
 .PHONY: clean default obj program test harpy harpy-signature
+
+.NOTPARALLEL:
 
 default: obj
 
@@ -201,8 +207,6 @@ $(OBJ)/InverseMatrix.o: $(SOURCEDIR)/Code/InverseMatrix.f90 $(OBJ)/aTMDe_Numeric
 	mv *.mod $(MOD)
 
 $(OBJ)/LeptonCutsDY.o: $(SOURCEDIR)/LeptonCutsDY.f90 $(aTMDeUTILITY)
-#	mkdir -p obj
-#	mkdir -p mod
 	$(FC) -c $(SOURCEDIR)/LeptonCutsDY.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
@@ -219,7 +223,7 @@ $(OBJ)/EWinput.o: $(SOURCEDIR)/EWinput.f90 $(aTMDeUTILITY)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/TMD_AD.o: $(SOURCEDIR)/TMD_AD.f90 $(aTMDeUTILITY) $(TMD_ADFiles)
+$(OBJ)/TMD_AD.o: $(SOURCEDIR)/TMD_AD.f90 $(aTMDeUTILITY) $(TMD_ADFiles) $(OBJ)/QCDinput.o
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/TMD_AD.f90 -I$(MOD)
 	mv *.o $(OBJ)
