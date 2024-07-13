@@ -133,7 +133,7 @@
  
 *A   : ---- Main definitions ----
 *p1  : Order of evolution
- N3LO
+ NLO
 *p2  : Override the general definition of the pertrubative order (in this case orders are defined by the list below)
    F
 *p3  : Order of Gamma-cusp (LO=1-loop, NLO=2-loop, ...)
