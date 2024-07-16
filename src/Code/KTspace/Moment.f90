@@ -194,6 +194,7 @@ function Moment_X(x,mu,hadron)
     SELECT CASE(TMDtypeN)
         CASE(0)
             Moment_X=mu**2/(2*TMDmass**2)*(mu*Moment_Gen(0,1,x,mu,hadron)-2*Moment_Gen(-1,2,x,mu,hadron))
+            !Moment_X=mu**3/(2*2*TMDmass**2)*(Moment_Gen(0,1,x,mu,hadron)-Moment_Gen(0,3,x,mu,hadron))
         CASE(1)
             Moment_X=mu**3/(4*TMDmass**2)*(mu*Moment_Gen(1,2,x,mu,hadron)-2*Moment_Gen(0,3,x,mu,hadron))
         CASE DEFAULT
