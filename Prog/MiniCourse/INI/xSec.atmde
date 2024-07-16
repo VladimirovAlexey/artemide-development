@@ -86,7 +86,7 @@
 # ---------------------------------------------------------------------------
 *2   :
 *p1  : initialize EWinput module
- F
+ T
  
 *A   : ---- EW coupling parameters ----
 *p1  : value of (alphaQED)^{-1} at MZ
@@ -133,7 +133,7 @@
  
 *A   : ---- Main definitions ----
 *p1  : Order of evolution
- N3LO
+ N4LO
 *p2  : Override the general definition of the pertrubative order (in this case orders are defined by the list below)
    F
 *p3  : Order of Gamma-cusp (LO=1-loop, NLO=2-loop, ...)
@@ -175,7 +175,7 @@
 *p1  : Order of coefficient function
  N3LO
 *p2  : Prepare grid
- F
+ T
 *p3  : run the test of the grid (takes some time)
  F
 
@@ -316,7 +316,7 @@
 # ---------------------------------------------------------------------------
 *7   :
 *p1  : initialize TMDF module
- F
+ T
 *A   : ---- Numerical evaluation parameters ----
 *p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
    1.0000000000000000E-004
@@ -333,10 +333,10 @@
 # ---------------------------------------------------------------------------
 *9   :
 *p1  : initialize TMDX-DY module
- F
+ T
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
- LO
+ N4LO
 *p2  : Utilize KPC formula (T=KPC formula, F=LP formula)
  F
 *p3  : Use resummation of pi^2-corrections in hard coefficient

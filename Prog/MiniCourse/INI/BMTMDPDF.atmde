@@ -163,7 +163,7 @@
 # ---------------------------------------------------------------------------
 *4   :
 *p1  : initialize uTMDPDF module
- T
+ F
 
 *A   : ---- Main definitions ----
 *p1  : Include gluon TMDPDF
@@ -595,14 +595,14 @@
 # ----                         PARAMETERS OF BoerMuldersTMDPDF          -----
 # ---------------------------------------------------------------------------
 *14  :
-*p1  : initialize SiversTMDPDF module
+*p1  : initialize BoerMuldersTMDPDF module
  F
 
 *A   : ---- Main definitions ----
 *p1  : Include gluon TMDPDF
  F
 *p2  : Number of hadrons (in order starting with 1)
- 0
+ 1
 
 *B   : ---- OPE[tw3] main definitions ----
 *p1  : Order of coefficient function
@@ -614,7 +614,7 @@
 
 *C   : ---- Parameters of NP model ----
 *p1  : Length of lambdaNP
-           1
+           4
 *p2  : Absolute maximum b (for larger b, TMD=0)
    100.00000000000000
 
