@@ -8,7 +8,7 @@
 !!!--------------------------------------------SECONDARY ADs------------------------------------------------
 !!!-------------------------------------------------------------------------------------------------------
 
-!!!! sets the values of logarithm part for  QUARK
+!!!! sets the values of logarithm part for RAD QUARK
 !!!! Expression is taken from [1707.07606]
 subroutine SetDnkQuark()
     integer::n

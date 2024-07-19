@@ -44,6 +44,24 @@ end function parametrizationStringAt1
 
 !!!!!coefficient function q<-q delta-part
 !!!! NO QUARK HERE!
+pure function C_q_q_delta_1(Nf,Lmu)
+  real(dp),intent(in)::Nf,Lmu
+  real(dp)::C_q_q_delta_1
+  C_q_q_delta_1=0d0
+end function C_q_q_delta_1
+
+pure function C_q_q_delta_2(Nf,Lmu)
+  real(dp),intent(in)::Nf,Lmu
+  real(dp)::C_q_q_delta_2
+  C_q_q_delta_2=0d0
+end function C_q_q_delta_2
+
+pure function C_q_q_delta_3(Nf,Lmu)
+  real(dp),intent(in)::Nf,Lmu
+  real(dp)::C_q_q_delta_3
+  C_q_q_delta_3=0d0
+end function C_q_q_delta_3
+
 pure function C_q_q_delta(alpha,Nf,Lmu)
 real(dp)::C_q_q_delta
 real(dp),intent(in)::Nf,alpha,Lmu
@@ -53,6 +71,24 @@ end function C_q_q_delta
 
 !!!!!coefficient function g<-g delta-part
 !!!! NO DELTA-function!
+pure function C_g_g_delta_1(Nf,Lmu)
+  real(dp),intent(in)::Nf,Lmu
+  real(dp)::C_g_g_delta_1
+  C_g_g_delta_1=0d0
+end function C_g_g_delta_1
+
+pure function C_g_g_delta_2(Nf,Lmu)
+  real(dp),intent(in)::Nf,Lmu
+  real(dp)::C_g_g_delta_2
+  C_g_g_delta_2=0d0
+end function C_g_g_delta_2
+
+pure function C_g_g_delta_3(Nf,Lmu)
+  real(dp),intent(in)::Nf,Lmu
+  real(dp)::C_g_g_delta_3
+  C_g_g_delta_3=0d0
+end function C_g_g_delta_3
+
 function C_g_g_delta(alpha,Nf,Lmu)
 real(dp)::C_g_g_delta
 real(dp),intent(in)::Nf,alpha,Lmu

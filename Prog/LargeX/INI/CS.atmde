@@ -86,7 +86,7 @@
 # ---------------------------------------------------------------------------
 *2   :
 *p1  : initialize EWinput module
- T
+ F
  
 *A   : ---- EW coupling parameters ----
 *p1  : value of (alphaQED)^{-1} at MZ
@@ -163,7 +163,7 @@
 # ---------------------------------------------------------------------------
 *4   :
 *p1  : initialize uTMDPDF module
- T
+ F
 
 *A   : ---- Main definitions ----
 *p1  : Include gluon TMDPDF
@@ -173,7 +173,7 @@
 
 *B   : ---- OPE main definitions ----
 *p1  : Order of coefficient function
- N3LO
+ LO
 *p2  : Prepare grid
  T
 *p3  : run the test of the grid (takes some time)
@@ -209,7 +209,7 @@
 
 *F   : ---- Transform and grid in KT-space ----
 *p1  : Prepare grid
- F
+ T
 *p2  : run the test of the grid (takes some time)
  F
 *p3  : Number of subgrids in X (required to read the next line)
@@ -316,7 +316,7 @@
 # ---------------------------------------------------------------------------
 *7   :
 *p1  : initialize TMDF module
- T
+ F
 *A   : ---- Numerical evaluation parameters ----
 *p1  : Tolerance (relative tolerance of summation in OGATA quadrature)
    1.0000000000000000E-004
@@ -333,7 +333,7 @@
 # ---------------------------------------------------------------------------
 *9   :
 *p1  : initialize TMDX-DY module
- T
+ F
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
  LO
