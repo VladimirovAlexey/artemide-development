@@ -1128,7 +1128,7 @@ will set parameters for unpolarized TMDPDF.
 \section{\texttt{QCDinput} module}
 \label{QCDinput}
 
-The module \texttt{QCDinput} gives an interface to external function provided by the user, such as PDF, FF, values of alpha-strong. It is completely user defined. In particular, in the default version it is linked to LHAPDF library \cite{Buckley:2014ana}.
+The module \texttt{QCDinput} gives an interface to external function provided by the user, such as PDF, FF, values of alpha-strong. By default the input for these functions is done via the LHAPDF tables. Originally, artemide used the LHAPDF library \cite{Buckley:2014ana}, which however caused a number of inconveniences, such as difficulty in the installation, problems with simultaneous usage of many tables, and parallel access to the tables. Starting from the version 3.01 artemide is detached from the LHAPDF library, but continue to relay on LHAPDF-tables as input for the QCD parameters. The tables are read and interpolated by the original artemide sub-modules (\texttt{LHA\_alpha} and \texttt{LHA\_PDF}). The details on these modules are presented below.
 
 \begin{center}
 List of available commands \blue{optional parameters are shown in blue.}
@@ -1166,6 +1166,12 @@ Command~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ & Description
 \label{sec:QCDinput_ini}
 
 \red{TOBE WRITTEN}
+
+\subsection{\texttt{LHA\_alpha} module}
+
+The module reads the info-file of the LHAPDF set and extracts the information about $\alpha_s$. For the moment the only possible input is with "\texttt{AlphaS\_Type=ipol}". The interpolation is done by cubic-interpolation in logarithm scale, for each mass-threshold subgrid (in accordance of the description of LHAPDF library).
+
+
 
 \newpage
 \section{\texttt{EWinput} module}

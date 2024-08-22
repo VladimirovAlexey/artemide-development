@@ -8,15 +8,22 @@
 !           A.Vladimirov
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-module LHAPDFreader
-character (len=9),parameter :: moduleName="LHAreader"
+!     In the file that uses it add
+!module NAME
+!use IO_functions
+!implicit none
+!character (len=9),parameter :: moduleName="???"
+! INCLUDE this_file
+!end module NAME
+!
 
-use IO_functions
-implicit none
+!module LHA_PDF
+!use IO_functions
+!implicit none
 
 !Current version of module
 character (len=5),parameter :: version="v3.01"
-character (len=9),parameter :: moduleName="LHAreader"
+!character (len=9),parameter :: moduleName="LHAreader"
 integer::outputLevel=2
 
 !!!!! global variables to 
@@ -27,7 +34,7 @@ integer:: NumMembers
 integer,allocatable,dimension(:):: FlavorArray
 real(dp)::XMin,XMax,QMin,QMax
 
-real(dp)::tolerance=10.d-6
+real(dp)::tolerance=10.d-8
 
 !!!!!! Main grid (x,Q,f)
 real(dp),dimension(:,:,:),allocatable::MainGrid
@@ -37,7 +44,7 @@ integer,allocatable,dimension(:,:):: PDF_indices!! indices
 
 logical::TablesAreReady=.false. !!! flag that shows that module is ready
 
-public:: ReadInfo
+public:: ReadInfo, SetReplica, xPDF
 
 contains
 
@@ -67,8 +74,8 @@ subroutine ParseInfoLine(line)
         
     CASE("SetIndex","Authors","FlavorScheme","OrderQCD","ErrorType","DataVersion", &
         "Format", "NumFlavors", "AlphaS_OrderQCD", "MZ","MUp","MDown","MStrange",  &
-        "MCharm", "MBottom", "MTop", "AlphaS_MZ", "AlphaS_Type","AlphaS_Qs", "AlphaS_Vals" &
-        )
+        "MCharm", "MBottom", "MTop", "AlphaS_MZ", "AlphaS_Type","AlphaS_Qs", "AlphaS_Vals", &
+        "Particle","AlphaS_Lambda3","AlphaS_Lambda4","AlphaS_Lambda5")
         !!!!! Unused values of LHA-PDF file
         if(outputLevel>3) then
             write(*,*) "Value of "//trim(linePart1)//" in LHAPDF-info :"
@@ -133,14 +140,16 @@ subroutine ParseInfoLine(line)
 end subroutine ParseInfoLine
 
 !!! opens the info-file and read lines.
-subroutine ReadInfo(name,directory)
+subroutine ReadInfo(name,directory,outL)
     character(len=*),intent(in)::name
     character(len=*),intent(in)::directory
+    integer,intent(in)::outL
     character(len=300)::path
     character(len=1024)::line !!!! 1024 line size!
     integer::ios,i,j
     
     TablesAreReady=.false.
+    outputLevel=outL
 
     PDFname=trim(name)
 
@@ -554,40 +563,4 @@ xPDF=(deltaX(1)*subQ(1,-5:5)+deltaX(2)*subQ(2,-5:5)+deltaX(3)*subQ(3,-5:5)+delta
 
 end function xPDF
 
-end module LHAPDFreader
-
-program example
-use LHAPDFreader
-implicit none
-
-real*8::aa,QQ,xx
-real*8::ff(-5:5)
-integer::i
-
-call ReadInfo("MSHT20_REP","Prog/LHAPDFreader/LHAexample/")
-
-call SetReplica(5)
-
-do i=0,120
-xx=10**(-i/20.d0)
-QQ=i/3.+1.2d0
-ff=xPDF(xx,QQ)
-write(*,'("{",F12.9,",",F12.8,"},")') xx,ff(1)
-end do
-
-!do i=0,60
-!QQ=10**(i/30.d0)
-!ff=xPDF(0.11d0,QQ)
-!write(*,'("{",F10.2,",",F12.8,"},")') QQ,ff(1)
-!end do
-
-!ff=xPDF(0.000001d0,1.20000001d0)
-!write(*,*) ff
-
-! ff=xPDF(0.0000012d0,1.20000001d0)
-! write(*,*) ff
-!
-! ff=xPDF(0.0000015d0,1.20000001d0)
-! write(*,*) ff
-
-end program example
+!end module LHA_PDF

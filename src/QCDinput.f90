@@ -1,19 +1,29 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 2.01
+!            arTeMiDe 2.01
 !
 ! Interface module to the user defined alpha-s, PDF, FF, etc.
 ! Could be interfaced to LHAPDF
 !
-!	ver.2.0: 28.03.2019 AV
-!	ver.2.01: 14.06.2019 AV (+lpPDF)
-!	ver.2.07: 09.11.2021 AV (+g1T)
-!				A.Vladimirov
+!    ver.2.0: 28.03.2019 AV
+!    ver.2.01: 14.06.2019 AV (+lpPDF)
+!    ver.2.07: 09.11.2021 AV (+g1T)
+!    ver.3.01: 22.08.2024 AV (introduction of LHA)
+!                A.Vladimirov
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+!!!!!!
+module PDF1
+use IO_functions
+implicit none
+character (len=9),parameter :: moduleName="PDF1"
+INCLUDE 'Code/LHA/LHA_PDF.f90'
+end module PDF1
 
 module QCDinput
 use aTMDe_Numerics
 use IO_functions
+use LHA_alpha
+use PDF1, only : ReadInfo1 => ReadInfo, SetReplica1 => SetReplica, xPDF1 => xPDF
 implicit none
 
 private
@@ -21,8 +31,8 @@ private
 
 
 public::QCDinput_Initialize,QCDinput_IsInitialized
-public::As,activeNf
-public::xPDF,xFF,x_lp_PDF,x_hPDF
+public::As,As1,activeNf
+public::xPDF,xFF,x_lp_PDF,x_hPDF,xPDF_R
 public:: QCDinput_SetPDFreplica, QCDinput_SetFFreplica, QCDinput_SetlpPDFreplica,QCDinput_SethPDFreplica
 
 character (len=8),parameter :: moduleName="QCDinput"
@@ -89,7 +99,7 @@ integer,allocatable::current_replicas(:)
     read(51,*) FILEver
     if(FILEver<inputver) then
       write(*,*) 'artemide.'//trim(moduleName)//': const-file version is too old.'
-      write(*,*) '		     Update the const-file with artemide.setup'
+      write(*,*) '             Update the const-file with artemide.setup'
       write(*,*) '  '
       stop
     end if
@@ -259,6 +269,10 @@ integer,allocatable::current_replicas(:)
     end if
  
   CLOSE (51, STATUS='KEEP') 
+
+  call ReadInfo("NNPDF31_nnlo_as_0118","/mnt/d/WorkingFiles/LHAPDF/Installation/share/LHAPDF/",outputLevel)
+
+  call ReadInfo1("NNPDF31_nnlo_as_0118","/mnt/d/WorkingFiles/LHAPDF/Installation/share/LHAPDF/",outputLevel)
 
   if(outputLevel>2) write(*,*) "The list of initial PDF replica numbers is :", current_replicas
      
@@ -497,6 +511,26 @@ end function activeNf
 !  as=1d0/(2d0*23d0/3d0*Log(Q/0.08782708014552364d0))  !!! Nf=5 LO solution
  
  end function As
+
+ !!!!alphas(Q)/4pi
+ !!! NOT FORGET 4 PI !!!
+ function As1(Q)
+ real(dp)::as1,Q,alphasPDF
+
+ As1=AlphaS(Q)/pix4
+!  as=1d0/(2d0*23d0/3d0*Log(Q/0.08782708014552364d0))  !!! Nf=5 LO solution
+
+ end function As1
+
+  function xPDF_R(x,Q,hadron)
+      real(dp),intent(in) :: x,Q
+      integer,intent(in):: hadron
+      real(dp), dimension(-5:5):: xPDF_R
+
+      !call evolvePDFM(index_of_uPDF(hadron),x,Q,inputPDF)
+
+      xPDF_R=xPDF1(x,Q)
+  end function xPDF_R
 
  !!!!array of x times PDF(x,Q) for hadron 'hadron'
  !!! unpolarized PDF used in uTMDPDF
