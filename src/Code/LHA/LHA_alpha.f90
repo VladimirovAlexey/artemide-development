@@ -27,6 +27,8 @@ real(dp),allocatable,dimension(:):: AlphaS_Qs,AlphaS_Vals,AlphaS_LogQs
 real(dp),allocatable,dimension(:,:):: AlphaS_W!! barycentric wieghts
 integer,allocatable,dimension(:,:):: AlphaS_indices!! indices
 
+real(dp)::extrapolA,extrapolB1,extrapolB2,LambdaEFF !!! precomputed parameters of extrapolation
+
 real(dp)::tolerance=10.d-6
 
 logical::AlphaStype_IsRecognized=.false. !!!! TRUE= correct input for alphaS (used during load)
@@ -272,6 +274,20 @@ subroutine ReadInfo(name,directory,outP)
         (AlphaS_LogQs(AlphaS_indices(4,i))-AlphaS_LogQs(AlphaS_indices(3,i))))
     end do
 
+    !!!! linear extrapolation in the inverse alpha and log-scale
+    !!!! alpha=A/(B1 log(Q/Q0)+B2)
+    extrapolA=AlphaS_Vals(0)*AlphaS_Vals(1)*Log(AlphaS_Qs(1)/AlphaS_Qs(0))
+    extrapolB1=(AlphaS_Vals(0)-AlphaS_Vals(1))
+    extrapolB2=AlphaS_Vals(1)*Log(AlphaS_Qs(1)/AlphaS_Qs(0))
+
+    LambdaEFF=exp(-extrapolB2/extrapolB1)*AlphaS_Qs(0)
+
+    if(LambdaEFF+0.1>Qmin) &
+    ERROR STOP ErrorString('Effective Lambda computed as '//real8Tostr(LambdaEFF)//' It is too high...',moduleName)
+
+    if(outputLevel>1) write(*,'("AlphaS prepared with Effective Lambda = ",F10.6)') LambdaEFF
+    LambdaEFF=max(LambdaEFF+0.1d0,0.4d0)
+
     if(outputLevel>1) write(*,'(A)') color("----- Alpha_s from "//trim(name)//" loaded. ",c_yellow)&
         //color("["//trim(ReferenceString)//"]",c_blue)
 
@@ -286,26 +302,32 @@ real(dp):: AlphaS
 
 real(dp)::logQ,deltas(1:4)
 integer::i,j
-if(Q<Qmin .or. Q>Qmax) ERROR STOP ErrorString('Alphas: Q is outside of Q-range',moduleName)
+if(Q<Qmin) then !!! logarith log-extrapolation
+    if(Q<LambdaEFF) ERROR STOP ErrorString('Q ='//real8Tostr(Qmax)//'is smaller that Effective Lambda',moduleName)
 
-logQ=log(Q)
+    AlphaS=extrapolA/(extrapolB1*Log(Q/AlphaS_Qs(0))+extrapolB2)
+else if(Q>Qmax) then !!! constant
+    AlphaS=AlphaS_Vals(size(AlphaS_Qs)-1)
+else
+    logQ=log(Q)
 
-do i=0,size(AlphaS_Qs)-2
-    if(logQ<AlphaS_LogQs(i+1)) exit
-end do
+    do i=0,size(AlphaS_Qs)-2
+        if(logQ<AlphaS_LogQs(i+1)) exit
+    end do
 
-! !!! this is index of the Q-box
-do j=1,4
-    deltas(j)=logQ-AlphaS_LogQs(AlphaS_indices(j,i))
-    !!! I check if the point is close to the node
-    if(abs(deltas(j))<tolerance) then
-        AlphaS=AlphaS_Vals(AlphaS_indices(j,i))
-        return
-    end if
-    deltas(j)=AlphaS_W(j,i)/deltas(j)
-end do
+    ! !!! this is index of the Q-box
+    do j=1,4
+        deltas(j)=logQ-AlphaS_LogQs(AlphaS_indices(j,i))
+        !!! I check if the point is close to the node
+        if(abs(deltas(j))<tolerance) then
+            AlphaS=AlphaS_Vals(AlphaS_indices(j,i))
+            return
+        end if
+        deltas(j)=AlphaS_W(j,i)/deltas(j)
+    end do
 
-AlphaS=sum(deltas*AlphaS_Vals(AlphaS_indices(1,i):AlphaS_indices(4,i)))/sum(deltas)
+    AlphaS=sum(deltas*AlphaS_Vals(AlphaS_indices(1,i):AlphaS_indices(4,i)))/sum(deltas)
+end if
 
 end function AlphaS
 

@@ -12,7 +12,7 @@
  
 *A   : ---- Global I/O ----
 *p1  : Input file Version (used to check version compatibility)
-          30
+          31
 *p2  : Output level (0 = no output except critical, 1 = + WARNINGS, 2 = + info,  3 = + details)
            2
 *p3  : Message trigger (the number of continious non-critical warning before stop showing them)
@@ -34,7 +34,11 @@
 # ----                           PARAMETERS OF QCDinput                 -----
 # ---------------------------------------------------------------------------
 *1   :
- 
+*p1  : path to the directory with LHA-tables
+ /mnt/d/WorkingFiles/LHAPDF/Installation/share/LHAPDF
+*p2  : Name of LHA set for alphaQCD
+ NNPDF31_nnlo_as_0118
+
 *A   : ---- quarks threashold masses ----
 *p1  : mass of charm-quark
    1.2749999999999999     
@@ -44,41 +48,25 @@
    172.90000000000001     
  
 *B   : ---- uPDF sets----
-*p1  : total number of PDFs to initialize (0= initialization is skipped)
+*p1  : total number of PDFs to initialize (0= initialization is skipped; maximum 3)
            1
-*p2  : reference number for hadrons
-    1
-*p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
+*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
  NNPDF31_nnlo_as_0118
-*p4  : list of initialization replicas
-    0
  
 *C   : ---- uFF sets----
-*p1  : total number of FFs to initialize (0= initialization is skipped)
+*p1  : total number of FFs to initialize (0= initialization is skipped; maximum 3)
            0
-*p2  : reference number for hadrons
-    0
-*p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
-*p4  : list of initialization replicas
-    0
+*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
  
 *D   : ----lpPDF sets----
-*p1  : total number of PDFs to initialize (0= initialization is skipped)
+*p1  : total number of PDFs to initialize (0= initialization is skipped; maximum 1)
            0
-*p2  : reference number for hadrons
-    0
-*p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
-*p4  : list of initialization replicas
-    0
+*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
  
 *E   : ----hPDF sets----
-*p1  : total number of PDFs to initialize (0= initialization is skipped)
+*p1  : total number of PDFs to initialize (0= initialization is skipped; maximum 2)
            0
-*p2  : reference number for hadrons
-    0
-*p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
-*p4  : list of initialization replicas
-    0
+*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
  
  
 # ---------------------------------------------------------------------------

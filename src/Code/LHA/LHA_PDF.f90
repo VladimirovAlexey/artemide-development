@@ -42,6 +42,8 @@ real(dp),dimension(:),allocatable::Xnodes,Qnodes,PDF_logQs,PDF_logXs
 real(dp),allocatable,dimension(:,:):: PDF_WX,PDF_WQ!! barycentric wieghts
 integer,allocatable,dimension(:,:):: PDF_indices!! indices
 
+real(dp),dimension(:,:),allocatable::extrapolationGAMMA !!! parameter of extrapolation
+
 logical::TablesAreReady=.false. !!! flag that shows that module is ready
 
 public:: ReadInfo, SetReplica, xPDF
@@ -205,6 +207,7 @@ subroutine SetReplica(num)
     if(allocated(PDF_WQ)) deallocate(PDF_WQ)
     if(allocated(PDF_WX)) deallocate(PDF_WX)
     if(allocated(PDF_indices)) deallocate(PDF_indices)
+    if(allocated(extrapolationGAMMA)) deallocate(extrapolationGAMMA)
 
     XisSet=.false.!!!! trigger fro the first set of X's
     Qsize=0
@@ -497,6 +500,14 @@ subroutine SetReplica(num)
         (PDF_LogXs(k+2)-PDF_LogXs(k-1))*(PDF_LogXs(k+2)-PDF_LogXs(k))*(PDF_LogXs(k+2)-PDF_LogXs(k+1)))
     end do
 
+    !!! extrapolation is done by formula F(x)*(Q/Q0)^[gamma(x) Q +2]
+    !!! where gamma(x)=(gg-2)/Q0, where gg=D[logF]/dlogQ
+    !!! see (4,5) in 1412.7420
+    allocate(extrapolationGAMMA(0:Xsize-1,-5:5))
+    !!! this is derivative
+    extrapolationGAMMA=(log(MainGrid(0:Xsize-1,1,-5:5))-log(MainGrid(0:Xsize-1,0,-5:5)))/(PDF_LogQs(1)-PDF_LogQs(0))
+    extrapolationGAMMA=(extrapolationGAMMA-2)/sqrt(Qnodes(0))
+
     if(outputLevel>1) write(*,"(A,I4,A)") " "//trim(moduleName)//": replica ",num," of "//trim(PDFname)//" loaded."
 
 
@@ -507,12 +518,61 @@ function xPDF(x,Q)
 real(dp),intent(in)::x,Q
 real(dp),dimension(-5:5):: xPDF
 
-real(dp)::logQ,dd,deltaQ(1:4),subQ(1:4,-5:5),logX,deltaX(1:4)
+real(dp)::logQ,dd,deltaQ(1:4),subQ(1:4,-5:5),logX,deltaX(1:4),gg(-5:5)
 integer::iQ,iX,j
 logical::flag
 
-if(Q<Qmin .or. Q>Qmax) ERROR STOP ErrorString('Q is outside of Q-range',moduleName)
-if(X<Xmin .or. X>Xmax) ERROR STOP ErrorString('X is outside of X-range',moduleName)
+if(X<Xmin .or. X>Xmax) ERROR STOP ErrorString('X ='//real8Tostr(X)//' is outside of X-range',moduleName)
+
+if(Q>Qmax) ERROR STOP ErrorString('Q ='//real8Tostr(Qmax)//'is outside of QMax-range',moduleName)
+if(Q<0.4d0) ERROR STOP ErrorString('Q ='//real8Tostr(Qmax)//'is smaller that 0.4 GeV of QMax-range',moduleName)
+
+if(Q<Qmin) then !!!! extrapolate!
+    logX=log(X)
+
+    !!! search for the index of X
+    if(logX<PDF_LogXs(1)) then
+        iX=1
+    else if(logX>PDF_LogXs(size(PDF_LogXs)-2)) then
+        iX=size(PDF_LogXs)-3
+    else
+        do iX=1,size(PDF_LogXs)-3
+            if(logX<PDF_LogXs(iX+1)) exit
+        end do
+    end if
+
+    !!!! first interpolate gamma to the x
+    subQ(1:4,-5:5)=extrapolationGAMMA(iX-1:iX+2,-5:5)
+    do j=1,4
+    dd=logX-PDF_LogXs(iX+j-2)
+    !!! I check if the point is close to the node
+    if(abs(dd)<tolerance) then
+        gg(-5:5)=subQ(j,-5:5)
+        goto 21
+    end if
+    deltaX(j)=PDF_WX(j,iX)/dd
+    end do
+
+    gg=(deltaX(1)*subQ(1,-5:5)+deltaX(2)*subQ(2,-5:5)+deltaX(3)*subQ(3,-5:5)+deltaX(4)*subQ(4,-5:5))/sum(deltaX)
+
+    !!!! second interpolate PDF at Q0 to the x
+21  subQ(1:4,-5:5)=MainGrid(iX-1:iX+2,0,-5:5)
+    do j=1,4
+    dd=logX-PDF_LogXs(iX+j-2)
+    !!! I check if the point is close to the node
+    if(abs(dd)<tolerance) then
+        xPDF(-5:5)=subQ(j,-5:5)
+        goto 22
+    end if
+    deltaX(j)=PDF_WX(j,iX)/dd
+    end do
+
+    xPDF(-5:5)=(deltaX(1)*subQ(1,-5:5)+deltaX(2)*subQ(2,-5:5)+deltaX(3)*subQ(3,-5:5)+deltaX(4)*subQ(4,-5:5))/sum(deltaX)
+
+22  xPDF(-5:5)=xPDF(-5:5)*(Q/Qnodes(0))**(gg(-5:5)*sqrt(Q) +2)
+
+    return
+end if
 
 logQ=log(Q)
 logX=log(X)

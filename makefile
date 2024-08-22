@@ -17,7 +17,7 @@ Fpath=/usr/bin/f95
 
 #options for COMILATOR to compile QCDinput. e.g. link to LHA
 #FOPT=$(shell lhapdf-config --ldflags)
-FOPT=$(shell lhapdf-config --ldflags)
+FOPT=
 
 #### for debuging -g -fbacktrace -fcheck=all
 #FOPT=-L/home/vla18041/LinkData2/LHAPDF/Installation/lib -lLHAPDF -lstdc++

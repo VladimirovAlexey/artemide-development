@@ -1130,6 +1130,8 @@ will set parameters for unpolarized TMDPDF.
 
 The module \texttt{QCDinput} gives an interface to external function provided by the user, such as PDF, FF, values of alpha-strong. By default the input for these functions is done via the LHAPDF tables. Originally, artemide used the LHAPDF library \cite{Buckley:2014ana}, which however caused a number of inconveniences, such as difficulty in the installation, problems with simultaneous usage of many tables, and parallel access to the tables. Starting from the version 3.01 artemide is detached from the LHAPDF library, but continue to relay on LHAPDF-tables as input for the QCD parameters. The tables are read and interpolated by the original artemide sub-modules (\texttt{LHA\_alpha} and \texttt{LHA\_PDF}). The details on these modules are presented below.
 
+For the technical reasons there is strict limit on the maximum number of hadrons. This limit can be changed but it requires modification of the code. The default limitation is the following: \texttt{uPDF} 3 hadrons, \texttt{uFF} 3 hadrons, \texttt{lpPDF} 1 hadron, \texttt{hPDF} 2 hadrons.
+
 \begin{center}
 List of available commands \blue{optional parameters are shown in blue.}
 \\
@@ -1169,9 +1171,31 @@ Command~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ & Description
 
 \subsection{\texttt{LHA\_alpha} module}
 
-The module reads the info-file of the LHAPDF set and extracts the information about $\alpha_s$. For the moment the only possible input is with "\texttt{AlphaS\_Type=ipol}". The interpolation is done by cubic-interpolation in logarithm scale, for each mass-threshold subgrid (in accordance of the description of LHAPDF library).
+The module reads the info-file of the LHAPDF set and extracts the information about $\alpha_s$. For the moment the only possible input is with "\texttt{AlphaS\_Type=ipol}". The interpolation is done by cubic-interpolation in logarithm scale, for each mass-threshold subgrid (in accordance of the description of LHAPDF library). Compared that the deviation from the original LHA library and \texttt{artemide} is better that $10^{-6}$ (i.e. at the level of float-definition fluctuations).
 
+Below the $Q_{\text{min}}$ I perform the extrapolation by the following formula
+\begin{eqnarray}
+\alpha_s(Q)=\frac{\alpha_0 \alpha_1 \ln(Q_1/Q_0)}{(\alpha_0-\alpha_1)\ln(Q/Q_0)+\alpha_1\ln(Q_1/Q_0)},
+\end{eqnarray}
+where $Q_0=Q_{\text{min}}$ and $Q_1$ is the next-to-$Q_{\min}$ node, and $\alpha_{0,1}=\alpha_s(Q_{0,1})$. This formula extrapolate $1/\alpha$ logarithmically in the logarithm scale. It gives the values of $\Lambda_{\text{eff}}$
+\begin{eqnarray}
+\Lambda_{\text{eff}}=Q_0\exp\(-\frac{\alpha_1 \ln(Q_1/Q_0)}{\alpha_0-\alpha_1}\),
+\end{eqnarray}
+where the coupling constant diverges. The minimal possible $Q$ is truncated to $\text{min}(0.4\text{GeV},\Lambda_{\text{eff}}+0.1\text{GeV})$ to avoid problems with low energy.
 
+\subsection{\texttt{LHA\_PDF} module}
+
+The module reads info-file and the PDF-table and interpolates using the log-qubic interpolation (instead of cubic-Hermite interpolator from LHAPDF-library). There is a small-difference between interpolating results but they are smaller that $10^{-4}$ (relative). I.e. far inside of the pdf uncertainties. 
+
+Below the $Q_{\text{min}}=Q_0$ the extrapolation is done by the formula
+\begin{eqnarray}
+F(x,Q)=F(x,Q_0) (Q/Q_0)^{\Gamma(Q)},\qquad \Gamma(Q)=2+\sqrt{\frac{Q}{Q_0}}(\gamma(x)-2),
+\end{eqnarray}
+where $F(x,Q)=xf(x,Q)$, and $\gamma(x)$ is 
+\begin{eqnarray}
+\gamma(x)=\frac{\ln F(Q_1)-\ln F(Q_0)}{\ln(Q_1/Q_0)}\approx \frac{d \ln F(Q)}{d\ln Q}.
+\end{eqnarray}
+This is in the agreement of formulas (4,5) of ref.\cite{Buckley:2014ana}. Below $0.4$GeV the extrapolation terminated and error is called.
 
 \newpage
 \section{\texttt{EWinput} module}
@@ -3585,146 +3609,20 @@ artemide $<3$ & artemide $>3$ & Process & Comment
 \end{longtable}
 \end{center}
 
-\end{document}
-
-\newpage
-
-\section{Supplementary codes}
-
-In the \texttt{artemide} archive you can find some example codes. They are located in \texttt{Prog/} and can be compiled by
-
-\texttt{make program TARGET=name}
-
-\begin{tabular}{p{4cm} p{12cm}}
-\texttt{test.f90} & Makes some elementary computation. Can be run by \texttt{make test}
-\\
-\texttt{DY\_example\_v14.f90} & Commented example of the code for computation of DY cross-section for \texttt{artemide} ver.1.4
-\\
-\texttt{DY\_example\_v2.f90} & Commented example of the code for computation of DY cross-section for \texttt{artemide} ver.2.00.
-\\
-\texttt{DY\_for\_RHIC.f90} & Example computation of Z-boson production in RHIC kinematics with error-estimation by replicas.
-\\
-\texttt{DY\_for\_CMS.f90} & Example computation of Z-boson production in CMS kinematics with error-estimation by scale-variations.
-\end{tabular}
-
-
-
-\newpage
-
-\section{Harpy}
-
-The \texttt{harpy} (from combination of \blue{H}ybrid \blue{AR}temide+\blue{PY}thon)) is an interface to \texttt{artemide} to the python.
-
-It is directly possible to interfacing the \texttt{artemide} to python since \texttt{artemide} is made on fortran95. It uses some of it features, such as interfaces, and indirect list declarations, which are alien to python. Also I have not found any convenient way to include several dependent Fortran modules in f2py (if you have suggestion just tell me). Therefore, I made a wrap module \texttt{harpy.f90} that call some useful functions from \texttt{artemide} with simple declarations. So, it could be linked to python by f2py library.
-
-So, in the current realization I create the signature file that declare python module artemide, which has an wrap module harpy. In python it looks like
-
-$>>>$ import artemide
-
-$>>>$ artemide.harpy.initialize("NNLO")
-
-$>>>$ print artemide.harpy.utmdpdf\_5\_optimal(0.1,1.,1)
-
-Ugly, but it works.
-
-Note, that not all functions of \texttt{artemide} are available in \texttt{harpy}. I have added only the most useful, however, you can add them by our-self, or write me an e-mail. Here, list the functions from \texttt{artemide} and their synonym in \texttt{harpy}
-
-\begin{center}
-
-\small
-\begin{longtable}{|l|l||p{6cm}|}
-\multicolumn{2}{|c||}{\texttt{artemide}} & \texttt{harpy.f90} 
-\\
-module & function & \\
-\hline\hline
-\texttt{aTMDe\_control} & \texttt{artemide\_Initialize(file)} & \texttt{Initialize(file)} 
-\\\cline{2-3}
-& \texttt{artemide\_ShowStatistics()} & \texttt{ShowStatistics()} 
-\\\cline{2-3}
-& \texttt{artemide\_SetScaleVariations(c1,c2,c3,c4)} & \texttt{SetScaleVariations(c1,c2,c3,c4)} 
-\\\cline{2-3}
-& \texttt{artemide\_SetNPparameters(lambda)} & \texttt{SetLambda\_Main(lambda)}
-\\\cline{2-3}
-& \texttt{artemide\_SetNPparameters\_TMDR(lambda)} & \texttt{SetLambda\_TMDR(lambda)}
-\\\cline{2-3}
-& \texttt{artemide\_SetNPparameters\_uTMDPDF(lambda)} & \texttt{SetLambda\_uTMDPDF(lambda)} 
-\\\cline{2-3}
-& \texttt{artemide\_SetNPparameters\_uTMDFF(lambda)} & \texttt{SetLambda\_uTMDFF(lambda)}
-\\\cline{2-3}
-& \texttt{artemide\_SetReplica\_TMDR(lambda)} & \texttt{SetReplica\_TMDR(lambda)}
-\\\cline{2-3}
-& \texttt{artemide\_SetReplica\_uTMDPDF(lambda)} & \texttt{SetReplica\_uTMDPDF(lambda)}
-\\\cline{2-3}
-& \texttt{artemide\_SetReplica\_uTMDFF(lambda)} & \texttt{SetReplica\_uTMDFF(lambda)}
-\\\hline
-\texttt{TMDX\_DY} & \texttt{TMDX\_DY\_SetNPParameters(}array\texttt{)} & \texttt{SetLambda(}array\texttt{)} 
-\\\cline{2-3}
-& \texttt{TMDX\_DY\_SetNPParameters(}integer\texttt{)} & \texttt{SetLambda\_ByReplica(}integer\texttt{)} 
-\\\cline{2-3}
-& \texttt{TMDX\_DY\_SetScaleVariations(c1,c2,c3,c4)} & \texttt{SetScaleVariation(c1,c2,c3,c4)} 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\\\hline
-\texttt{TMDR} & \texttt{DNP(bt,mu,f)} & \texttt{getDNP(bt,mu,f)} 
-\\\cline{2-3}
-& \texttt{TMDR\_Rzeta(bt,muf,zetaf,f)} & \texttt{getR(bt,mu,zeta,f)} 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\\\hline
-\texttt{TMDs} & \texttt{uTMDPDF\_5(x,bt,muf,zetaf,h)} & \texttt{uTMDPDF\_5\_Evolved(x,bt,muf,zetaf,h)} 
-\\\cline{2-3}
-& \texttt{uTMDPDF\_50(x,bt,muf,zetaf,h)} & \texttt{uTMDPDF\_50\_Evolved(x,bt,muf,zetaf,h)} 
-\\\cline{2-3}
-& \texttt{uTMDPDF\_5(x,bt,h)} & \texttt{uTMDPDF\_5\_Optimal(x,bt,h)} 
-\\\cline{2-3}
-& \texttt{uTMDPDF\_50(x,bt,h)} & \texttt{uTMDPDF\_50\_Optimal(x,bt,h)} 
-\\\cline{2-3}
-& \texttt{TMDs\_SetPDFreplica(n)} & \texttt{SetPDFreplica(n)} 
-\\\cline{2-3} & \textbf{\blue{Same with \texttt{uTMDFF}}} &
-\\\cline{2-3} & \textbf{\blue{Same with \texttt{lpTMDPDF}}} & (only \texttt{\_50} version)
-\\\cline{2-3} & \textbf{\blue{Same with \texttt{SiversTMDPDF}}} &
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\\\hline
-\texttt{TMDs\_inKT} & \texttt{uTMDPDF\_kT\_5(x,kt,muf,zetaf,h)} & \texttt{uTMDPDF\_kT\_5\_Evolved(x,kt,muf,zetaf,h)} 
-\\\cline{2-3}
-& \texttt{uTMDPDF\_kT\_50(x,kt,muf,zetaf,h)} & \texttt{uTMDPDF\_kT\_50\_Evolved(x,kt,muf,zetaf,h)} 
-\\\cline{2-3}
-& \texttt{uTMDPDF\_kT\_5(x,kt,h)} & \texttt{uTMDPDF\_kT\_5\_Optimal(x,kt,h)} 
-\\\cline{2-3}
-& \texttt{uTMDPDF\_kT\_50(x,kt,h)} & \texttt{uTMDPDF\_kT\_50\_Optimal(x,kt,h)} 
-\\\cline{2-3} & \textbf{\blue{Same with \texttt{uTMDFF}}} &
-\\\cline{2-3} & \textbf{\blue{Same with \texttt{lpTMDPDF}}} & (only \texttt{\_50} version)
-\\\cline{2-3} & \textbf{\blue{Same with \texttt{SiversTMDPDF}}} &
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\\\hline
-\texttt{TMDX\_DY} & \texttt{xSec\_DY(X,proc,s,qT,Q,y,iC,cuts)} & X=\texttt{DY\_xSec\_Single(proc,s,qT,Q,y,iC,cuts)}
-\\\cline{2-3}
- & \texttt{xSec\_DY\_List(X,proc,s,qT,Q,y,iC,cuts)} & X=\texttt{DY\_xSec\_List(proc,s,qT,Q,y,iC,cuts,L)}
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\\\hline
-\texttt{TMDX\_SIDIS} & \texttt{xSec\_SIDIS(X,proc,s,pT,z,x,Q,iC,cuts)} & X=\texttt{SIDIS\_xSec\_Single(proc,s,pT,z,x,Q,iC,cuts)}
-\\
-\cline{2-3}
-& \texttt{xSec\_SIDIS(X,proc,s,pT,z,x,Q,iC,cuts,masses)} & X=\texttt{SIDIS\_xSec\_Single\_withMasses(proc,s,pT,z,x,Q,iC,cuts,masses)}
-\\\cline{2-3}
- & \texttt{xSec\_SIDIS\_List(X,proc,s,pT,z,x,Q,iC,cuts)} & X=\texttt{SIDIS\_xSec\_List(proc,s,qT,z,x,Q,iC,cuts,L)}
-\\\cline{2-3}
- & \texttt{xSec\_SIDIS\_List(X,proc,s,pT,z,x,Q,iC,cuts,masses)} & X=\texttt{SIDIS\_xSec\_List\_withMasses(proc,s,qT,z,x,Q,iC,cuts,masses,L)}
-\end{longtable}
-\end{center}
-\texttt{L} is the length of the input/output lists.
-
-\red{\textbf{NOTE:} there is no \textbf{OPTIONAL} parameters. All parameters should be defined (it is necessary for f2py).}
-
-\begin{tcolorbox}
-For convenience I have also created a more user-friendly interface, written on python. It is called \texttt{harpy.py} and located in \texttt{/harpy}, and can be imported as is.
-\end{tcolorbox}
-
 \clearpage
 
-\bibliography{bibfile}
-
-\clearpage
 \section{Version history}
 \begin{itemize}
+\item[\textbf{Ver.3.01}]
+\begin{itemize}
+	\item \textbf{QCDinput}: removed connected to LHAPDF library. All changed to self-readers. Hardcore restriction on the number of hadrons.
+	\item \textbf{LHA\_alpha} \& \textbf{LHA\_PDF}: implemented
+\end{itemize}
+\item[\textbf{Ver.3.00}]
+\begin{itemize}
+	\item \textbf{DY\_KPC}: implemented
+	\item \blue{\textbf{MULTIPLE CHANGES. MASSIVE REORGANIZATION OF CODE}}
+\end{itemize}
 \item[\textbf{Ver.2.06}]
 \begin{itemize}
 	\item \textbf{harpy} Added functions for wgt-function and also for TMDR module
@@ -3967,6 +3865,143 @@ For convenience I have also created a more user-friendly interface, written on p
 \end{itemize}
 \item[\textbf{Ver.1}] Release: \texttt{uTMDPDF}, \texttt{TMDR}, \texttt{TMDs} and \texttt{TMDX} modules. Only Drell-Yan-like cross-sections.
 \end{itemize}
+
+\end{document}
+
+\newpage
+
+\section{Supplementary codes}
+
+In the \texttt{artemide} archive you can find some example codes. They are located in \texttt{Prog/} and can be compiled by
+
+\texttt{make program TARGET=name}
+
+\begin{tabular}{p{4cm} p{12cm}}
+\texttt{test.f90} & Makes some elementary computation. Can be run by \texttt{make test}
+\\
+\texttt{DY\_example\_v14.f90} & Commented example of the code for computation of DY cross-section for \texttt{artemide} ver.1.4
+\\
+\texttt{DY\_example\_v2.f90} & Commented example of the code for computation of DY cross-section for \texttt{artemide} ver.2.00.
+\\
+\texttt{DY\_for\_RHIC.f90} & Example computation of Z-boson production in RHIC kinematics with error-estimation by replicas.
+\\
+\texttt{DY\_for\_CMS.f90} & Example computation of Z-boson production in CMS kinematics with error-estimation by scale-variations.
+\end{tabular}
+
+
+
+\newpage
+
+\section{Harpy}
+
+The \texttt{harpy} (from combination of \blue{H}ybrid \blue{AR}temide+\blue{PY}thon)) is an interface to \texttt{artemide} to the python.
+
+It is directly possible to interfacing the \texttt{artemide} to python since \texttt{artemide} is made on fortran95. It uses some of it features, such as interfaces, and indirect list declarations, which are alien to python. Also I have not found any convenient way to include several dependent Fortran modules in f2py (if you have suggestion just tell me). Therefore, I made a wrap module \texttt{harpy.f90} that call some useful functions from \texttt{artemide} with simple declarations. So, it could be linked to python by f2py library.
+
+So, in the current realization I create the signature file that declare python module artemide, which has an wrap module harpy. In python it looks like
+
+$>>>$ import artemide
+
+$>>>$ artemide.harpy.initialize("NNLO")
+
+$>>>$ print artemide.harpy.utmdpdf\_5\_optimal(0.1,1.,1)
+
+Ugly, but it works.
+
+Note, that not all functions of \texttt{artemide} are available in \texttt{harpy}. I have added only the most useful, however, you can add them by our-self, or write me an e-mail. Here, list the functions from \texttt{artemide} and their synonym in \texttt{harpy}
+
+\begin{center}
+
+\small
+\begin{longtable}{|l|l||p{6cm}|}
+\multicolumn{2}{|c||}{\texttt{artemide}} & \texttt{harpy.f90} 
+\\
+module & function & \\
+\hline\hline
+\texttt{aTMDe\_control} & \texttt{artemide\_Initialize(file)} & \texttt{Initialize(file)} 
+\\\cline{2-3}
+& \texttt{artemide\_ShowStatistics()} & \texttt{ShowStatistics()} 
+\\\cline{2-3}
+& \texttt{artemide\_SetScaleVariations(c1,c2,c3,c4)} & \texttt{SetScaleVariations(c1,c2,c3,c4)} 
+\\\cline{2-3}
+& \texttt{artemide\_SetNPparameters(lambda)} & \texttt{SetLambda\_Main(lambda)}
+\\\cline{2-3}
+& \texttt{artemide\_SetNPparameters\_TMDR(lambda)} & \texttt{SetLambda\_TMDR(lambda)}
+\\\cline{2-3}
+& \texttt{artemide\_SetNPparameters\_uTMDPDF(lambda)} & \texttt{SetLambda\_uTMDPDF(lambda)} 
+\\\cline{2-3}
+& \texttt{artemide\_SetNPparameters\_uTMDFF(lambda)} & \texttt{SetLambda\_uTMDFF(lambda)}
+\\\cline{2-3}
+& \texttt{artemide\_SetReplica\_TMDR(lambda)} & \texttt{SetReplica\_TMDR(lambda)}
+\\\cline{2-3}
+& \texttt{artemide\_SetReplica\_uTMDPDF(lambda)} & \texttt{SetReplica\_uTMDPDF(lambda)}
+\\\cline{2-3}
+& \texttt{artemide\_SetReplica\_uTMDFF(lambda)} & \texttt{SetReplica\_uTMDFF(lambda)}
+\\\hline
+\texttt{TMDX\_DY} & \texttt{TMDX\_DY\_SetNPParameters(}array\texttt{)} & \texttt{SetLambda(}array\texttt{)} 
+\\\cline{2-3}
+& \texttt{TMDX\_DY\_SetNPParameters(}integer\texttt{)} & \texttt{SetLambda\_ByReplica(}integer\texttt{)} 
+\\\cline{2-3}
+& \texttt{TMDX\_DY\_SetScaleVariations(c1,c2,c3,c4)} & \texttt{SetScaleVariation(c1,c2,c3,c4)} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\\\hline
+\texttt{TMDR} & \texttt{DNP(bt,mu,f)} & \texttt{getDNP(bt,mu,f)} 
+\\\cline{2-3}
+& \texttt{TMDR\_Rzeta(bt,muf,zetaf,f)} & \texttt{getR(bt,mu,zeta,f)} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\\\hline
+\texttt{TMDs} & \texttt{uTMDPDF\_5(x,bt,muf,zetaf,h)} & \texttt{uTMDPDF\_5\_Evolved(x,bt,muf,zetaf,h)} 
+\\\cline{2-3}
+& \texttt{uTMDPDF\_50(x,bt,muf,zetaf,h)} & \texttt{uTMDPDF\_50\_Evolved(x,bt,muf,zetaf,h)} 
+\\\cline{2-3}
+& \texttt{uTMDPDF\_5(x,bt,h)} & \texttt{uTMDPDF\_5\_Optimal(x,bt,h)} 
+\\\cline{2-3}
+& \texttt{uTMDPDF\_50(x,bt,h)} & \texttt{uTMDPDF\_50\_Optimal(x,bt,h)} 
+\\\cline{2-3}
+& \texttt{TMDs\_SetPDFreplica(n)} & \texttt{SetPDFreplica(n)} 
+\\\cline{2-3} & \textbf{\blue{Same with \texttt{uTMDFF}}} &
+\\\cline{2-3} & \textbf{\blue{Same with \texttt{lpTMDPDF}}} & (only \texttt{\_50} version)
+\\\cline{2-3} & \textbf{\blue{Same with \texttt{SiversTMDPDF}}} &
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\\\hline
+\texttt{TMDs\_inKT} & \texttt{uTMDPDF\_kT\_5(x,kt,muf,zetaf,h)} & \texttt{uTMDPDF\_kT\_5\_Evolved(x,kt,muf,zetaf,h)} 
+\\\cline{2-3}
+& \texttt{uTMDPDF\_kT\_50(x,kt,muf,zetaf,h)} & \texttt{uTMDPDF\_kT\_50\_Evolved(x,kt,muf,zetaf,h)} 
+\\\cline{2-3}
+& \texttt{uTMDPDF\_kT\_5(x,kt,h)} & \texttt{uTMDPDF\_kT\_5\_Optimal(x,kt,h)} 
+\\\cline{2-3}
+& \texttt{uTMDPDF\_kT\_50(x,kt,h)} & \texttt{uTMDPDF\_kT\_50\_Optimal(x,kt,h)} 
+\\\cline{2-3} & \textbf{\blue{Same with \texttt{uTMDFF}}} &
+\\\cline{2-3} & \textbf{\blue{Same with \texttt{lpTMDPDF}}} & (only \texttt{\_50} version)
+\\\cline{2-3} & \textbf{\blue{Same with \texttt{SiversTMDPDF}}} &
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\\\hline
+\texttt{TMDX\_DY} & \texttt{xSec\_DY(X,proc,s,qT,Q,y,iC,cuts)} & X=\texttt{DY\_xSec\_Single(proc,s,qT,Q,y,iC,cuts)}
+\\\cline{2-3}
+ & \texttt{xSec\_DY\_List(X,proc,s,qT,Q,y,iC,cuts)} & X=\texttt{DY\_xSec\_List(proc,s,qT,Q,y,iC,cuts,L)}
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\\\hline
+\texttt{TMDX\_SIDIS} & \texttt{xSec\_SIDIS(X,proc,s,pT,z,x,Q,iC,cuts)} & X=\texttt{SIDIS\_xSec\_Single(proc,s,pT,z,x,Q,iC,cuts)}
+\\
+\cline{2-3}
+& \texttt{xSec\_SIDIS(X,proc,s,pT,z,x,Q,iC,cuts,masses)} & X=\texttt{SIDIS\_xSec\_Single\_withMasses(proc,s,pT,z,x,Q,iC,cuts,masses)}
+\\\cline{2-3}
+ & \texttt{xSec\_SIDIS\_List(X,proc,s,pT,z,x,Q,iC,cuts)} & X=\texttt{SIDIS\_xSec\_List(proc,s,qT,z,x,Q,iC,cuts,L)}
+\\\cline{2-3}
+ & \texttt{xSec\_SIDIS\_List(X,proc,s,pT,z,x,Q,iC,cuts,masses)} & X=\texttt{SIDIS\_xSec\_List\_withMasses(proc,s,qT,z,x,Q,iC,cuts,masses,L)}
+\end{longtable}
+\end{center}
+\texttt{L} is the length of the input/output lists.
+
+\red{\textbf{NOTE:} there is no \textbf{OPTIONAL} parameters. All parameters should be defined (it is necessary for f2py).}
+
+\begin{tcolorbox}
+For convenience I have also created a more user-friendly interface, written on python. It is called \texttt{harpy.py} and located in \texttt{/harpy}, and can be imported as is.
+\end{tcolorbox}
+
+\clearpage
+
+\bibliography{bibfile}
 
 \newpage
 \section{Version of input-file}
