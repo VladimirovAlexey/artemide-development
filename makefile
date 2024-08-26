@@ -17,7 +17,7 @@ Fpath=/usr/bin/f95
 
 #options for COMILATOR to compile QCDinput. e.g. link to LHA
 #FOPT=$(shell lhapdf-config --ldflags)
-FOPT=$(shell lhapdf-config --ldflags)
+FOPT=
 
 #### for debuging -g -fbacktrace -fcheck=all
 #FOPT=-L/home/vla18041/LinkData2/LHAPDF/Installation/lib -lLHAPDF -lstdc++
@@ -132,6 +132,7 @@ $(OBJ)/IntegrationRoutines.o \
 $(OBJ)/InverseMatrix.o \
 $(OBJ)/LeptonCutsDY.o \
 $(OBJ)/aTMDe_setup.o \
+$(OBJ)/LHA_alpha.o \
 $(OBJ)/QCDinput.o \
 $(OBJ)/EWinput.o\
 $(OBJ)/TMD_AD.o\
@@ -210,8 +211,14 @@ $(OBJ)/LeptonCutsDY.o: $(SOURCEDIR)/LeptonCutsDY.f90 $(aTMDeUTILITY)
 	$(FC) -c $(SOURCEDIR)/LeptonCutsDY.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
-	
-$(OBJ)/QCDinput.o: $(SOURCEDIR)/QCDinput.f90 $(aTMDeUTILITY)
+
+$(OBJ)/LHA_alpha.o: $(SOURCEDIR)/Code/LHA/LHA_alpha.f90 $(aTMDeUTILITY)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/Code/LHA/LHA_alpha.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/QCDinput.o: $(SOURCEDIR)/QCDinput.f90 $(OBJ)/LHA_alpha.o $(aTMDeUTILITY) $(SOURCEDIR)/Code/LHA/LHA_PDF.f90
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/QCDinput.f90 -I$(MOD) $(FOPT)
 	mv *.o $(OBJ)

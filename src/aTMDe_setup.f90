@@ -14,10 +14,10 @@ implicit none
 
 private
 
-character (len=5),parameter :: version="v3.00"
+character (len=5),parameter :: version="v3.01"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=30
+integer,parameter::inputVer=31
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -34,24 +34,23 @@ real(dp)::hc2,Mnorm,alphaQED_MZ,sW2,alphaQED_MTAU
 !CKM matrix
 real(dp)::Vckm_UD,Vckm_US,Vckm_CD,Vckm_CS,Vckm_CB,Vckm_UB
 
+!--------------------- QCDinput parameters
+character(len=:),allocatable:: MainLHAPath,alphaPath
+
 !--------------------- uPDF parameters
 integer::number_of_uPDFs
-integer,allocatable::enumeration_of_uPDFs(:),replicas_of_uPDFs(:)
 character(len=100),allocatable::sets_of_uPDFs(:)
 
 !--------------------- uFF parameters
 integer::number_of_uFFs
-integer,allocatable::enumeration_of_uFFs(:),replicas_of_uFFs(:)
 character(len=100),allocatable::sets_of_uFFs(:)
 
 !--------------------- lpPDF parameters
 integer::number_of_lpPDFs
-integer,allocatable::enumeration_of_lpPDFs(:),replicas_of_lpPDFs(:)
 character(len=100),allocatable::sets_of_lpPDFs(:)
 
 !--------------------- hPDF parameters
 integer::number_of_hPDFs
-integer,allocatable::enumeration_of_hPDFs(:),replicas_of_hPDFs(:)
 character(len=100),allocatable::sets_of_hPDFs(:)
 
 !-------------------- TMDR options
@@ -270,63 +269,35 @@ subroutine SetupDefault(order)
     Vckm_CB=0.0422d0
     Vckm_UB=0.0394d0
 
+    !-----
+    MainLHAPath="UNKNOWN"
+    alphaPath="UNKNOWN"
     !-------------------Parameters for uPDFs evaluation
     number_of_uPDFs=1
-    if(allocated(enumeration_of_uPDFs)) deallocate(enumeration_of_uPDFs)
-    if(allocated(replicas_of_uPDFs)) deallocate(replicas_of_uPDFs)
     if(allocated(sets_of_uPDFs)) deallocate(sets_of_uPDFs)
 
-    allocate(enumeration_of_uPDFs(1:1))
-    allocate(replicas_of_uPDFs(1:1))
     allocate(sets_of_uPDFs(1:1))
-    enumeration_of_uPDFs=(/1/)
-    replicas_of_uPDFs=(/0/)
-    select case(order)
-    case('LO','LO+')
-    sets_of_uPDFs=(/trim('MMHT2014lo68cl')/)
-    case('NLO','NLO+')
-    sets_of_uPDFs=(/trim('MMHT2014nlo68cl')/)
-    case('NNLO','NNLO+')
-    sets_of_uPDFs=(/trim('MMHT2014nnlo68cl')/)
-    end select
+    sets_of_uPDFs=(/trim('UNKNOWN')/)
 
     !-------------------Parameters for uFFs evaluation
     ! by definition we do not initiate any FFs
     number_of_uFFs=0
-    if(allocated(enumeration_of_uFFs)) deallocate(enumeration_of_uFFs)
-    if(allocated(replicas_of_uFFs)) deallocate(replicas_of_uFFs)
     if(allocated(sets_of_uFFs)) deallocate(sets_of_uFFs)
-    allocate(enumeration_of_uFFs(1:1))
-    allocate(replicas_of_uFFs(1:1))
-    allocate(sets_of_uFFs(1:1))
-    enumeration_of_uFFs=(/-1/)
-    replicas_of_uFFs=(/0/)
+    allocate(sets_of_uFFs(1:0))
     sets_of_uFFs=(/trim('ABSENT')/)
 
     !-------------------Parameters for lpPDFs evaluation
     ! by definition we do not initiate any lpPDF
     number_of_lpPDFs=0
-    if(allocated(enumeration_of_lpPDFs)) deallocate(enumeration_of_lpPDFs)
-    if(allocated(replicas_of_lpPDFs)) deallocate(replicas_of_lpPDFs)
     if(allocated(sets_of_lpPDFs)) deallocate(sets_of_lpPDFs)
-    allocate(enumeration_of_lpPDFs(1:1))
-    allocate(replicas_of_lpPDFs(1:1))
-    allocate(sets_of_lpPDFs(1:1))
-    enumeration_of_lpPDFs=(/-1/)
-    replicas_of_lpPDFs=(/0/)
+    allocate(sets_of_lpPDFs(1:0))
     sets_of_lpPDFs=(/trim('ABSENT')/)
     
     !-------------------Parameters for hPDFs evaluation
     ! by definition we do not initiate any hPDF
     number_of_hPDFs=0
-    if(allocated(enumeration_of_hPDFs)) deallocate(enumeration_of_hPDFs)
-    if(allocated(replicas_of_hPDFs)) deallocate(replicas_of_hPDFs)
     if(allocated(sets_of_hPDFs)) deallocate(sets_of_hPDFs)
-    allocate(enumeration_of_hPDFs(1:1))
-    allocate(replicas_of_hPDFs(1:1))
-    allocate(sets_of_hPDFs(1:1))
-    enumeration_of_hPDFs=(/-1/)
-    replicas_of_hPDFs=(/0/)
+    allocate(sets_of_hPDFs(1:0))
     sets_of_hPDFs=(/trim('ABSENT')/)
 
     !-------------------- parameters for TMDR
@@ -589,14 +560,14 @@ function CheckConstantsFile(file,prefix)
     read(51,*) FILEversion
     CLOSE (51, STATUS='KEEP') 
 
-    if(FILEversion<30) then
+    if(FILEversion<31) then
         write(*,*) color('aTMDe_setup: present version of setup-file is for artemide v2.'&
         , c_red_bold)
         write(*,*) color('..           It is incompatible with the preent version.'&
         , c_red)
         write(*,*) color('..           Please, use actual file or update it manually.'&
         ,c_red)
-        stop
+        ERROR STOP
     end if
 
     if(FILEversion<inputVer) then
@@ -667,6 +638,11 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('# ---------------------------------------------------------------------------')")
     write(51,"('*1   :')")
     write(51,"(' ')")
+    write(51,"('*p1  : Path to the directory with LHA-tables')")
+    write(51,"(A)") trim(MainLHAPath)
+    write(51,"('*p2  : Name of LHA set for alphaQCD')")
+    write(51,"(A)") trim(alphaPath)
+    write(51,"(' ')")
     write(51,"('*A   : ---- quarks threashold masses ----')")
     write(51,"('*p1  : mass of charm-quark')")
     write(51,*) mCHARM
@@ -676,55 +652,39 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) mTOP
     write(51,"(' ')")
     write(51,"('*B   : ---- uPDF sets----')")
-    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped)')")
+    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped; maximum 3)')")
     write(51,*) number_of_uPDFs
-    write(51,"('*p2  : reference number for hadrons')")
-    call writeShortIntegerList(51,enumeration_of_uPDFs)
-    write(51,"('*p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
+    write(51,"('*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
     do i=1,number_of_uPDFs
-        write(51,*) trim(sets_of_uPDFs(i))
+        write(51,"(A)") trim(sets_of_uPDFs(i))
     end do
-    write(51,"('*p4  : list of initialization replicas')")
-    call writeShortIntegerList(51,replicas_of_uPDFs)
 
     write(51,"(' ')")
     write(51,"('*C   : ---- uFF sets----')")
-    write(51,"('*p1  : total number of FFs to initialize (0= initialization is skipped)')")
+    write(51,"('*p1  : total number of FFs to initialize (0= initialization is skipped; maximum 3)')")
     write(51,*) number_of_uFFs
-    write(51,"('*p2  : reference number for hadrons')")
-    call writeShortIntegerList(51,enumeration_of_uFFs)
-    write(51,"('*p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
+    write(51,"('*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
     do i=1,number_of_uFFs
-        write(51,*) trim(sets_of_uFFs(i))
+        write(51,"(A)") trim(sets_of_uFFs(i))
     end do
-    write(51,"('*p4  : list of initialization replicas')")
-    call writeShortIntegerList(51,replicas_of_uFFs)
 
     write(51,"(' ')")
     write(51,"('*D   : ----lpPDF sets----')")
-    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped)')")
+    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped; maximum 1)')")
     write(51,*) number_of_lpPDFs
-    write(51,"('*p2  : reference number for hadrons')")
-    call writeShortIntegerList(51,enumeration_of_lpPDFs)
-    write(51,"('*p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
+    write(51,"('*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
     do i=1,number_of_lpPDFs
-        write(51,*) trim(sets_of_lpPDFs(i))
+        write(51,"(A)") trim(sets_of_lpPDFs(i))
     end do
-    write(51,"('*p4  : list of initialization replicas')")
-    call writeShortIntegerList(51,replicas_of_lpPDFs)
     
     write(51,"(' ')")
     write(51,"('*E   : ----hPDF sets----')")
-    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped)')")
+    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped; maximum 2)')")
     write(51,*) number_of_hPDFs
-    write(51,"('*p2  : reference number for hadrons')")
-    call writeShortIntegerList(51,enumeration_of_hPDFs)
-    write(51,"('*p3  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
+    write(51,"('*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
     do i=1,number_of_hPDFs
-        write(51,*) trim(sets_of_hPDFs(i))
+        write(51,"(A)") trim(sets_of_hPDFs(i))
     end do
-    write(51,"('*p4  : list of initialization replicas')")
-    call writeShortIntegerList(51,replicas_of_hPDFs)
 
 
     write(51,"(' ')")
@@ -1363,9 +1323,10 @@ end subroutine CreateConstantsFile
   
   
 subroutine ReadConstantsFile(file,prefix)
-    character(len=*)::file
-    character(len=*),optional::prefix
+    character(len=*),intent(in)::file
+    character(len=*),intent(in),optional::prefix
     character(len=516)::path
+    character(len=516)::dummyString
     !!!! this is version of input file. it is read first and then result is compared with the current ID
     !!!! It suppose to make compatibility betwen versions
     integer::FILEversion
@@ -1405,14 +1366,15 @@ subroutine ReadConstantsFile(file,prefix)
         if(outputLevel>0) write(*,*) color('aTMDe_setup: UPDATE ARTEMIDE!',c_red_bold)
         if(outputLevel>0) write(*,*) color('aTMDe_setup: UPDATE ARTEMIDE!',c_red_bold)
         if(outputLevel>0) write(*,*) 'aTMDe_setup: Attempt to load...'
-    else if(FILEversion<30) then
+    else if(FILEversion<31) then
+        CLOSE (51, STATUS='KEEP')
         write(*,*) color('aTMDe_setup: suggested setup-file is for artemide v2.'&
         , c_red_bold)
         write(*,*) color('..           It is incompatible with the preent version.'&
         , c_red)
         write(*,*) color('..           Please, use actual file or update it manually.'&
         ,c_red)
-        stop
+        ERROR STOP
     else if(FILEversion<inputVer) then
         if(outputLevel>0) write(*,*) color('aTMDe_setup: Version of input file(',c_red_bold), &
                                         color(int4ToStr(FILEversion),c_red_bold),&
@@ -1438,7 +1400,16 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) number_of_processors
 
     !# ----                           PARAMETERS OF QCDinput                 -----
+    if(allocated(MainLHAPath)) deallocate(MainLHAPath)
+    if(allocated(alphaPath)) deallocate(alphaPath)
     call MoveTO(51,'*1   ')
+    call MoveTO(51,'*p1  ')
+    read(51,"(A)") dummyString
+    MainLHAPath=trim(dummyString)
+    call MoveTO(51,'*p2  ')
+    read(51,"(A)") dummyString
+    AlphaPath=trim(dummyString)
+
     call MoveTO(51,'*A   ')
     call MoveTO(51,'*p1  ')
     read(51,*) mCHARM
@@ -1452,21 +1423,14 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p1  ')
 
     read(51,*) number_of_uPDFs
-    if(allocated(enumeration_of_uPDFs)) deallocate(enumeration_of_uPDFs)
-    if(allocated(replicas_of_uPDFs)) deallocate(replicas_of_uPDFs)
     if(allocated(sets_of_uPDFs)) deallocate(sets_of_uPDFs)
-    allocate(enumeration_of_uPDFs(1:number_of_uPDFs))
     allocate(sets_of_uPDFs(1:number_of_uPDFs))
-    allocate(replicas_of_uPDFs(1:number_of_uPDFs))    
 
     call MoveTO(51,'*p2  ')
-    read(51,*) enumeration_of_uPDFs
-    call MoveTO(51,'*p3  ')
     do i=1,number_of_uPDFs
-        read(51,*) sets_of_uPDFs(i)
+        read(51,"(A)") dummyString
+        sets_of_uPDFs(i)= trim(dummyString)
     end do
-    call MoveTO(51,'*p4  ')
-    read(51,*) replicas_of_uPDFs
 
     !-------FF for uTMDFF
     call MoveTO(51,'*C   ')
@@ -1474,22 +1438,14 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) number_of_uFFs
 
     if(number_of_uFFs>0) then
-        if(allocated(enumeration_of_uFFs)) deallocate(enumeration_of_uFFs)
-        if(allocated(replicas_of_uFFs)) deallocate(replicas_of_uFFs)
         if(allocated(sets_of_uFFs)) deallocate(sets_of_uFFs)
-
-        allocate(enumeration_of_uFFs(1:number_of_uFFs))
         allocate(sets_of_uFFs(1:number_of_uFFs))
-        allocate(replicas_of_uFFs(1:number_of_uFFs))
 
         call MoveTO(51,'*p2  ')
-        read(51,*) enumeration_of_uFFs
-        call MoveTO(51,'*p3  ')
         do i=1,number_of_uFFs
-            read(51,*) sets_of_uFFs(i)
+            read(51,"(A)") dummyString
+            sets_of_uFFs(i)= trim(dummyString)
         end do
-        call MoveTO(51,'*p4  ')
-        read(51,*) replicas_of_uFFs
     end if
 
 
@@ -1500,21 +1456,14 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) number_of_lpPDFs
 
     if(number_of_lpPDFs>0) then
-        if(allocated(enumeration_of_lpPDFs)) deallocate(enumeration_of_lpPDFs)
-        if(allocated(replicas_of_lpPDFs)) deallocate(replicas_of_lpPDFs)
         if(allocated(sets_of_lpPDFs)) deallocate(sets_of_lpPDFs)
-        allocate(enumeration_of_lpPDFs(1:number_of_lpPDFs))
         allocate(sets_of_lpPDFs(1:number_of_lpPDFs))
-        allocate(replicas_of_lpPDFs(1:number_of_lpPDFs))
 
         call MoveTO(51,'*p2  ')
-        read(51,*) enumeration_of_lpPDFs
-        call MoveTO(51,'*p3  ')
         do i=1,number_of_lpPDFs
-            read(51,*) sets_of_lpPDFs(i)
+            read(51,"(A)") dummyString
+            sets_of_lpPDFs(i)= trim(dummyString)
         end do
-        call MoveTO(51,'*p4  ')
-        read(51,*) replicas_of_lpPDFs
     end if
     
 
@@ -1524,22 +1473,16 @@ subroutine ReadConstantsFile(file,prefix)
 
     read(51,*) number_of_hPDFs
     if(number_of_hPDFs>0) then
-        if(allocated(enumeration_of_hPDFs)) deallocate(enumeration_of_hPDFs)
-        if(allocated(replicas_of_hPDFs)) deallocate(replicas_of_hPDFs)
         if(allocated(sets_of_hPDFs)) deallocate(sets_of_hPDFs)
-        allocate(enumeration_of_hPDFs(1:number_of_hPDFs))
         allocate(sets_of_hPDFs(1:number_of_hPDFs))
-        allocate(replicas_of_hPDFs(1:number_of_hPDFs))
 
         call MoveTO(51,'*p2  ')
-        read(51,*) enumeration_of_hPDFs
-        call MoveTO(51,'*p3  ')
         do i=1,number_of_hPDFs
-            read(51,*) sets_of_hPDFs(i)
+            read(51,"(A)") dummyString
+            sets_of_hPDFs(i)= trim(dummyString)
         end do
-        call MoveTO(51,'*p4  ')
-        read(51,*) replicas_of_hPDFs
     end if
+
     !# ----                           PARAMETERS OF EWinput                  -----
     call MoveTO(51,'*2   ')
     call MoveTO(51,'*p1  ')

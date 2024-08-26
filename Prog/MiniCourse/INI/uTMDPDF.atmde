@@ -173,9 +173,9 @@
 
 *B   : ---- OPE main definitions ----
 *p1  : Order of coefficient function
- N3LO
+ NLO
 *p2  : Prepare grid
- F
+ T
 *p3  : run the test of the grid (takes some time)
  F
 
@@ -209,7 +209,7 @@
 
 *F   : ---- Transform and grid in KT-space ----
 *p1  : Prepare grid
- F
+ T
 *p2  : run the test of the grid (takes some time)
  F
 *p3  : Number of subgrids in X (required to read the next line)
