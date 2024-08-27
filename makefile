@@ -37,6 +37,7 @@ $(SOURCEDIR)/Code/aTMDe_Numerics.f90 \
 $(SOURCEDIR)/Code/IO_functions.f90 \
 $(SOURCEDIR)/Code/IntegrationRoutines.f90 \
 $(SOURCEDIR)/Code/InverseMatrix.f90 \
+$(SOURCEDIR)/Code/LHA/LHA_alpha.f90 \
 $(SOURCEDIR)/LeptonCutsDY.f90 \
 $(SOURCEDIR)/aTMDe_setup.f90 \
 $(SOURCEDIR)/QCDinput.f90 \
@@ -70,6 +71,7 @@ $(SOURCEDIR)/aTMDe_control.f90
 
 Twist2Files=\
 $(SOURCEDIR)/Code/Twist2/Twist2Convolution.f90 \
+$(SOURCEDIR)/Code/Twist2/Twist2LargeX.f90 \
 $(SOURCEDIR)/Code/Twist2/Twist2_ChGrid.f90 \
 $(SOURCEDIR)/Code/Twist2/Twist2-AS-term.f90
 

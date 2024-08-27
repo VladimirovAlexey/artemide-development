@@ -27,6 +27,7 @@ use aTMDe_Numerics
 use IntegrationRoutines
 use IO_functions
 use QCDinput
+use TMD_AD, only : Dpert_atL
 use uTMDFF_model
 use Grid_uTMDFF
 implicit none
@@ -56,6 +57,9 @@ integer::messageCounter=0 !!! actual counter
 
 !!! Perturbative order
 integer :: orderMain=2 !! LO=0, NLO=1,...
+!!! Order of large-X resummation
+logical :: resumLargeX
+integer :: orderLX=2 !! LO=0 [no-resummation], NLO=1,...
 
 !!! Phase space limitations parameters
 real(dp) :: xMin=0.0001_dp !!! min x
@@ -96,6 +100,9 @@ contains
 
 !! Coefficient function
 INCLUDE 'Code/uTMDFF/coeffFunc.f90'
+
+!! Elements of coefficient function at Large-X
+INCLUDE 'Code/Twist2/Twist2LargeX.f90'
 
 !! Mellin convolution routine
 INCLUDE 'Code/Twist2/Twist2Convolution.f90'
@@ -212,6 +219,43 @@ subroutine uTMDFF_OPE_Initialize(file,prefix)
 
     if(outputLevel>2 .and. orderMain>-1) write(*,'(A,I1)') ' |  Coef.func.    =as^',orderMain
 
+    call MoveTO(51,'*p4  ')
+    read(51,*) resumLargeX
+    if(resumLargeX) then
+        call MoveTO(51,'*p5  ')
+        read(51,*) order_global
+
+        SELECT CASE(trim(order_global))
+            CASE ("LO")
+                if(outputLevel>1) write(*,*) trim(moduleName)//' Large-X order set: LO'
+                orderLX =0
+            CASE ("NLO")
+                if(outputLevel>1) write(*,*) trim(moduleName)//' Large-X order set: NLO'
+                orderLX=1
+            CASE ("NNLO")
+                if(outputLevel>1) write(*,*) trim(moduleName)//' Large-X order set: NNLO'
+                orderLX=2
+            CASE ("N2LO")
+                if(outputLevel>1) write(*,*) trim(moduleName)//' Large-X order set: NNLO'
+                orderLX=2
+            CASE ("NNNLO")
+                if(outputLevel>1) write(*,*) trim(moduleName)//' Large-X order set: N3LO'
+                orderLX=3
+            CASE ("N3LO")
+                if(outputLevel>1) write(*,*) trim(moduleName)//' Large-X order set: N3LO'
+                orderLX=3
+            CASE DEFAULT
+                if(outputLevel>0) then
+                    write(*,*) &
+                    WarningString('Initialize: unknown order for large-X resummation of coefficient function.',moduleName)
+                    write(*,*) WarningString('set to same order as the common part.',moduleName)
+                end if
+                orderLX=orderMain
+            END SELECT
+
+    if(outputLevel>2 .and. orderLX>-1) write(*,'(A,I1)') ' |  Large-X       =as^',orderLX
+    end if
+
     call MoveTO(51,'*p2  ')
     read(51,*) useGrid
     call MoveTO(51,'*p3  ')
@@ -271,9 +315,15 @@ subroutine uTMDFF_OPE_Initialize(file,prefix)
     gridReady=.false.
 
     if(useGrid) then
-        call Twist2_ChGrid_MakeGrid(CxF_compute)
-        gridReady=.true.
-        if(runTest) call TestGrid(CxF_compute)
+        if(resumLargeX) then
+            call Twist2_ChGrid_MakeGrid(CxF_LargeX_compute)
+            gridReady=.true.
+            if(runTest) call TestGrid(CxF_LargeX_compute)
+        else
+            call Twist2_ChGrid_MakeGrid(CxF_compute)
+            gridReady=.true.
+            if(runTest) call TestGrid(CxF_compute)
+        end if
     end if
 
     started=.true.
@@ -339,7 +389,11 @@ function uTMDFF_OPE_convolution(x,b,h,addGluon)
             uTMDFF_OPE_convolution=ExtractFromGrid(x,b,h)/x**3
         end if
     else
-        uTMDFF_OPE_convolution=CxF_compute(x,b,h,gluon)/x**3
+        if(resumLargeX) then
+            uTMDFF_OPE_convolution=CxF_LargeX_compute(x,b,h,gluon)/x**3
+        else
+            uTMDFF_OPE_convolution=CxF_compute(x,b,h,gluon)/x**3
+        end if
     end if
 
 end function uTMDFF_OPE_convolution
@@ -351,7 +405,11 @@ subroutine uTMDFF_OPE_resetGrid()
     gridReady=.false.
     if(useGrid) then
         if(outputLevel>1) write(*,*) 'arTeMiDe ',moduleName,':  Grid Reset. with c4=',c4_global
-        call Twist2_ChGrid_MakeGrid(CxF_compute)
+        if(resumLargeX) then
+            call Twist2_ChGrid_MakeGrid(CxF_LargeX_compute)
+        else
+            call Twist2_ChGrid_MakeGrid(CxF_compute)
+        end if
 
         gridReady=.true.
     end if

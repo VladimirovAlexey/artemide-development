@@ -36,7 +36,7 @@ implicit none
 private 
 
 !Current version of module
-character (len=5),parameter :: version="v3.00"
+character (len=5),parameter :: version="v3.01"
 character (len=13),parameter :: moduleName="wgtTMDPDF_OPE"
 !Last appropriate version of constants-file
 integer,parameter::inputver=30
@@ -57,6 +57,9 @@ integer::messageCounter=0 !!! actual counter
 !!! Perturbative order
 integer :: orderMain=2 !! LO=0, NLO=1,...
 integer :: orderMainTW3=-50 !! LO=0, NLO=1,...
+!!! Order of large-X resummation
+logical,parameter :: resumLargeX=.false. !!!! could not be resummation of largeX
+integer :: orderLX=0 !! LO=0 [no-resummation], NLO=1,...
 
 !!! Phase space limitations parameters
 real(dp) :: xMin=0.001_dp !!! min x

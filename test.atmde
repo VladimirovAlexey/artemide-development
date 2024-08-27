@@ -35,7 +35,7 @@
 # ---------------------------------------------------------------------------
 *1   :
 *p1  : path to the directory with LHA-tables
- /mnt/d/WorkingFiles/LHAPDF/Installation/share/LHAPDF
+  Prog
 *p2  : Name of LHA set for alphaQCD
  NNPDF31_nnlo_as_0118
 
@@ -166,6 +166,10 @@
  T
 *p3  : run the test of the grid (takes some time)
  F
+*p4  : Use large-X resummation in the coefficient function of OPE
+ F
+*p5  : Order of the large-X resummation (should be bigger-or-equal to order in p1)
+ N3LO
 
 *C   : ---- Parameters of NP model ----
 *p1  : Length of lambdaNP
@@ -254,6 +258,10 @@
  F
 *p3  : run the test of the grid (takes some time)
  F
+*p4  : Use large-X resummation in the coefficient function of OPE
+ F
+*p5  : Order of large-X resummation (should be bigger-or-equal to order in p1)
+ N3LO
 
 *C   : ---- Parameters of NP model ----
 *p1  : Length of lambdaNP

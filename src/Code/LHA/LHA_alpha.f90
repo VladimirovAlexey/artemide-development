@@ -303,7 +303,7 @@ real(dp):: AlphaS
 real(dp)::logQ,deltas(1:4)
 integer::i,j
 if(Q<Qmin) then !!! logarith log-extrapolation
-    if(Q<LambdaEFF) ERROR STOP ErrorString('Q ='//real8Tostr(Qmax)//'is smaller that Effective Lambda',moduleName)
+    if(Q<LambdaEFF) ERROR STOP ErrorString('Q ='//real8Tostr(Q)//' is smaller that Effective Lambda',moduleName)
 
     AlphaS=extrapolA/(extrapolB1*Log(Q/AlphaS_Qs(0))+extrapolB2)
 else if(Q>Qmax) then !!! constant

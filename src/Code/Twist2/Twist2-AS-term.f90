@@ -41,7 +41,8 @@ function CxF_AS(x,mu,mu0,hadron,includeGluon)
     real(dp):: lx
 
     real(dp),dimension(-5:5)::deltaPart,PLUSremnant
-    real(dp):: asAt1,NfAt1,Cqq,Cgg,Csingqq,Csinggg
+    real(dp):: asAt1,Cqq,Cgg,Csingqq,Csinggg
+    integer::NfAt1
     real(dp),dimension(1:3)::CplusAt1_gg,CplusAt1_qq
     real(dp),dimension(-5:5)::PDFat1
 

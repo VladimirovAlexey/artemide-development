@@ -66,8 +66,8 @@ real(dp)::TMDR_smooth
 
 !-------------------- uTMDPDF parameters
 logical::include_uTMDPDF
-character*8::uTMDPDF_order
-logical::uTMDPDF_makeGrid,uTMDPDF_withGluon,uTMDPDF_runGridTest
+character*8::uTMDPDF_order,uTMDPDF_orderLX
+logical::uTMDPDF_makeGrid,uTMDPDF_withGluon,uTMDPDF_runGridTest,uTMDPDF_largeX
 integer::uTMDPDF_lambdaLength
 integer::uTMDPDF_numHadron
 real(dp)::uTMDPDF_BMAX_ABS
@@ -88,8 +88,8 @@ real(dp)::uTMDPDF_hOGATA_TMM,uTMDPDF_toleranceOGATA_TMM,uTMDPDF_muMIN_TMM
 
 !-------------------- uTMDFF parameters
 logical::include_uTMDFF
-character*8::uTMDFF_order
-logical::uTMDFF_makeGrid,uTMDFF_withGluon,uTMDFF_runGridTest
+character*8::uTMDFF_order,uTMDFF_orderLX
+logical::uTMDFF_makeGrid,uTMDFF_withGluon,uTMDFF_runGridTest,uTMDFF_largeX
 integer::uTMDFF_lambdaLength
 integer::uTMDFF_numHadron
 real(dp)::uTMDFF_BMAX_ABS
@@ -320,6 +320,8 @@ subroutine SetupDefault(order)
     uTMDPDF_order=trim("NLO")
     uTMDPDF_makeGrid=.true.
     uTMDPDF_runGridTest=.false.
+    uTMDPDF_largeX=.false.
+    uTMDPDF_orderLX=trim("NLO")
     uTMDPDF_lambdaLength=2
     uTMDPDF_BMAX_ABS=100.d0
     uTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
@@ -362,6 +364,8 @@ subroutine SetupDefault(order)
     uTMDFF_numHadron=0
     uTMDFF_makeGrid=.true.
     uTMDFF_runGridTest=.false.
+    uTMDFF_largeX=.false.
+    uTMDFF_orderLX=trim("NLO")
     uTMDFF_lambdaLength=2
     uTMDFF_BMAX_ABS=100.d0
     uTMDFF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
@@ -791,6 +795,10 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) uTMDPDF_makeGrid
     write(51,"('*p3  : run the test of the grid (takes some time)')")
     write(51,*) uTMDPDF_runGridTest
+    write(51,"('*p4  : Use large-X resummation in the coefficient function of OPE')")
+    write(51,*) uTMDPDF_largeX
+    write(51,"('*p5  : Order of the large-X resummation (should be bigger-or-equal to order in p1)')")
+    write(51,*) uTMDPDF_orderLX
     write(51,"(' ')")
     write(51,"('*C   : ---- Parameters of NP model ----')")
     write(51,"('*p1  : Length of lambdaNP')")
@@ -881,6 +889,10 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) uTMDFF_makeGrid
     write(51,"('*p3  : run the test of the grid (takes some time)')")
     write(51,*) uTMDFF_runGridTest
+    write(51,"('*p4  : Use large-X resummation in the coefficient function of OPE')")
+    write(51,*) uTMDFF_largeX
+    write(51,"('*p5  : Order of the large-X resummation (should be bigger-or-equal to order in p1)')")
+    write(51,*) uTMDFF_orderLX
     write(51,"(' ')")
     write(51,"('*C   : ---- Parameters of NP model ----')")
     write(51,"('*p1  : Length of lambdaNP')")
@@ -1575,6 +1587,10 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) uTMDPDF_makeGrid
     call MoveTO(51,'*p3  ')
     read(51,*) uTMDPDF_runGridTest
+    call MoveTO(51,'*p4  ')
+    read(51,*) uTMDPDF_largeX
+    call MoveTO(51,'*p5  ')
+    read(51,*) uTMDPDF_orderLX
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')
     read(51,*) uTMDPDF_lambdaLength
@@ -1669,6 +1685,10 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) uTMDFF_makeGrid
     call MoveTO(51,'*p3  ')
     read(51,*) uTMDFF_runGridTest
+    call MoveTO(51,'*p4  ')
+    read(51,*) uTMDFF_largeX
+    call MoveTO(51,'*p5  ')
+    read(51,*) uTMDFF_orderLX
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')
     read(51,*) uTMDFF_lambdaLength
