@@ -1440,6 +1440,9 @@ Here, $S$ is the smoothing parameter. It should be small enough to guaranty non-
 
 \textbf{Important:} the module \texttt{TMDR\_model} is compiled before \texttt{TMDR}, and thus can use only lower-level modules: \texttt{TMD\_AD, QCDinput,} etc.
 
+\vspace{2mm}
+
+\textbf{Important:} There is an option to switch to the CSS-like computation (formula (2.14) in 1803.11089).
 
 \newpage
 
@@ -2413,49 +2416,23 @@ List of enumeration of structures functions
 \\\hline
 103 & $\Ds R^{^W}_{f f'}e_f e_{f'} $ see (3.1) of \cite{Scimemi:2017etj} with $Z=74$ and $A=183$ & $f_1$ & $f^{W}_1$ & (unpol.)$h_1+W\to \gamma$, where the  isostructure of $W$(tungsten) is simulated from $hadron=1$, used to describe E537 experiment& no & LP/KPC
 \\\hline \hline
-2001 & $\delta_{ff'}|e_f|^2$~~&$f^p_1$ & $d^{h_1}_1$ & (unpol)$p+\gamma\to h_1$ & no & LP
-\\\hline
-200N & $\delta_{ff'}|e_f|^2$~~&$f^p_1$ & $d^{h_N}_1$ & (unpol)$p+\gamma\to h_N$, for $N=\{1,...,9\}$ (including case 2001) & no & LP
+2001 & $\delta_{ff'}|e_f|^2$~~&$f_1$ & $d_1$ & (unpol)$h_1+\gamma\to h_2$ & no & LP
 \\\hline \hline
-2011 & $\delta_{ff'}|e_f|^2$~~&$f^{d}_1$ & $d^{h_1}_1$ & (unpol)$d+\gamma\to h_1$. Here, d is isoscalar target $(p+n)/2$. & no & LP
-\\\hline
-201N & $\delta_{ff'}|e_f|^2$~~&$f^{d}_1$ & $d^{h_N}_1$ & (unpol)$d+\gamma\to h_N$, for $N=\{1,...,9\}$ (including case 2011). Here, d is isoscalar target $(p+n)/2$. & no & LP
+2002 & $\delta_{ff'}|e_f|^2$~~&$f^{d}_1$ & $d_1$ & (unpol)$d^{(h_1)}+\gamma\to h_2$. Here, $d^{(h_1)}$ is the isoscalar target prepared from the hadron $h_1$. I.e. $u,d\to (u+d)/2$. For $h_1$=proton, this simulates the deuteron target. & no & LP
 \\\hline \hline
-2021 & $\delta_{f\bar f'}|e_f|^2$~~&$f^p_1$ & $d^{\bar h_1}_1$ & (unpol)$p+\gamma\to \bar h_1$ & no & LP
-\\\hline
-202N & $\delta_{f\bar f'}|e_f|^2$~~&$f^p_1$ & $d^{\bar h_N}_1$ & (unpol)$p+\gamma\to \bar h_N$, for $N=\{1,...,9\}$ (including case 2021) & no & LP
+2003 & $\delta_{f\bar f'}|e_f|^2$~~&$f^{n}_1$ & $d_1$ & (unpol)$n^{(h_1)}+\gamma\to h_2$ Here, $n^{(h_1)}$ is the iso-conjugated target prepared from the hadron $h_1$. I.e. $u\leftrightarrow d$. For $h_1$=proton, this simulates the neutron target. & no & LP
 \\\hline \hline
-2031 & $\delta_{f\bar f'}|e_f|^2$~~&$f^{d}_1$ & $d^{\bar h_1}_1$ & (unpol)$d+\gamma\to \bar h_1$. Here, d is isoscalar target $(p+n)/2$. & no & LP
+2101 & $\delta_{ff'}|e_f|^2$~~&$f_1$ & $d^{h_{1+2}}_1$ & (unpol)$h_1+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$. Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument). & no & LP
 \\\hline
-203N & $\delta_{f\bar f'}|e_f|^2$~~&$f^{d}_1$ & $d^{\bar h_N}_1$ & (unpol)$d+\gamma\to \bar h_N$, for $N=\{1,...,9\}$ ( including case 2031). Here, d is isoscalar target $(p+n)/2$. & no & LP
-\\\hline \hline
-204N & $\delta_{ff'}|e_f|^2$~~&$f^n_1$ & $d^{h_N}_1$ & (unpol)$n+\gamma\to h_N$, for $N=\{1,...,9\}$. n is neutron target $n=p(u\leftrightarrow d)$ & no & LP
+2102 & $\delta_{ff'}|e_f|^2$~~&$f_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$h_1+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument). & no & LP
 \\\hline
-205N & $\delta_{ff'}|e_f|^2$~~&$f^{n}_1$ & $d^{h_N}_1$ & (unpol)$n+\gamma\to \bar h_N$, for $N=\{1,...,9\}$. n is neutron target $n=p(u\leftrightarrow d)$. & no & LP
-\\\hline \hline
-2101 & $\delta_{ff'}|e_f|^2$~~&$f^p_1$ & $d^{h_{1+2}}_1$ & (unpol)$p+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ & no & LP
+2103 & $\delta_{ff'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2}}_1$ & (unpol)$d^{(h_1)}+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$ and d is isoscalar target $u,d\to (u+d)/2$.  Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument). & no & LP
 \\\hline
-2102 & $\delta_{ff'}|e_f|^2$~~&$f^p_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$p+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ & no & LP
+2104 & $\delta_{ff'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$d^{(h_1)}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$ and d is isoscalar target $u,d\to (u+d)/2$.  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument). & no & LP
 \\\hline
-2103 & $\delta_{ff'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2}}_1$ & (unpol)$d+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ and d is isoscalar target $(p+n)/2$. & no & LP
+2105 & $\delta_{ff'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2}}_1$ & (unpol)$n^{(h_1)}+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$ and n is neutron target $(u\leftrightarrow d)$.  Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument). & no & LP
 \\\hline
-2104 & $\delta_{ff'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$d+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and d is isoscalar target $(p+n)/2$. & no & LP
-\\\hline
-2105 & $\delta_{ff'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2}}_1$ & (unpol)$n+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ and n is neutron target $n=p(u\leftrightarrow d)$. & no & LP
-\\\hline
-2106 & $\delta_{ff'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$n+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and n is neutron target $n=p(u\leftrightarrow d)$. & no & LP
-\\\hline
-2111 & $\delta_{f\bar f'}|e_f|^2$~~&$f^p_1$ & $d^{h_{1+2}}_1$ & (unpol)$p+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ & no & LP
-\\\hline
-2112 & $\delta_{f\bar f'}|e_f|^2$~~&$f^p_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$p+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ & no & LP
-\\\hline
-2113 & $\delta_{f\bar f'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2}}_1$ & (unpol)$d+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ and d is isoscalar target $(p+n)/2$. & no & LP
-\\\hline
-2114 & $\delta_{f\bar f'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$d+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and d is isoscalar target $(p+n)/2$. & no & LP
-\\\hline
-2115 & $\delta_{f\bar f'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2}}_1$ & (unpol)$n+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ and n is neutron target $n=p(u\leftrightarrow d)$. & no & LP
-\\\hline
-2116 & $\delta_{f\bar f'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$n+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and n is neutron target $n=p(u\leftrightarrow d)$. & no & LP
+2106 & $\delta_{ff'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$n^{(h_1)}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$ and n is neutron target $(u\leftrightarrow d)$.  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument). & no & LP
 \\\hline\hline
 \end{longtable}
 
@@ -2681,7 +2658,7 @@ prefactor2=(\text{phase-space Jacobian})\times H(Q,\mu_H)
 \end{eqnarray}
 The $F_n$ is a contribution specific for a channel. Some processes have several channels, which could be computed together or separately (e.g. $\sim f_1f_1$ and $\sim h_1^\perp h_1^\perp$). Generally it has a form
 \begin{eqnarray}
-F_n=(\text{cuts for lepton pair})_n\times F_n(Q,q_T,x_1,x_2,\mu,\zeta_1,\zeta_),
+F_n=(\text{cuts for lepton pair})_n\times F_n(Q,q_T,x_1,x_2,\mu,\zeta_1,\zeta_2),
 \end{eqnarray}
 where $F$ is a product of TMDs and corresponding weight defined in (\ref{TMDF:F}) or (\ref{KPC:main}). There are following feature of current implementation
 \begin{itemize}
@@ -2743,7 +2720,7 @@ The order of used coefficient function is set in \texttt{constant-file} by \text
 \item[\texttt{p1}] (integer) Defines the $prefactor2$ that contains the phase space elements and the universal part of factorization formula. 
 \item[\texttt{p2}] (integer) Defines the type of hadron 1.
 \item[\texttt{p3}] (integer) Defines the type of hadron 2.
-\item[\texttt{p4, p5,...}] (integer) Defines the structure function $F$. See sec.\ref{TMDF:enum}. These subprocess are summed into cross-section. If \texttt{pi}=0, the term is neglected.
+\item[\texttt{p4}] (integer) Defines the structure function $F$. See sec.\ref{TMDF:enum}. 
 \end{itemize}
 \textbf{Note:} \red{In artemide v.2.07 and earlier} the process was encoded by 3 numbers, and did not contained the types of hadrons.
 
@@ -2768,7 +2745,7 @@ The main subroutine is called \texttt{xSec\_DY} and it have the following interf
 where
 \begin{itemize}
 \item \texttt{X} is (real*8) value of cross-section.
-\item \texttt{process} is integer \texttt{p}, or (integer)array \texttt{(p1,p2,p3,p4,...)}.
+\item \texttt{process} (integer)array \texttt{(p1,p2,p3,p4)}.
 \item \texttt{s} is Mandelshtam variable $s$
 \item \texttt{qT} is (real*8)array \texttt{(qtmin,qtmax)}
 \item \texttt{Q} is (real*8)array \texttt{(Qmin,Qmax)}
@@ -2922,9 +2899,13 @@ This module evaluates cross-sections with the SIDIS-like kinematics. I.e. it exp
 The general structure of the cross-section is
 \begin{eqnarray}
 \frac{d\sigma}{dX}=
-d\sigma(q_T)=prefactor1~\int [bin] ~prefactor2~\times F,
+d\sigma(q_T)=\int [bin] ~prefactor2~\times F,
 \end{eqnarray}
-where $dX\sim dl'$, with $l'$ momentum of scattered lepton. For better definition of parameters see sec.\ref{sec:SIDIS:theory}.
+where 
+\begin{eqnarray}
+dX=dx dQ^2d\vec p_T^2.
+\end{eqnarray}
+For further specifications of parameters see sec.\ref{sec:SIDIS:theory}.
 
 \begin{center}
 List of available commands
@@ -2939,19 +2920,11 @@ Command & ~~Type~~& ~~Sec.~~ & Short description
 \\\hline
 \texttt{TMDX{\_}SIDIS{\_}ShowStatistic()} & subrout. & -- & \blue{*}~~Print current statistic on the number of calls.
 \\\hline
-\texttt{TMDX{\_}SIDIS{\_}SetProcess(p)} & subrout. & \ref{TMDXs:setup}& Set the process
-\\\hline
-\texttt{TMDX{\_}SIDIS{\_}XSetup(s,z,x,Q,mTARGET,mPRODUCT)} & subrout. & \ref{TMDXs:setup}& Set the kinematic variables (\texttt{mTARGET} and \texttt{mPRODUCT} are optional variables)
-\\\hline
-\texttt{TMDX\_SIDIS\_SetCuts(inc,yMin,yMax,W2)} & subrout. & \ref{TMDXs:cuts} & Set global values of cuts
-\\\hline
 \texttt{TMDX{\_}SIDIS{\_}SetScaleVariation(c2)} & subrout. & -- & \blue{*}~~ Set new values for the scale-variation constants.
 \\\hline
-\texttt{CalcXsec{\_}SIDIS...} & subrout. &\ref{TMDXs:xsec} & Evaluates cross-section. Many overloaded versions see sec.\ref{TMDXs:xsec}.
+\texttt{xSec\_SIDIS(X,process,s,pT,z,x,Q)} &subrout. &\ref{TMDXs:xsec} & Evaluates cross-section completely integrated over the bin. 
 \\\hline
-\texttt{xSec\_SIDIS(X,process,s,pT,z,x,Q)} &subrout. &\ref{TMDXs:xsec} & Evaluates cross-section completely integrated over the bin. Can be called without preliminary \texttt{...Set...}'s.
-\\\hline
-\texttt{xSec\_SIDIS\_List(X,process,s,pT,z,x,Q)} &subrout. &\ref{TMDXs:xsec} & Evaluates cross-section completely integrated over the bin over the list. Can be called without preliminary \texttt{...Set...}'s.
+\texttt{xSec\_SIDIS\_List(X,process,s,pT,z,x,Q)} &subrout. &\ref{TMDXs:xsec} & Evaluates cross-section completely integrated over the bin over the list. 
 \\\hline\hline
 \end{tabular}
 \end{center}
@@ -2959,91 +2932,11 @@ Command & ~~Type~~& ~~Sec.~~ & Short description
 \blue{*)}The structure of the module repeats the structure of \texttt{TMDX{\_}DY} module, with the main change in the kinematic definition. Most part of routines has the same input and output with only replacement \texttt{{\_}DY}$\to$\texttt{{\_}SIDIS}. We do not comment such commands. They marked by $*$ in the following table.
 \end{tcolorbox}
 
-\subsection{Setting up the parameters of cross-section}
-\label{TMDXs:setup}
-
-Prior to evaluation of cross-section one must declare which process is considered and to set up the kinematics. 
-
-The declaration of the process is made by
-
-\texttt{call TMDX\_SIDIS{\_}SetProcess(p1,p2,p3)}
-
-\texttt{call TMDX\_SIDIS{\_}SetProcess(p0)}
-
-where \texttt{p0=(/p1,p2,p3/)} and
-\begin{itemize}
-\item[\texttt{p1}] (integer) Defines the $prefactor1$ that contains the phase space elements, and generally experimental dependent. Could be set outside of bin-integration.
-\item[\texttt{p2}] (integer) Defines the $prefactor2$ that contains the universal part of factorization formula. Participate in the bin-integration
-\item[\texttt{p3}] (integer) Defines the structure function $F$. See sec.\ref{TMDF:enum}.
-\end{itemize}
-
-Alternatively, process can be declared by shorthand version
-
-\texttt{call TMDX\_SIDIS{\_}SetProcess(p)}
-
-where \texttt{p}(integer) corresponds to particular combinations of \texttt{p1,p2,p3}. See table.
-
-~
-
-The kinematic of the process is declared by variables $(s,Q,x,z)$
-
-\texttt{call TMDX\_SIDIS{\_}XSetup(s,Q,x,z)}
-
-where \texttt{s} is Mandelshtam variable $s$, \texttt{Q} is hard virtuality $Q$, and (x,z) are standard SIDIS variables. Additionally one can declare masses of target and produced hadrons, by using optional variables
-
-\texttt{call TMDX\_SIDIS{\_}XSetup(s,Q,x,z,mTARGET,mPRODUCT)}
-
-where corresponding masses are given in GeV. Note, that during initialization procedure the target and produced masses are set from \texttt{constants}-file. These values are used or not used according to triggers for 'mass corrections' set in \texttt{constants}-file.
-
-~
-
-All non-perturbative parameters are defined in the \texttt{TMDs} and lower-level modules. For user convenience there is a subroutine, which passes the values of parameters to \texttt{TMDs}. It is
-
-\texttt{call TMDX\_SIDIS{\_}SetNPParameters(lambda/)}
-
-where \texttt{lambda} is real*8(1:number of parameters)/ or \texttt{n} is the number of replica. See also \ref{TMDs:TMDs}. 
-
 \subsection{Cross-section evaluation}
 \label{TMDXs:xsec}
 
-After the parameters of cross-section are set up, the values of the cross-section at different $q_T$ can be obtained by
-
-\texttt{call CalcXsec\_DY(X,qt)}
-
-where  \texttt{X} is real*8 variable where cross-section will be stored, \texttt{qt} is real*8 is the list of values of $q_T$'s at which the \texttt{X} is to be calculated. There exists an overloaded version with \texttt{X} (real*8)(1:N) and \texttt{qT}(real*8)(1:N), which evaluates the array of crossections over array of $q_T$.
-
-Typically, one needs to integrate over bin. There is a whole set of subroutines which evaluate various integrals over bin they are
-\begin{center}
-\small
-\begin{tabular}{||p{8cm}|p{5cm}||p{3cm}||}
-\hline\hline
-Subroutine & ~~integral~~&  Comment
-\\\hline
-\texttt{CalcXsec\_SIDIS(X,pt)} & single-point cross-section at given $p_T$ & 
-\\\hline
-\texttt{CalcXsec\_SIDIS\_Zint\_Xint\_Qint} \texttt{(X,pt,zMin,zMax,xMin,xMax,Qmin,Qmax)} & $\int_{z_{\min}}^{z_{\max}}dz \int_{x_{\min}}^{x_{\max}}dx $ $\int_{Q_{\min}}^{Q_{\max}} 2Q dQ d\sigma(p_T)$ & $0<z_{\min}<z_{\max}<1$ $0<x_{\min}<x_{\max}<1$ ~$0<Q_{\min}<Q_{\max}$ 
-\\\hline
-\texttt{CalcXsec\_SIDIS\_PTint\_Zint\_Xint\_Qint} \texttt{(X,ptMin,ptMax,zMin,zMax,xMin,xMax,Qmin,Qmax)} & $\int_{z_{\min}}^{z_{\max}}dz \int_{x_{\min}}^{x_{\max}}dx $ $\int_{Q_{\min}}^{Q_{\max}} 2Q dQ \int_{pT_{\min}}^{pT_{\max}} 2p_T dp_T d\sigma(p_T)$ & $0<z_{\min}<z_{\max}<1$ $0<x_{\min}<x_{\max}<1$ $0<Q_{\min}<Q_{\max}$ 
-\\\hline
-\red{More to be added} &&
-\\\hline\hline
-\end{tabular}
-\end{center}
 \begin{tcolorbox}
-\textbf{Note 1:} The point $p_T=0$ is somewhat problematic, since it leads to flat Hankel integral. Thus for $p_T<1$MeV it is set to $1$MeV.
-\\
-\textbf{Note 2:} Each command has overloaded version with arrays for \text{X} and \text{qt}.
-\\
-\textbf{Note 3:} Cross-section integrated over $p_T$ bins have overloaded versions with \texttt{X}, \texttt{qtmin} and \texttt{qtmax} being arrays. Then the integral is done for $\texttt{X}(i)$ from \texttt{ptmin(i)} to \texttt{ptmax(i)}.
-\\
-\textbf{Note 4:} There exist special overloaded case for integrated over $p_T$-bins, with successive bins. I.e. for bins that adjust to each other. In this case only one argument \texttt{ptlist} is required (instead of \texttt{qtmin},\texttt{qtmax}). The integration for \texttt{X(i)} is done from \texttt{ptlist(i)} till \texttt{ptlist(i+1)}.
-\end{tcolorbox}
-
-
-Take care that every next function is heavier to evaluate then the previous one. The integrations over $Q$ and $y$ are adaptive Simpsons. We have found that it is the fastest (adaptive) method for typical cross-sections with tolerance $10^{-3}-10^{-4}$. Naturally, it is not suitable for higher precision, which however is not typically required. The integration over $pt$ is not adaptive, since typically $p_T$-bins are rather smooth and integral is already accurate if approximated by 5-7 points (default value is set in \texttt{constants}). For larger $p_T$-bins we suggest to use overloaded versions with manual set of $N$ (number of integral sections).
-
-\begin{tcolorbox}
-\textbf{\blue{There is a subroutine that evaluate cross-section without preliminary call of \texttt{SetCuts},\texttt{TMDX\_SIDIS{\_}SetProcess},\texttt{TMDX\_SIDIS{\_}XSetup}}.} It is called \texttt{xSec\_SIDIS} and it have the following interface:
+The computation of SIDIS cross-section is called by the following subroutine:
 
 \begin{center}
 \texttt{xSec\_SIDIS(X,process,s,pT,z,x,Q,incC,cuts,masses)}
@@ -3052,28 +2945,17 @@ Take care that every next function is heavier to evaluate then the previous one.
 where
 \begin{itemize}
 \item \texttt{X} is (real*8) value of cross-section.
-\item \texttt{process} is (integer)array \texttt{(p1,p2,p3)}.
-\item \texttt{s} is (real*8)Mandelshtam variable $s$
-\item \texttt{pT} is (real*8)array \texttt{(qtmin,qtmax)}
-\item \texttt{z} is (real*8)array \texttt{(zmin,zmax)}
-\item \texttt{x} is (real*8)array \texttt{(xmin,xmax)}
-\item \texttt{Q} is (real*8)array \texttt{(Qmin,Qmax)}
+\item \texttt{process} is (integer)array \texttt{(p1,p2,p3,p4)} (described below).
+\item \texttt{s} is (real*8) Mandelshtam variable $s$
+\item \texttt{pT} is (real*8) array \texttt{(qtmin,qtmax)}
+\item \texttt{z} is (real*8) array \texttt{(zmin,zmax)}
+\item \texttt{x} is (real*8) array \texttt{(xmin,xmax)}
+\item \texttt{Q} is (real*8) array \texttt{(Qmin,Qmax)}
 \item \texttt{incC} is (logical) flag to include cuts.
 \item \texttt{cuts} is (real*8) array \texttt{(ymin,ymax,W2min,W2max)} that parameterizes kinematic cuts.
-\item \texttt{masses} is (real*8) array \texttt{(mt,mp)} which is ($M_{target},m_{produced}$) in GeV \blue{OPTIONAL}.
+\item \texttt{masses} is (real*8) array \texttt{(mt,mp)} which is ($M_{target},m_{produced}$) in GeV \blue{OPTIONAL}. If not specified, considered as zeros.
 \end{itemize}
 \end{tcolorbox}
-\textbf{IMPORTANT: } Practically, the call of this function coincides with $\texttt{X}$ evaluated by the following set of commands
-\\
-\texttt{call TMDX\_SIDIS{\_}SetProcess(process)}
-\\
-\texttt{call TMDX\_SIDIS{\_}XSetup(s,\red{any},\red{any},\red{any})}
-\\
-\texttt{call TMDX\_SIDIS{\_}SetCuts(incC,ymin,ymax,W2min,W2max)}
-\\
-\texttt{call CalcXsec\_SIDIS\_PTint\_Zint\_Xint\_Qint} \texttt{(X,ptMin,ptMax,zMin,zMax,xMin,xMax,Qmin,Qmax)}
-
-However, there is an important difference: the values of \texttt{s, process} which are set by routines \texttt{..Set..}, are global. For that reason such approach could not be used in a parallel computation. Contrary, in the function \texttt{xSec\_SIDIS} these variables are set locally and thus this function can be used in parallel computations.
 
 \begin{tcolorbox}
 \textbf{\blue{There is also analogous subroutine that evaluate cross-section by list.}} It is called \texttt{xSec\_SIDIS\_List} and it have the following interface:
@@ -3081,8 +2963,64 @@ However, there is an important difference: the values of \texttt{s, process} whi
 \begin{center}
 \texttt{xSec\_SIDIS\_List(X,process,s,pT,z,x,Q,incC,cuts,masses)}
 \end{center}
-All variables are analogues to those of \texttt{xSec\_SIDIS}, but should come in lists, i.e. \texttt{X} is (1:n), \texttt{process} is (1:n,1:3), \texttt{s} is (1:n), \texttt{pT},\texttt{x},\texttt{Q},\texttt{z} are (1:n,1:2). This command compiled by OPENMP, so runs in parallel on multi-core computers.
+All variables are analogues to those of \texttt{xSec\_SIDIS}, but should come in lists, i.e. \texttt{X} is (1:n), \texttt{process} is (1:n,1:4), \texttt{s} is (1:n), \texttt{pT},\texttt{x},\texttt{Q},\texttt{z} are (1:n,1:2). This command compiled by OPENMP, so runs in parallel on multi-core computers.
 \end{tcolorbox}
+
+In addition to these main subroutines the following sub-routines are defined
+\begin{center}
+\texttt{xSec\_SIDIS\_BINLESS(proc,s,pt,z,x,Q,m1,m2)}
+\end{center}
+Compute cross-section without integration over bin (and also ignoring any possible bin-cut options). All kinematic variables are (real*8).
+
+There harpy-interface prevents using optional variables. Thus there are separate copies of the function with argument \texttt{masses} being obligatory:
+\begin{center}
+\texttt{xSec\_SIDIS\_List\_forharpy(xx,process,s,pT,z,x,Q,doCut,Cuts,masses)}
+\\
+\texttt{xSec\_SIDIS\_BINLESS\_List\_forharpy(xx,process,s,pT,z,x,Q,masses)}
+\end{center}
+
+\subsection{Enumeration of processes}
+
+The enumeration of processes for SIDIS is analogous to the DY case. Namely, each process is defined by 4 integer numbers
+$$\texttt{[p1, p2, p3, p4]}$$
+with
+\begin{itemize}
+\item $p_1$ indicates type of $prefactor2$ to use. Depending on this prefactor also the integral over phase space may differ. See the table below for details.
+\item $p_2$ is the number of the target hadron (i.e. the hadron associated with TMDPDF)
+\item $p_3$ is the number of the produced hadron (i.e. the hadron associated with TMDFF)
+\item $p_4$ indicates the process (structure function). See the table below for details.
+\end{itemize}
+
+\begin{center}
+List of enumeration for $prefactor2$
+\\
+\texttt{p1}
+\\
+\begin{tabular}{||l|c||p{12cm}||}
+\hline\hline
+\texttt{p1} & ~~$prefactor2$~~&  Short description 
+\\\hline
+0 & $1$ & For tests and cross-checks.
+\\\hline
+1 & $R_C$ & The cross-section $\frac{d\sigma}{dx dQ^2 dz d(p_\perp^2)}$. The factor $R_C$ is defined below.
+\\\hline
+2 & $\frac{Q^2}{y} R_C$& The cross-section $\frac{d\sigma}{dx dy dz d(p_\perp^2)}$, in this case integration over $Q^2$ is replaced by integration over $y$.
+\\\hline
+3 & $\frac{x}{y} R_C$ & The cross-section $\frac{d\sigma}{dy dQ^2 dz d(p_\perp^2)}$, in this case integration over $x$ is replaced by integration over $y$.
+\\\hline\hline
+\end{tabular}
+\end{center}
+The factor $R_C$ is standard normalization of the cross-section (however without factor $1+\gamma^2/2x$, which is obsolete)
+\begin{eqnarray}
+R_C=\frac{2\pi \alpha_{\text{em}}^2(Q)}{Q^4\sqrt{1-\gamma^2 \vec \rho_\perp^2}}\frac{y^2}{1-\varepsilon}|C_V^{SIDIS}(c_2Q)|^2 c^{(un)}_0 R_t~~\text{[pb/GeV$^2$]},
+\end{eqnarray}
+with $R_t=0.3893379\times 10^9$ the transformation factor from GeV to pb, and 
+$$
+c_0^{(un)}=1+\frac{\vec p_\perp^2}{(zQ)^2}\frac{\varepsilon-\frac{\gamma^2}{2}}{1-\gamma^2\rho^2}
+=1+\frac{\vec q_T^2}{Q^2}\frac{\varepsilon-\frac{\gamma^2}{2}}{1+\gamma^2}
+.
+$$
+Note, that different parts of this formula can be switched on/off by parameters of the power-corrections.
 
 \subsection{Kinematic cuts}
 \label{TMDXs:cuts}
@@ -3109,6 +3047,8 @@ where
 \end{eqnarray*}
 If some cut is not required, then set corresponding parameter to limiting value, such as $y_{\min}=0$, $y_{\max}=1$, $W^2_{\min}=0$, $W^2_{\max}\gg Q^2$.
 
+\textbf{Important:} If due to cuts the minimal and maximum values of parameter are inverted, the resulting cross-section is immediately set to zero.
+
 \subsection{Power corrections}
 
 There are many sources of power corrections. For a moment there is no systematic studies of of effect of power corrections for TMD factorization. Nonetheless we include some options in \texttt{artemide}, and plan to make systematic treatment in the future.
@@ -3129,57 +3069,23 @@ The accounting of these corrections is switched on/off in \texttt{constants}.
 
 \subsection{Bin-integration routines}
 
-The inclusion of bin-integration is essential for comparison with experiment. The integration over a bin is automatically included in the calculation of cross-section (although routines for unintegrated calculation are also presented). Typically, one does not need an extreme precision from such integration i.e. 4-5 digit precision is typically more then enough to overshoot experimental precision. Also the cross-section is relatively slow-function (exception is Z-boson peak). Therefore, as a based method for bin-integration I have selected the Simpson integration rule. By default, the adaptive Simpson rule is used for integration over $z$, $x$, $Q^2$, and fixed-number-of-points Simpson method for $p_T$-integration.
+The inclusion of bin-integration is essential for comparison with experiment. The integration over a bin is automatically included in the calculation of cross-section (although routines for unintegrated calculation are also presented). Typically, one does not need an extreme precision from such integration i.e. 4-5 digit precision is typically more then enough to reach the experimental precision. Also the cross-section is relatively slow-function (exception is Z-boson peak). Therefore, as a based method for bin-integration I have selected the adaptive Simpson integration rule. By default, the adaptive Simpson rule is used for integration over $z$, $x$, $Q^2$, and fixed-number-of-points Simpson method for $p_T$-integration. Note, one can switch to G7 method (faster but not presice) by modification of the pre-compile parameter in the beginning of the code.
 
-If the sizes of bins are small and the cross-section is smooth in this region, then it is worth to consider faster (but less accurate) methods for integration. They are set in constants-file in the section.10:B. The methods are
+The integration is made for phase-space element $dQ^2 dx d\vec p_\perp^2$. I.e.
+\begin{eqnarray}
+\Delta \sigma =\int dz \int dQ^2 dx d\vec p_\perp^2~ d\sigma
+=\int_{z_{\min}}^{z_{\max}} dz\int_{Q_{\min}}^{Q_{\max}} 2Q~ dQ \int_{x_{\min}}^{x_{\max}} dx \int_{p_{\min}}^{p_{\max}} 2|\vec p_\perp|d|\vec p_\perp|~ d\sigma.
+\end{eqnarray}
+For processes with $dx\to dy$, or $dQ^2\to dy$ the integration is done in the same manner but with limits of integration over $Q$ or $x$ re-computed at values of $y$.
+
+\textbf{Notes:} 
 \begin{itemize}
-\item[\texttt{SA}] Default. Simpson-adaptive algorithm. Runs with relative tolerance specified in constants-file. Initial estimation of the integral is done with 5-points. Minimal number of points for integration is 9.
-\item[\texttt{S5}] Simpson-fixed-number-of-points algorithm. Estimation of the integral is done with 5-points. No checks for convergence.
-\item[\texttt{I0}] No-integration. Evaluates the central point of the bin and multiply by the bin size (not recommended).
+\item If the limits of integration are inverted (i.e. $\int_a^b$ with $a>b$) the integral is set to zero. It is made intentionally, because the cuts may shift the limits upside-down, which corresponds to the completely-eliminated case.
+\item The central value is computed at the mean of the bin. I.e. for bin $[a,b]$ the central value is computed at $(a+b)/2$.
 \end{itemize}
 
-\textbf{Note,} the selection of method for integration is available only for some integration (so far integration over $x$ and $z$). Other methods and integration will be added in future.
 
 
-\subsection{Enumeration of processes}
-
-\begin{center}
-List of enumeration for $prefactor1$
-\\
-\texttt{p1}
-\\
-\begin{tabular}{||l|c||p{12cm}||}
-\hline\hline
-\texttt{p1} & ~~$prefactor1$~~&  Short description 
-\\\hline
-1 & 1$\qquad\qquad\qquad\qquad\qquad$ & No comments.
-\\\hline
-2 & $\frac{Q^2}{y}$& The cross-section $\frac{d\sigma}{dx dy dz d(p_\perp^2)}$, in this case integration over $Q^2$ is replaced by integration over $y$.
-\\\hline
-3 & $\frac{x}{y}$ & The cross-section $\frac{d\sigma}{dy dQ^2 dz d(p_\perp^2)}$, in this case integration over $x$ is replaced by integration over $y$.
-\\\hline\hline
-\end{tabular}
-\end{center}
-
-\begin{center}
-List of enumeration for $prefactor2$
-\\
-\texttt{p2}
-\\
-\begin{tabular}{||l|c||p{12cm}||}
-\hline\hline
-\texttt{p2} & ~~$prefactor2$~~&  Short description 
-\\\hline
-1 & $\frac{2\pi \alpha_{\text{em}}^2(Q)}{Q^4}\frac{y^2}{1-\varepsilon}|C_V^{SIDIS}(c_2Q)|^2 c^{(un)}_0 R$ & (unpol.) SIDIS-cross-section $\frac{d\sigma}{dx dQ^2 dz d(p_\perp^2)}$. [pb/GeV$^2$].
-\\\hline
-2 & $\frac{x}{\pi}\frac{c_0^{(un)}}{\Big(1+\frac{\gamma^2}{2x}\Big)}|C_V^{SIDIS}(c_2Q)|^2$ & Prefactor for $F_{UU,T}$ according to the tabulated definition (2.7) of \cite{Bacchetta:2006tn}. 
-\\\hline\hline
-\end{tabular}
-Here $R=0.3893379\times 10^9$ the transformation factor from GeV to pb.
-$$
-c_0^{(un)}=\frac{1+\Big(\varepsilon-\frac{\gamma^2}{2}\Big)\frac{\vec \rho_\perp^2-\rho^2}{1-\gamma^2\rho^2}}{\sqrt{1-\gamma^2 \vec \rho_\perp^2}}.
-$$
-\end{center}
 
 \subsection{SIDIS theory}
 \label{sec:SIDIS:theory}
@@ -3213,7 +3119,7 @@ A phase space point is totally characterized by the following numbers:
 \begin{eqnarray}
 \{s,x,Q^2,z,\vec p_T^2\}.
 \end{eqnarray}
-Alternatively, one can replace $x$ or $Q^2$ by $y$.
+Alternatively, one can replace $x\leftrightarrow Q^2 \leftrightarrow y$.
 
 \subsubsection{Cross-section}
 
@@ -3223,30 +3129,42 @@ The cross-section for SIDIS has the general form
 \end{eqnarray}
 where $L_{\mu\nu}$ is the lepton tensor, and $W_{\mu\nu}$ is the hadron tensor. The hadron tensor contains many term accompanied by polarization angles. 
 
-The TMD factorization is performed in the factorization frame with respect to $\vec q_T^2\ll Q^2$. In the factorization frame, the unpolarized part of the hadron tensor 
+The TMD factorization is performed in the factorization frame with respect to $\vec q_T^2\ll Q^2$. The factorization variable $|\vec q_T|$ is related to the measured variable $\vec p_{h\perp}$ as
 \begin{eqnarray}
-W^{\mu\nu}=\frac{-zg_T^{\mu\nu}}{\pi}\int |\vec b| d |\vec b| J_0(|\vec b| |\vec q_T|)\sum_f e_f^2 |C_V(-Q^2,\mu^2)|^2 F_1^f(x_1,\vec b)D_1^f(z_1,\vec b)+...~,
+|\vec q_T|=\frac{|\vec p_{h\perp}|}{z}\sqrt{\frac{1+\gamma^2}{1-\gamma^2\rho^2}},\qquad \Leftrightarrow \qquad |\vec p_{h\perp}|=z |\vec q_T|\sqrt{\frac{1-\gamma^2\rho^2}{1+\gamma^2}}.
 \end{eqnarray}
-where dots denote, polarized terms, and power corrections. The variables $x_1$ and $z_1$ are
+In the factorization frame, the unpolarized part of the hadron tensor 
+\begin{eqnarray}
+W^{\mu\nu}=\frac{-z_1g_T^{\mu\nu}}{\pi}\int |\vec b| d |\vec b| J_0(|\vec b| |\vec q_T|)\sum_f e_f^2 |C_V(-Q^2,\mu^2)|^2 F_1^f(x_1,\vec b)D_1^f(z_1,\vec b)+...~,
+\end{eqnarray}
+where dots denote, polarized terms, and power corrections. The LP variables $x_1$ and $z_1$ are
 \begin{eqnarray}
 x_1&=&-\frac{2x}{\gamma^2}\(1-\sqrt{1+\gamma^2\(1-\frac{\vec q_T^2}{Q^2}\)}\),
 \\
 z_1&=&-z\frac{1-\sqrt{1+\(1-\frac{\vec q_T^2}{Q^2}\)\gamma^2}}{\gamma^2}\frac{1+\sqrt{1-\rho^2 \gamma^2}}{1-\frac{\vec q_T^2}{Q^2}}.
 \end{eqnarray}
-The factorization variable $|\vec q_T|$ is related to the measured variable $\vec p_{h\perp}$ as
-\begin{eqnarray}
-|\vec q_T|=\frac{|\vec p_{h\perp}|}{z}\sqrt{\frac{1+\gamma^2}{1-\gamma^2\rho^2}},\qquad \Leftrightarrow \qquad |\vec p_{h\perp}|=z |\vec q_T|\sqrt{\frac{1-\gamma^2\rho^2}{1+\gamma^2}}.
-\end{eqnarray}
+
 Making the convolution with unpolarized leptonic tensor, we get the following expression for the cross-section
 \begin{eqnarray}
-\frac{d\sigma}{dx dQ^2 dz d\vec p_{h\perp}^2}&=&2\pi\frac{\alpha^2_{\text{em}}}{Q^4}\frac{1}{\sqrt{1+\vec \rho_{\perp}^2 \gamma^2}}\frac{y^2}{2(1-\varepsilon)}
-\Bigg\{1+\(\varepsilon-\frac{\gamma^2}{2}\)\frac{\vec \rho^2_\perp-\rho^2}{1-\gamma^2\rho^2}\Bigg\}
-\\\nn && \int |\vec b|d|\vec b| J_0\(\frac{|\vec b||\vec p_{h\perp}|}{z}\sqrt{\frac{1+\gamma^2}{1-\gamma^2 \rho^2}}\)\sum_f e_f^2|C_V(-Q^2,\mu^2)|^2 F_1^f(x_1,\vec b)D_1^f(z_1,\vec b),
+\frac{d\sigma}{dx dQ^2 dz d\vec p_{h\perp}^2}&=&2\pi\frac{\alpha^2_{\text{em}}}{Q^4}\frac{1}{\sqrt{1+\vec \rho_{\perp}^2 \gamma^2}}\frac{y^2}{1-\varepsilon}
+\frac{z_1}{z}\Bigg\{1+\(\varepsilon-\frac{\gamma^2}{2}\)\frac{\vec \rho^2_\perp-\rho^2}{1-\gamma^2\rho^2}\Bigg\}
+\\\nn && \int \frac{|\vec b|d|\vec b|}{2} J_0\(\frac{|\vec b||\vec p_{h\perp}|}{z}\sqrt{\frac{1+\gamma^2}{1-\gamma^2 \rho^2}}\)\sum_f e_f^2|C_V(-\overline{Q}^2,\mu^2)|^2 F_1^f(x_1,\vec b)D_1^f(z_1,\vec b),
 \end{eqnarray}
-where
+where 
 \begin{eqnarray}
 \varepsilon=\frac{1-y-\frac{\gamma^2y^2}{4}}{1-y+\frac{y^2}{2}+\frac{y^2 \gamma^2}{4}}.
 \end{eqnarray}
+The value $\overline{Q}^2=-2q^+q^-$, note that $\zeta\bar \zeta=\overline{Q}^4$. 
+
+Clearly, this LP expression contains a set of power corrections. It is a standard problem of TMD factorization, where the limit of LP is not very standardly defined. Thus, there are options to switch off/on these corrections.
+\begin{itemize}
+\item \textbf{Transverse momentum corrections}: (option $p_1$ in section 10.C) Include terms proportional to $\vec \rho_\perp^2$.
+\item \textbf{Target mass corrections}: (option $p_2$ in section 10.C) Include terms proportional to $\gamma^2$.
+\item \textbf{Product mass corrections}: (option $p_3$ in section 10.C) Include terms proportional to $\rho^2$.
+\item \textbf{Exact LP values of $x_1$ and $z_1$}: (option $p_4$ in section 10.C) Uses values of $x_1$ and $z_1$ (if option is \text{False} $x_1\to x$, $z_1\to z$)
+\item \textbf{Exact LP value for factorization scale}: (option $p_5$ in section 10.C) Uses exact LP value for $\overline{Q}^2=-2q^+q^-=Q^2-\vec q_T^2$ (if option is \text{False} $\overline{Q}^2=Q^2$ )
+\end{itemize}
+Note, that corrections are included in the order from top to bottom. For example, terms $\sim \gamma^2 \rho^2=0$ if $p_2=$\texttt{F} and $p_3=$\texttt{T}.
 
 \newpage
 \section{\texttt{TMDs\_inKT} module}
@@ -3583,29 +3501,67 @@ artemide $<3$ & artemide $>3$ & Process & Comment
 \\\hline
 1004 & [2,1,103] & $\pi^-+W\to \gamma$ & 
 \\\hline\hline
+polarized DY
+\\\hline\hline
+10001 & [1,1,10001] & $p^\uparrow+p\to \gamma$ & 
+\\\hline
+10005 & [1,1,10003] & $p^\uparrow+p\to \gamma+Z$ & 
+\\\hline
+10007 & [1,1,10004] & $p^\uparrow+p\to W^+$ & 
+\\\hline
+10008 & [1,1,10005] & $p^\uparrow+p\to W^-$ & 
+\\\hline
+10101 & [2,1,10011] & $\pi^++p^\uparrow\to \gamma$ & 
+\\\hline
+10102 & [2,-1,10011] & $\pi^++\bar p^\uparrow\to \gamma$ & 
+\\\hline
+10103 & [-2,1,10011] & $\pi^-+p^\uparrow\to \gamma$ & 
+\\\hline
+10104 & [-2,-1,10011] & $\pi^-+\bar p^\uparrow\to \gamma$ & 
+\\\hline
+13200 & [1,1,13200] & $p^\uparrow+p\to Z+\gamma$ & 
+\\\hline
+13201 & [1,1,13201] & $p^\uparrow+p\to W^+$ & 
+\\\hline
+13202 & [1,1,13202] & $p^\uparrow+p\to W^-$ & 
+\\\hline\hline
  SIDIS
 \\\hline\hline
-10001 & [10001,1,1] & $p^\uparrow+p\to \gamma$ & 
+200n & [1,n,2001] & $p+\gamma\to h_n$ & 
 \\\hline
-10005 & [10003,1,1] & $p^\uparrow+p\to \gamma+Z$ & 
+201n & [1,n,2002] & $d+\gamma\to h_n$ & 
 \\\hline
-10007 & [10004,1,1] & $p^\uparrow+p\to W^+$ & 
+202n & [1,-n,2001] & $p+\gamma\to \bar h_n$ & 
 \\\hline
-10008 & [10005,1,1] & $p^\uparrow+p\to W^-$ & 
+203n & [1,-n,2002] & $d+\gamma\to \bar h_n$ & 
 \\\hline
-10101 & [10011,2,1] & $\pi^++p^\uparrow\to \gamma$ & 
+204n & [1,n,2003] & $n+\gamma\to h_n$ & 
 \\\hline
-10102 & [10011,2,-1] & $\pi^++\bar p^\uparrow\to \gamma$ & 
+205n & [1,-n,2003] & $n+\gamma\to \bar h_n$ & 
 \\\hline
-10103 & [10011,-2,1] & $\pi^-+p^\uparrow\to \gamma$ & 
+2101 & [1,a,2101] & $p+\gamma\to h_{1+2}$ &  $a>0$
 \\\hline
-10104 & [10011,-2,-1] & $\pi^-+\bar p^\uparrow\to \gamma$ & 
-\\\hline\hline
-13200 & [13200,1,1] & $p^\uparrow+p\to Z+\gamma$ & 
+2102 & [1,a,2102] & $p+\gamma\to h_{1+2+3}$ &  $a>0$
 \\\hline
-13201 & [13201,1,1] & $p^\uparrow+p\to W^+$ & 
+2103 & [1,a,2103] & $d+\gamma\to h_{1+2}$ &  $a>0$
 \\\hline
-13202 & [13202,1,1] & $p^\uparrow+p\to W^-$ & 
+2104 & [1,a,2104] & $d+\gamma\to h_{1+2+3}$ &  $a>0$
+\\\hline
+2105 & [1,a,2105] & $n+\gamma\to h_{1+2}$ &  $a>0$
+\\\hline
+2106 & [1,a,2106] & $n+\gamma\to h_{1+2+3}$ &  $a>0$
+\\\hline
+2111 & [1,-a,2101] & $p+\gamma\to \bar h_{1+2}$ &  $a>0$
+\\\hline
+2112 & [1,?,2102] & $p+\gamma\to \bar h_{1+2+3}$ &  $a>0$
+\\\hline
+2113 & [1,?,2103] & $d+\gamma\to \bar h_{1+2}$ &  $a>0$
+\\\hline
+2114 & [1,?,2104] & $d+\gamma\to \bar h_{1+2+3}$ &  $a>0$
+\\\hline
+2115 & [1,?,2105] & $n+\gamma\to \bar h_{1+2}$ &  $a>0$
+\\\hline
+2116 & [1,?,2106] & $n+\gamma\to \bar h_{1+2+3}$ &  $a>0$
 \end{longtable}
 \end{center}
 
@@ -3615,6 +3571,10 @@ artemide $<3$ & artemide $>3$ & Process & Comment
 \begin{itemize}
 \item[\textbf{Ver.3.01}]
 \begin{itemize}
+	\item \textbf{TMDX\_DY}: Fixed double-accounting of Jacobian in $dx_F$-integration 
+	\item \textbf{TMDX\_SIDIS}: Fixed double-accounting of Jacobian in $dy$-integrations
+	\item \textbf{TMDX\_SIDIS}: Refactoring and updating into v3 paradigm.
+	\item \textbf{TMDR}: reintroduced the CSS-like evolution factor, as a ``pre-compiler'' option 
 	\item \textbf{QCDinput}: removed connected to LHAPDF library. All changed to self-readers. Hardcore restriction on the number of hadrons.
 	\item \textbf{LHA\_alpha} \& \textbf{LHA\_PDF}: implemented
 \end{itemize}

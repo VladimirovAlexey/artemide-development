@@ -144,8 +144,7 @@
    0.000001
 *p3  : The smoothing parmaeters for small-b stabilization
    0.01
- 
- 
+
 # ---------------------------------------------------------------------------
 # ----                           PARAMETERS OF uTMDPDF                  -----
 # ---------------------------------------------------------------------------
@@ -338,21 +337,23 @@
 *p3  : Use resummation of pi^2-corrections in hard coefficient
  F
 *B   : ---- Numerical evaluation parameters ----
-*p1  : Tolerance general (variable comparision, etc.)
+*p1  : Tolerance general (variable comparison, etc.)
    1.0000000000000000E-006
 *p2  : Tolerance (relative tolerance for bin-integration routines, except pt-integration)
    1.0000000000000000E-004
 *p3  : Minimal number of sections for pt-integration
            6
-*p4  : Maximum size of the Q-bin integration (larger bins are desected)
+*p4  : Maximum size of the Q-bin integration (larger bins are disected)
    30.0000000
 *p5  : Minimal value of qT (lower values are fixed to this number)
    0.0001
+
 *C   : ---- Definition of LP TMD factorization ----
 *p1  : Use the exact LP values of x1 and x2 (include qT/Q correction)
  T
 *p2  : Use the exact LP value for factorization scale (include qT/Q correction)
  F
+
 *D   : ---- Definition of TMD factorization with KPC ----
 *p1  : Include terms induced by fiducial cuts
  T
@@ -366,33 +367,32 @@
 *A   : ---- Main definitions ----
 *p1  : Order of coefficient function
  LO
-*p2  : Use transverse momentum corrections in kinematics
- T
-*p3  : Use target mass corrections in kinematics
- T
-*p4  : Use product mass corrections in kinematics
- T
-*p5  : Use transverse momentum corrections in x1 and z1
- T
-*p6  : Use the exact values for factorization scales (include qT/Q correction)
+*p2  : Utilize KPC formula (T=KPC formula, F=LP formula)
  F
+
 *B   : ---- Numerical evaluation parameters ----
-*p1  : Tolerance (relative tolerance for bin-integration routines, except pt-integration)
+*p1  : Tolerance general (variable comparison, etc.)
+   1.0000000000000000E-006
+*p2  : Tolerance (relative tolerance for bin-integration routines, except pt-integration)
    1.0000000000000000E-003
-*p2  : Minimal number of sections for pt-integration
-           4
-*p3  : Tolerance for Z-integration (relative tolerance for Z-bin-integration routines)
-   1.0000000000000000E-003
-*p4  : Method for Z-bin integration (see manual)
- SA  
-*p5  : Tolerance for X-integration (relative tolerance for X-bin-integration routines)
-   1.0000000000000000E-003
-*p6  : Method for X-bin integration (see manual)
- SA  
-*C   : ---- Parameters for parallel evaluation (used only if compiled with openMP) ----
-*p1  : Maximum number of processors to use
-           8
- 
+*p3  : Minimal number of sections for pt-integration
+           6
+*p4  : Minimal value of pT (lower values are fixed to this number)
+   0.0001
+
+*C   : ---- Definition of LP TMD factorization ----
+*p1  : Account induced transverse momentum corrections
+ T
+*p2  : Account induced target mass corrections
+ T
+*p3  : Account induced product mass corrections
+ T
+*p4  : Use exact LP values for x1 and z1
+ T
+*p5  : Use the exact LP value for factorization scale
+ F
+
+*D   : ---- Definition of TMD factorization with KPC ----
  
 # ---------------------------------------------------------------------------
 # ----                           PARAMETERS OF lpTMDPDF                 -----

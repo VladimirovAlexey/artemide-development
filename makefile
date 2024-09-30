@@ -7,13 +7,16 @@ aTMDeHOME       = $(PWD)
 
 #PUT YOUR FORTRAN COMPILER
 FCompilator=f95 
+
 #PUT HERE extra flags for compilator (put "space" if not flags requared)
 Fflags= -O3 -cpp -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -fopenmp
 # This should be as string because it is how f2py eats it.
 FflagsHARPY= '-O3 -cpp -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -fopenmp'
-#Fflags=  -O3 -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -Wall -fopenmp
+#### Fir debuging
+#Fflags=  -O3 -cpp -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -Wall -fopenmp
 #path to fortran compilator (needed for f2py)
 Fpath=/usr/bin/f95
+F77path=/usr/bin/f77
 
 #options for COMILATOR to compile QCDinput. e.g. link to LHA
 #FOPT=$(shell lhapdf-config --ldflags)
@@ -429,5 +432,5 @@ harpy-signature:
 	echo 'end python module artemide' >> $(HDIR)/artemide.pyf
 
 harpy: 
-	f2py -c --f90exec=$(Fpath) --f90flags=$(FflagsHARPY) $(FOPT) -lgomp -I$(MOD) $(aTMDeFILES) $(HDIR)/harpy.f90 $(HDIR)/artemide.pyf
+	f2py -c --f90exec=$(Fpath) --f77exec=$(F77path) --f90flags=$(FflagsHARPY) $(FOPT) -lgomp -I$(MOD) $(aTMDeFILES) $(HDIR)/harpy.f90 $(HDIR)/artemide.pyf
 	mv artemide*.so $(HDIR)

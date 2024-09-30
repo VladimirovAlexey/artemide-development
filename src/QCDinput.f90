@@ -300,6 +300,13 @@ end function QCDinput_IsInitialized
  
   CLOSE (51, STATUS='KEEP') 
 
+!   !-----------------------------------------------------
+!   !=====LHAPDF======
+!   call InitPDFsetByNameM(1,alphaNAME)
+!   call InitPDFM(1,0)
+!   !=================
+!   !-----------------------------------------------------
+
   !!!! initialize the alphaS-LHA table
   call ReadInfo_alpha(alphaNAME,pathToLHA,outputLevel)
 
@@ -489,6 +496,15 @@ real(dp)::As
 As=AlphaS_fromLHA(Q)/pix4
 !  as=1d0/(2d0*23d0/3d0*Log(Q/0.08782708014552364d0))  !!! Nf=5 LO solution
 
+
+! !-------------------------
+! !======LHAPDF========
+! real(dp)::alphasPDF
+! As=alphasPDF(Q)/pix4
+! !======LHAPDF========
+! !-------------------------
+
+
 end function As
 
 !!!!array of x times PDF(x,Q) for hadron 'hadron'
@@ -498,6 +514,14 @@ function xPDF(x,Q,hadron)
     real(dp),intent(in) :: x,Q
     integer,intent(in):: hadron
     real(dp), dimension(-5:5):: xPDF
+
+!     !-------------------------
+!     !======LHAPDF========
+!     real(dp), dimension(-6:6):: inputPDF
+!     call evolvePDFM(1,x,Q,inputPDF)
+!     xPDF=inputPDF(-5:5)
+!     !======LHAPDF========
+!     !-------------------------
 
     SELECT CASE(hadron)
       CASE(1)

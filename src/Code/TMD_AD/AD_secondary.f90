@@ -603,6 +603,11 @@ subroutine SetOMEGAnkGluon()
     
 end subroutine SetOMEGAnkGluon
 
+!!!!
+!!!! betaRoots_internal defined as betaRoots_internal(loop, N_root, Nf)
+!!!! roots are defined for polynomial with beta0 extracted
+!!!! N_root<= loop;
+!!!! loop=1 for 2-loop beta function [alpha_s^2(1+beta_1/\beta_0 alpha_s) => betaRoots_internal(1,1,N_f)=-beta_0/beta_1
 subroutine SetBetaRoots()
     integer::n,i,j
     real(dp)::B1,B2,B3,B4

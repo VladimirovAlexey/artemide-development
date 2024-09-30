@@ -188,12 +188,11 @@ logical::TMDX_DY_useKPC
 !-------------------- TMDX-SIDIS parameters
 logical::include_TMDX_SIDIS
 character*8::TMDX_SIDIS_order
-real(dp)::TMDX_SIDIS_tolerance
+real(dp)::TMDX_SIDIS_toleranceINT, TMDX_SIDIS_toleranceGEN
+real(dp)::TMDX_SIDIS_minPT
 integer::TMDX_SIDIS_ptSECTION
-logical::TMDX_SIDIS_qTcorr,TMDX_SIDIS_M1corr,TMDX_SIDIS_M2corr,TMDX_SIDIS_qTinX1Z1corr,TMDX_SIDIS_exactScale
-integer::TMDX_SIDIS_numProc
-real(dp)::TMDX_SIDIS_toleranceZ,TMDX_SIDIS_toleranceX
-character(len=4)::TMDX_SIDIS_methodZ,TMDX_SIDIS_methodX
+logical::TMDX_SIDIS_qTcorr,TMDX_SIDIS_M1corr,TMDX_SIDIS_M2corr,TMDX_SIDIS_exactX1Z1,TMDX_SIDIS_exactScale
+logical::TMDX_SIDIS_useKPC
 
 !---------------------------------------------------
 public::artemide_Setup_fromFile,CreateConstantsFile,ReadConstantsFile,CheckConstantsFile
@@ -518,19 +517,17 @@ subroutine SetupDefault(order)
 
     !------------------ parameters for TMDX-SIDIS
     include_TMDX_SIDIS=.false.
-    TMDX_SIDIS_tolerance=0.001d0    !tolerance (i.e. relative integration tolerance -- in kinematic integrals;)
+    TMDX_SIDIS_toleranceINT=0.0001d0
+    TMDX_SIDIS_toleranceGEN=0.000001d0
+    TMDX_SIDIS_minPT=0.0001d0
     TMDX_SIDIS_ptSECTION=4        !default number of sections for pt-bin integration
     TMDX_SIDIS_order=trim(order)
     TMDX_SIDIS_qTcorr=.true.
-    TMDX_SIDIS_M1corr=.true.
-    TMDX_SIDIS_M2corr=.true.
-    TMDX_SIDIS_qTinX1Z1corr=.true.
+    TMDX_SIDIS_M1corr=.false.
+    TMDX_SIDIS_M2corr=.false.
+    TMDX_SIDIS_exactX1Z1=.true.
     TMDX_SIDIS_exactScale=.false.
-    TMDX_SIDIS_numProc=8
-    TMDX_SIDIS_toleranceZ=TMDX_SIDIS_tolerance
-    TMDX_SIDIS_methodZ='SA'        !SA=Simpson adaptive, S5=Simpson 5-point
-    TMDX_SIDIS_toleranceX=TMDX_SIDIS_tolerance
-    TMDX_SIDIS_methodX='SA'        !SA=Simpson adaptive, S5=Simpson 5-point
+    TMDX_SIDIS_useKPC=.false.
 
     !------------------ parameters for TMDF-KPC-DY
     include_TMDF_KPC=.true.
@@ -710,16 +707,19 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) Vckm_CD,Vckm_CS,Vckm_CB    
     write(51,"('*p4  : value of (alphaQED)^{-1} at MTAU')")
     write(51,*) alphaQED_MTAU
+    write(51,"(' ')")
     write(51,"('*B   : ---- Z-boson ----')")
     write(51,"('*p1  : mass of Z-boson [GeV]')")
     write(51,*) mZ
     write(51,"('*p2  : width of Z-boson [GeV]')")
     write(51,*) GammaZ
+    write(51,"(' ')")
     write(51,"('*C   : ---- W-boson ----')")
     write(51,"('*p1  : mass of W-boson [GeV]')")
     write(51,*) mW
     write(51,"('*p2  : width of W-boson [GeV]')")
     write(51,*) GammaW
+    write(51,"(' ')")
     write(51,"('*D   : ---- Higgs-boson ----')")
     write(51,"('*p1  : mass of Higgs-boson [GeV]')")
     write(51,*) mH
@@ -727,6 +727,7 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) GammaH
     write(51,"('*p3  : Vacuum expectation value (VEV) for Higgs potential [GeV]')")
     write(51,*) vevH
+    write(51,"(' ')")
     write(51,"('*E   : ---- Leptons ----')")
     write(51,"('*p1  : mass of electron [GeV]')")
     write(51,*) mELECTRON
@@ -748,7 +749,7 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p1  : Order of evolution')")
     write(51,*) trim(TMDR_order)
     write(51,&
-    "('*p2  : Override the general definition of the pertrubative order (in this case orders are defined by the list below))')")
+    "('*p2  : Override the general definition of the perturbative order (in this case orders are defined by the list below))')")
     write(51,*) TMDR_override
     write(51,"('*p3  : Order of Gamma-cusp (LO=1-loop, NLO=2-loop, ...)')")
     write(51,*) trim(TMDR_orderGAMMA)
@@ -763,7 +764,6 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p1  : Length of lambdaNP')")
     write(51,*) TMDR_lambdaLength
     write(51,"(' ')")
-    write(51,*)
     write(51,"('*C   : ---- Numerical evaluation parameters ----')")
     write(51,"('*p1  : Tolerance (tolerance used for comparisons)')")
     write(51,*) TMDR_tolerance
@@ -771,7 +771,6 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDR_bFREEZE
     write(51,"('*p3  : The smoothing parameters for small-b stabilization')")
     write(51,*) TMDR_smooth
-
 
     write(51,"(' ')")
     write(51,"(' ')")
@@ -946,6 +945,7 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*7   :')")
     write(51,"('*p1  : initialize TMDF module')")
     write(51,*) include_TMDF
+    write(51,"(' ')")
     write(51,"('*A   : ---- Numerical evaluation parameters ----')")
     write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
     write(51,*) TMDF_tolerance
@@ -953,7 +953,8 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDF_OGATAh
     write(51,"('*p3  : Minimal qT (for smaller values the expression is constant)')")
     write(51,*) TMDF_qTMIN
-    write(51,"('*B   : ---- Global garameters of structure functions----')")
+    write(51,"(' ')")
+    write(51,"('*B   : ---- Global parameters of structure functions----')")
     write(51,"('*p1  : Mass parameter used in the structure function (mass of hadron)')")
     write(51,*) TMDF_mass
 
@@ -965,6 +966,7 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*9   :')")
     write(51,"('*p1  : initialize TMDX-DY module')")
     write(51,*) include_TMDX_DY
+    write(51,"(' ')")
     write(51,"('*A   : ---- Main definitions ----')")
     write(51,"('*p1  : Order of coefficient function')")
     write(51,*) trim(TMDX_DY_order)
@@ -972,8 +974,9 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDX_DY_useKPC
     write(51,"('*p3  : Use resummation of pi^2-corrections in hard coefficient')")
     write(51,*) TMDX_DY_piResum
+    write(51,"(' ')")
     write(51,"('*B   : ---- Numerical evaluation parameters ----')")
-    write(51,"('*p1  : Tolerance general (variable comparision, etc.)')")
+    write(51,"('*p1  : Tolerance general (variable comparison, etc.)')")
     write(51,*) TMDX_DY_toleranceGEN
     write(51,"('*p2  : Tolerance (relative tolerance for bin-integration routines, except pt-integration)')")
     write(51,*) TMDX_DY_toleranceINT
@@ -983,11 +986,13 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDX_DY_maxQbinSize
     write(51,"('*p5  : Minimal value of qT (lower values are fixed to this number)')")
     write(51,*) TMDX_DY_minqTabs
+    write(51,"(' ')")
     write(51,"('*C   : ---- Definition of LP TMD factorization ----')")
     write(51,"('*p1  : Use the exact values of x1 and x2 (include qT/Q correction)')")
     write(51,*) TMDX_DY_exactX1X2
     write(51,"('*p2  : Use the exact values for factorization scales (include qT/Q correction)')")
     write(51,*) TMDX_DY_exactScale
+    write(51,"(' ')")
     write(51,"('*D   : ---- Definition of TMD factorization with KPC ----')")
     write(51,"('*p1  : Include terms induced by fiducial cuts')")
     write(51,*) .true.
@@ -1005,33 +1010,32 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*A   : ---- Main definitions ----')")
     write(51,"('*p1  : Order of coefficient function')")
     write(51,*) trim(TMDX_SIDIS_order)
-    write(51,"('*p2  : Use transverse momentum corrections in kinematics')")
-    write(51,*) TMDX_SIDIS_qTcorr
-    write(51,"('*p3  : Use target mass corrections in kinematics')")
-    write(51,*) TMDX_SIDIS_M1corr
-    write(51,"('*p4  : Use product mass corrections in kinematics')")
-    write(51,*) TMDX_SIDIS_M2corr
-    write(51,"('*p5  : Use transverse momentum corrections in x1 and z1')")
-    write(51,*) TMDX_SIDIS_qTinX1Z1corr
-    write(51,"('*p6  : Use the exact values for factorization scales (include qT/Q correction)')")
-    write(51,*) TMDX_SIDIS_exactScale
+    write(51,"('*p2  : Utilize KPC formula (T=KPC formula, F=LP formula)')")
+    write(51,*) TMDX_SIDIS_useKPC
+    write(51,"(' ')")
     write(51,"('*B   : ---- Numerical evaluation parameters ----')")
-    write(51,"('*p1  : Tolerance (relative tolerance for bin-integration routines, except pt-integration)')")
-    write(51,*) TMDX_SIDIS_tolerance
-    write(51,"('*p2  : Minimal number of sections for pt-integration')")
+    write(51,"('*p1  : Tolerance general (variable comparison, etc.)')")
+    write(51,*) TMDX_SIDIS_toleranceGEN
+    write(51,"('*p2  : Tolerance (relative tolerance for bin-integration routines, except pt-integration)')")
+    write(51,*) TMDX_SIDIS_toleranceINT
+    write(51,"('*p3  : Minimal number of sections for pt-integration')")
     write(51,*) TMDX_SIDIS_ptSECTION
-    write(51,"('*p3  : Tolerance for Z-integration (relative tolerance for Z-bin-integration routines)')")
-    write(51,*) TMDX_SIDIS_toleranceZ
-    write(51,"('*p4  : Method for Z-bin integration (see manual)')")
-    write(51,*) TMDX_SIDIS_methodZ
-    write(51,"('*p5  : Tolerance for X-integration (relative tolerance for X-bin-integration routines)')")
-    write(51,*) TMDX_SIDIS_toleranceX
-    write(51,"('*p6  : Method for X-bin integration (see manual)')")
-    write(51,*) TMDX_SIDIS_methodX
-    write(51,"('*C   : ---- Parameters for parallel evaluation (used only if compiled with openMP) ----')")
-    write(51,"('*p1  : Maximum number of processors to use')")
-    write(51,*) TMDX_SIDIS_numProc
-
+    write(51,"('*p4  : Minimal value of pT (lower values are fixed to this number)')")
+    write(51,*) TMDX_SIDIS_minPT
+    write(51,"(' ')")
+    write(51,"('*C   : ---- Definition of LP TMD factorization ----')")
+    write(51,"('*p1  : Account induced transverse momentum corrections')")
+    write(51,*) TMDX_SIDIS_qTcorr
+    write(51,"('*p2  : Account induced target mass corrections')")
+    write(51,*) TMDX_SIDIS_M1corr
+    write(51,"('*p3  : Account induced product mass corrections')")
+    write(51,*) TMDX_SIDIS_M2corr
+    write(51,"('*p4  : Use exact LP values for x1 and z1')")
+    write(51,*) TMDX_SIDIS_exactX1Z1
+    write(51,"('*p5  : Use the exact LP value for factorization scale')")
+    write(51,*) TMDX_SIDIS_exactScale
+    write(51,"(' ')")
+    write(51,"('*D   : ---- Definition of TMD factorization with KPC ----')")
 
     write(51,"(' ')")
     write(51,"(' ')")
@@ -1319,7 +1323,7 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) include_TMDF_KPC
     write(51,"('*A   : ---- Main definitions ----')")
     write(51,"('*p1  : NOT YET')")
-
+    write(51,"(' ')")
     write(51,"('*B   : ---- Numerical evaluation parameters ----')")
     write(51,"('*p1  : Tolerance general (variable comparision, etc.)')")
     write(51,*) TMDF_KPC_toleranceGEN
@@ -1564,7 +1568,6 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p3  ')
     read(51,*) TMDR_smooth
 
-
     !# ----                           PARAMETERS OF uTMDPDF                  -----
     call MoveTO(51,'*4   ')
     call MoveTO(51,'*p1  ')
@@ -1780,31 +1783,26 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p1  ')
     read(51,*) TMDX_SIDIS_order
     call MoveTO(51,'*p2  ')
-    read(51,*) TMDX_SIDIS_qTcorr
-    call MoveTO(51,'*p3  ')
-    read(51,*) TMDX_SIDIS_M1corr
-    call MoveTO(51,'*p4  ')
-    read(51,*) TMDX_SIDIS_M2corr
-    call MoveTO(51,'*p5  ')
-    read(51,*) TMDX_SIDIS_qTinX1Z1corr
-    call MoveTO(51,'*p6  ')
-    read(51,*) TMDX_SIDIS_exactScale
+    read(51,*) TMDX_SIDIS_useKPC
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) TMDX_SIDIS_tolerance
+    read(51,*) TMDX_SIDIS_toleranceGEN
     call MoveTO(51,'*p2  ')
-    read(51,*) TMDX_SIDIS_ptSECTION
+    read(51,*) TMDX_SIDIS_toleranceINT
     call MoveTO(51,'*p3  ')
-    read(51,*) TMDX_SIDIS_toleranceZ
-    call MoveTO(51,'*p4  ')
-    read(51,*) TMDX_SIDIS_methodZ
-    call MoveTO(51,'*p5  ')
-    read(51,*) TMDX_SIDIS_toleranceX
-    call MoveTO(51,'*p6  ')
-    read(51,*) TMDX_SIDIS_methodX
+    read(51,*) TMDX_SIDIS_ptSECTION
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')
-    read(51,*) TMDX_SIDIS_numProc
+    read(51,*) TMDX_SIDIS_qTcorr
+    call MoveTO(51,'*p2  ')
+    read(51,*) TMDX_SIDIS_M1corr
+    call MoveTO(51,'*p3  ')
+    read(51,*) TMDX_SIDIS_M2corr
+    call MoveTO(51,'*p4  ')
+    read(51,*) TMDX_SIDIS_exactX1Z1
+    call MoveTO(51,'*p5  ')
+    read(51,*) TMDX_SIDIS_exactScale
+    call MoveTO(51,'*D   ')
 
     !# ----                           PARAMETERS OF lpTMDPDF                  -----
     call MoveTO(51,'*11   ')

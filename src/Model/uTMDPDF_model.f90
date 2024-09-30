@@ -43,6 +43,8 @@ subroutine ModelInitialization(lengthNP)
     !!!!!! here are the initial parameters!!
     allocate(NPparam(1:lengthNP))
     
+    NPparam=(/0.23d0, 0.01d0, 0.32d0, 9.3d0, 5.5d0, 1.8d0, 6.8d0, 0.1d0, 1.1d0, 3.8d0, 0.d0, 0.1d0/)
+
     write(*,*) color(">>>  The model for uTMDPDF for ART23   <<<",c_cyan)
     
 end subroutine ModelInitialization
@@ -70,19 +72,19 @@ function FNP(x,bT,hadron,lambdaNP)
    if(hadron==1) then
    
     bb=bT**2
-! !    ART23
+!    ART23
 !     wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)
 !     wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)
 !     wubar=lambdaNP(5)*(1-x)+x*lambdaNP(6)
 !     wdbar=lambdaNP(7)*(1-x)+x*lambdaNP(8)
 !     wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)
 !
-    lx=log(x)
-
-     wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)-lX*lambdaNP(5)/100
-     wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)-lX*lambdaNP(7)/100
-     wubar=lambdaNP(1)*(1-x)+x*lambdaNP(6)-lX*lambdaNP(5)/100
-     wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(8)-lX*lambdaNP(7)/100
+!     lx=log(x)
+!
+     wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)!-lX*lambdaNP(5)/100
+     wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)!-lX*lambdaNP(7)/100
+     wubar=lambdaNP(1)*(1-x)+x*lambdaNP(6)!-lX*lambdaNP(5)/100
+     wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(8)!-lX*lambdaNP(7)/100
      wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)
 
 
@@ -133,9 +135,12 @@ end function FNP
 !!!! y -- is the convolution variable in the definition \int dy/y C(y) PDF(x/y)
 pure function bSTAR(bT,x,y)
     real(dp),intent(in)::bT,x,y
+    real(dp)::ee
 
-    bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
-    !bSTAR=bT/sqrt(1d0+(bT/0.2d0)**2)
+    ee=exp(-NPparam(12)*bT**2)
+    !bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
+    !bSTAR=bT/sqrt(1d0+(bT/1.d0)**2)
+    bSTAR=bT*ee+(1-ee)*C0_const/muOPE(bT,x,y,1.d0)
 end function bSTAR
   
 !!!!This function is the mu(x,b), which is used inside the OPE
@@ -146,6 +151,7 @@ pure function muOPE(bt,x,y,c4)
     real(dp),intent(in)::bt,x,y,c4
 
     muOPE=C0_const*c4/bT+5d0
+    !muOPE=C0_const*c4/bSTAR(bT,1.d0,1.d0)
     
     if(muOPE>1000d0) then
         muOPE=1000d0

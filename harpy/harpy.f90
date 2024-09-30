@@ -706,7 +706,7 @@ contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!SIDIS CROSS-SECTION
   
   function SIDIS_xSec_Single(process,s,pT,z,x,Q,doCut,Cuts)
-    integer,intent(in),dimension(1:3)::process			!the number of process
+    integer,intent(in),dimension(1:4)::process			!the number of process
     real*8,intent(in)::s					!Mandelshtam s
     real*8,intent(in),dimension(1:2)::pT			!(qtMin,qtMax)
     real*8,intent(in),dimension(1:2)::z				!(zmin,zmax)
@@ -721,7 +721,7 @@ contains
   end function SIDIS_xSec_Single
   
   function SIDIS_xSec_Single_withMasses(process,s,pT,z,x,Q,doCut,Cuts,masses)
-    integer,intent(in),dimension(1:3)::process			!the number of process
+    integer,intent(in),dimension(1:4)::process			!the number of process
     real*8,intent(in)::s					!Mandelshtam s
     real*8,intent(in),dimension(1:2)::pT			!(qtMin,qtMax)
     real*8,intent(in),dimension(1:2)::z				!(zmin,zmax)

@@ -243,6 +243,9 @@ subroutine uTMDPDF_Initialize(file,prefix)
         call Initialize_GridInKT(path,'*4   ','*F   ',numOfHadrons,includeGluon,moduleName,outputLevel)
     end if
 
+    call ModelInitialization(lambdaNPlength)
+    if(outputLevel>0) write(*,*) color('----- arTeMiDe.uTMDPDF_model : .... initialized',c_green)
+
     gridIsReady_inKT=.false.
 
     call PrepareTablesTMM()
@@ -264,9 +267,6 @@ subroutine uTMDPDF_Initialize(file,prefix)
             call uTMDPDF_OPE_Initialize(file)
         end if
     end if
-
-    call ModelInitialization(lambdaNPlength)
-    if(outputLevel>0) write(*,*) color('----- arTeMiDe.uTMDPDF_model : .... initialized',c_green)
 
     started=.true.
     messageCounter=0

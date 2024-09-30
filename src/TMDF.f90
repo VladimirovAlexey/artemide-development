@@ -281,11 +281,11 @@ else if(TMDF_IsconvergenceLost()) then
 else
 
 !!Here we set the order of Bessel
-if(process(1)<10000) then
+if(process(3)<10000) then
 n=0
-else if(process(1)<20000) then
+else if(process(3)<20000) then
 n=1
-else if(process(1)<30000) then
+else if(process(3)<30000) then
 n=2
 else
 n=3
@@ -536,11 +536,10 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
   !----------------------------------------------------------------------------------
   !-------------------------SIDIS----------------------------------------------------
   !----------------------------------------------------------------------------------
-  CASE (2001:2009) !p->hN where n=last number
+  CASE (2001) !h1->h2 where !!!! unpolarized SIDIS
     ! e_q^2 *F_q(A)*F_q(B)
-    h=process-2000
-    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
     Integrand=FA(1)*FB(1)/9.d0&
       +FA(2)*FB(2)*4.d0/9.d0&
       +FA(3)*FB(3)/9.d0&
@@ -552,11 +551,10 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
   !--------------------------------------------------------------------------------  
-    CASE (2011:2019) !d->hN where n=last number (d=deutron=(p+n)/2)
+    CASE (2002) !d->h2 where d is deutron prepared from hadron 1 [i.e u->(u+d)/2, d->(u+d)/2]
     ! e_q^2 *F_q(A)*F_q(B)
-    h=process-2010
-    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
     Integrand=(FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
       +FA(3)*FB(3)/9.d0&
       +FA(4)*FB(4)*4d0/9.d0&
@@ -565,42 +563,11 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
       +FA(-3)*FB(-3)/9.d0&
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
-  !--------------------------------------------------------------------------------  
-    CASE (2021:2029) !p->bar-hN where n=last number
-    ! e_q^2 *F_q(A)*F_bar-q(B)
-    h=process-2020
-    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
-    Integrand=FA(1)*FB(-1)/9.d0&
-      +FA(2)*FB(-2)*4.d0/9.d0&
-      +FA(3)*FB(-3)/9.d0&
-      +FA(4)*FB(-4)*4d0/9.d0&
-      +FA(5)*FB(-5)/9d0&
-      +FA(-1)*FB(1)/9.d0&
-      +FA(-2)*FB(2)*4.d0/9.d0&
-      +FA(-3)*FB(3)/9.d0&
-      +FA(-4)*FB(4)*4d0/9.d0&
-      +FA(-5)*FB(5)/9d0
 !--------------------------------------------------------------------------------  
-    CASE (2031:2039) !d->bar-hN where n=last number (d=deutron=(p+n)/2)
-    ! e_q^2 *F_q(A)*F_bar-q(B)
-    h=process-2030
-    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
-    Integrand=(FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
-      +FA(3)*FB(-3)/9.d0&
-      +FA(4)*FB(-4)*4d0/9.d0&
-      +FA(5)*FB(-5)/9d0&
-      +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
-      +FA(-3)*FB(3)/9.d0&
-      +FA(-4)*FB(4)*4d0/9.d0&
-      +FA(-5)*FB(5)/9d0
-!--------------------------------------------------------------------------------  
-    CASE (2041:2049) !n->hN where n=last number (n=neutron=p(u<->d))
+    CASE (2003) !n->h2 where n=last number (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
-    h=process-2040
-    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
     Integrand=FA(2)*FB(1)/9.d0&
       +FA(1)*FB(2)*4.d0/9.d0&
       +FA(3)*FB(3)/9.d0&
@@ -612,27 +579,14 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------  
-    CASE (2051:2059) !n->bar-hN where n=last number (n=neutron=p(u<->d))
-    ! e_q^2 *F_q(A)*F_bar-q(B)
-    h=process-2050
-    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
-    Integrand=FA(2)*FB(-1)/9.d0&
-      +FA(1)*FB(-2)*4.d0/9.d0&
-      +FA(3)*FB(-3)/9.d0&
-      +FA(4)*FB(-4)*4d0/9.d0&
-      +FA(5)*FB(-5)/9d0&
-      +FA(-2)*FB(1)/9.d0&
-      +FA(-1)*FB(2)*4.d0/9.d0&
-      +FA(-3)*FB(3)/9.d0&
-      +FA(-4)*FB(4)*4d0/9.d0&
-      +FA(-5)*FB(5)/9d0
-!--------------------------------------------------------------------------------  
-!--------------------------------------------------------------------------------  
    CASE (2101) !p->h? where h?=h1+h2
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)
+    end if
     Integrand=FA(1)*FB(1)/9.d0&
       +FA(2)*FB(2)*4.d0/9.d0&
       +FA(3)*FB(3)/9.d0&
@@ -647,7 +601,11 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     CASE (2102) !p->h? where h?=h1+h2+h3
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    end if
     Integrand=FA(1)*FB(1)/9.d0&
       +FA(2)*FB(2)*4.d0/9.d0&
       +FA(3)*FB(3)/9.d0&
@@ -662,7 +620,11 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     CASE (2103) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)
+    end if
     Integrand=(FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
       +FA(3)*FB(3)/9.d0&
       +FA(4)*FB(4)*4d0/9.d0&
@@ -675,7 +637,11 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     CASE (2104) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    end if
     Integrand=(FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
       +FA(3)*FB(3)/9.d0&
       +FA(4)*FB(4)*4d0/9.d0&
@@ -688,7 +654,11 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
    CASE (2105) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)
+    end if
     Integrand=FA(2)*FB(1)/9.d0&
       +FA(1)*FB(2)*4.d0/9.d0&
       +FA(3)*FB(3)/9.d0&
@@ -703,7 +673,11 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     CASE (2106) !n->h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    end if
     Integrand=FA(2)*FB(1)/9.d0&
       +FA(1)*FB(2)*4.d0/9.d0&
       +FA(3)*FB(3)/9.d0&
@@ -714,93 +688,6 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
       +FA(-3)*FB(-3)/9.d0&
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
-!------------------------------------------------------------------------------------
-  CASE (2111) !p->bar h? where h?=h1+h2
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
-    Integrand=FA(1)*FB(-1)/9.d0&
-      +FA(2)*FB(-2)*4.d0/9.d0&
-      +FA(3)*FB(-3)/9.d0&
-      +FA(4)*FB(-4)*4d0/9.d0&
-      +FA(5)*FB(-5)/9d0&
-      +FA(-1)*FB(1)/9.d0&
-      +FA(-2)*FB(2)*4.d0/9.d0&
-      +FA(-3)*FB(3)/9.d0&
-      +FA(-4)*FB(4)*4d0/9.d0&
-      +FA(-5)*FB(5)/9d0
-!--------------------------------------------------------------------------------  
-    CASE (2112) !p->bar h? where h?=h1+h2+h3
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
-    Integrand=FA(1)*FB(-1)/9.d0&
-      +FA(2)*FB(-2)*4.d0/9.d0&
-      +FA(3)*FB(-3)/9.d0&
-      +FA(4)*FB(-4)*4d0/9.d0&
-      +FA(5)*FB(-5)/9d0&
-      +FA(-1)*FB(1)/9.d0&
-      +FA(-2)*FB(2)*4.d0/9.d0&
-      +FA(-3)*FB(3)/9.d0&
-      +FA(-4)*FB(4)*4d0/9.d0&
-      +FA(-5)*FB(5)/9d0
-!--------------------------------------------------------------------------------  
-    CASE (2113) !d->bar h? where h?=h1+h2 (d=deutron=(p+n)/2)
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
-    Integrand=(FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
-      +FA(3)*FB(-3)/9.d0&
-      +FA(4)*FB(-4)*4d0/9.d0&
-      +FA(5)*FB(-5)/9d0&
-      +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
-      +FA(-3)*FB(3)/9.d0&
-      +FA(-4)*FB(4)*4d0/9.d0&
-      +FA(-5)*FB(5)/9d0
-!--------------------------------------------------------------------------------  
-    CASE (2114) !d->bar h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
-    Integrand=(FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
-      +FA(3)*FB(-3)/9.d0&
-      +FA(4)*FB(-4)*4d0/9.d0&
-      +FA(5)*FB(-5)/9d0&
-      +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
-      +FA(-3)*FB(3)/9.d0&
-      +FA(-4)*FB(4)*4d0/9.d0&
-      +FA(-5)*FB(5)/9d0
-!------------------------------------------------------------------------------------
-  CASE (2115) !n->bar h? where h?=h1+h2 (n=neutron=p(u<->d))
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
-    Integrand=FA(2)*FB(-1)/9.d0&
-      +FA(1)*FB(-2)*4.d0/9.d0&
-      +FA(3)*FB(-3)/9.d0&
-      +FA(4)*FB(-4)*4d0/9.d0&
-      +FA(5)*FB(-5)/9d0&
-      +FA(-2)*FB(1)/9.d0&
-      +FA(-1)*FB(2)*4.d0/9.d0&
-      +FA(-3)*FB(3)/9.d0&
-      +FA(-4)*FB(4)*4d0/9.d0&
-      +FA(-5)*FB(5)/9d0
-!--------------------------------------------------------------------------------  
-    CASE (2116) !n->bar h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
-    Integrand=FA(2)*FB(-1)/9.d0&
-      +FA(1)*FB(-2)*4.d0/9.d0&
-      +FA(3)*FB(-3)/9.d0&
-      +FA(4)*FB(-4)*4d0/9.d0&
-      +FA(5)*FB(-5)/9d0&
-      +FA(-2)*FB(1)/9.d0&
-      +FA(-1)*FB(2)*4.d0/9.d0&
-      +FA(-3)*FB(3)/9.d0&
-      +FA(-4)*FB(4)*4d0/9.d0&
-      +FA(-5)*FB(5)/9d0
-
 !----------------------------------------------------------------------------------------------------------------------------------  
 !-----------------------------------------------------Sivers asymetries------------------------------------------------------------
 !----------------------------------------------------------------------------------------------------------------------------------
@@ -874,24 +761,8 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FAB(-3)/9.d0&
         +FAB(-4)*4d0/9.d0&
         +FAB(-5)/9d0)
+
     !--------------------------------------------------------------------------------
-    CASE (12001:12009) !Sivers asymmetry p->hN where n=last number
-    ! e_q^2 *F_q(A)*F_q(B)
-    h=process-12000
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
-    Integrand=-global_mass_scale*(&
-        FA(1)*FB(1)/9.d0&
-        +FA(2)*FB(2)*4.d0/9.d0&
-        +FA(3)*FB(3)/9.d0&
-        +FA(4)*FB(4)*4d0/9.d0&
-        +FA(5)*FB(5)/9d0&
-        +FA(-1)*FB(-1)/9.d0&
-        +FA(-2)*FB(-2)*4.d0/9.d0&
-        +FA(-3)*FB(-3)/9.d0&
-        +FA(-4)*FB(-4)*4d0/9.d0&
-        +FA(-5)*FB(-5)/9d0)
-    !--------------------------------------------------------------------------------  
     CASE (12011:12019) !Sivers asymmetry d->hN where n=last number (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     h=process-12010
@@ -906,7 +777,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-3)*FB(-3)/9.d0&
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
-    !--------------------------------------------------------------------------------  
+    !--------------------------------------------------------------------------------
     CASE (12021:12029) !Sivers asymmetry p->bar-hN where n=last number
     ! e_q^2 *F_q(A)*F_bar-q(B)
     h=process-12020
@@ -923,7 +794,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-3)*FB(3)/9.d0&
         +FA(-4)*FB(4)*4d0/9.d0&
         +FA(-5)*FB(5)/9d0)
-    !--------------------------------------------------------------------------------  
+    !--------------------------------------------------------------------------------
     CASE (12031:12039) !Sivers asymmetry d->bar-hN where n=last number (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_bar-q(B)
     h=process-12030
@@ -955,7 +826,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-3)*FB(-3)/9.d0&
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
-    !--------------------------------------------------------------------------------  
+    !--------------------------------------------------------------------------------
     CASE (12051:12059) !Sivers asymmetry p->bar-hN where n=last number (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_bar-q(B)
     h=process-12050

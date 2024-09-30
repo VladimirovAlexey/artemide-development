@@ -637,7 +637,7 @@ function xSec(var,process,incCut,CutParam)
     scaleMu=sqrt(scaleZeta)
 
     if(process(4)>=200 .and. process(4)<300) then
-      !!!!! these numbers are reseurved for ratios, thus not prefactors
+      !!!!! these numbers are reserved for ratios, thus not prefactors
       xSec=KPC_DYconv(var(4),var(1),x1,x2,scaleMu*c2_global,process(2:4))
 
     else
@@ -680,10 +680,12 @@ function Xsec_Yint(var,process,incCut,CutParam,ymin_in,ymax_in)
   real(dp),dimension(1:7) :: var
   logical,intent(in)::incCut
   real(dp),dimension(1:4),intent(in)::CutParam
+  integer,dimension(1:4)::process
   real(dp) :: Xsec_Yint
+
   real(dp) :: ymin, ymax,ymin_in,ymax_in
   real(dp) :: ymin_Check,ymax_Check
-  integer,dimension(1:4),intent(in)::process
+
 
   if(TMDF_IsconvergenceLost()) then
     Xsec_Yint=1d9
@@ -695,6 +697,8 @@ function Xsec_Yint(var,process,incCut,CutParam,ymin_in,ymax_in)
   if(process(1)==2) then
     ymin=yFromXF(ymin_in,var)
     ymax=yFromXF(ymax_in,var)
+
+    process(1)=1 !!!! this is important because the actual integration is over y, and process=2 contains Jacobian.
   else
     ymin=ymin_in
     ymax=ymax_in
@@ -818,77 +822,77 @@ end function Xsec_Qint_Yint
 !!!integration over PT is made by Num-sections
 !!!N even
 function Xsec_PTint_Qint_Yint(process,incCut,CutParam,s_in,qt_min_in,qt_max_in,Q_min_in,Q_max_in,ymin_in,ymax_in,Num)
-  real(dp),dimension(1:7)::var
-  logical,intent(in)::incCut
-  real(dp),dimension(1:4),intent(in)::CutParam
-  integer,dimension(1:4),intent(in)::process
-  real(dp):: Xsec_PTint_Qint_Yint
-  real(dp),intent(in):: ymin_in,ymax_in,Q_min_in,Q_max_in,qt_min_in,qt_max_in,s_in
-  real(dp):: Q_min,Q_max,qt_min,qt_max,s
-  integer,intent(in) :: Num
+real(dp),dimension(1:7)::var
+logical,intent(in)::incCut
+real(dp),dimension(1:4),intent(in)::CutParam
+integer,dimension(1:4),intent(in)::process
+real(dp):: Xsec_PTint_Qint_Yint
+real(dp),intent(in):: ymin_in,ymax_in,Q_min_in,Q_max_in,qt_min_in,qt_max_in,s_in
+real(dp):: Q_min,Q_max,qt_min,qt_max,s
+integer,intent(in) :: Num
 
-  if(TMDF_IsconvergenceLost()) then
-    Xsec_PTint_Qint_Yint=1d9
-    return
-  end if
+if(TMDF_IsconvergenceLost()) then
+  Xsec_PTint_Qint_Yint=1d9
+  return
+end if
 
-  !!!------------------------- checking Q----------
-  if(Q_min_in<0.9d0) then
-    call Warning_Raise('Attempt to compute xSec with Q<0.9.',messageCounter,messageTrigger,moduleName)
-    write(*,*) "Qmin =",Q_min_in," (Qmin set to 1.GeV)"
-    Q_min=1._dp
-  else
-    Q_min=Q_min_in
-  end if
+!!!------------------------- checking Q----------
+if(Q_min_in<0.9d0) then
+  call Warning_Raise('Attempt to compute xSec with Q<0.9.',messageCounter,messageTrigger,moduleName)
+  write(*,*) "Qmin =",Q_min_in," (Qmin set to 1.GeV)"
+  Q_min=1._dp
+else
+  Q_min=Q_min_in
+end if
 
-  if(Q_max_in<Q_min) then
-    call Warning_Raise('Attempt to compute xSec with Qmax<Qmin. RESULT 0',messageCounter,messageTrigger,moduleName)
-    Xsec_PTint_Qint_Yint=0._dp
-    return
-  end if
-  Q_max=Q_max_in
+if(Q_max_in<Q_min) then
+  call Warning_Raise('Attempt to compute xSec with Qmax<Qmin. RESULT 0',messageCounter,messageTrigger,moduleName)
+  Xsec_PTint_Qint_Yint=0._dp
+  return
+end if
+Q_max=Q_max_in
 
-  !!!------------------------- checking S----------
-  if(s_in<0.9d0) then
-    call Warning_Raise('Attempt to compute xSec with s<0.9.',messageCounter,messageTrigger,moduleName)
-    write(*,*) "s =",s_in," (s set to Qmin)"
-    s=Q_min
-  else
-    s=s_in
-  end if
+!!!------------------------- checking S----------
+if(s_in<0.9d0) then
+  call Warning_Raise('Attempt to compute xSec with s<0.9.',messageCounter,messageTrigger,moduleName)
+  write(*,*) "s =",s_in," (s set to Qmin)"
+  s=Q_min
+else
+  s=s_in
+end if
 
-  !!!------------------------- checking PT----------
-  if(qT_min_in<0.0d0) then
-    call Warning_Raise('Attempt to compute xSec with qT<0.',messageCounter,messageTrigger,moduleName)
-    write(*,*) "qTmin =",qT_min_in," (qTmin set to 0.GeV)"
-    qT_min=1._dp
-  else
-    qT_min=qT_min_in
-  end if
+!!!------------------------- checking PT----------
+if(qT_min_in<0.0d0) then
+  call Warning_Raise('Attempt to compute xSec with qT<0.',messageCounter,messageTrigger,moduleName)
+  write(*,*) "qTmin =",qT_min_in," (qTmin set to 0.GeV)"
+  qT_min=1._dp
+else
+  qT_min=qT_min_in
+end if
 
-  if(qT_max_in<qT_min) then
-    call Warning_Raise('Attempt to compute xSec with qTmax<qTmin. RESULT 0',messageCounter,messageTrigger,moduleName)
-    Xsec_PTint_Qint_Yint=0._dp
-    return
-  end if
-  qT_max=qT_max_in
+if(qT_max_in<qT_min) then
+  call Warning_Raise('Attempt to compute xSec with qTmax<qTmin. RESULT 0',messageCounter,messageTrigger,moduleName)
+  Xsec_PTint_Qint_Yint=0._dp
+  return
+end if
+qT_max=qT_max_in
 
-  !!!------------------------- checking Y----------
+!!!------------------------- checking Y----------
 
-  if(ymax_in<ymin_in) then
-    call Warning_Raise('Attempt to compute xSec with Ymax<Ymin. RESULT 0',messageCounter,messageTrigger,moduleName)
-    Xsec_PTint_Qint_Yint=0._dp
-    return
-  end if
+if(ymax_in<ymin_in) then
+  call Warning_Raise('Attempt to compute xSec with Ymax<Ymin. RESULT 0',messageCounter,messageTrigger,moduleName)
+  Xsec_PTint_Qint_Yint=0._dp
+  return
+end if
 
 
-  if(qt_min<qTMin_ABS) then
-    var=kinematicArray(qTMin_ABS,s_in,(Q_min+Q_max)/2,(ymin_in+ymax_in)/2)
-  else
-    var=kinematicArray(qt_min,s_in,(Q_min+Q_max)/2,(ymin_in+ymax_in)/2)
-  end if
+if(qt_min<qTMin_ABS) then
+  var=kinematicArray(qTMin_ABS,s_in,(Q_min+Q_max)/2,(ymin_in+ymax_in)/2)
+else
+  var=kinematicArray(qt_min,s_in,(Q_min+Q_max)/2,(ymin_in+ymax_in)/2)
+end if
 
-  Xsec_PTint_Qint_Yint=Integrate_SN(integrandOverQT,qt_min,qt_max,Num)
+Xsec_PTint_Qint_Yint=Integrate_SN(integrandOverQT,qt_min,qt_max,Num)
 
 contains
 

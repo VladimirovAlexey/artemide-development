@@ -64,7 +64,7 @@ integer :: orderLX=2 !! LO=0 [no-resummation], NLO=1,...
 !!! Phase space limitations parameters
 real(dp) :: xMin=0.00001_dp !!! min x
 real(dp) :: BMAX=25._dp !!! maximum B
-real(dp) :: BMIN=1d-6 !!! minimum B
+real(dp) :: BMIN=1d-8 !!! minimum B
 
 !!!total number of hadrons considered
 integer::numberOfHadrons=1
