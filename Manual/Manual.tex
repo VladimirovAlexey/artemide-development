@@ -2376,63 +2376,96 @@ List of enumeration of structures functions
 \\
 \texttt{N}$<$10000
 \\
-\begin{longtable}{||l|p{5cm}|c|c||p{7cm}|c|c||}
+\begin{longtable}{||l|p{4.cm}|c|c||p{6.cm}|c|c|c||}
 \hline\hline
-\texttt{N} & ~~$z_{ff'}$~~& ~~$F_1$~~ & ~~$F_2$~~&  Short description & Gluon & LP/KPC
+\texttt{N} & ~~$z_{ff'}$~~& ~~$F_1$~~ & ~~$F_2$~~&  Short description & Gluon & LP & KPC
 \\\hline
-0 &  &  &  &  & &
+0 &  &  &  &  & & &
 \\
-9999 & -- & -- & -- & Test cases (see \ref{TMDF:tests}) & no & LP/KPC
+9999 & -- & -- & -- & Test cases (see \ref{TMDF:tests}) & no & \checkmark & \checkmark
 \\
-9998 &  &  &  &  & &
+9998 &  &  &  &  & & &
 \\\hline
-1 & $\delta_{\bar f f'}|e_f|^2$ & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to\gamma$ & no & LP/KPC
+1 & $\delta_{\bar f f'}|e_f|^2$ & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to\gamma$ & no & \checkmark & \checkmark
 \\\hline
-2 & $\Ds\delta_{\bar f f'}\frac{(1-2|ef|s_w^2)^2-4e_f^2s_w^4}{8s_w^2c_w^2}$ & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to Z$ & no & LP/KPC
+2 & $\Ds\delta_{\bar f f'}\frac{(1-2|ef|s_w^2)^2-4e_f^2s_w^4}{8s_w^2c_w^2}$ & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to Z$ & no & \checkmark & \checkmark
 \\\hline
-3 & $\Ds\delta_{\bar f f'}\frac{z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to Z+\gamma$ & no & LP/KPC
+3 & $\Ds\delta_{\bar f f'}\frac{z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to Z+\gamma$ & no & \checkmark & \checkmark
 \\\hline
-4 & $\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^+$ & no & LP/KPC
+4 & \scalebox{0.7}{$\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$} & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^+$ & no & \checkmark & 
 \\\hline
-5 & $\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^-$ & no & LP/KPC
+5 & \scalebox{0.7}{$\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$} & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^-$ & no & \checkmark & 
 \\\hline
-6 & $\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^\pm$ & no & LP/KPC
+6 & \scalebox{0.7}{$\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$} & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^\pm$ & no & \checkmark & 
 \\\hline
-7 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$  & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^+$ (for narrow-width approx.) & no & LP/KPC
+7 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$  & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^+$ (for narrow-width approx.) & no & \checkmark & 
 \\\hline
-8 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$  & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^-$ (for narrow-width approx.) & no & LP/KPC
+8 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$  & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^-$ (for narrow-width approx.) & no & \checkmark & 
 \\\hline
-9 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$  & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^\pm$ (for narrow-width approx.) & no & LP/KPC
+9 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$  & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^\pm$ (for narrow-width approx.) & no & \checkmark & 
 \\\hline
-10 & $\Ds f_g(x_1)f_g(x_2)+h^\perp_{1}(x_1)h^\perp_{1}(x_2)$ & - & - & (unpol.)$h_1+h_2\to H$ Elementary Higgs production & yes & LP/KPC
+10 & \scalebox{0.9}{$\Ds f_g(x_1)f_g(x_2)+h^\perp_{1}(x_1)h^\perp_{1}(x_2)$} & - & - & (unpol.)$h_1+h_2\to H$ Elementary Higgs production & yes & \checkmark & 
 \\\hline
-11 & $\Ds f_g(x_1)f_g(x_2)$ & $f_1$ & $f_{1}$ & (unpol.)$h_1+h_2\to H$ Elementary Higgs production. Only unpol.TMDPDF term & yes & LP/KPC
+11 & $\Ds f_g(x_1)f_g(x_2)$ & $f_1$ & $f_{1}$ & (unpol.)$h_1+h_2\to H$ Elementary Higgs production. Only unpol.TMDPDF term & yes & \checkmark & 
 \\\hline
-12 & $\Ds h^\perp_{1g}(x_1)h^\perp_{1g}(x_2)$ & $h^\perp_{1}$ & $h^\perp_{1}$ & (unpol.)$h_1+h_2\to H$ Elementary Higgs production. Only linearly pol.TMDPDF term & yes & LP/KPC
+12 & $\Ds h^\perp_{1g}(x_1)h^\perp_{1g}(x_2)$ & $h^\perp_{1}$ & $h^\perp_{1}$ & (unpol.)$h_1+h_2\to H$ Elementary Higgs production. Only linearly pol.TMDPDF term & yes & \checkmark & 
 \\\hline
-101 & $\Ds R^{Cu}_{\bar f f'}e_f e_{f'} $ see (3.1) of \cite{Scimemi:2017etj} & $f_1$ & $f^{Cu}_1$ & (unpol.)$h_1+Cu\to \gamma$ where the isostructure of Cu is simulated from $hadron=1$, (used to describe E288 experiment) & no & LP/KPC
+20 & $\Ds \Delta^{GG'}z_{+\ell}^{GG'}z_{+f}^{GG'} f_1f_1$ & $f_{1}$ & $f_{1}$ & (unpol.)$h_1+h_2\to Z+\gamma$; $\sim f_1f_1$ part of the angular coefficient $\Sigma_0$. Also part the part of cut Z-boson production $\sim \mathcal{P}_0$
+ & yes &  & \checkmark
 \\\hline
-102 & $\Ds R^{^2H}_{\bar f f'}e_f e_{f'} $ see (3.1) of \cite{Scimemi:2017etj} with $Z=1$ and $A=2$ & $f_1$ & $f^{^2H}_1$ & (unpol.)$h_1+^2H\to \gamma$ where thes isostructure of $^2H$  is simulated from $hadron=1$, used to describe E772 experiment& no & LP/KPC
+21 & $\Ds \Delta^{GG'}z_{+\ell}^{GG'}z_{+f}^{GG'} f_1f_1$ & $f_{1}$ & $f_{1}$ & (unpol.)$h_1+h_2\to Z+\gamma$; $\sim f_1f_1$ part of the angular coefficient $\Sigma_1$. Also part the part of cut Z-boson production $\sim \mathcal{P}_1$
+ & yes &  & \checkmark
 \\\hline
-103 & $\Ds R^{^W}_{f f'}e_f e_{f'} $ see (3.1) of \cite{Scimemi:2017etj} with $Z=74$ and $A=183$ & $f_1$ & $f^{W}_1$ & (unpol.)$h_1+W\to \gamma$, where the  isostructure of $W$(tungsten) is simulated from $hadron=1$, used to describe E537 experiment& no & LP/KPC
+22 & $\Ds \Delta^{GG'}z_{+\ell}^{GG'}z_{+f}^{GG'} f_1f_1$ & $f_{1}$ & $f_{1}$ & (unpol.)$h_1+h_2\to Z+\gamma$; $\sim f_1f_1$ part of the angular coefficient $\Sigma_2$. Also part the part of cut Z-boson production $\sim \mathcal{P}_2$
+ & yes &  & \checkmark
+\\\hline
+23 & $\Ds \Delta^{GG'}z_{-\ell}^{GG'}z_{-f}^{GG'} f_1f_1$ & $f_{1}$ & $f_{1}$ & (unpol.)$h_1+h_2\to Z+\gamma$; $\sim f_1f_1$ part of the angular coefficient $\Sigma_3$. Also part the part of cut Z-boson production $\sim \mathcal{P}_3$
+ & yes &  & \checkmark
+\\\hline
+24 & $\Ds \Delta^{GG'}z_{-\ell}^{GG'}z_{-f}^{GG'} f_1f_1$ & $f_{1}$ & $f_{1}$ & (unpol.)$h_1+h_2\to Z+\gamma$; $\sim f_1f_1$ part of the angular coefficient $\Sigma_4$. Also part the part of cut Z-boson production $\sim \mathcal{P}_4$
+ & yes &  & \checkmark
+\\\hline
+29 & $\Ds \Delta^{GG'}z_{+\ell}^{GG'}z_{+f}^{GG'} f_1f_1$ & $f_{1}$ & $f_{1}$ & (unpol.)$h_1+h_2\to Z+\gamma$; $\sim f_1f_1$ part of the angular coefficient $\Sigma_{UU}+\Sigma_0/2$. Used in normalization of some angular coefficients.
+ & yes &  & \checkmark
+\\\hline
+30 & $\Ds \Delta^{GG'}z_{+\ell}^{GG'}r_{+f}^{GG'} h^\perp_1h^\perp_1$ & $h^\perp_{1}$ & $h^\perp_{1}$ & (unpol.)$h_1+h_2\to Z+\gamma$; $\sim h^\perp_1h^\perp_1$ part of the angular coefficient $\Sigma_0$. Also part the part of cut Z-boson production $\sim \mathcal{P}_0$
+ & yes &  & \checkmark
+\\\hline
+31 & $\Ds \Delta^{GG'}z_{+\ell}^{GG'}r_{+f}^{GG'} h^\perp_1h^\perp_1$ & $h^\perp_{1}$ & $h^\perp_{1}$ & (unpol.)$h_1+h_2\to Z+\gamma$; $\sim h^\perp_1h^\perp_1$ part of the angular coefficient $\Sigma_1$. Also part the part of cut Z-boson production $\sim \mathcal{P}_1$
+& yes &  & \checkmark
+\\\hline
+32 & $\Ds \Delta^{GG'}z_{+\ell}^{GG'}z_{+f}^{GG'} h^\perp_1h^\perp_1$ & $h^\perp_{1}$ & $h^\perp_{1}$ & (unpol.)$h_1+h_2\to Z+\gamma$; $\sim h^\perp_1h^\perp_1$ part of the angular coefficient $\Sigma_2$. Also part the part of cut Z-boson production $\sim \mathcal{P}_2$
+& yes &  & \checkmark
+\\\hline
+35 & $\Ds \Delta^{GG'}z_{+\ell}^{GG'}r_{-f}^{GG'} h^\perp_1h^\perp_1$ & $h^\perp_{1}$ & $h^\perp_{1}$ & (unpol.)$h_1+h_2\to Z+\gamma$; $\sim h^\perp_1h^\perp_1$ part of the angular coefficient $\Sigma_5$. Also part the part of cut Z-boson production $\sim \mathcal{P}_5$
+& yes &  & \checkmark
+\\\hline
+36 & $\Ds \Delta^{GG'}z_{+\ell}^{GG'}r_{-f}^{GG'} h^\perp_1h^\perp_1$ & $h^\perp_{1}$ & $h^\perp_{1}$ & (unpol.)$h_1+h_2\to Z+\gamma$; $\sim h^\perp_1h^\perp_1$ part of the angular coefficient $\Sigma_6$. Also part the part of cut Z-boson production $\sim \mathcal{P}_6$
+& yes &  & \checkmark
+\\\hline
+101 & $\Ds R^{Cu}_{\bar f f'}e_f e_{f'} $ see (3.1) of \cite{Scimemi:2017etj} & $f_1$ & $f^{Cu}_1$ & (unpol.)$h_1+Cu\to \gamma$ where the isostructure of Cu is simulated from $hadron=1$, (used to describe E288 experiment) & no & \checkmark & \checkmark
+\\\hline
+102 & $\Ds R^{^2H}_{\bar f f'}e_f e_{f'} $ see (3.1) of \cite{Scimemi:2017etj} with $Z=1$ and $A=2$ & $f_1$ & $f^{^2H}_1$ & (unpol.)$h_1+^2H\to \gamma$ where thes isostructure of $^2H$  is simulated from $hadron=1$, used to describe E772 experiment& no & \checkmark & \checkmark
+\\\hline
+103 & $\Ds R^{^W}_{f f'}e_f e_{f'} $ see (3.1) of \cite{Scimemi:2017etj} with $Z=74$ and $A=183$ & $f_1$ & $f^{W}_1$ & (unpol.)$h_1+W\to \gamma$, where the  isostructure of $W$(tungsten) is simulated from $hadron=1$, used to describe E537 experiment& no & \checkmark & \checkmark
 \\\hline \hline
-2001 & $\delta_{ff'}|e_f|^2$~~&$f_1$ & $d_1$ & (unpol)$h_1+\gamma\to h_2$ & no & LP
+2001 & $\delta_{ff'}|e_f|^2$~~&$f_1$ & $d_1$ & (unpol)$h_1+\gamma\to h_2$ & no & \checkmark & 
 \\\hline \hline
-2002 & $\delta_{ff'}|e_f|^2$~~&$f^{d}_1$ & $d_1$ & (unpol)$d^{(h_1)}+\gamma\to h_2$. Here, $d^{(h_1)}$ is the isoscalar target prepared from the hadron $h_1$. I.e. $u,d\to (u+d)/2$. For $h_1$=proton, this simulates the deuteron target. & no & LP
+2002 & $\delta_{ff'}|e_f|^2$~~&$f^{d}_1$ & $d_1$ & (unpol)$d^{(h_1)}+\gamma\to h_2$. Here, $d^{(h_1)}$ is the isoscalar target prepared from the hadron $h_1$. I.e. $u,d\to (u+d)/2$. For $h_1$=proton, this simulates the deuteron target. & no & \checkmark & 
 \\\hline \hline
-2003 & $\delta_{f\bar f'}|e_f|^2$~~&$f^{n}_1$ & $d_1$ & (unpol)$n^{(h_1)}+\gamma\to h_2$ Here, $n^{(h_1)}$ is the iso-conjugated target prepared from the hadron $h_1$. I.e. $u\leftrightarrow d$. For $h_1$=proton, this simulates the neutron target. & no & LP
+2003 & $\delta_{f\bar f'}|e_f|^2$~~&$f^{n}_1$ & $d_1$ & (unpol)$n^{(h_1)}+\gamma\to h_2$ Here, $n^{(h_1)}$ is the iso-conjugated target prepared from the hadron $h_1$. I.e. $u\leftrightarrow d$. For $h_1$=proton, this simulates the neutron target. & no & \checkmark & 
 \\\hline \hline
-2101 & $\delta_{ff'}|e_f|^2$~~&$f_1$ & $d^{h_{1+2}}_1$ & (unpol)$h_1+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$. Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument). & no & LP
+2101 & $\delta_{ff'}|e_f|^2$~~&$f_1$ & $d^{h_{1+2}}_1$ & (unpol)$h_1+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$. Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument). & no & \checkmark & 
 \\\hline
-2102 & $\delta_{ff'}|e_f|^2$~~&$f_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$h_1+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument). & no & LP
+2102 & $\delta_{ff'}|e_f|^2$~~&$f_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$h_1+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument). & no & \checkmark & 
 \\\hline
-2103 & $\delta_{ff'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2}}_1$ & (unpol)$d^{(h_1)}+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$ and d is isoscalar target $u,d\to (u+d)/2$.  Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument). & no & LP
+2103 & $\delta_{ff'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2}}_1$ & (unpol)$d^{(h_1)}+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$ and d is isoscalar target $u,d\to (u+d)/2$.  Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument). & no & \checkmark & 
 \\\hline
-2104 & $\delta_{ff'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$d^{(h_1)}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$ and d is isoscalar target $u,d\to (u+d)/2$.  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument). & no & LP
+2104 & $\delta_{ff'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$d^{(h_1)}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$ and d is isoscalar target $u,d\to (u+d)/2$.  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument). & no & \checkmark & 
 \\\hline
-2105 & $\delta_{ff'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2}}_1$ & (unpol)$n^{(h_1)}+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$ and n is neutron target $(u\leftrightarrow d)$.  Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument). & no & LP
+2105 & $\delta_{ff'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2}}_1$ & (unpol)$n^{(h_1)}+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$ and n is neutron target $(u\leftrightarrow d)$.  Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument). & no & \checkmark & 
 \\\hline
-2106 & $\delta_{ff'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$n^{(h_1)}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$ and n is neutron target $(u\leftrightarrow d)$.  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument). & no & LP
+2106 & $\delta_{ff'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$n^{(h_1)}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$ and n is neutron target $(u\leftrightarrow d)$.  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument). & no & \checkmark & 
 \\\hline\hline
 \end{longtable}
 
@@ -2768,18 +2801,23 @@ Note, that optional variables could be omit during the call.
 
 \begin{tcolorbox}
 \textbf{\blue{There is also an analogous subroutine that evaluate cross-section by list.}} It is called \texttt{xSec\_DY\_List} and it have the following interface:
-
 \begin{center}
 \texttt{xSec\_DY\_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)}
 \end{center}
 All variables are analogues to those of \texttt{xSec\_DY}, but should come in lists, i.e. \texttt{X} is (1:n), \texttt{process} is (1:n,1:4), \texttt{s} is (1:n), \texttt{qT},\texttt{Q},\texttt{y} are (1:n,1:2), \texttt{includeCuts} is (1:n), \texttt{CutParameters} is (1:n,1:4), and \texttt{Num} is (1:n). \textbf{Only the \texttt{Num} argument is OPTIONAL arguments. The argument \texttt{CutParameters} must be presented}. This command compiled by OPENMP, so runs in parallel on multi-core computers.
+
+In addition there is a subroutine \texttt{xSec\_DY\_List\_APPROXIMATE} with the same interface:
+\begin{center}
+\texttt{xSec\_DY\_List\_APPROXIMATE(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)}
+\end{center}
+It does the same job as \texttt{xSec\_DY\_List}, however using simplified bin-integration routines (non-adaptive). It is several times faster, but has limited numerical precision.
 \end{tcolorbox}
 
 \begin{tcolorbox}
 \textbf{Finally, \blue{there is an also analogous subroutine that evaluate cross-section by list without bin-integration.}} It is called \texttt{xSec\_DY\_List\_BINLESS} and it have the following interface:
 
 \begin{center}
-\texttt{xSec\_DY\_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)}
+\texttt{xSec\_DY\_List\_BINLESS(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)}
 \end{center}
 All variables are analogues to those of \texttt{xSec\_DY\_List}, but should come in lists of central values, i.e. \texttt{X} is (1:n), \texttt{process} is (1:n,1:4), \texttt{s} is (1:n), \texttt{qT},\texttt{Q},\texttt{y} \blue{are (1:n)}, \texttt{includeCuts} is (1:n), \texttt{CutParameters} is (1:n,1:4), and \texttt{Num} is (1:n). \textbf{Only the \texttt{Num} argument is OPTIONAL arguments. The argument \texttt{CutParameters} must be presented}. This command compiled by OPENMP, so runs in parallel on multi-core computers.
 \end{tcolorbox}
@@ -3362,7 +3400,9 @@ The factor $\mathcal{P}$ is the fiducial-cut factor (multiplied within the \text
 \\\hline
 1 & 1 & $e_q^2 f_1 f_1$ & $\mathcal{P}_0$ & Unpolarized DY 
 \\\hline
-2 & 1 (\blue{$=K_1$}) & $ \Delta^{GG'} z^{GG'}_{+\ell}z^{GG'}_{+f} f_1 f_1$ & $\mathcal{P}_0$ & Z-boson main term $\sim \mathcal{P}_0$
+2 & 1 (\blue{$=K_1$}) & $ \Delta^{GG'} z^{GG'}_{+\ell}z^{GG'}_{+f} f_1 f_1$ & $\mathcal{P}_0$ & Z-boson (without interference with $\gamma$)
+\\\hline
+3 & 1 (\blue{$=K_1$}) & $ \Delta^{GG'} z^{GG'}_{+\ell}z^{GG'}_{+f} f_1 f_1$ & $\mathcal{P}_0$ & Z-boson main term $\sim \mathcal{P}_0$
 \\\hline\hline
 20 & $1-\frac{\tau^2 \Lambda}{Q^2}$ & $ \Delta^{GG'} z^{GG'}_{+\ell}z^{GG'}_{+f} f_1 f_1$ & $\mathcal{P}_0$ & $f_1f_1$ part of angular coefficient $A_0$. Also the part of $Z$-boson production $\sim \mathcal{P}_0$.
 \\\hline
@@ -3391,30 +3431,7 @@ The factor $\mathcal{P}$ is the fiducial-cut factor (multiplied within the \text
 102 & 1 & $\Ds R^{^2H}_{\bar f f'}e_f e_{f'} $ & $\mathcal{P}_0$ & Unpolarized DY on $^2H$ ($Z=1$ and $A=2$)
 \\\hline
 103 & 1 & $\Ds R^{^W}_{f f'}e_f e_{f'} $ & $\mathcal{P}_0$ & Unpolarized DY on $W$ ($Z=74$ and $A=183$) 
-\\\hline
-200 & $(X_{20}+X_{30})/X_2$ & -- & 1 & Angular coefficient $A_0$
-\\\hline
-201 & $(X_{21}+X_{31})/X_2$ & -- & 1 & Angular coefficient $A_1$
-\\\hline
-202 & $(X_{22}+X_{32})/X_2$ & -- & 1 & Angular coefficient $A_2$
-\\\hline
-203 & $X_{23}/X_2$ & -- & 1 & Angular coefficient $A_3$
-\\\hline
-204 & $X_{24}/X_2$ & -- & 1 & Angular coefficient $A_4$
-\\\hline
-205 & $X_{35}/X_2$ & -- & 1 & Angular coefficient $A_5$
-\\\hline
-206 & $X_{36}/X_2$ & -- & 1 & Angular coefficient $A_6$
-\\\hline
-210 & $1-2(X_{20}+X_{30})/(X_{29}+\frac{1}{2}X_{30})$ & -- & 1 & Angular coefficient $\lambda$
-\\\hline
-211 & $(X_{21}+X_{31})/(X_{29}+\frac{1}{2}X_{30})$ & -- & 1 & Angular coefficient $\mu$
-\\\hline
-212 & $(X_{22}+X_{32})/(X_{29}+\frac{1}{2}X_{30})$ & -- & 1 & Angular coefficient $\nu$
 \\\hline\hline
-\multicolumn{5}{||l||}{* The processes 200-299 are reserved for ratios. No common prefactors are included.}
-\\
-\multicolumn{5}{||l||}{* $X_n$ denotes the cross-section for corresponding \texttt{N}.}
 \end{longtable}
 
 \section{APPENDICES}
@@ -3571,6 +3588,8 @@ polarized DY
 \begin{itemize}
 \item[\textbf{Ver.3.01}]
 \begin{itemize}
+	\item \textbf{uTMDFF}: Added Fourier by Levin transformation, and grids in $k_T$.
+	\item \textbf{TMDX\_DY}+\texttt{KPC}: Enumeration of processes in KPC and LP equalized. Ratios with numbers 200-300 removed.
 	\item \textbf{TMDX\_DY}: Fixed double-accounting of Jacobian in $dx_F$-integration 
 	\item \textbf{TMDX\_SIDIS}: Fixed double-accounting of Jacobian in $dy$-integrations
 	\item \textbf{TMDX\_SIDIS}: Refactoring and updating into v3 paradigm.

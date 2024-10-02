@@ -99,7 +99,12 @@ integer::uTMDFF_maxIteration
 integer::uTMDFF_numSubGridsX,uTMDFF_numSubGridsB
 real(dp),allocatable::uTMDFF_subGridsX(:),uTMDFF_subGridsB(:)
 integer::uTMDFF_grid_SizeX,uTMDFF_grid_SizeB
-real(dp)::uTMDFF_hOGATA,uTMDFF_toleranceOGATA,uTMDFF_KT_FREEZE
+logical::uTMDFF_makeGrid_inKT,uTMDFF_runGridTest_inKT
+integer::uTMDFF_numSubGridsX_inKT,uTMDFF_numSubGridsKT_inKT,uTMDFF_numSubGridsB_inKT
+real(dp),allocatable::uTMDFF_subGridsX_inKT(:),uTMDFF_subGridsB_inKT(:),uTMDFF_subGridsKT_inKT(:)
+integer::uTMDFF_grid_SizeX_inKT,uTMDFF_grid_SizeB_inKT,uTMDFF_grid_SizeKT_inKT
+real(dp)::uTMDFF_minQ_inKT,uTMDFF_maxQ_inKT
+integer::uTMDFF_grid_SizeQ_inKT
 real(dp)::uTMDFF_hOGATA_TMM,uTMDFF_toleranceOGATA_TMM,uTMDFF_muMIN_TMM
 
 !-------------------- lpTMDPDF parameters
@@ -378,9 +383,23 @@ subroutine SetupDefault(order)
     allocate(uTMDFF_subGridsB(0:uTMDFF_numSubGridsB))
     uTMDFF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,25.d0/)
     uTMDFF_grid_SizeB=8
-    uTMDFF_toleranceOGATA=1.d-4    !!! OGATA tolerance
-    uTMDFF_hOGATA=1.d-3            !!! OGATA integration step
-    uTMDFF_KT_FREEZE=1.d-4         !!! min value of kT
+    uTMDFF_makeGrid_inKT=.false.
+    uTMDFF_runGridTest_inKT=.false.
+    uTMDFF_numSubGridsX_inKT=3
+    allocate(uTMDFF_subGridsX_inKT(0:uTMDFF_numSubGridsX_inKT))
+    uTMDFF_subGridsX_inKT=(/0.001d0,0.1d0,0.7d0,1.d0/)
+    uTMDFF_grid_SizeX_inKT=16
+    uTMDFF_numSubGridsKT_inKT=4
+    allocate(uTMDFF_subGridsKT_inKT(0:uTMDFF_numSubGridsKT_inKT))
+    uTMDFF_subGridsKT_inKT=(/0.01d0,1.d0,5.d0,15.d0,50.d0/)
+    uTMDFF_grid_SizeKT_inKT=16
+    uTMDFF_minQ_inKT=1.d0
+    uTMDFF_maxQ_inKT=40.d0
+    uTMDFF_grid_SizeQ_inKT=20
+    uTMDFF_numSubGridsB_inKT=5
+    allocate(uTMDFF_subGridsB_inKT(0:uTMDFF_numSubGridsB_inKT))
+    uTMDFF_subGridsB_inKT=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
+    uTMDFF_grid_SizeB_inKT=16
     uTMDFF_toleranceOGATA_TMM=1.d-4    !!! OGATA tolerance (for TMM)
     uTMDFF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
     uTMDFF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
@@ -921,13 +940,35 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p6  : Number of nodes in the B-subgrid ')")
     write(51,*) uTMDFF_grid_SizeB
     write(51,"(' ')")
-    write(51,"('*F   : ---- Transformation to KT-space ----')")
-    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
-    write(51,*) uTMDFF_toleranceOGATA
-    write(51,"('*p2  : Ogata quadrature integration step')")
-    write(51,*) uTMDFF_hOGATA
-    write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
-    write(51,*) uTMDFF_KT_FREEZE
+    write(51,"('*F   : ---- Transform and grid in KT-space ----')")
+    write(51,"('*p1  : Prepare grid')")
+    write(51,*) uTMDFF_makeGrid_inKT
+    write(51,"('*p2  : run the test of the grid (takes some time)')")
+    write(51,*) uTMDFF_runGridTest_inKT
+    write(51,"('*p3  : Number of subgrids in X (required to read the next line)')")
+    write(51,*) uTMDFF_numSubGridsX_inKT
+    write(51,"('*p4  : Intervals for subgrids in X (must include 1., as the last point)')")
+    write(51,*) uTMDFF_subGridsX_inKT
+    write(51,"('*p5  : Number of nodes in the X-subgrid')")
+    write(51,*) uTMDFF_grid_SizeX_inKT
+    write(51,"('*p6  : Number of subgrids in K (required to read the next line)')")
+    write(51,*) uTMDFF_numSubGridsKT_inKT
+    write(51,"('*p7  : Intervals for subgrids in KT (below and above ultimate points the value is frozen)')")
+    write(51,*) uTMDFF_subGridsKT_inKT
+    write(51,"('*p8  : Number of nodes in the KT-subgrid')")
+    write(51,*) uTMDFF_grid_SizeKT_inKT
+    write(51,"('*p9  : Minimal Q in the grid')")
+    write(51,*) uTMDFF_minQ_inKT
+    write(51,"('*p10 : Maximal Q in the grid')")
+    write(51,*) uTMDFF_maxQ_inKT
+    write(51,"('*p11 : Number of nodes in the Q-grid')")
+    write(51,*) uTMDFF_grid_SizeQ_inKT
+    write(51,"('*p12  : Number of subgrids in B (required to read the next line)')")
+    write(51,*) uTMDFF_numSubGridsB_inKT
+    write(51,"('*p13  : Intervals for subgrids in B (below and above ultimate points the value is frozen)')")
+    write(51,*) uTMDFF_subGridsB_inKT
+    write(51,"('*p14  : Number of nodes in the B-subgrid')")
+    write(51,*) uTMDFF_grid_SizeB_inKT
     write(51,"(' ')")
     write(51,"('*G   : ---- Computation of Transverse Momentum Moments (TMM) ----')")
     write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
@@ -1721,6 +1762,41 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) uTMDFF_subGridsB
     call MoveTO(51,'*p6  ')
     read(51,*) uTMDFF_grid_SizeB
+    call MoveTO(51,'*F   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) uTMDFF_makeGrid_inKT
+    call MoveTO(51,'*p2  ')
+    read(51,*) uTMDFF_runGridTest_inKT
+    call MoveTO(51,'*p3  ')
+    read(51,*) uTMDFF_numSubGridsX_inKT
+    deallocate(uTMDFF_subGridsX_inKT)
+    allocate(uTMDFF_subGridsX_inKT(0:uTMDFF_numSubGridsX_inKT))
+    call MoveTO(51,'*p4  ')
+    read(51,*) uTMDFF_subGridsX_inKT
+    call MoveTO(51,'*p5  ')
+    read(51,*) uTMDFF_grid_SizeX_inKT
+    call MoveTO(51,'*p6  ')
+    read(51,*) uTMDFF_numSubGridsKT_inKT
+    deallocate(uTMDFF_subGridsKT_inKT)
+    allocate(uTMDFF_subGridsKT_inKT(0:uTMDFF_numSubGridsKT_inKT))
+    call MoveTO(51,'*p7  ')
+    read(51,*) uTMDFF_subGridsKT_inKT
+    call MoveTO(51,'*p8  ')
+    read(51,*) uTMDFF_grid_SizeKT_inKT
+    call MoveTO(51,'*p9  ')
+    read(51,*) uTMDFF_minQ_inKT
+    call MoveTO(51,'*p10 ')
+    read(51,*) uTMDFF_maxQ_inKT
+    call MoveTO(51,'*p11 ')
+    read(51,*) uTMDFF_grid_SizeQ_inKT
+    call MoveTO(51,'*p12 ')
+    read(51,*) uTMDFF_numSubGridsB_inKT
+    deallocate(uTMDFF_subGridsB_inKT)
+    allocate(uTMDFF_subGridsB_inKT(0:uTMDFF_numSubGridsB_inKT))
+    call MoveTO(51,'*p13 ')
+    read(51,*) uTMDFF_subGridsB_inKT
+    call MoveTO(51,'*p14 ')
+    read(51,*) uTMDFF_grid_SizeB_inKT
     call MoveTO(51,'*G   ')
     call MoveTO(51,'*p1  ')
     read(51,*) uTMDFF_toleranceOGATA_TMM

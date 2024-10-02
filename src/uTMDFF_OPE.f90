@@ -218,6 +218,10 @@ subroutine uTMDFF_OPE_Initialize(file,prefix)
         END SELECT
 
     if(outputLevel>2 .and. orderMain>-1) write(*,'(A,I1)') ' |  Coef.func.    =as^',orderMain
+    call MoveTO(51,'*p2  ')
+    read(51,*) useGrid
+    call MoveTO(51,'*p3  ')
+    read(51,*) runTest
 
     call MoveTO(51,'*p4  ')
     read(51,*) resumLargeX
@@ -255,11 +259,6 @@ subroutine uTMDFF_OPE_Initialize(file,prefix)
 
     if(outputLevel>2 .and. orderLX>-1) write(*,'(A,I1)') ' |  Large-X       =as^',orderLX
     end if
-
-    call MoveTO(51,'*p2  ')
-    read(51,*) useGrid
-    call MoveTO(51,'*p3  ')
-    read(51,*) runTest
 
     !!!!! ---- parameters of numerical evaluation
     call MoveTO(51,'*D   ')

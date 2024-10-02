@@ -64,7 +64,11 @@ subroutine ParseInfoLine(line)
     linePart1=trim(line(:position_i-1))
     !!! second part of the line contains the value
     linePart2=trim(line(position_i+1:))
-    
+
+    !!!! some times there are leading space-terms remove them
+    if(linePart1(1:1)==" ") linePart1=linePart1(2:)
+
+
     SELECT CASE(linePart1)
     
     CASE("SetDesc")
@@ -274,14 +278,15 @@ subroutine SetReplica(num)
             !!!!!!!! parse and check the correctness
             lineToParse=trim(line)
 
-            !!! the list is space separated (count the number of spaces)
-            j=0
+            !!! the list is unformated (!!!) so I count the number of ".", assuming that each number has some decimals.
+            j=0 !! (starts from 0 because its number of ".")
             do i=1,len(lineToParse)
-                if(lineToParse(i:i) .eq. " ") j=j+1
+                if(lineToParse(i:i) .eq. ".") j=j+1
             end do
+
             if(XisSet) then
                 if(allocated(listToCheck)) deallocate(listToCheck)
-                allocate(listToCheck(0:j))
+                allocate(listToCheck(0:j-1)) !!! number of "."=number of terms
                 read(lineToParse,*) listToCheck
                 if(size(listToCheck)/=Xsize) then
                     CLOSE (51, STATUS='KEEP')
@@ -294,8 +299,8 @@ subroutine SetReplica(num)
             else
                 XisSet=.true.
                 !!! set up the first list of X's
-                allocate(Xnodes(0:j))
-                Xsize=j+1
+                allocate(Xnodes(0:j-1)) !!! number of "."=number of terms
+                Xsize=j
                 read(lineToParse,*) Xnodes
             end if
 
@@ -304,9 +309,9 @@ subroutine SetReplica(num)
             read(51,'(A)', iostat=ios) line
             lineToParse=trim(line)
             !!! the list is space separated (count the number of spaces)
-            j=1 !! (starts from 1 because it number of spaces +1)
+            j=0 !! (starts from 0 because its number of ".")
             do i=1,len(lineToParse)
-                if(lineToParse(i:i) .eq. " ") j=j+1
+                if(lineToParse(i:i) .eq. ".") j=j+1
             end do
             Qsize=Qsize+j
 
@@ -387,14 +392,14 @@ subroutine SetReplica(num)
             read(51,'(A)', iostat=ios) line
             lineToParse=trim(line)
             !!! the list is space separated (count the number of spaces)
-            j=0
+            j=0 !! (starts from 0 because its number of ".")
             do i=1,len(lineToParse)
-                if(lineToParse(i:i) .eq. " ") j=j+1
+                if(lineToParse(i:i) .eq. ".") j=j+1
             end do
-            allocate(Qentry(0:j))
+            allocate(Qentry(0:j-1))
             read(lineToParse,*) Qentry
             !!! add it to the list of Qnodes
-            Qnodes(indexQ:indexQ+j)=Qentry(0:j)
+            Qnodes(indexQ:indexQ+j-1)=Qentry(0:j-1)
 
             !!!!!!!------------This is line of flavors (skip)
             read(51,'(A)', iostat=ios) line

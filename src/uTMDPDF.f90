@@ -313,15 +313,14 @@ subroutine uTMDPDF_SetLambdaNP(lambdaIN)
 
     lambdaNP=lambdaIN
     call ModelUpdate(lambdaNP)
+
     gridIsReady_inKT=.false.
-
-    if(outputLevel>2) write(*,*) 'arTeMiDe.',moduleName,': NPparameters reset = (',lambdaNP,')'
-
-
     if(makeGrid_inKT) then
         call updateGrid_inKT()
         gridIsReady_inKT=.true.
     end if
+
+    if(outputLevel>2) write(*,*) 'arTeMiDe.',moduleName,': NPparameters reset = (',lambdaNP,')'
 
 end subroutine uTMDPDF_SetLambdaNP
 
@@ -444,7 +443,7 @@ function TMD_opt(x,bT,hadron)
     else if(bT>BMAX_ABS) then
         TMD_opt=0._dp
         return
-    else if(x<1d-12) then
+    else if(x<toleranceGEN) then
         write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
         stop
     else if(bT<0d0) then
@@ -506,7 +505,7 @@ function TMD_opt_inKT(x,kT,hadron)
      else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
         TMD_opt_inKT=0._dp
         return
-    else if(x<1d-12) then
+    else if(x<toleranceGEN) then
         write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
         stop
     else if(kT<0d0) then

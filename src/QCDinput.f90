@@ -329,7 +329,7 @@ end function QCDinput_IsInitialized
   allocate(current_replica_uFFs(1:num_of_uFFs))
   if(num_of_uFFs>0) then
     current_replica_uFFs(1)=0
-    call ReadInfo_uPDF1(trim(names_uFF(1)),pathToLHA,outputLevel)
+    call ReadInfo_uFF1(trim(names_uFF(1)),pathToLHA,outputLevel)
   end if
   if(num_of_uFFs>1) then
     current_replica_uFFs(2)=0

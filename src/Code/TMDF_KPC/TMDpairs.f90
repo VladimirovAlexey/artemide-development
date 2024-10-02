@@ -48,7 +48,16 @@ SELECT CASE(process(3))
       +FAB(-5)/9d0
 
  !--------------------------------------------------------------------------------
-  CASE (2,20,21,22,29) !Delta^{GG'}z_{+l}z_{+f}f1f1
+  CASE (2) !Delta^{GG'}z_{+l}z_{+f}f1f1 (ONLY Z-BOSON without gamma)
+
+     FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
+     FB=uTMDPDF_inKT(x2,sqrt(k2),mu,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
+     FAB=FA*FB
+
+     TMD_pair=XTMD_pairZZ(FAB,Q2)
+
+ !--------------------------------------------------------------------------------
+  CASE (3,20,21,22,29) !Delta^{GG'}z_{+l}z_{+f}f1f1
 
      FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
      FB=uTMDPDF_inKT(x2,sqrt(k2),mu,-h2)!!! -h2, to multiply quarks by anti-quarks in FAB
@@ -121,6 +130,28 @@ end function TMD_pair
 
 !-------------------------------------------------------------------------------------------------------------------------------------
 !-------------------------------------------------------------------------------------------------------------------------------------
+!!! Combination Delta^{GG'} z_{+l}z_{+f} FF (ONLY FOR Z-BOSON)
+function XTMD_pairZZ(FAB,Q2)
+     real(dp)::XTMD_pairZZ
+     real(dp),intent(in)::Q2
+    !!cross-seciton parameters
+     real(dp),dimension(-5:5),intent(in):: FAB
+
+     XTMD_pairZZ=zP_ZZ_L*(&
+       zP_ZZ_U*FAB(2)&
+      +zP_ZZ_D*FAB(1)&
+      +zP_ZZ_S*FAB(3)&
+      +zP_ZZ_C*FAB(4)&
+      +zP_ZZ_B*FAB(5)&
+      +zP_ZZ_U*FAB(-2)&
+      +zP_ZZ_D*FAB(-1)&
+      +zP_ZZ_S*FAB(-3)&
+      +zP_ZZ_C*FAB(-4)&
+      +zP_ZZ_B*FAB(-5))*&
+      Q2*Q2/((Q2-MZ2)**2+GammaZ2*MZ2)
+
+end function XTMD_pairZZ
+
 !!! Combination Delta^{GG'} z_{+l}z_{+f} FF
 function XTMD_pairZpZp(FAB,Q2)
      real(dp)::XTMD_pairZpZp

@@ -636,16 +636,9 @@ function xSec(var,process,incCut,CutParam)
     scaleZeta=var(4)  !! zeta=Q2
     scaleMu=sqrt(scaleZeta)
 
-    if(process(4)>=200 .and. process(4)<300) then
-      !!!!! these numbers are reserved for ratios, thus not prefactors
-      xSec=KPC_DYconv(var(4),var(1),x1,x2,scaleMu*c2_global,process(2:4))
-
-    else
-      FF=KPC_DYconv(var(4),var(1),x1,x2,scaleMu*c2_global,process(2:4))
-      LC=LeptonCutFactorKPC(var,process(4),incCut,CutParam)
-
-      xSec=PreFactorKPC(var,process(1))*FF*LC
-    end if
+    FF=KPC_DYconv(var(4),var(1),x1,x2,scaleMu*c2_global,process(2:4))
+    LC=LeptonCutFactorKPC(var,process(4),incCut,CutParam)
+    xSec=PreFactorKPC(var,process(1))*FF*LC
 
   !!!!!!!!!!!!!!!!!!!! COMPUTATION WITHOUT KPC
   else
