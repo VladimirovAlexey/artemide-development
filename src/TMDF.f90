@@ -35,9 +35,9 @@ private
 !   public
 
 character (len=7),parameter :: moduleName="TMDF"
-character (len=5),parameter :: version="v3.00"
+character (len=5),parameter :: version="v3.01"
 !Last appropriate verion of constants-file
-integer,parameter::inputver=30
+integer,parameter::inputver=31
 
 !------------------------------------------Working variables------------------------------------------------------------
 integer::outputLevel=2
@@ -56,6 +56,7 @@ logical::include_BoerMuldersTMDPDF
 
 real(dp):: global_mass_scale=0.938_dp
 real(dp):: qtMIN=0.0001d0
+real(dp):: HardScaleMIN=0.8d0
 
 integer::messageCounter
 !-----------------------------------------Public interface--------------------------------------------------------------
@@ -123,6 +124,8 @@ subroutine TMDF_Initialize(file,prefix)
     read(51,*) hOGATA
     call MoveTO(51,'*p3  ')
     read(51,*) qtMIN
+    call MoveTO(51,'*p4  ')
+    read(51,*) HardScaleMIN
     
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
@@ -275,6 +278,10 @@ integer::n
 logical::ISconvergent
 if(x1>=1d0 .or. x2>=1d0) then
   integral_result=0d0
+else if(Q2<HardScaleMIN .or. mu<HardScaleMIN .or. zeta1<HardScaleMIN .or. zeta2<HardScaleMIN) then
+    write(*,*) ErrorString("Some hard scale is too low (< "//trim(real8ToStr(HardScaleMIN))//")",moduleName)
+    write(*,*) "(Q2 ,mu, zeta1,zeta2) = ",Q2 ,mu, zeta1,zeta2
+    error stop ErrorString("Evaluation stop",moduleName)
 else if(TMDF_IsconvergenceLost()) then
   !!!in the case of lost convergence we return huge number (divergent xSec)
     integral_result=1d10

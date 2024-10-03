@@ -174,7 +174,7 @@ real(dp)::BoerMuldersTMDPDF_hOGATA_TMM,BoerMuldersTMDPDF_toleranceOGATA_TMM,Boer
 
 !-------------------- TMDF parameters
 logical::include_TMDF
-real(dp)::TMDF_OGATAh,TMDF_tolerance,TMDF_qTMIN
+real(dp)::TMDF_OGATAh,TMDF_tolerance,TMDF_qTMIN,TMDF_hardScaleMIN
 real(dp)::TMDF_mass
 
 !-------------------- TMDF-KPC-DY parameters
@@ -519,6 +519,7 @@ subroutine SetupDefault(order)
     TMDF_tolerance=0.0001d0    !tolerance (i.e. relative integration tolerance)
     TMDF_OGATAh=0.001d0        !Ogata quadrature integration step
     TMDF_qTMIN=0.001d0          !minimal qT, below values is contant
+    TMDF_hardScaleMIN=0.8d0   ! minimal value of Q, mu or zeta
     TMDF_mass=0.938272      !mass parameter that is used as reference dimension
 
     !------------------ parameters for TMDX-DY
@@ -994,6 +995,8 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDF_OGATAh
     write(51,"('*p3  : Minimal qT (for smaller values the expression is constant)')")
     write(51,*) TMDF_qTMIN
+    write(51,"('*p4  : Minimal hard scale (Q, mu, zeta1, zeta2) (for smaller values the error is generated)')")
+    write(51,*) TMDF_hardScaleMIN
     write(51,"(' ')")
     write(51,"('*B   : ---- Global parameters of structure functions----')")
     write(51,"('*p1  : Mass parameter used in the structure function (mass of hadron)')")
@@ -1816,6 +1819,8 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) TMDF_OGATAh
     call MoveTO(51,'*p3  ')
     read(51,*) TMDF_qTMIN
+    call MoveTO(51,'*p4  ')
+    read(51,*) TMDF_hardScaleMIN
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
     read(51,*) TMDF_mass

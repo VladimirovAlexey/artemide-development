@@ -691,7 +691,6 @@ else
   scaleZeta=var(3)
 end if
 
-
 FF=TMDF_F(var(3),qT,x1,z1,scaleMu*c2_global,scaleZeta,scaleZeta,process(2:4))
 xSec=PreFactor2(var,process,x1,z1,qT)*FF
 
