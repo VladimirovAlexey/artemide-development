@@ -174,7 +174,10 @@ function CxF_compute(x,bT,hadron,includeGluon)
     write(*,*) ErrorString('convolution computed to NAN. CHECK INTEGRATION',moduleName)
     write(*,*) '----- information on last call -----'
     write(*,*) 'x=', x, 'bT=',bT,' i=',i, 'hadron=',hadron,' result=',CxF_compute(i)
-
+    write(*,*) "--FF-->",PDFat1
+    write(*,*) "delta->",(/Csingqq,Csingqq,Csingqq,Csingqq,Csingqq,&
+    Csinggg,Csingqq,Csingqq,Csingqq,Csingqq,Csingqq/)
+    error stop
    end if
   end do
 

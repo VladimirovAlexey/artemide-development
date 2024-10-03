@@ -7,7 +7,6 @@
 !
 !           A.Vladimirov
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 !     In the file that uses it add
 !module NAME
 !use IO_functions
@@ -21,10 +20,14 @@
 !use IO_functions
 !implicit none
 
+!!!!!! DEBUGMODE 1 switches many messages
+#define DEBUGMODE 0
+
 !Current version of module
 character (len=5),parameter :: version="v3.01"
 !character (len=9),parameter :: moduleName="LHAreader"
 integer::outputLevel=2
+
 
 !!!!! global variables to 
 character(len=:), allocatable::ReferenceString !!! contains description of reference
@@ -33,8 +36,12 @@ character(len=:), allocatable::MainPath         !!! the path to the PDF-set with
 integer:: NumMembers
 integer,allocatable,dimension(:):: FlavorArray
 real(dp)::XMin,XMax,QMin,QMax
+!!!!! from [1412.7420]
+!0, 1, or 2 to, respectively, indicate no forcing, forcing negative values to 0, or forcing negative-or-zero values to a very small positive constan
+integer::ForcePositive_Global=0
 
 real(dp)::tolerance=10.d-8
+real(dp)::tolerancePDF=10.d-12   !!!! tolerance in interpretation of PDF values
 
 !!!!!! Main grid (x,Q,f)
 real(dp),dimension(:,:,:),allocatable::MainGrid
@@ -59,6 +66,8 @@ subroutine ParseInfoLine(line)
     integer::position_i,position_j
     integer::i,j
     
+    ForcePositive_Global=0
+
     position_i=SCAN(line,":")
     !!! First part of the line contrain the name
     linePart1=trim(line(:position_i-1))
@@ -81,7 +90,8 @@ subroutine ParseInfoLine(line)
     CASE("SetIndex","Authors","FlavorScheme","OrderQCD","ErrorType","DataVersion", &
         "Format", "NumFlavors", "AlphaS_OrderQCD", "MZ","MUp","MDown","MStrange",  &
         "MCharm", "MBottom", "MTop", "AlphaS_MZ", "AlphaS_Type","AlphaS_Qs", "AlphaS_Vals", &
-        "Particle","AlphaS_Lambda3","AlphaS_Lambda4","AlphaS_Lambda5")
+        "Particle","AlphaS_Lambda3","AlphaS_Lambda4","AlphaS_Lambda5","ErrorConfLevel",&
+        "ThresholdCharm","ThresholdBottom","ThresholdTop")
         !!!!! Unused values of LHA-PDF file
         if(outputLevel>3) then
             write(*,*) "Value of "//trim(linePart1)//" in LHAPDF-info :"
@@ -134,6 +144,12 @@ subroutine ParseInfoLine(line)
         read(linePart2,*) QMax
         if(outputLevel>2) then
             write(*,'(A,F10.2)') " QMax     :", QMax
+        end if
+
+    CASE("ForcePositive")
+        read(linePart2,*) ForcePositive_Global
+        if(outputLevel>2) then
+            write(*,'(A,F10.2)') " ForcePositive :", ForcePositive_Global
         end if
     
     CASE DEFAULT
@@ -196,10 +212,10 @@ subroutine SetReplica(num)
     character(len=:),allocatable:: lineToParse
     real(dp),dimension(:),allocatable::listToCheck,PDFentry,Qentry
     integer,dimension(:),allocatable::listOfF
-    integer,dimension(-5:5)::FlavorIndex !!! list that contain the enumeration change variable
+    integer,dimension(-5:5)::FlavorPermutationIndex !!! list that contain the enumeration change variable
     logical::XisSet
-    integer::Xsize,Qsize
-    integer::ios,i,j,k,iX,iQ,iF,indexQ
+    integer::Xsize,Qsize,QsizeSUBGRID
+    integer::ios,i,j,k,iX,iQ,iF,indexQ,dummyI
 
     TablesAreReady=.false.
 
@@ -223,6 +239,12 @@ subroutine SetReplica(num)
 
     !!!! create the name of replica-file MainPath_000n.dat
     write(path,'(A,"_",I4.4,".dat")') trim(MainPath),num
+
+#if DEBUGMODE==1
+    write(*,*) "------------ LHA-READER DEBUG MODE ----------------"
+    write(*,*) "-------------- "//trim(PDFname)//" ----------------"
+#endif
+
 
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old", IOSTAT=ios)
     if(ios /= 0) ERROR STOP ErrorString('The file is not found at '//trim(path),moduleName)
@@ -263,6 +285,9 @@ subroutine SetReplica(num)
     !!! 1) Fill the list of Q's
     !!! 2) Fill the list of PDF's
 
+#if DEBUGMODE==1
+    write(*,*) "First read of the table :"
+#endif
     !!! reading all lines (first run)
     do
         read(51,'(A)', iostat=ios) line
@@ -283,6 +308,10 @@ subroutine SetReplica(num)
             do i=1,len(lineToParse)
                 if(lineToParse(i:i) .eq. ".") j=j+1
             end do
+
+#if DEBUGMODE==1
+            write(*,*) 'Subtable: counted number of Xs--->',j
+#endif
 
             if(XisSet) then
                 if(allocated(listToCheck)) deallocate(listToCheck)
@@ -313,7 +342,13 @@ subroutine SetReplica(num)
             do i=1,len(lineToParse)
                 if(lineToParse(i:i) .eq. ".") j=j+1
             end do
-            Qsize=Qsize+j
+            QsizeSUBGRID=j
+            Qsize=Qsize+QsizeSUBGRID
+
+#if DEBUGMODE==1
+            write(*,*) 'Subtable: counted number of Qs--->',QsizeSUBGRID
+            write(*,*) 'Current total Q               --->',Qsize
+#endif
 
             !!!!!!!!-------------This should be the line of flavors
             !!!!!!!! check that it coincides with the line of flavors from the info-file
@@ -326,7 +361,7 @@ subroutine SetReplica(num)
             end if
 
             !!! then it should be j * Xsize lines of grids
-            do i=1, j*Xsize
+            do i=1, QsizeSUBGRID*Xsize
                 read(51,'(A)', iostat=ios) line
                 if(ios /= 0) then
                     CLOSE (51, STATUS='KEEP')
@@ -338,11 +373,21 @@ subroutine SetReplica(num)
                     ERROR STOP ErrorString("Incorrect number of entries subgrid of "//trim(path),moduleName)
                 end if
             end do
-
+        else
+#if DEBUGMODE==1
+            write(*,*) "--->>> EXPECTED --- LINE <<<---"
+#endif
         end if
     end do
 
     CLOSE (51, STATUS='KEEP')
+
+#if DEBUGMODE==1
+    write(*,*) "First read complete"
+    write(*,*) "X size: ( 0 :",Xsize-1,")"
+    write(*,*) "Q size: ( 0 :",Qsize-1,")"
+    write(*,*) "FlavorArray", FlavorArray
+#endif
 
     !!!!! now the Qsize, Xsize, and Xnodes are set up
 
@@ -356,17 +401,27 @@ subroutine SetReplica(num)
     do i=-5,5
         do j=1,size(FlavorArray)
             if(i==0 .and. FlavorArray(j)==21) then
-                FlavorIndex(i)=j
+                FlavorPermutationIndex(i)=j
                 k=k+1
             else if(i/=0 .and. i>=-5 .and. i<=5 .and. FlavorArray(j)==i) then
-                FlavorIndex(i)=j
+                FlavorPermutationIndex(i)=j
                 k=k+1
             end if
         end do
     end do
+
+#if DEBUGMODE==1
+    write(*,*) "FlavorPermutationIndex", FlavorPermutationIndex
+#endif
+
     if(k/=11) then
         ERROR STOP ErrorString("The flavor numbering list does not map to (-5:5)",moduleName)
     end if
+
+#if DEBUGMODE==1
+    write(*,*) " -- "
+    write(*,*) "Second read of the table :"
+#endif
 
     !!! now read the second time and write all grids
     !k=1!!!! counter of PDF-entry
@@ -385,6 +440,9 @@ subroutine SetReplica(num)
             !write(*,*) "---->>>",trim(line)
             if(ios /= 0) exit !!! end of file
 
+#if DEBUGMODE==1
+            write(*,*) "Enter block :",indexQ
+#endif
 
             !!!!!!!!-------------This should be the line of Q's
             !!!!!!!! re-read entries and add to the Qline
@@ -396,39 +454,76 @@ subroutine SetReplica(num)
             do i=1,len(lineToParse)
                 if(lineToParse(i:i) .eq. ".") j=j+1
             end do
-            allocate(Qentry(0:j-1))
+            QsizeSUBGRID=j
+
+            allocate(Qentry(0:QsizeSUBGRID-1))
             read(lineToParse,*) Qentry
             !!! add it to the list of Qnodes
-            Qnodes(indexQ:indexQ+j-1)=Qentry(0:j-1)
+            Qnodes(indexQ:indexQ+QsizeSUBGRID-1)=Qentry(0:QsizeSUBGRID-1)
+
+#if DEBUGMODE==1
+            write(*,*) 'Subtable: counted number of Qs--->',QsizeSUBGRID
+            write(*,*) 'Q nodes from ',indexQ, " to ", indexQ+QsizeSUBGRID-1 ," set."
+#endif
 
             !!!!!!!------------This is line of flavors (skip)
             read(51,'(A)', iostat=ios) line
 
             !!!!!! reading the PDF-entries
             !!!!!! and insert it into the corresponding Grid-elements
+            dummyI=0 !!!! counter of lines
             do i=0,Xsize-1
-            do k=0,size(Qentry)-1
+            do k=0,QsizeSUBGRID-1
                 read(51,*) PDFentry
                 !!!write(*,*) i,indexQ+k
                 do j=-5,5
-                    MainGrid(i,indexQ+k,j)=PDFentry(FlavorIndex(j))
+                    MainGrid(i,indexQ+k,j)=PDFentry(FlavorPermutationIndex(j))
                 end do
+                dummyI=dummyI+1
             end do
             end do
+#if DEBUGMODE==1
+            write(*,*) 'Have read ', dummyI,' lines.'
+#endif
 
             deallocate(Qentry)
-            indexQ=indexQ+size(Qentry)  !!!! not forget to update indexQ
+            indexQ=indexQ+QsizeSUBGRID  !!!! not forget to update indexQ
+        else
+#if DEBUGMODE==1
+            write(*,*) "--->>> EXPECTED --- LINE <<<---"
+#endif
         end if
 
     end do
     CLOSE (51, STATUS='KEEP')
 
+#if DEBUGMODE==1
+    write(*,*) "Second read complete."
+#endif
+
+    !!!!! checking the consistency of the read table
+    !!!!! and implicating the ForcePositive statement
+    do i=0,Xsize-1
+    do k=0,Qsize-1
+        do j=-5,5
+            if(ForcePositive_Global==1 .and. MainGrid(i,k,j)<0) MainGrid(i,k,j)=0._dp
+            if(ForcePositive_Global==2 .and. MainGrid(i,k,j)<=tolerancePDF) MainGrid(i,k,j)=tolerancePDF
+
+            if(ISNAN(MainGrid(i,k,j)) .or. MainGrid(i,k,j)>10d5) then
+                write(*,*) PDFname," SOMETHING STRANGE IN THE PDF ENTRY (x,Q,f) ",i,k,j
+                write(*,*) MainGrid(i,k,:)
+              error stop ErrorString("An entry in LHA tables has been interpreted as NaN or >10^5.",moduleName)
+            end if
+        end do
+    end do
+    end do
+
     !!!!!------------ prepare the table of interpolation
-    allocate(PDF_logQs(0:size(Qnodes)-1))
-    allocate(PDF_logXs(0:size(Xnodes)-1))
-    allocate(PDF_indices(1:4,0:size(Qnodes)-2))
-    allocate(PDF_WQ(1:4,0:size(Qnodes)-2))
-    allocate(PDF_WX(1:4,0:size(Xnodes)-2))
+    allocate(PDF_logQs(0:Qsize-1))
+    allocate(PDF_logXs(0:Xsize-1))
+    allocate(PDF_indices(1:4,0:Qsize-2))
+    allocate(PDF_WQ(1:4,0:Qsize-2))
+    allocate(PDF_WX(1:4,0:Xsize-2))
 
     PDF_LogQs=log(Qnodes)
     PDF_LogXs=log(Xnodes)
@@ -455,6 +550,15 @@ subroutine SetReplica(num)
             end if
         end if
     end do
+
+#if DEBUGMODE==1
+        write(*,*) " "
+        write(*,*) "----- TABLE FOR INDICES OF Q-INTERPOLATION -----"
+        do i = 0, Qsize-2
+            write(*,*) i, " --> ",PDF_indices(1:4,i)
+        end do
+        write(*,*) " "
+#endif
 
     !!!! table for X is very simple,  there is no repeating entries.
     !!!! so index is i+(-1,0,1,2), except for i=0 -> (0,1,2,3), and i=S-1 (S-3,S-2,S-1,S)
@@ -529,8 +633,8 @@ logical::flag
 
 if(X<Xmin .or. X>Xmax) ERROR STOP ErrorString('X ='//real8Tostr(X)//' is outside of X-range',moduleName)
 
-if(Q>Qmax) ERROR STOP ErrorString('Q ='//real8Tostr(Qmax)//'is outside of QMax-range',moduleName)
-if(Q<0.4d0) ERROR STOP ErrorString('Q ='//real8Tostr(Qmax)//'is smaller that 0.4 GeV of QMax-range',moduleName)
+if(Q>Qmax) ERROR STOP ErrorString('Q ='//real8Tostr(Qmax)//' is outside of QMax-range',moduleName)
+if(Q<0.4d0) ERROR STOP ErrorString('Q ='//real8Tostr(Qmax)//' is smaller that 0.4 GeV of Q-range',moduleName)
 
 if(Q<Qmin) then !!!! extrapolate!
     logX=log(X)
@@ -625,6 +729,26 @@ deltaQ(4)*MainGrid(iX-1:iX+2,PDF_indices(4,iQ),-5:5))/sum(deltaQ)
 end do
 
 xPDF=(deltaX(1)*subQ(1,-5:5)+deltaX(2)*subQ(2,-5:5)+deltaX(3)*subQ(3,-5:5)+deltaX(4)*subQ(4,-5:5))/sum(deltaX)
+
+#if DEBUGMODE==1
+  do j=-5,5
+   if(ISNAN(xPDF(j))) then
+
+    write(*,*) ErrorString('a values of PDF '//trim(PDFname)//' computed to NAN',moduleName)
+    write(*,*) '----- information on last call -----'
+    write(*,*) 'x=', x, 'Q=',Q,' j=',j,' result=',xPDF(j)
+    write(*,*) iX, iQ
+    write(*,*) PDF_indices(:,iQ)
+    write(*,*) " -- ", size(MainGrid(:,1,1)),size(MainGrid(1,:,1)),size(MainGrid(1,1,:))
+    write(*,*) ' -------- part of grid that has been used ------  '
+    write(*,*) "Q1->", MainGrid(iX-1:iX+2,PDF_indices(1,iQ),j)
+    write(*,*) "Q2->", MainGrid(iX-1:iX+2,PDF_indices(2,iQ),j)
+    write(*,*) "Q3->", MainGrid(iX-1:iX+2,PDF_indices(3,iQ),j)
+    write(*,*) "Q4->", MainGrid(iX-1:iX+2,PDF_indices(4,iQ),j)
+    error stop
+   end if
+  end do
+#endif
 
 end function xPDF
 

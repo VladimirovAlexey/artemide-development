@@ -12,26 +12,31 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!! insertion of LHA-modules for reading PDF-grids
+
 !!!------------------------------uPDF-------------------
 module uLHAPDF_1
 use IO_functions
 implicit none
 character (len=6),parameter :: moduleName="uPDF_1"
-INCLUDE 'Code/LHA/LHA_PDF.f90'
+#include "Code/LHA/LHA_PDF.f90"
+!INCLUDE 'Code/LHA/LHA_PDF.f90'
 end module uLHAPDF_1
 
 module uLHAPDF_2
 use IO_functions
 implicit none
+
 character (len=6),parameter :: moduleName="uPDF_2"
-INCLUDE 'Code/LHA/LHA_PDF.f90'
+#include "Code/LHA/LHA_PDF.f90"
+!INCLUDE 'Code/LHA/LHA_PDF.f90'
 end module uLHAPDF_2
 
 module uLHAPDF_3
 use IO_functions
 implicit none
 character (len=6),parameter :: moduleName="uPDF_3"
-INCLUDE 'Code/LHA/LHA_PDF.f90'
+#include "Code/LHA/LHA_PDF.f90"
+!INCLUDE 'Code/LHA/LHA_PDF.f90'
 end module uLHAPDF_3
 
 !!!------------------------------uFF-------------------
@@ -39,21 +44,24 @@ module uLHAFF_1
 use IO_functions
 implicit none
 character (len=5),parameter :: moduleName="uFF_1"
-INCLUDE 'Code/LHA/LHA_PDF.f90'
+#include "Code/LHA/LHA_PDF.f90"
+!INCLUDE 'Code/LHA/LHA_PDF.f90'
 end module uLHAFF_1
 
 module uLHAFF_2
 use IO_functions
 implicit none
 character (len=5),parameter :: moduleName="uFF_2"
-INCLUDE 'Code/LHA/LHA_PDF.f90'
+#include "Code/LHA/LHA_PDF.f90"
+!INCLUDE 'Code/LHA/LHA_PDF.f90'
 end module uLHAFF_2
 
 module uLHAFF_3
 use IO_functions
 implicit none
 character (len=5),parameter :: moduleName="uFF_3"
-INCLUDE 'Code/LHA/LHA_PDF.f90'
+#include "Code/LHA/LHA_PDF.f90"
+!INCLUDE 'Code/LHA/LHA_PDF.f90'
 end module uLHAFF_3
 
 !!!------------------------------lpPDF-------------------
@@ -61,7 +69,8 @@ module lpLHAPDF_1
 use IO_functions
 implicit none
 character (len=7),parameter :: moduleName="lpPDF_1"
-INCLUDE 'Code/LHA/LHA_PDF.f90'
+#include "Code/LHA/LHA_PDF.f90"
+!INCLUDE 'Code/LHA/LHA_PDF.f90'
 end module lpLHAPDF_1
 
 !!!------------------------------hPDF-------------------
@@ -69,14 +78,16 @@ module hLHAPDF_1
 use IO_functions
 implicit none
 character (len=6),parameter :: moduleName="hPDF_1"
-INCLUDE 'Code/LHA/LHA_PDF.f90'
+#include "Code/LHA/LHA_PDF.f90"
+!INCLUDE 'Code/LHA/LHA_PDF.f90'
 end module hLHAPDF_1
 
 module hLHAPDF_2
 use IO_functions
 implicit none
 character (len=6),parameter :: moduleName="hPDF_2"
-INCLUDE 'Code/LHA/LHA_PDF.f90'
+#include "Code/LHA/LHA_PDF.f90"
+!INCLUDE 'Code/LHA/LHA_PDF.f90'
 end module hLHAPDF_2
 
 !!!----------------------------------------------------------------------

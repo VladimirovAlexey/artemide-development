@@ -110,6 +110,7 @@ pure function bSTAR(bT,x,y)
     real(dp),intent(in)::bT,x,y
 
     bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
+
 end function bSTAR
 
 !!!!This function is the mu(x,b), which is used inside the OPE
@@ -121,8 +122,8 @@ pure function muOPE(bt,x,y,c4)
 
     muOPE=C0_const*c4*x/bT+2d0
 
-    if(muOPE>1000d0) then
-        muOPE=1000d0
+    if(muOPE>100d0) then
+        muOPE=99d0
     end if
 end function muOPE
 
