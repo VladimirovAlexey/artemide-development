@@ -160,9 +160,6 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
     if(outputLevel>1 .and. useKPC) write(*,*) color('                      Please, cite [2307.13054]',c_cyan)
     if(outputLevel>1 .and. .not.(useKPC)) write(*,*) color('    artemide.TMDX_SIDIS: using TMD factorization at LP',c_cyan)
 
-    call MoveTO(51,'*p3   ')
-    read(51,*)
-
     call MoveTO(51,'*B   ')
     call MoveTO(51,'*p1  ')
     read(51,*) toleranceGEN
@@ -227,7 +224,7 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
     end if
 
     c2_global=1d0
-    
+
     GlobalCounter=0
     CallCounter=0
     messageCounter=0
@@ -691,6 +688,10 @@ else
   scaleZeta=var(3)
 end if
 
+if(scaleMu*c2_global<1.d0) then
+write(*,*) "---->",scaleMu,c2_global
+end if
+
 FF=TMDF_F(var(3),qT,x1,z1,scaleMu*c2_global,scaleZeta,scaleZeta,process(2:4))
 xSec=PreFactor2(var,process,x1,z1,qT)*FF
 
@@ -1019,6 +1020,8 @@ subroutine xSec_SIDIS(xx,process,s,pT,z,x,Q,doCut,Cuts,masses)
   real(dp),dimension(1:13):: var
   integer::Num
 
+if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
+
   CallCounter=CallCounter+1
   if(PRESENT(masses)) then
   var=kinematicArray((pt(1)+pt(2))/2d0,s,(z(1)+z(2))/2d0,(x(1)+x(2))/2d0,(Q(1)+Q(2))/2d0,masses(1)**2,masses(2)**2)
@@ -1046,6 +1049,8 @@ subroutine xSec_SIDIS_List(xx,process,s,pT,z,x,Q,doCut,Cuts,masses)
   real(dp),intent(in),dimension(:,:),optional::masses        !(mass_target,mass-product)GeV
   real(dp),dimension(:),intent(out)::xx
   integer :: i,length
+
+if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
   length=size(s)
   CallCounter=CallCounter+length
@@ -1171,6 +1176,8 @@ subroutine xSec_SIDIS_List_forharpy(xx,process,s,pT,z,x,Q,doCut,Cuts,masses)
   real(dp),dimension(:),intent(out)::xx
   integer :: i,length
 
+if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
+
   length=size(s)
   CallCounter=CallCounter+length
 
@@ -1247,6 +1254,7 @@ real(dp):: xSecFULL
 real(dp)::var(1:13)
 integer::Num
 
+if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
 var=kinematicArray((ptmin+ptmax)/2d0,s,(zmin+zmax)/2d0,(xmin+xmax)/2d0,(Qmin+Qmax)/2d0,m1,m2)
 Num=NumPT_auto(ptmax-ptmin,var(2))
@@ -1270,6 +1278,8 @@ subroutine xSec_SIDIS_BINLESS_List_forharpy(xx,process,s,pT,z,x,Q,masses)
   real(dp),intent(in),dimension(:,:)::masses            !(mass_target,mass-product)GeV
   real(dp),dimension(:),intent(out)::xx
   integer :: i,length
+
+  if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
   length=size(s)
   CallCounter=CallCounter+length
@@ -1322,6 +1332,8 @@ integer,intent(in)::proc(1:4)
 real(dp)::xSec_SIDIS_BINLESS
 
 real(dp)::var(1:13)
+
+if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
 var=kinematicArray(pt,s,z,x,Q,m1,m2)
 
