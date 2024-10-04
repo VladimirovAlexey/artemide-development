@@ -283,9 +283,9 @@ subroutine ReadInfo(name,directory,outP)
     LambdaEFF=exp(-extrapolB2/extrapolB1)*AlphaS_Qs(0)
 
     if(LambdaEFF+0.1>Qmin) &
-    ERROR STOP ErrorString('Effective Lambda computed as '//real8Tostr(LambdaEFF)//' It is too high...',moduleName)
+    ERROR STOP ErrorString('Effective LambdaQCD computed as '//real8Tostr(LambdaEFF)//' It is too high...',moduleName)
 
-    if(outputLevel>1) write(*,'("AlphaS prepared with Effective Lambda = ",F10.6)') LambdaEFF
+    if(outputLevel>1) write(*,'("AlphaS prepared with Effective LambdaQCD = ",F10.6)') LambdaEFF
     LambdaEFF=max(LambdaEFF+0.1d0,0.4d0)
 
     if(outputLevel>1) write(*,'(A)') color("----- Alpha_s from "//trim(name)//" loaded. ",c_yellow)&
@@ -303,7 +303,7 @@ real(dp):: AlphaS
 real(dp)::logQ,deltas(1:4)
 integer::i,j
 if(Q<Qmin) then !!! logarith log-extrapolation
-    if(Q<LambdaEFF) ERROR STOP ErrorString('Q ='//real8Tostr(Q)//' is smaller than Effective Lambda',moduleName)
+    if(Q<LambdaEFF) ERROR STOP ErrorString('Q ='//real8Tostr(Q)//' is smaller than Effective LambdaQCD',moduleName)
 
     AlphaS=extrapolA/(extrapolB1*Log(Q/AlphaS_Qs(0))+extrapolB2)
 else if(Q>Qmax) then !!! constant

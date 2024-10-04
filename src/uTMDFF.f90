@@ -274,7 +274,7 @@ subroutine uTMDFF_Initialize(file,prefix)
 end subroutine uTMDFF_Initialize
 
 !!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
-!!! update PDF replica
+!!! update FF replica
 subroutine uTMDFF_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
 
