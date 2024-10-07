@@ -150,12 +150,12 @@ end function bSTAR
 pure function muOPE(bt,x,y,c4)
     real(dp),intent(in)::bt,x,y,c4
 
-    !muOPE=C0_const*c4/bT+5d0
+    muOPE=C0_const*c4/bT+5d0
 
     !!!! like traditional b*
     !muOPE=C0_const*sqrt(1+bT**2/(c4*C0_const)**2)*c4/bT
     !!!! like MAP24
-    muOPE=(1-Exp(-(c4*bT/C0_const)**4))**(-0.25)
+    !muOPE=(1-Exp(-(c4*bT/C0_const)**4))**(-0.25)
     
     if(muOPE>1000d0) then
         muOPE=1000d0
