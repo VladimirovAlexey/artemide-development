@@ -104,6 +104,10 @@ function CxF_compute(x,bT,hadron,includeGluon)
     LogAt1=LogMuB(bTcurrent,x,1._dp)
     NfAt1=activeNf(muAt1)
     PDFat1=xf(x,muAt1,hadron)
+    if(ISNAN(PDFat1(-5))) then
+    write(*,*) "---------->",x,muAt1,hadron
+    error stop
+    end if
 
     !!!! delta-part
     !! C(y)~delta(1-y)

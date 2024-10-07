@@ -613,12 +613,42 @@ subroutine SetReplica(num)
     !!! where gamma(x)=(gg-2)/Q0, where gg=D[logF]/dlogQ
     !!! see (4,5) in 1412.7420
     allocate(extrapolationGAMMA(0:Xsize-1,-5:5))
-    !!! this is derivative
-    extrapolationGAMMA=(log(MainGrid(0:Xsize-1,1,-5:5))-log(MainGrid(0:Xsize-1,0,-5:5)))/(PDF_LogQs(1)-PDF_LogQs(0))
-    extrapolationGAMMA=(extrapolationGAMMA-2)/sqrt(Qnodes(0))
+    !!!!! it is possible that the F(x)=0, in this case there is nothing to extrapolate, set gamma=0
+    !!!!! since it is an exceptional case, one should check for it one-by-one
+    do i=0,Xsize-1
+    do j=-5,5
+
+        if(MainGrid(i,0,j)*MainGrid(i,1,j)>tolerancePDF) then
+        !!! this is derivative (the ratio is important to handle the both negative signs (YES, it happen sometimes)
+            extrapolationGAMMA(i,j)=(log(MainGrid(i,1,j)/MainGrid(i,0,j)))/(PDF_LogQs(1)-PDF_LogQs(0))
+            extrapolationGAMMA(i,j)=(extrapolationGAMMA(i,j)-2)/sqrt(Qnodes(0))
+        else if(MainGrid(i,0,j)*MainGrid(i,1,j)<-tolerancePDF) then
+            if(outputLevel>0) then
+            write(*,*) WarningString("Low-Q extrapolation formula fails, because PDF cross the zero-value.",moduleName)
+            write(*,*) "Extrapolation parameters: x-node =",i," flavor=",j
+            write(*,*) "Nodes of to extrapolate [f(Q0),f(Q1)]: = [",MainGrid(i,0,j)," ,",MainGrid(i,1,j),"]"
+            write(*,*) WarningString("Extrapolation parameter set to zero.",moduleName)
+            end if
+            extrapolationGAMMA(i,j)=0.d0
+        else
+            extrapolationGAMMA(i,j)=0.d0
+        end if
+    end do
+    end do
+
+
+    do i=0,Xsize-1
+    do j=-5,5
+            if(ISNAN(extrapolationGAMMA(i,j)) .or. extrapolationGAMMA(i,j)>10d5) then
+                write(*,*) PDFname," SOMETHING STRANGE IN THE PDF Extrapolation part (x,f) ",i,j
+                write(*,*) extrapolationGAMMA(i,:)
+                write(*,*) "the points to extrapolate", MainGrid(i,0,j), MainGrid(i,1,j)
+              error stop ErrorString("An extrapolation parameter has been computed NaN or >10^5.",moduleName)
+            end if
+    end do
+    end do
 
     if(outputLevel>1) write(*,"(A,I4,A)") " "//trim(moduleName)//": replica ",num," of "//trim(PDFname)//" loaded."
-
 
 end subroutine SetReplica
 
