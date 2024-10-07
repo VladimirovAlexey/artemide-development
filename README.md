@@ -10,7 +10,7 @@ The artemide version2 is in VladimirovAlexey/artemide2 repository.
 	FCompiler    	<= your prefered fortran compiler (f95 at least, gfortran also works)
 	Fflags		<= The flags to be used by compiler (e.g. if you use openmp). 
  			   Use default version if do not know what to set here. 
-       			   ** The flag -cpp MUST be present (to compile pre-processor directives correctly) **
+       			 **The flag -cpp MUST be present** (to compile pre-processor directives correctly)
 	FOPT		<= For extra options, links,etc. see LHAPDF (not used in version better then v3.01)
 	
 	the harpy compiles with the help of f2py package from numpy (python2)
