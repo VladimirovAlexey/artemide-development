@@ -22,7 +22,7 @@ private
 
 !!!!!! 1=accurate but slow
 !!!!!! 2=fast but not accurate
-#define INTEGRATION_MODE 1
+#define INTEGRATION_MODE 2
 
 !Current version of module
 character (len=10),parameter :: moduleName="TMDX-SIDIS"
@@ -202,7 +202,6 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
     call MoveTO(51,'*D   ')
     end if
 
-
     CLOSE (51, STATUS='KEEP')
 
     if(.not.EWinput_IsInitialized()) then
@@ -228,6 +227,16 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
     GlobalCounter=0
     CallCounter=0
     messageCounter=0
+
+#if INTEGRATION_MODE==2
+    write(*,*)  color('--------------------------------------------------------',c_red)
+    write(*,*)  color('----------------------  WARNING!  ----------------------',c_red)
+    write(*,*)  color('-- TMDX_SIDIS is in the approximate integration mode  --',c_red)
+    write(*,*)  color('--            Faster, but lower precision.            --',c_red)
+    write(*,*)  color('--    Switch to default version by changing flag      --',c_red)
+    write(*,*)  color('-- INTEGRATION_MODE in TMDX_SIDIS.f90, and recompile  --',c_red)
+    write(*,*)  color('--------------------------------------------------------',c_red)
+#endif
     
     started=.true.
     write(*,*)  color('----- arTeMiDe.TMD_SIDIS '//trim(version)//': .... initialized',c_green)

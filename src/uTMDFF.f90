@@ -203,7 +203,7 @@ subroutine uTMDFF_Initialize(file,prefix)
 
     if(lambdaNPlength<=0) then
     write(*,*) ErrorString(&
-    'Initialize: number of non-pertrubative parameters should be >=1. Check the constants-file. Evaluation STOP',moduleName)
+    'Initialize: number of non-perturbative parameters should be >=1. Check the constants-file. Evaluation STOP',moduleName)
             CLOSE (51, STATUS='KEEP')
     stop
     end if
@@ -410,8 +410,10 @@ function TMD_opt(x,bT,hadron)
         stop
     end if
 
+    !!!! all is computed at |h|, i.e. for hadron.
     TMD_opt=uTMDFF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
 
+    !!!! here is the alternation to anti-hadron
     if(hadron<0) TMD_opt=TMD_opt(5:-5:-1)
 
 end function TMD_opt
@@ -463,11 +465,9 @@ function TMD_opt_inKT(x,kT,hadron)
         TMD_opt_inKT=0._dp
         return
     else if(x<toleranceGEN) then
-        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
-        stop
+        ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     else if(kT<0d0) then
-        write(*,*) ErrorString('Called kT<0. kT='//numToStr(kT)//' . Evaluation STOP',moduleName)
-        stop
+        ERROR STOP ErrorString('Called kT<0. kT='//numToStr(kT)//' . Evaluation STOP',moduleName)
     end if
 
     TMD_opt_inKT=Fourier_Levin(toFourier,kT)
@@ -544,8 +544,7 @@ function TMD_grid_inKT(x,kT,mu,hadron)
         if(hadron<0) TMD_grid_inKT=TMD_grid_inKT(5:-5:-1)
 
     else if(makeGrid_inKT) then
-        write(*,*) ErrorString("Attempt to extract TMD from grid, while grid is not ready. CHECK!",moduleName)
-        stop
+        error stop ErrorString("Attempt to extract TMD from grid, while grid is not ready. CHECK!",moduleName)
     else
         TMD_grid_inKT=TMD_ev_inKT(x,kT,mu,mu**2,hadron)
     end if

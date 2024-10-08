@@ -274,6 +274,16 @@ subroutine TMDX_DY_Initialize(file,prefix)
 
   started=.true.
 
+#if INTEGRATION_MODE==2
+    write(*,*)  color('--------------------------------------------------------',c_red)
+    write(*,*)  color('----------------------  WARNING!  ----------------------',c_red)
+    write(*,*)  color('--   TMDX_DY is in the approximate integration mode   --',c_red)
+    write(*,*)  color('--            Faster, but lower precision.            --',c_red)
+    write(*,*)  color('--    Switch to default version by changing flag      --',c_red)
+    write(*,*)  color('--   INTEGRATION_MODE in TMDX_DY.f90, and recompile   --',c_red)
+    write(*,*)  color('--------------------------------------------------------',c_red)
+#endif
+
   write(*,*)  color('----- arTeMiDe.TMD_DY '//trim(version)//': .... initialized',c_green)
 end subroutine TMDX_DY_Initialize
 

@@ -611,7 +611,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     if(h2>0) then
         FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     else
-        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,-3)
     end if
     Integrand=FA(1)*FB(1)/9.d0&
       +FA(2)*FB(2)*4.d0/9.d0&
@@ -647,7 +647,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     if(h2>0) then
         FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     else
-        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,-3)
     end if
     Integrand=(FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
       +FA(3)*FB(3)/9.d0&
@@ -683,7 +683,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     if(h2>0) then
         FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
     else
-        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,-3)
     end if
     Integrand=FA(2)*FB(1)/9.d0&
       +FA(1)*FB(2)*4.d0/9.d0&
