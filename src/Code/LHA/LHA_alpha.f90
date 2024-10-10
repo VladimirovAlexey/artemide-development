@@ -63,7 +63,8 @@ subroutine ParseInfoLine(line)
         
     CASE("SetIndex","Authors","FlavorScheme","OrderQCD","ErrorType","DataVersion", &
         "Format", "NumFlavors", "AlphaS_OrderQCD", "NumMembers", "Flavors", "XMin", &
-        "XMax","Particle","AlphaS_Lambda3","AlphaS_Lambda4","AlphaS_Lambda5")
+        "XMax","Particle","AlphaS_Lambda3","AlphaS_Lambda4","AlphaS_Lambda5",&
+        "ThresholdUP","ThresholdDown","ThresholdStrange","ThresholdCharm","ThresholdBottom","ThresholdTop")
         !!!!! Unused values of LHA-PDF file
         if(outputLevel>3) then
             write(*,*) "Value of "//trim(linePart1)//" in LHAPDF-info :"

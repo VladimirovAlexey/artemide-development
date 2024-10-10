@@ -108,8 +108,14 @@ end function FNP
 !!!! y -- is the convolution variable in the definition \int dy/y C(y) PDF(x/y)
 pure function bSTAR(bT,x,y)
     real(dp),intent(in)::bT,x,y
+    real(dp)::ee
+    real(dp),parameter::alpha=0.04d0
 
-    bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
+    !bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
+    ee=exp(-alpha*bT**2)
+    !bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
+    !bSTAR=bT/sqrt(1d0+(bT/1.d0)**2)
+    bSTAR=bT*ee+(1-ee)*C0_const/muOPE(bT,x,y,1.d0)
 
 end function bSTAR
 

@@ -91,7 +91,7 @@ subroutine ParseInfoLine(line)
         "Format", "NumFlavors", "AlphaS_OrderQCD", "MZ","MUp","MDown","MStrange",  &
         "MCharm", "MBottom", "MTop", "AlphaS_MZ", "AlphaS_Type","AlphaS_Qs", "AlphaS_Vals", &
         "Particle","AlphaS_Lambda3","AlphaS_Lambda4","AlphaS_Lambda5","ErrorConfLevel",&
-        "ThresholdCharm","ThresholdBottom","ThresholdTop")
+        "ThresholdUP","ThresholdDown","ThresholdStrange","ThresholdCharm","ThresholdBottom","ThresholdTop")
         !!!!! Unused values of LHA-PDF file
         if(outputLevel>3) then
             write(*,*) "Value of "//trim(linePart1)//" in LHAPDF-info :"
@@ -119,10 +119,15 @@ subroutine ParseInfoLine(line)
             !write(*,*)linePart3(i:i)
             if(trim(linePart3(i:i)) .eq. ",") j=j+1            
         end do
-        allocate(FlavorArray(1:j+1))
-        read(linePart3,*) FlavorArray
-        if(outputLevel>2) then
-            write(*,'(A, I4, 999(", ",I4))') "Flavor-enumeration Array :", FlavorArray
+        if(allocated(FlavorArray) .and. outputLevel>1) then
+        write(*,*) WarningString(&
+            "Double entry of the flavor array in the info-file of "//trim(PDFname)//". Second entry ignored.",moduleName)
+        else
+            allocate(FlavorArray(1:j+1))
+            read(linePart3,*) FlavorArray
+            if(outputLevel>2) then
+                write(*,'(A, I4, 999(", ",I4))') "Flavor-enumeration Array :", FlavorArray
+            end if
         end if
         
     CASE("XMin")
