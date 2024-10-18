@@ -75,7 +75,7 @@ function FNP(x,bT,hadron,lambdaNP)
 
     bb=bT**2/x**2
     
-    if(hadron==1) then
+    if(hadron==1 .or. hadron==3) then
         !!! pion
         Fmain=1._dp/cosh(lambdaNP(1)*bT/x)
         !!! u
@@ -85,8 +85,9 @@ function FNP(x,bT,hadron,lambdaNP)
         !!! sea
         FNP0=(1+lambdaNP(4)*bb)*Fmain
 
-        FNP=(/FNP0,FNP0,FNP0,FNP0,FNP2,0.d0,FNP0,FNP1,FNP0,FNP0,FNP0/)
-    else
+        if(hadron==1) FNP=(/FNP0,FNP0,FNP0,FNP0,FNP2,0.d0,FNP0,FNP1,FNP0,FNP0,FNP0/) !!!! pion+ [u dBar]
+        if(hadron==3) FNP=(/FNP0,FNP0,FNP0,FNP1,FNP0,0.d0,FNP2,FNP0,FNP0,FNP0,FNP0/) !!!! pion- [d uBar]
+    else if(hadron==2 .or. hadron==4) then
         !!! kaon
         Fmain=1._dp/cosh(lambdaNP(5)*bT/x)
         !!! u
@@ -96,7 +97,10 @@ function FNP(x,bT,hadron,lambdaNP)
         !!! sea
         FNP0=(1+lambdaNP(8)*bb)*Fmain
 
-        FNP=(/FNP0,FNP0,FNP2,FNP0,FNP0,0.d0,FNP0,FNP1,FNP0,FNP0,FNP0/)
+        if(hadron==2) FNP=(/FNP0,FNP0,FNP2,FNP0,FNP0,0.d0,FNP0,FNP1,FNP0,FNP0,FNP0/) !!!! kaon+ [u sBar]
+        if(hadron==4) FNP=(/FNP0,FNP0,FNP0,FNP1,FNP0,0.d0,FNP0,FNP0,FNP2,FNP0,FNP0/) !!!! kaon- [s uBar]
+    else
+        FNP=1._dp/cosh(lambdaNP(1)*bT/x)*(/1.d0,1.d0,1.d0,1.d0,1.d0,0.d0,1.d0,1.d0,1.d0,1.d0,1.d0/)
     end if
 
 end function FNP

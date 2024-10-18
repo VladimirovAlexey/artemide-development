@@ -1130,7 +1130,16 @@ will set parameters for unpolarized TMDPDF.
 
 The module \texttt{QCDinput} gives an interface to external function provided by the user, such as PDF, FF, values of alpha-strong. By default the input for these functions is done via the LHAPDF tables. Originally, artemide used the LHAPDF library \cite{Buckley:2014ana}, which however caused a number of inconveniences, such as difficulty in the installation, problems with simultaneous usage of many tables, and parallel access to the tables. Starting from the version 3.01 artemide is detached from the LHAPDF library, but continue to relay on LHAPDF-tables as input for the QCD parameters. The tables are read and interpolated by the original artemide sub-modules (\texttt{LHA\_alpha} and \texttt{LHA\_PDF}). The details on these modules are presented below.
 
-For the technical reasons there is strict limit on the maximum number of hadrons. This limit can be changed but it requires modification of the code. The default limitation is the following: \texttt{uPDF} 3 hadrons, \texttt{uFF} 3 hadrons, \texttt{lpPDF} 1 hadron, \texttt{hPDF} 2 hadrons.
+
+\begin{tcolorbox}
+For the technical reasons there is a \red{\textbf{hard-coded limit for the maximum number of hadrons}}. This limit can be changed but it requires modification of the code. The default limitation is the following: 
+\begin{itemize}
+\item \texttt{uPDF} 3 hadrons, 
+\item \texttt{uFF} 6 hadrons, 
+\item \texttt{lpPDF} 1 hadron, 
+\item \texttt{hPDF} 2 hadrons.
+\end{itemize}
+\end{tcolorbox}
 
 \begin{center}
 List of available commands \blue{optional parameters are shown in blue.}
@@ -2455,17 +2464,23 @@ List of enumeration of structures functions
 \\\hline \hline
 2003 & $\delta_{f\bar f'}|e_f|^2$~~&$f^{n}_1$ & $d_1$ & (unpol)$n^{(h_1)}+\gamma\to h_2$ Here, $n^{(h_1)}$ is the iso-conjugated target prepared from the hadron $h_1$. I.e. $u\leftrightarrow d$. For $h_1$=proton, this simulates the neutron target. & no & \checkmark & 
 \\\hline \hline
-2101 & $\delta_{ff'}|e_f|^2$~~&$f_1$ & $d^{h_{1+2}}_1$ & (unpol)$h_1+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$. Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument). & no & \checkmark & 
+2101 & $\delta_{ff'}|e_f|^2$~~&$f_1$ & $d^{h_{1+2}}_1$ & (unpol)$h_1+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$. Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument ignoring its value). & no & \checkmark & 
 \\\hline
-2102 & $\delta_{ff'}|e_f|^2$~~&$f_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$h_1+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument). & no & \checkmark & 
+2102 & $\delta_{ff'}|e_f|^2$~~&$f_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$h_1+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument ignoring its value). & no & \checkmark & 
 \\\hline
-2103 & $\delta_{ff'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2}}_1$ & (unpol)$d^{(h_1)}+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$ and d is isoscalar target $u,d\to (u+d)/2$.  Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument). & no & \checkmark & 
+2103 & $\delta_{ff'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2}}_1$ & (unpol)$d^{(h_1)}+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$ and d is isoscalar target $u,d\to (u+d)/2$.  Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument ignoring its value). & no & \checkmark & 
 \\\hline
-2104 & $\delta_{ff'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$d^{(h_1)}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$ and d is isoscalar target $u,d\to (u+d)/2$.  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument). & no & \checkmark & 
+2104 & $\delta_{ff'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$d^{(h_1)}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$ and d is isoscalar target $u,d\to (u+d)/2$.  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument ignoring its value). & no & \checkmark & 
 \\\hline
-2105 & $\delta_{ff'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2}}_1$ & (unpol)$n^{(h_1)}+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$ and n is neutron target $(u\leftrightarrow d)$.  Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument). & no & \checkmark & 
+2105 & $\delta_{ff'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2}}_1$ & (unpol)$n^{(h_1)}+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$ and n is neutron target $(u\leftrightarrow d)$.  Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument ignoring its value). & no & \checkmark & 
 \\\hline
-2106 & $\delta_{ff'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$n^{(h_1)}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$ and n is neutron target $(u\leftrightarrow d)$.  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument). & no & \checkmark & 
+2106 & $\delta_{ff'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2+3}}_1$ & (unpol)$n^{(h_1)}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=1+2+3$ and n is neutron target $(u\leftrightarrow d)$.  Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument ignoring its value). & no & \checkmark & 
+\\\hline
+2107 & $\delta_{ff'}|e_f|^2$~~&$f_1$ & $d^{h_{1+2}}_1$ & (unpol)$h_1+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$. Same as 2101 but computed strictly with produced hadron \textbf{3 and 4} (accounts only the sign of $h_2$ argument ignoring its value). & no & \checkmark & 
+\\\hline
+2108 & $\delta_{ff'}|e_f|^2$~~&$f^d_1$ & $d^{h_{1+2}}_1$ & (unpol)$d^{(h_1)}+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$ and d is isoscalar target $u,d\to (u+d)/2$.  Same as 2103 but computed strictly with produced hadron \textbf{3 and 4}  (accounts only the sign of $h_2$ argument ignoring its value). & no & \checkmark & 
+\\\hline
+2109 & $\delta_{ff'}|e_f|^2$~~&$f^n_1$ & $d^{h_{1+2}}_1$ & (unpol)$n^{(h_1)}+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$ and n is neutron target $(u\leftrightarrow d)$.  Same as 2105 but computed strictly with produced hadron \textbf{3 and 4}  (accounts only the sign of $h_2$ argument ignoring its value). & no & \checkmark & 
 \\\hline\hline
 \end{longtable}
 
@@ -3588,6 +3603,7 @@ polarized DY
 \begin{itemize}
 \item[\textbf{Ver.3.01}]
 \begin{itemize}
+	\item \textbf{TMDF}: Enumeration for SIDIS processes updated.
 	\item \textbf{TMDF}: Added check for insufficiently low-hard scale $Q$, $\mu$ or $\zeta$.
 	\item \textbf{uTMDFF}: Added Fourier by Levin transformation, and grids in $k_T$.
 	\item \textbf{TMDX\_DY}+\texttt{KPC}: Enumeration of processes in KPC and LP equalized. Ratios with numbers 200-300 removed.

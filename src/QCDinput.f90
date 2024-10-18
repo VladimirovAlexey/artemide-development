@@ -64,6 +64,31 @@ character (len=5),parameter :: moduleName="uFF_3"
 !INCLUDE 'Code/LHA/LHA_PDF.f90'
 end module uLHAFF_3
 
+module uLHAFF_4
+use IO_functions
+implicit none
+character (len=5),parameter :: moduleName="uFF_4"
+#include "Code/LHA/LHA_PDF.f90"
+!INCLUDE 'Code/LHA/LHA_PDF.f90'
+end module uLHAFF_4
+
+
+module uLHAFF_5
+use IO_functions
+implicit none
+character (len=5),parameter :: moduleName="uFF_5"
+#include "Code/LHA/LHA_PDF.f90"
+!INCLUDE 'Code/LHA/LHA_PDF.f90'
+end module uLHAFF_5
+
+module uLHAFF_6
+use IO_functions
+implicit none
+character (len=5),parameter :: moduleName="uFF_6"
+#include "Code/LHA/LHA_PDF.f90"
+!INCLUDE 'Code/LHA/LHA_PDF.f90'
+end module uLHAFF_6
+
 !!!------------------------------lpPDF-------------------
 module lpLHAPDF_1
 use IO_functions
@@ -106,6 +131,9 @@ use uLHAPDF_3, only : ReadInfo_uPDF3 => ReadInfo, SetReplica_uPDF3 => SetReplica
 use uLHAFF_1, only : ReadInfo_uFF1 => ReadInfo, SetReplica_uFF1 => SetReplica, xPDF_uFF1 => xPDF
 use uLHAFF_2, only : ReadInfo_uFF2 => ReadInfo, SetReplica_uFF2 => SetReplica, xPDF_uFF2 => xPDF
 use uLHAFF_3, only : ReadInfo_uFF3 => ReadInfo, SetReplica_uFF3 => SetReplica, xPDF_uFF3 => xPDF
+use uLHAFF_4, only : ReadInfo_uFF4 => ReadInfo, SetReplica_uFF4 => SetReplica, xPDF_uFF4 => xPDF
+use uLHAFF_5, only : ReadInfo_uFF5 => ReadInfo, SetReplica_uFF5 => SetReplica, xPDF_uFF5 => xPDF
+use uLHAFF_6, only : ReadInfo_uFF6 => ReadInfo, SetReplica_uFF6 => SetReplica, xPDF_uFF6 => xPDF
 !!
 use lpLHAPDF_1, only : ReadInfo_lpPDF1 => ReadInfo, SetReplica_lpPDF1 => SetReplica, xPDF_lpPDF1 => xPDF
 !!
@@ -250,9 +278,9 @@ end function QCDinput_IsInitialized
     call MoveTO(51,'*p1  ')
     read(51,*) num_of_uFFs
 
-    if(num_of_uFFs>3) then
+    if(num_of_uFFs>6) then
       CLOSE (51, STATUS='KEEP')
-      ERROR STOP ErrorString('Maximum allowed number of uFFs is 3. Requested '//trim(inttostr(num_of_uFFs)),moduleName)
+      ERROR STOP ErrorString('Maximum allowed number of uFFs is 6. Requested '//trim(inttostr(num_of_uFFs)),moduleName)
     else if(num_of_uFFs>0) then
 
       allocate(names_uFF(1:num_of_uFFs))
@@ -350,6 +378,18 @@ end function QCDinput_IsInitialized
     current_replica_uFFs(3)=0
     call ReadInfo_uFF3(trim(names_uFF(3)),pathToLHA,outputLevel)
   end if
+  if(num_of_uFFs>3) then
+    current_replica_uFFs(4)=0
+    call ReadInfo_uFF4(trim(names_uFF(4)),pathToLHA,outputLevel)
+  end if
+  if(num_of_uFFs>4) then
+    current_replica_uFFs(5)=0
+    call ReadInfo_uFF5(trim(names_uFF(5)),pathToLHA,outputLevel)
+  end if
+  if(num_of_uFFs>5) then
+    current_replica_uFFs(6)=0
+    call ReadInfo_uFF6(trim(names_uFF(6)),pathToLHA,outputLevel)
+  end if
 
   !!!! initialization of lpPDFs (only 1 maximum PDFs allowed)
   allocate(current_replica_lpPDFs(1:num_of_lpPDFs))
@@ -426,6 +466,12 @@ subroutine QCDinput_SetFFreplica(rep,hadron,newPDF)
           call SetReplica_uFF2(rep)
         CASE (3)
           call SetReplica_uFF3(rep)
+        CASE (4)
+          call SetReplica_uFF4(rep)
+        CASE (5)
+          call SetReplica_uFF5(rep)
+        CASE (6)
+          call SetReplica_uFF6(rep)
         END SELECT
 
       newPDF=.true.
@@ -565,6 +611,12 @@ function xFF(x,Q,hadron)
         xFF=xPDF_uFF2(x,Q)
       CASE(3)
         xFF=xPDF_uFF3(x,Q)
+      CASE(4)
+        xFF=xPDF_uFF4(x,Q)
+      CASE(5)
+        xFF=xPDF_uFF5(x,Q)
+      CASE(6)
+        xFF=xPDF_uFF6(x,Q)
       CASE DEFAULT
         ERROR STOP ErrorString('xFF. Called unexisting hadron. h= '//trim(inttostr(hadron)),moduleName)
     END SELECT
