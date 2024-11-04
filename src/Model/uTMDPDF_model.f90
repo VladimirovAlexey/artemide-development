@@ -67,24 +67,24 @@ function FNP(x,bT,hadron,lambdaNP)
   real(dp),intent(in)::lambdaNP(:)
   real*8::FNP0,FNPu,FNPd,FNPubar,FNPdbar,FNPr
 
-   real*8::bb,w1,w2,wu,wd,wubar,wdbar,wr,lx,lEX
+   real*8::bb,w1,w2,wu,wd,wubar,wdbar,wr
    
    if(hadron==1) then
    
     bb=bT**2
-!    ART23
+! !    ART23
 !     wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)
 !     wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)
 !     wubar=lambdaNP(5)*(1-x)+x*lambdaNP(6)
 !     wdbar=lambdaNP(7)*(1-x)+x*lambdaNP(8)
 !     wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)
 !
-!     lx=log(x)
-!
-     wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)!-lX*lambdaNP(5)/100
-     wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)!-lX*lambdaNP(7)/100
-     wubar=lambdaNP(1)*(1-x)+x*lambdaNP(6)!-lX*lambdaNP(5)/100
-     wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(8)!-lX*lambdaNP(7)/100
+
+!    ART25
+     wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)
+     wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)
+     wubar=lambdaNP(1)*(1-x)+x*lambdaNP(6)
+     wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(8)
      wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)
 
 
@@ -137,10 +137,14 @@ pure function bSTAR(bT,x,y)
     real(dp),intent(in)::bT,x,y
     real(dp)::ee
 
+    !!!! ART25
     ee=exp(-NPparam(12)*bT**2)
+    bSTAR=bT*ee+(1-ee)*C0_const/muOPE(bT,x,y,1.d0)
+
+
     !bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
     !bSTAR=bT/sqrt(1d0+(bT/1.d0)**2)
-    bSTAR=bT*ee+(1-ee)*C0_const/muOPE(bT,x,y,1.d0)
+
 end function bSTAR
   
 !!!!This function is the mu(x,b), which is used inside the OPE
@@ -151,6 +155,7 @@ pure function muOPE(bt,x,y,c4)
     real(dp),intent(in)::bt,x,y,c4
 
     muOPE=C0_const*c4/bT+5d0
+    !muOPE=C0_const*c4/bT+2d0
 
     !!!! like traditional b*
     !muOPE=C0_const*sqrt(1+bT**2/(c4*C0_const)**2)*c4/bT

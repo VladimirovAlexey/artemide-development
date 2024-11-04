@@ -70,7 +70,7 @@ function FNP(x,bT,hadron,lambdaNP)
     integer,intent(in)::hadron
     real(dp),intent(in)::lambdaNP(:)
 
-    real(dp)::FNP0,FNP1,FNP2
+    real(dp)::FNP0,FNP1,FNP2,FNP3
     real(dp)::bb,w1,w2,Fmain
 
     bb=bT**2/x**2
@@ -84,6 +84,8 @@ function FNP(x,bT,hadron,lambdaNP)
         FNP2=(1+lambdaNP(3)*bb)*Fmain
         !!! sea
         FNP0=(1+lambdaNP(4)*bb)*Fmain
+        !!! uBar
+        FNP3=(1+lambdaNP(9)*bb)*Fmain
 
         if(hadron==1) FNP=(/FNP0,FNP0,FNP0,FNP0,FNP2,0.d0,FNP0,FNP1,FNP0,FNP0,FNP0/) !!!! pion+ [u dBar]
         if(hadron==3) FNP=(/FNP0,FNP0,FNP0,FNP1,FNP0,0.d0,FNP2,FNP0,FNP0,FNP0,FNP0/) !!!! pion- [d uBar]
@@ -96,9 +98,11 @@ function FNP(x,bT,hadron,lambdaNP)
         FNP2=(1+lambdaNP(7)*bb)*Fmain
         !!! sea
         FNP0=(1+lambdaNP(8)*bb)*Fmain
+        !!! uBar
+        FNP3=(1+lambdaNP(10)*bb)*Fmain
 
-        if(hadron==2) FNP=(/FNP0,FNP0,FNP2,FNP0,FNP0,0.d0,FNP0,FNP1,FNP0,FNP0,FNP0/) !!!! kaon+ [u sBar]
-        if(hadron==4) FNP=(/FNP0,FNP0,FNP0,FNP1,FNP0,0.d0,FNP0,FNP0,FNP2,FNP0,FNP0/) !!!! kaon- [s uBar]
+        if(hadron==2) FNP=(/FNP0,FNP0,FNP2,FNP3,FNP0,0.d0,FNP0,FNP1,FNP0,FNP0,FNP0/) !!!! kaon+ [u sBar]
+        if(hadron==4) FNP=(/FNP0,FNP0,FNP0,FNP1,FNP0,0.d0,FNP0,FNP3,FNP2,FNP0,FNP0/) !!!! kaon- [s uBar]
     else
         FNP=1._dp/cosh(lambdaNP(1)*bT/x)*(/1.d0,1.d0,1.d0,1.d0,1.d0,0.d0,1.d0,1.d0,1.d0,1.d0,1.d0/)
     end if
