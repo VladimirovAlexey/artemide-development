@@ -338,6 +338,26 @@ def setPDFreplica(n,h=1):
         raise TypeError()
     artemide.harpy.setpdfreplica(n,h)
     
+def setFFreplica(n,h=1):
+    """
+    Changes the replica for FF input.
+    
+    This is a temporary function will be changed in future versions
+
+    Parameters
+    ----------
+    n : Integer
+        Number of FF replica
+
+    Returns
+    -------
+    None.
+
+    """
+    if not isinstance(n,int):
+        raise TypeError()
+    artemide.harpy.setffreplica(n,h)
+    
 def sethPDFreplica(n,h=1):
     """
     Changes the replica for PDF input.

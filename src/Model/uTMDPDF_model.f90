@@ -137,8 +137,9 @@ pure function bSTAR(bT,x,y)
     real(dp),intent(in)::bT,x,y
     real(dp)::ee
 
+    ee=exp(-0.04d0*bT**2)
+
     !!!! ART25
-    ee=exp(-NPparam(12)*bT**2)
     bSTAR=bT*ee+(1-ee)*C0_const/muOPE(bT,x,y,1.d0)
 
 

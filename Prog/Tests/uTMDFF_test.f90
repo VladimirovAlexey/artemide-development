@@ -25,7 +25,7 @@ call artemide_SetNPparameters_uTMDFF((/0.253434d0, 9.04351d0, 6.999d0, 2.47992d0
 !!!!! simple plot of uTMDFF at fixed b vs. x
 do i=1,40
 
-    TT=uTMDFF_lowScale50(10d0**(-i/20.),0.3d0,1)
+    TT=uTMDFF_inB(10d0**(-i/20.),0.3d0,1)
     write(*,*) "{",10d0**(-i/20.),",", TT(-3),",", TT(-2),",", TT(-1),",", TT(0),",", TT(1),",", TT(2),",", TT(3),"},"
     !write(*,*) "{",10d0**(-i/20.),",",TT(0), ",", TT(1),",", TT(2),"},"
 end do
