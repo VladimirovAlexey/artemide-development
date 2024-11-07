@@ -66,6 +66,8 @@ $(SOURCEDIR)/wgtTMDPDF.f90 \
 $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 \
 $(SOURCEDIR)/BoerMuldersTMDPDF_OPE.f90 \
 $(SOURCEDIR)/BoerMuldersTMDPDF.f90 \
+$(SOURCEDIR)/eeTMDFF.f90 \
+$(SOURCEDIR)/Model/eeTMDFF_model.f90 \
 $(SOURCEDIR)/TMDF.f90 \
 $(SOURCEDIR)/TMDF_KPC.f90 \
 $(SOURCEDIR)/TMDX_DY.f90 \
@@ -161,6 +163,8 @@ $(OBJ)/wgtTMDPDF.o \
 $(OBJ)/BoerMuldersTMDPDF_model.o \
 $(OBJ)/BoerMuldersTMDPDF_OPE.o \
 $(OBJ)/BoerMuldersTMDPDF.o \
+$(OBJ)/eeTMDFF_model.o \
+$(OBJ)/eeTMDFF.o \
 $(OBJ)/TMDF.o \
 $(OBJ)/TMDX_DY.o \
 $(OBJ)/TMDX_SIDIS.o \
@@ -358,6 +362,18 @@ $(OBJ)/BoerMuldersTMDPDF_OPE.o: $(SOURCEDIR)/BoerMuldersTMDPDF_OPE.f90 $(OBJ)/QC
 $(OBJ)/BoerMuldersTMDPDF.o: $(SOURCEDIR)/BoerMuldersTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 $(SOURCEDIR)/BoerMuldersTMDPDF_OPE.f90 $(KTspaceFiles) $(aTMDeUTILITY) $(BoerMuldersTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/BoerMuldersTMDPDF.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/eeTMDFF_model.o: $(SOURCEDIR)/Model/eeTMDFF_model.f90 $(aTMDeUTILITY)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/Model/eeTMDFF_model.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/eeTMDFF.o: $(SOURCEDIR)/eeTMDFF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/eeTMDFF_model.f90 $(aTMDeUTILITY)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/eeTMDFF.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 

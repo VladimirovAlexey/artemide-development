@@ -628,7 +628,7 @@ subroutine SetReplica(num)
             extrapolationGAMMA(i,j)=(log(MainGrid(i,1,j)/MainGrid(i,0,j)))/(PDF_LogQs(1)-PDF_LogQs(0))
             extrapolationGAMMA(i,j)=(extrapolationGAMMA(i,j)-2)/sqrt(Qnodes(0))
         else if(MainGrid(i,0,j)*MainGrid(i,1,j)<-tolerancePDF) then
-            if(outputLevel>0) then
+            if(outputLevel>2) then
             write(*,*) WarningString("Low-Q extrapolation formula fails, because PDF cross the zero-value.",moduleName)
             write(*,*) "Extrapolation parameters: x-node =",i," flavor=",j
             write(*,*) "Nodes of to extrapolate [f(Q0),f(Q1)]: = [",MainGrid(i,0,j)," ,",MainGrid(i,1,j),"]"

@@ -1462,6 +1462,7 @@ There are many TMD distributions each computed in a separate module. All TMD dis
 \item \textbf{Pure Twist-2 OPE} These are \texttt{uTMDPDF}, \texttt{uTMDFF}, \texttt{lpTMDPDF}. These TMD distributions are defined by twist-2 collinear distribution at small-b
 \item \textbf{Pure Twist-3 OPE} These are \texttt{SiversTMDPDF}, \texttt{BoerMuldersTMDPDF}. These TMD distributions are defined by twist-3 collinear distribution at small-b
 \item \textbf{Twist-2 \& Twist-3 OPE} These are \texttt{wgtTMDPDF}. These TMD distributions are defined by twist-2 (WW-term) and twist-3 collinear distribution at small-b
+\item \textbf{Pure-parton TMDs} These are \texttt{eeTMDFF}. These TMD distributions are defined by a pure parton (i.e. jet), and thus their small-b expansion is just a number (i.e. does not contain any hadron matrix elements).
 \end{itemize}
 These lists are to be extended in the future. 
 
@@ -1506,6 +1507,8 @@ List of available orders for different distributions
 \texttt{SiversTMDPDF}[tw3]&:& \texttt{NA}
 \\
 \texttt{BoerMuldersTMDPDF}[tw3]&:& \texttt{NA}
+\\
+\texttt{eeTMDFF}&:& \texttt{NA, LO, NLO, N2LO, N3LO}
 \end{eqnarray*}
 
 The functions are computed by the following rule
@@ -1521,6 +1524,8 @@ The functions are computed by the following rule
 \texttt{SiversTMDPDF}&=&[C\times T]_{\text{tw3}}(x,b)F^{\text{tw3}}_{\text{NP}}(x,b),
 \\
 \texttt{BoerMuldersTMDPDF}&=&[C\times E]_{\text{tw3}}(x,b)F^{\text{tw3}}_{\text{NP}}(x,b),
+\\
+\texttt{eeTMDFF}&=&C(b)F_{\text{NP}}(b),
 \end{eqnarray}
 where $f$, $d$, $h$ are collinear distributions of twist-2, and $[C\times h]_{\text{tw2}}$ is corresponding convolution;
 $T$ and $E$ are collinear distributions of twist-3, and $[C\times T]_{\text{tw3}}$, $[C\times E]_{\text{tw3}}$ are corresponding convolution; $F_{\text{NP}}(x,b)$ and $F^{\text{tw3}}_{\text{NP}}(x,b)$ are non-perturbative functions to be fit. NP functions are defined in the \texttt{XX\_model} modules, and share the same $\lambda_{\text{NP}}$ (array of parameters). This structure correctly reproduces the small-b properties of TMD-distributions. The convolutions are computed in separate modules see sec.\ref{TMD_OPE}, \ref{TMD_OPE_tw3}.
@@ -1589,6 +1594,7 @@ G.p3 & real & Minimal $\mu$ to compute. Below this number the program terminates
 \end{center}
 \begin{itemize}
 \item \texttt{wgtTMDPDF} has extra section F and G, which are analogous to sections B and C, but responsible for twist-3 convolution. The section F,G,I is correspondingly sections H,I.
+\item \texttt{eeTMDFF} does not have most part of entries, because it is $x-$independent, and thus expressions are very simple and there is no necesity to build grids.
 \end{itemize}
 
 \subsubsection{Functions}
@@ -1641,9 +1647,6 @@ Entry &~~Type~~& Description
 
 \newpage
 \subsection{\texttt{\_model} modules}
-\begin{center}
-\blue{\textbf{same for}} \texttt{uTMDFF\_model} and \texttt{lpTMDPDF\_model}.
-\end{center}
 
 \begin{tcolorbox}
 \begin{center}
@@ -1709,12 +1712,13 @@ where $F(x)=xf(x)$ and
 
 \begin{tcolorbox}
 \begin{center}
-OPE modules are initialized automatically from the corresponding TMD module.
+OPE modules are initialized automatically from the corresponding TMD module. 
 \end{center}
 \end{tcolorbox}
 
 \textbf{Extra notes:}
 \begin{itemize}
+\item \texttt{eeTMDFF} does not have \texttt{\_OPE} sub-module, because its OPE is elementary, and written directly in the main code.
 \item The convolution is convergent, but the convolution kernel has singularity at $y\to1$. To stabilize the integral, it is computed as
 \begin{eqnarray}
 \int_x^1 dy (...)=\int_x^{y_C} dy (...)+\int_{y_C}^1 dy (...).
@@ -1902,7 +1906,7 @@ Similar ansatz is used for uTMDFF, with some term removed (which are sensitive t
 \textbf{Computation of AS$[\mathcal{X}_0]$}
 \end{center}
 
-The function AS$\mathcal{X}_0$ is defined in [????.????] and reads
+The function AS$\mathcal{X}_0$ is defined in [2402.01836] and reads
 \begin{eqnarray}\label{def:AS_X0}
 \text{AS}[\mathcal{X}_0[F]]&=&\alpha_s \Big\{P_1+\alpha_s\[P_2+\(C_1-P_1\)\otimes\(P_1-\beta_0\)\]
 \\\nn &&+\alpha_s^2\Big[P_3+\(C_1-P_1\)\otimes\(P_2-\beta_1\)
@@ -2104,7 +2108,7 @@ Example of Hankel transform. Test function is $f(b)=b e^{-2.1 b^2}(1+6.3 b^2+1.4
 \subsection{TMM}
 \label{sec:TMM}
 
-In ref.[2402.01836] the following TMMs are defined
+In ref.[2402.01836] \cite{delRio:2024vvq} the following TMMs are defined
 \begin{eqnarray}
 \mathcal{G}_{n,n}[F]=\mathcal{G}[F]&=&\frac{1}{n!}\int_0^\infty db \mu \(\frac{\mu b}{2}\)^n J_{n+1}(\mu b)F(x,b)
 \\
@@ -3220,152 +3224,6 @@ Clearly, this LP expression contains a set of power corrections. It is a standar
 Note, that corrections are included in the order from top to bottom. For example, terms $\sim \gamma^2 \rho^2=0$ if $p_2=$\texttt{F} and $p_3=$\texttt{T}.
 
 \newpage
-\section{\texttt{TMDs\_inKT} module}
-\label{TMDs-inKT}
-
-The module \texttt{TMDs\_inKT} is derivative of the module \texttt{TMDs} that provides the TMD in the transverse momentum space. We define
-\begin{eqnarray}
-F(x,\vec k_T;\mu,\zeta)=\int \frac{d^2\vec b}{(2\pi)^2}F(x,\vec b;\mu,\zeta)e^{-i(\vec k_T \vec b)}.
-\end{eqnarray}
-Since all evaluated TMDs depends only on the modulus of $\vec b$, within the module we evaluate Hankel transformations. These transformations depends on the kind of TMD. Generally the integrals are
-\begin{eqnarray}\label{kT-J0}
-F(x,|\vec k_T|;\mu,\zeta)=\int \frac{d|\vec b|}{2\pi}|\vec  b|^{n+1} J_n(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta).
-\end{eqnarray}
-On top of it there is could be extra prefactors specified in the table. For simplicity these cases indecated by numbers
-\begin{eqnarray}
-n=0,&\qquad &F(x,|\vec k_T|;\mu,\zeta)=\int \frac{d|\vec b|}{2\pi}|\vec  b| J_0(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta),
-\\
-n=1,&\qquad &F(x,|\vec k_T|;\mu,\zeta)=\int \frac{d|\vec b|}{2\pi}|\vec  b|^2 J_1(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta),
-\\
-n=2,&\qquad &F(x,|\vec k_T|;\mu,\zeta)=-\int \frac{d|\vec b|}{2\pi}|\vec  b|^3 J_2(|\vec b||\vec k_T|) F(x,|\vec b|;\mu,\zeta).
-\end{eqnarray}
-
-The module \texttt{TMDs\_inKT} uses all functions from the module \texttt{TMDs}. In fact, all technical commands (like \texttt{Initialize}) just transfer the request to \texttt{TMDs}. Thus, the information on these commands can be found in the section \ref{TMDs}. For the evaluation of Hankel integral we use the Ogata quadrature see \ref{TMDF:TMDF} (the parameters for it are set in corresponding section of \texttt{constants}.
-
-
-\begin{center}
-List of available commands
-\\
-\begin{longtable}{||l|c|c|p{8cm}||}
-\hline\hline
-Command & ~~Type~~& ~~Sec.~~ & Short description
-\\\hline
-\texttt{TMDs{\_}inKT{\_}Initialize(order)} & subrout. & \ref{TMDs} & Initialization of module.
-\\\hline 
-\texttt{TMDs\_inKT\_ResetCounters()} & subrout. & - & Reset intrinsic counters of modules
-\\\hline
-\texttt{TMDs\_inKT\_ShowStatistic} & subrout. & - & Print current statistic on the number of calls.
-\\\hline\hline
-\texttt{testTMDPDF{\_}kT(x,kT)} & (real*8(-5:5)) & - & Evaluates the Fourier of the text function (see below). $n=0$
-\\\hline
-\texttt{uTMDPDF{\_}kT{\_}5(x,kT,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Unpolarized TMD PDF at the optimal line (gluon term undefined). $n=0$
-\\\hline
-\texttt{uTMDPDF{\_}kT{\_}50(x,kT,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Unpolarized TMD PDF at the optimal line (gluon term defined). $n=0$
-\\\hline
-\texttt{uTMDPDF{\_}kT{\_}5(x,kT,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Unpolarized TMD PDF (gluon term undefined). $n=0$
-\\\hline
-\texttt{uTMDPDF{\_}kT{\_}50(x,kT,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Unpolarized TMD PDF (gluon term defined). $n=0$
-\\\hline
-\texttt{uTMDFF{\_}kT{\_}5(x,kT,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Unpolarized TMD FF at the optimal line (gluon term undefined). $n=0$
-\\\hline
-\texttt{uTMDFF{\_}kT{\_}50(x,kT,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Unpolarized TMD FF at the optimal line (gluon term defined). $n=0$
-\\\hline
-\texttt{uTMDFF{\_}kT{\_}5(x,kT,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Unpolarized TMD FF (gluon term undefined). $n=0$
-\\\hline
-\texttt{uTMDFF{\_}kT{\_}50(x,kT,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Unpolarized TMD FF (gluon term defined). $n=0$
-\\\hline
-\texttt{lpTMDPDF{\_}kT{\_}50(x,kT,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Linearly polarized gluon TMD PDF at the optimal line (quark terms undefined). $n=2$
-\\\hline
-\texttt{lpTMDPDF{\_}kT{\_}50(x,kT,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Linearly polarized gluon TMD PDF (quark terms undefined). $n=2$
-\\\hline
-\texttt{SiversTMDPDF{\_}kT{\_}5(x,kT,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF at the optimal line (gluon term undefined). $n=1$
-\\\hline
-\texttt{SiversTMDPDF{\_}kT{\_}50(x,kT,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF at the optimal line (gluon term defined). $n=1$
-\\\hline
-\texttt{SiversTMDPDF{\_}kT{\_}5(x,kT,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF (gluon term undefined). $n=1$
-\\\hline
-\texttt{SiversTMDPDF{\_}kT{\_}50(x,kT,mu,zeta,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Sivers TMD PDF (gluon term defined). $n=1$
-\\
-\hline\hline
-\texttt{Moment{\_}G(n,x,mu,F,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Computed the moment $\mathcal{G}_n$ (see below). (int)\texttt{n,h}, are order of moment and hadonr, (real*8)\texttt{x,mu} collinear momentum fraction and scale. F is the name of optimal TMDPDF. \red{For a moment, $n=0,1,2$, only}.
-\\\hline
-\texttt{Moment{\_}X(n,x,mu,F,h)} & (real*8(-5:5)) &\ref{TMDs:TMDs} & Computed the moment $\mathcal{G}_n$ (see below). (int)\texttt{n,h}, are order of moment and hadonr, (real*8)\texttt{x,mu} collinear momentum fraction and scale. F is the name of optimal TMDPDF. \red{For a moment, $n=0,1$, only}.
-\\\hline
-\end{longtable}
-\end{center}
-
-\textbf{Comments:} 
-\begin{itemize}
-\item The value of $k_T$ is expected bigger 1MeV  for smaller values  the function evaluates at 1MeV.
-\item For gluonless TMDs (\texttt{\_5}) the gluon term is identically 0.
-\item The convergence of the integral is checked by convergence of each flavor (until all flavors are convergent).
-\end{itemize}
-
-
-The function \texttt{testTMDPDF{\_}kT(x,kT)} returns the Fourier of the following test functions (x is the free parameter
-\begin{eqnarray}
-\{b^3 e^{-x b},b^2 e^{-x b},b e^{-x b},e^{-x b},\frac{1}{(b^2+x^{2})^4},\frac{1}{(b^2+x^{2})^2},\frac{1}{b^2+x^{2}},
-b^2 e^{-x b^2},e^{-x b^2}, \frac{J_0(x/b)}{b},\frac{1}{b}\}.
-\end{eqnarray}
-The result of evaluation should be
-\begin{eqnarray}
-\Bigg\{&& \frac{3}{2\pi}\frac{3k_T^4-24 k_T^2 x^2+8x^4}{(k_T^2+x^2)^{9/2}},\frac{3x}{2\pi}\frac{2x^2-3k_T^2}{(k_T^2+x^2)^{7/2}},
-\frac{1}{2\pi}\frac{2x^2-k_T^2}{(k_T^2+x^2)^{5/2}},\frac{1}{2\pi}\frac{x}{(k_T^2+x^2)^{3/2}},
-\\\nn &&
-\frac{k_T^3}{96\pi x^3}K_3\(k_Tx\),\frac{k_T }{4\pi x}K_1\(k_Tx \),\frac{K_0\(k_Tx\)}{2\pi},
-\\\nn &&  \frac{4 x-k_T^2}{16\pi x^3}e^{-k_T^2/(4x)},\frac{e^{-k_T^2}/(4x)}{4\pi x},
-\frac{J_0(2\sqrt{x k_T})}{2\pi k_T}, \frac{1}{2\pi k_T }\Bigg\}.
-\end{eqnarray}
-The expressions for functions are selected such that the integral gives reasonable values for $0.05<x<1$.
-
-Moments are defined as
-\begin{eqnarray}
-\mathcal{G}_n[F]&=&\frac{1}{2^n}\int d^2k_T \theta(|k_T|<\mu) \frac{k_T^{2n}}{M^{2n}} F(x,k_T)
-=
-\frac{\mu^{n+1}}{2^nn!}
-\int_0^\infty db b^{n}   J_{n+1}(b\mu)\widetilde{F}(x,b),
-\\
-\mathcal{X}_n[F]&=&\int^\mu d\vec k_T^2 \frac{(\vec k_T^2)^{n+1}}{2^nM^{2n}}F(x,k_T)
-\\\nn &=&\frac{1}{2^nn!}\int_0^\infty db\,\mu^3(\mu b)^n \frac{(n+1)J_{n+1}(\mu b)-J_{n+3}(\mu b)}{n+2}\widetilde{F}(x,b).
-\end{eqnarray}
-
-\subsection{Grids}
-
-The computation of KPC is intensively uses the momentum space TMDs. Therefore, it is better to grid them, rather then evaluate each time. The grid is 3D, in $(x,k_T,Q)$. The grid used in the artemide 3.0 is:
-
-\textbf{Arcosh grid with control parameter}
-\begin{eqnarray}\label{grid_KT:x-grid}
-i=0,...,N_x,\qquad 
-x_i=\frac{1}{\cosh^p\(\Delta_x(i-N_x)\)},\qquad \Delta_x=\frac{\text{arccosh}(1/x^{1/p}_{\text{min}})}{N_x},\qquad \text{inv}[x]=
-N_x-\frac{\text{arccosh}(1/x^{1/p})}{\Delta_x}.
-\end{eqnarray}
-This grid is alike logarithmic at small-x, but has extra points at $x\to 1$. Therefore, one does not need extra griding at large-x. The parameter $p$ gives extra flexibility. At $p_x>1$ the density of points at $x\to 1$ grows. Same as used in OPE part.
-
-\textbf{Exponential grid with $Q_{\text{min}}$ and $Q_{\text{max}}$} 
-\begin{eqnarray}\label{grid_KT:Q-grid}
-i=0,...,N_Q,\qquad 
-Q_i=Q_{\text{min}}e^{i\Delta_Q},\qquad \Delta_Q=\frac{\ln(Q_{\text{max}}/Q_{\text{min}})}{N_x},\qquad \text{inv}[Q]=
-\frac{\ln(Q/Q_{\text{min}})}{\Delta_Q}.
-\end{eqnarray}
-Usual logarithmical grid. The function is rather smooth in the Q direction.
-
-\textbf{Exponential grid with $k_{\text{min}}$ and $k_{\text{max}}$} 
-\begin{eqnarray}\label{grid_KT:Q-grid}
-i=0,...,N_k,\qquad 
-k_i=k_{\text{min}}e^{i\Delta_k},\qquad \Delta_k=\frac{\ln(k_{\text{max}}/k_{\text{min}})}{N_k},\qquad \text{inv}[k]=
-\frac{\ln(k/k_{\text{min}})}{\Delta_k}.
-\end{eqnarray}
-Usual logarithmical grid. The function is rather smooth in the k direction once multiplied by $k^2$. The maximum value of $k$ is defined as 
-$$k_{\text{max}}=p_k Q_{\text{max}}.$$ 
-The parameter $p_k$ must be bigger than $\sqrt{2}$ ($\sqrt{2}$ is reached by the utmost point in the integration for KPC). For values $k>p_kQ$ (at given $Q$ the expressions are not stored.
-
-The interpolation is cubic. The grid is build for the finite domain of $x\in(x_{\min},1)$ and $k\in(k_{\text{min}},k_{\text{max}})$ and $Q\in(Q_{\text{min}},Q_{\text{max}})$. 
-\begin{itemize}
-\item For $x<x_{\min}$, $k_T>k_{\max}(Q)$, $Q<Q_{\text{min}}$ and $Q>Q_{\text{max}}$ the program will be terminated (with an error). 
-\item For $k_T<k_{\min}$ the code returns the value at $k_{\min}$. 
-\end{itemize}
-
-\newpage
 
 \section{KPC in TMD factorization}
 
@@ -3603,6 +3461,8 @@ polarized DY
 \begin{itemize}
 \item[\textbf{Ver.3.01}]
 \begin{itemize}
+	\item \textbf{eeTMDFF}: implemented (at all levels)
+	\item \textbf{BoerMuldersTMDPDF}: implemented (at all levels)
 	\item \textbf{TMDF}: Enumeration for SIDIS processes updated.
 	\item \textbf{TMDF}: Added check for insufficiently low-hard scale $Q$, $\mu$ or $\zeta$.
 	\item \textbf{uTMDFF}: Added Fourier by Levin transformation, and grids in $k_T$.
@@ -3861,6 +3721,20 @@ polarized DY
 \end{itemize}
 \item[\textbf{Ver.1}] Release: \texttt{uTMDPDF}, \texttt{TMDR}, \texttt{TMDs} and \texttt{TMDX} modules. Only Drell-Yan-like cross-sections.
 \end{itemize}
+
+\clearpage
+
+\bibliography{bibfile}
+
+\newpage
+\section{Version of input-file}
+\begin{enumerate}
+\setcounter{enumi}{30}
+\item Initial version (corresponds to clean ver.3.00)
+\item +\texttt{eeTMDFF}-section (section 16).
+\end{enumerate}
+
+
 
 \end{document}
 

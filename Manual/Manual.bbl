@@ -1,4 +1,4 @@
-\begin{thebibliography}{0}
+\begin{thebibliography}{15}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -11,5 +11,134 @@
 \expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
 \providecommand{\bibinfo}[2]{#2}
 \providecommand{\eprint}[2][]{\url{#2}}
+
+\bibitem[{\citenamefont{Scimemi and
+  Vladimirov}(2018{\natexlab{a}})}]{Scimemi:2017etj}
+\bibinfo{author}{\bibfnamefont{I.}~\bibnamefont{Scimemi}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Vladimirov}},
+  \bibinfo{journal}{Eur. Phys. J. C} \textbf{\bibinfo{volume}{78}},
+  \bibinfo{pages}{89} (\bibinfo{year}{2018}{\natexlab{a}}),
+  \eprint{1706.01473}.
+
+\bibitem[{\citenamefont{Scimemi and Vladimirov}(2020)}]{Scimemi:2019cmh}
+\bibinfo{author}{\bibfnamefont{I.}~\bibnamefont{Scimemi}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Vladimirov}},
+  \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{06}}, \bibinfo{pages}{137}
+  (\bibinfo{year}{2020}), \eprint{1912.06532}.
+
+\bibitem[{\citenamefont{Moos et~al.}(2023)\citenamefont{Moos, Scimemi,
+  Vladimirov, and Zurita}}]{Moos:2023yfa}
+\bibinfo{author}{\bibfnamefont{V.}~\bibnamefont{Moos}},
+  \bibinfo{author}{\bibfnamefont{I.}~\bibnamefont{Scimemi}},
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Vladimirov}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Zurita}}
+  (\bibinfo{year}{2023}), \eprint{2305.07473}.
+
+\bibitem[{\citenamefont{Buckley et~al.}(2015)\citenamefont{Buckley, Ferrando,
+  Lloyd, Nordstr\"om, Page, R\"ufenacht, Sch\"onherr, and
+  Watt}}]{Buckley:2014ana}
+\bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Buckley}},
+  \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Ferrando}},
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Lloyd}},
+  \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Nordstr\"om}},
+  \bibinfo{author}{\bibfnamefont{B.}~\bibnamefont{Page}},
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{R\"ufenacht}},
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Sch\"onherr}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Watt}},
+  \bibinfo{journal}{Eur. Phys. J. C} \textbf{\bibinfo{volume}{75}},
+  \bibinfo{pages}{132} (\bibinfo{year}{2015}), \eprint{1412.7420}.
+
+\bibitem[{\citenamefont{Echevarria
+  et~al.}(2016{\natexlab{a}})\citenamefont{Echevarria, Scimemi, and
+  Vladimirov}}]{Echevarria:2016scs}
+\bibinfo{author}{\bibfnamefont{M.~G.} \bibnamefont{Echevarria}},
+  \bibinfo{author}{\bibfnamefont{I.}~\bibnamefont{Scimemi}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Vladimirov}},
+  \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{09}}, \bibinfo{pages}{004}
+  (\bibinfo{year}{2016}{\natexlab{a}}), \eprint{1604.07869}.
+
+\bibitem[{\citenamefont{Scimemi and
+  Vladimirov}(2018{\natexlab{b}})}]{Scimemi:2018xaf}
+\bibinfo{author}{\bibfnamefont{I.}~\bibnamefont{Scimemi}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Vladimirov}},
+  \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{08}}, \bibinfo{pages}{003}
+  (\bibinfo{year}{2018}{\natexlab{b}}), \eprint{1803.11089}.
+
+\bibitem[{\citenamefont{Echevarria
+  et~al.}(2016{\natexlab{b}})\citenamefont{Echevarria, Scimemi, and
+  Vladimirov}}]{Echevarria:2015byo}
+\bibinfo{author}{\bibfnamefont{M.~G.} \bibnamefont{Echevarria}},
+  \bibinfo{author}{\bibfnamefont{I.}~\bibnamefont{Scimemi}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Vladimirov}},
+  \bibinfo{journal}{Phys. Rev. D} \textbf{\bibinfo{volume}{93}},
+  \bibinfo{pages}{054004} (\bibinfo{year}{2016}{\natexlab{b}}),
+  \eprint{1511.05590}.
+
+\bibitem[{\citenamefont{Vladimirov}(2017)}]{Vladimirov:2016dll}
+\bibinfo{author}{\bibfnamefont{A.~A.} \bibnamefont{Vladimirov}},
+  \bibinfo{journal}{Phys. Rev. Lett.} \textbf{\bibinfo{volume}{118}},
+  \bibinfo{pages}{062001} (\bibinfo{year}{2017}), \eprint{1610.05791}.
+
+\bibitem[{\citenamefont{Vladimirov}(2018)}]{Vladimirov:2017ksc}
+\bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Vladimirov}},
+  \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{04}}, \bibinfo{pages}{045}
+  (\bibinfo{year}{2018}), \eprint{1707.07606}.
+
+\bibitem[{\citenamefont{Collins}(2013)}]{Collins:2011zzd}
+\bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Collins}},
+  \emph{\bibinfo{title}{{Foundations of perturbative QCD}}},
+  vol.~\bibinfo{volume}{32} (\bibinfo{publisher}{Cambridge University Press},
+  \bibinfo{year}{2013}), ISBN \bibinfo{isbn}{978-1-107-64525-7,
+  978-1-107-64525-7, 978-0-521-85533-4, 978-1-139-09782-6}.
+
+\bibitem[{\citenamefont{del Rio et~al.}(2024)\citenamefont{del Rio, Prokudin,
+  Scimemi, and Vladimirov}}]{delRio:2024vvq}
+\bibinfo{author}{\bibfnamefont{O.}~\bibnamefont{del Rio}},
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Prokudin}},
+  \bibinfo{author}{\bibfnamefont{I.}~\bibnamefont{Scimemi}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Vladimirov}},
+  \bibinfo{journal}{Phys. Rev. D} \textbf{\bibinfo{volume}{110}},
+  \bibinfo{pages}{016003} (\bibinfo{year}{2024}), \eprint{2402.01836}.
+
+\bibitem[{\citenamefont{Gehrmann et~al.}(2010)\citenamefont{Gehrmann, Glover,
+  Huber, Ikizlerli, and Studerus}}]{Gehrmann:2010ue}
+\bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Gehrmann}},
+  \bibinfo{author}{\bibfnamefont{E.~W.~N.} \bibnamefont{Glover}},
+  \bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Huber}},
+  \bibinfo{author}{\bibfnamefont{N.}~\bibnamefont{Ikizlerli}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{C.}~\bibnamefont{Studerus}},
+  \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{06}}, \bibinfo{pages}{094}
+  (\bibinfo{year}{2010}), \eprint{1004.3653}.
+
+\bibitem[{\citenamefont{Ahrens et~al.}(2009{\natexlab{a}})\citenamefont{Ahrens,
+  Becher, Neubert, and Yang}}]{Ahrens:2008qu}
+\bibinfo{author}{\bibfnamefont{V.}~\bibnamefont{Ahrens}},
+  \bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Becher}},
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Neubert}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{L.~L.} \bibnamefont{Yang}},
+  \bibinfo{journal}{Phys. Rev. D} \textbf{\bibinfo{volume}{79}},
+  \bibinfo{pages}{033013} (\bibinfo{year}{2009}{\natexlab{a}}),
+  \eprint{0808.3008}.
+
+\bibitem[{\citenamefont{Ahrens et~al.}(2009{\natexlab{b}})\citenamefont{Ahrens,
+  Becher, Neubert, and Yang}}]{Ahrens:2009cxz}
+\bibinfo{author}{\bibfnamefont{V.}~\bibnamefont{Ahrens}},
+  \bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Becher}},
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Neubert}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{L.~L.} \bibnamefont{Yang}},
+  \bibinfo{journal}{Eur. Phys. J. C} \textbf{\bibinfo{volume}{62}},
+  \bibinfo{pages}{333} (\bibinfo{year}{2009}{\natexlab{b}}),
+  \eprint{0809.4283}.
+
+\bibitem[{\citenamefont{Bacchetta et~al.}(2007)\citenamefont{Bacchetta, Diehl,
+  Goeke, Metz, Mulders, and Schlegel}}]{Bacchetta:2006tn}
+\bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Bacchetta}},
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Diehl}},
+  \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Goeke}},
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Metz}},
+  \bibinfo{author}{\bibfnamefont{P.~J.} \bibnamefont{Mulders}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Schlegel}},
+  \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{02}}, \bibinfo{pages}{093}
+  (\bibinfo{year}{2007}), \eprint{hep-ph/0611265}.
 
 \end{thebibliography}

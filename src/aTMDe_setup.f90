@@ -17,7 +17,7 @@ private
 character (len=5),parameter :: version="v3.01"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=31
+integer,parameter::inputVer=32
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -171,6 +171,17 @@ integer::BoerMuldersTMDPDF_grid_SizeX_inKT,BoerMuldersTMDPDF_grid_SizeB_inKT,Boe
 real(dp)::BoerMuldersTMDPDF_minQ_inKT,BoerMuldersTMDPDF_maxQ_inKT
 integer::BoerMuldersTMDPDF_grid_SizeQ_inKT
 real(dp)::BoerMuldersTMDPDF_hOGATA_TMM,BoerMuldersTMDPDF_toleranceOGATA_TMM,BoerMuldersTMDPDF_muMIN_TMM
+
+!-------------------- eeTMDFF parameters
+logical::include_eeTMDFF
+character*8::eeTMDFF_order
+logical::eeTMDFF_withGluon
+integer::eeTMDFF_lambdaLength
+integer::eeTMDFF_numHadron
+real(dp)::eeTMDFF_BMAX_ABS
+real(dp)::eeTMDFF_toleranceGEN,eeTMDFF_toleranceINT
+integer::eeTMDFF_maxIteration
+logical::eeTMDFF_makeGrid_inKT
 
 !-------------------- TMDF parameters
 logical::include_TMDF
@@ -513,6 +524,18 @@ subroutine SetupDefault(order)
     BoerMuldersTMDPDF_toleranceOGATA_TMM=1.d-4    !!! OGATA tolerance (for TMM)
     BoerMuldersTMDPDF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
     BoerMuldersTMDPDF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
+
+    !-------------------- parameters for eeTMDFF
+    include_eeTMDFF=.false.!!! we do not initialize TMDFF by definition
+    eeTMDFF_order=trim("NLO")
+    eeTMDFF_withGluon=.false.
+    eeTMDFF_numHadron=0
+    eeTMDFF_lambdaLength=2
+    eeTMDFF_BMAX_ABS=100.d0
+    eeTMDFF_toleranceINT=1.d-6!general tolerance
+    eeTMDFF_toleranceGEN=1.d-6!general tolerance
+    eeTMDFF_maxIteration=10000    !maxIteration for adaptive integration
+    eeTMDFF_makeGrid_inKT=.false.
 
     !------------------ parameters for TMDF
     include_TMDF=.true.
@@ -1283,7 +1306,7 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"(' ')")
     write(51,"(' ')")
     write(51,"('# ---------------------------------------------------------------------------')")
-    write(51,"('# ----                         PARAMETERS OF BoerMuldersTMDPDF               -----')")
+    write(51,"('# ----                  PARAMETERS OF BoerMuldersTMDPDF                 -----')")
     write(51,"('# ---------------------------------------------------------------------------')")
     write(51,"('*14  :')")
     write(51,"('*p1  : initialize BoerMuldersTMDPDF module')")
@@ -1375,6 +1398,43 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDF_KPC_toleranceINT
     write(51,"('*p3  : Minimum qT value (below the qT-value is frozen)')")
     write(51,*) TMDF_KPC_qTMIN
+
+    write(51,"(' ')")
+    write(51,"(' ')")
+    write(51,"('# ---------------------------------------------------------------------------')")
+    write(51,"('# ----                           PARAMETERS OF eeTMDFF                  -----')")
+    write(51,"('# ---------------------------------------------------------------------------')")
+    write(51,"('*16  :')")
+    write(51,"('*p1  : initialize eeTMDFF module')")
+    write(51,*) include_eeTMDFF
+    write(51,"(' ')")
+    write(51,"('*A   : ---- Main definitions ----')")
+    write(51,"('*p1  : Include gluon TMDPDFs')")
+    write(51,*) eeTMDFF_withGluon
+    write(51,"('*p2  : Number of hadrons (in order starting with 1)')")
+    write(51,*) eeTMDFF_numHadron
+    write(51,"(' ')")
+    write(51,"('*B   : ---- OPE main definitions ----')")
+    write(51,"('*p1  : Order of coefficient function')")
+    write(51,*) trim(eeTMDFF_order)
+    write(51,"(' ')")
+    write(51,"('*C   : ---- Parameters of NP model ----')")
+    write(51,"('*p1  : Length of lambdaNP')")
+    write(51,*) eeTMDFF_lambdaLength
+    write(51,"('*p2  : Absolute maximum b (for larger b, TMD=0)')")
+    write(51,*) eeTMDFF_BMAX_ABS
+    write(51,"(' ')")
+    write(51,"('*D   : ---- Numerical evaluation parameters ----')")
+    write(51,"('*p1  : Tolerance (relative tolerance of convolution integral)')")
+    write(51,*) eeTMDFF_toleranceINT
+    write(51,"('*p2  : Tolerance general (used for various comparisons)')")
+    write(51,*) eeTMDFF_toleranceGEN
+    write(51,"('*p3  : Maximum number of iterations (for adaptive integration)')")
+    write(51,*) eeTMDFF_maxIteration
+    write(51,"(' ')")
+    write(51,"('*F   : ---- Transform and grid in KT-space ----')")
+    write(51,"('*p1  : Prepare grid')")
+    write(51,*) eeTMDFF_makeGrid_inKT
 
     CLOSE (51, STATUS='KEEP')
     if(outputLevel>1) write(*,*) 'aTMDe_setup: Constans file is made.'
@@ -2138,6 +2198,37 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p3  ')
     read(51,*) TMDF_KPC_qTMIN
 
+    !# ----                           PARAMETERS OF eeTMDFF                   -----
+    if(FILEversion>31) then !!!!! eeTMDFF was introduced in the 32.
+    call MoveTO(51,'*16  ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) include_eeTMDFF
+    call MoveTO(51,'*A   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) eeTMDFF_withGluon
+    call MoveTO(51,'*p2  ')
+    read(51,*) eeTMDFF_numHadron
+    call MoveTO(51,'*B   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) eeTMDFF_order
+    call MoveTO(51,'*C   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) eeTMDFF_lambdaLength
+    call MoveTO(51,'*p2  ')
+    read(51,*) eeTMDFF_BMAX_ABS
+    call MoveTO(51,'*D   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) eeTMDFF_toleranceINT
+    call MoveTO(51,'*p2  ')
+    read(51,*) eeTMDFF_toleranceGEN
+    call MoveTO(51,'*p3  ')
+    read(51,*) eeTMDFF_maxIteration
+    call MoveTO(51,'*F   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) eeTMDFF_makeGrid_inKT
+    else
+    if(outputLevel>0) write(*,*) 'aTMDe_setup: eeTMDFF is loaded by default parameters...'
+    end if
     CLOSE (51, STATUS='KEEP') 
 
     if(outputLevel>1) write(*,*) color('aTMDe_setup: constants-file loaded sucessfully.',c_green_bold)
