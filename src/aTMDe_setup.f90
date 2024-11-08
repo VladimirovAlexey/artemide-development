@@ -188,7 +188,7 @@ logical::include_TMDF
 real(dp)::TMDF_OGATAh,TMDF_tolerance,TMDF_qTMIN,TMDF_hardScaleMIN
 real(dp)::TMDF_mass
 
-!-------------------- TMDF-KPC-DY parameters
+!-------------------- TMDF-KPC parameters
 logical::include_TMDF_KPC
 real(dp)::TMDF_KPC_toleranceGEN,TMDF_KPC_toleranceINT,TMDF_KPC_qTMIN
 
@@ -572,7 +572,7 @@ subroutine SetupDefault(order)
     TMDX_SIDIS_exactScale=.false.
     TMDX_SIDIS_useKPC=.false.
 
-    !------------------ parameters for TMDF-KPC-DY
+    !------------------ parameters for TMDF-KPC
     include_TMDF_KPC=.true.
     TMDF_KPC_toleranceGEN=0.000001d0  !tolerance general (i.e. comparison etc)
     TMDF_KPC_toleranceINT=0.0001d0    !tolerance integration (i.e. relative integration tolerance)
@@ -1386,7 +1386,7 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('# ----                      PARAMETERS OF TMDF-KPC                      -----')")
     write(51,"('# ---------------------------------------------------------------------------')")
     write(51,"('*15  :')")
-    write(51,"('*p1  : initialize TMDF-KPC-DY module')")
+    write(51,"('*p1  : initialize TMDF-KPC module')")
     write(51,*) include_TMDF_KPC
     write(51,"('*A   : ---- Main definitions ----')")
     write(51,"('*p1  : NOT YET')")

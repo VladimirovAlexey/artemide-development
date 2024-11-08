@@ -26,7 +26,7 @@ private
 character (len=8),parameter :: moduleName="TMDF-KPC"
 character (len=5),parameter :: version="v3.01"
 !Last appropriate verion of constants-file
-integer,parameter::inputver=30
+integer,parameter::inputver=31
 
 integer::outputLevel=2
 !! variable that count number of WRNING mesagges. In order not to spam too much
@@ -59,12 +59,13 @@ real(dp)::M2=1._dp
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!! Public declarations
 public::TMDF_KPC_IsInitialized,TMDF_KPC_Initialize,TMDF_KPC_IsconvergenceLost
-public::KPC_DYconv
+public::KPC_DYconv,KPC_SIDISconv
 
 contains
 
 INCLUDE 'Code/TMDF_KPC/TMDpairs.f90'
 INCLUDE 'Code/TMDF_KPC/KERNELpairs_DY.f90'
+INCLUDE 'Code/TMDF_KPC/KERNELpairs_SIDIS.f90'
 
 function TMDF_KPC_IsInitialized()
     logical::TMDF_KPC_IsInitialized
@@ -244,13 +245,32 @@ subroutine TMDF_KPC_Initialize(file,prefix)
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.TMDF '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) ' '
 
+
 end subroutine TMDF_KPC_Initialize
+
+
+!!!--------------------------------------------------------------------------------------------------
+!!!!!!!Functions which carry the trigger on convergences.... Its used in xSec, and probably in other places.
+function TMDF_KPC_IsconvergenceLost()
+    logical::TMDF_KPC_IsconvergenceLost
+    !!! checks TMDs trigger
+    TMDF_KPC_IsconvergenceLost=convergenceLost
+end function TMDF_KPC_IsconvergenceLost
+
+subroutine TMDF_KPC_convergenceISlost()
+    convergenceLost=.true.
+    if(outputLevel>1) call Warning_Raise('convergenceLOST trigger ON',messageCounter,messageTrigger,moduleName)
+end subroutine TMDF_KPC_convergenceISlost
+
+!!!--------------------------------------------------------------------------------------------------
+!!!-----------------------------------DY PART -------------------------------------------------------
+!!!--------------------------------------------------------------------------------------------------
+
 
 !!!--------------------------------------------------------------------------------------------------
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!! Function that computes the integral for KPC convolution in DY
 !!! proc1 = (int,int,int) is the process def for TMD*TMD, and for the integral kernel
-!!! proc2 = int is the process definition for the integral kernel
 !!! Q2, qT, x1,x2, mu are usual DY variables
 !!! NOTE: that Q2 is DY kinematic variable, and mu is the factorization scale
 !!! THIS IS A SYMMETRIC VERSION (i.e. it should contain only cos(theta)
@@ -386,18 +406,41 @@ end function Integrand_forTHETA
 
 end function INT_overTHETA
 
+
 !!!--------------------------------------------------------------------------------------------------
-!!!!!!!Functions which carry the trigger on convergences.... Its used in xSec, and probably in other places.
-function TMDF_KPC_IsconvergenceLost()
-    logical::TMDF_KPC_IsconvergenceLost
-    !!! checks TMDs trigger
-    TMDF_KPC_IsconvergenceLost=convergenceLost
-end function TMDF_KPC_IsconvergenceLost
+!!!----------------------------------- SIDIS PART -------------------------------------------------------
+!!!--------------------------------------------------------------------------------------------------
 
-subroutine TMDF_KPC_convergenceISlost()
-    convergenceLost=.true.
-    if(outputLevel>1) call Warning_Raise('convergenceLOST trigger ON',messageCounter,messageTrigger,moduleName)
-end subroutine TMDF_KPC_convergenceISlost
+!!!--------------------------------------------------------------------------------------------------
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Function that computes the integral for KPC convolution in SIDIS
+!!! proc1 = (int,int,int) is the process def for TMD*TMD, and for the integral kernel
+!!! Q2, qT, x1,z1, mu are usual SIDIS variables
+!!! NOTE: that Q2 is SIDIS kinematic variable, and mu is the factorization scale
+!!!-----
+!!! comments about convolution:
+function KPC_SIDISconv(Q2,qT_in,x1,z1,mu,proc1)
+    real(dp),intent(in)::Q2,qT_in,x1,z1,mu
+    integer,intent(in),dimension(1:3)::proc1
+    real(dp)::KPC_SIDISconv
 
+    real(dp)::qT
+
+    if(qT_in<qTMIN) then
+        qT=qTMIN
+    else
+        qT=qT_in
+    end if
+
+    LocalCounter=0
+
+    !!!! TO BE WRITTEN!!!!
+    KPC_SIDISconv=1.d0
+
+    !!!!! FUNCTIONS TO CALL
+    !!!!! TMD_pair(Q2,xi1,xi2,K1,K2,mu,proc1)  <<--- in TMDpairs
+    !!!!! SIDIS_KERNEL(??????,process)          <<<--- in KERNELpairs_SIDIS (to be written)
+
+end function KPC_SIDISconv
 
 end module TMDF_KPC

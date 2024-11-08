@@ -367,7 +367,7 @@
    1.0000000000000000E-004
 *p3  : Minimal number of sections for pt-integration
            6
-*p4  : Maximum size of the Q-bin integration (larger bins are disected)
+*p4  : Maximum size of the Q-bin integration (larger bins are desected)
    30.0000000
 *p5  : Minimal value of qT (lower values are fixed to this number)
    0.0001
@@ -687,10 +687,10 @@
    0.8
 
 # ---------------------------------------------------------------------------
-# ----                           PARAMETERS OF TMDF-KPC-DY              -----
+# ----                           PARAMETERS OF TMDF-KPC                 -----
 # ---------------------------------------------------------------------------
 *15  :
-*p1  : initialize TMDF-KPC-DY module
+*p1  : initialize TMDF-KPC module
  F
 *A   : ---- Main definitions ----
 *p1  : NOT YET

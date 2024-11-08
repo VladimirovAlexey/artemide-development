@@ -118,6 +118,25 @@ SELECT CASE(process(3))
         +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
 
 
+  !----------------------------------------------------------------------------------
+  !-------------------------SIDIS----------------------------------------------------
+  !----------------------------------------------------------------------------------
+  CASE (2001) !h1->h2 where !!!! unpolarized SIDIS
+    ! e_q^2 *F_q(A)*F_q(B)
+    FA=uTMDPDF_inKT(x1,sqrt(k1),mu,Q2,h1)
+    FB=uTMDFF_inKT(x2,sqrt(k2),mu,Q2,h2)
+    TMD_pair=FA(1)*FB(1)/9.d0&
+      +FA(2)*FB(2)*4.d0/9.d0&
+      +FA(3)*FB(3)/9.d0&
+      +FA(4)*FB(4)*4d0/9.d0&
+      +FA(5)*FB(5)/9d0&
+      +FA(-1)*FB(-1)/9.d0&
+      +FA(-2)*FB(-2)*4.d0/9.d0&
+      +FA(-3)*FB(-3)/9.d0&
+      +FA(-4)*FB(-4)*4d0/9.d0&
+      +FA(-5)*FB(-5)/9d0
+
+
   CASE DEFAULT
     write(*,*) ErrorString('undefined process: ',moduleName),process
     write(*,*) color('Evaluation stop',c_red_bold)

@@ -13,6 +13,7 @@ module TMDX_SIDIS
 use aTMDe_Numerics
 use IO_functions
 use TMDF
+use TMDF_KPC
 use QCDinput
 use EWinput
 use IntegrationRoutines
@@ -28,7 +29,7 @@ private
 character (len=10),parameter :: moduleName="TMDX-SIDIS"
 character (len=5),parameter :: version="v3.01"
 !Last appropriate verion of constants-file
-integer,parameter::inputver=30
+integer,parameter::inputver=31
 
 real(dp) :: toleranceINT=0.0001d0
 real(dp) :: toleranceGEN=0.0000001d0
@@ -172,13 +173,13 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
 
 
     !!------------------------------------LP FACTORIZATION
-    if(.not.useKPC) then
 
     call MoveTO(51,'*C   ')
     !! qT correction in kinematics
     call MoveTO(51,'*p1   ')
     read(51,*) corrQT
-    if(outputLevel>2 .and. corrQT) write(*,*) '    artemide.TMDX_SIDIS: qT/Q corrections in kinematics are included.'
+    if(outputLevel>2 .and. corrQT .and. (.not.useKPC)) &
+            write(*,*) '    artemide.TMDX_SIDIS: qT/Q corrections in kinematics are included.'
     !! Target mass corrections
     call MoveTO(51,'*p2   ')
     read(51,*) corrM1
@@ -190,15 +191,22 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
     !! qT correction in x1 z1
     call MoveTO(51,'*p4   ')
     read(51,*) exactX1Z1
-    if(outputLevel>2 .and. exactX1Z1) write(*,*) '    artemide.TMDX_SIDIS: Exact LP values for x1,z1 are included.'
+    if(outputLevel>2 .and. exactX1Z1 .and. (.not.useKPC)) &
+            write(*,*) '    artemide.TMDX_SIDIS: Exact LP values for x1,z1 are included.'
     !!exact values for scales
     call MoveTO(51,'*p5   ')
     read(51,*) exactScales
-    if(outputLevel>2 .and. exactScales) &
+    if(outputLevel>2 .and. exactScales .and. (.not.useKPC)) &
           write(*,*) '    artemide.TMDX_SIDIS: Exact LP values of factorization scales variables are included.'
 
-    else
     !!------------------------------------KPC FACTORIZATION
+    if(useKPC) then
+      !!!! KPC must be computed with full expression for qT
+      corrQT=.true.
+      exactX1Z1=.true.
+      exactScales=.true.
+
+
     call MoveTO(51,'*D   ')
     end if
 
@@ -212,15 +220,27 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
             call EWinput_Initialize(file)
         end if
     end if
-        
-    if(.not.TMDF_IsInitialized()) then
+
+    if(useKPC) then
+      if(.not.TMDF_KPC_IsInitialized()) then
         if(outputLevel>1) write(*,*) '.. initializing TMDF (from ',moduleName,')'
         if(present(prefix)) then
-            call TMDF_Initialize(file,prefix)
+          call TMDF_KPC_Initialize(file,prefix)
         else
-            call TMDF_Initialize(file)
+          call TMDF_KPC_Initialize(file)
         end if
+      end if
+    else
+      if(.not.TMDF_IsInitialized()) then
+        if(outputLevel>1) write(*,*) '.. initializing TMDF (from ',moduleName,')'
+        if(present(prefix)) then
+          call TMDF_Initialize(file,prefix)
+        else
+          call TMDF_Initialize(file)
+        end if
+      end if
     end if
+
 
     c2_global=1d0
 
@@ -607,6 +627,61 @@ SELECT CASE(process(1))
 END SELECT
 end function PreFactor2
 
+
+!!!!! Prefactor for KPC-case is (universal part) x H
+function PreFactorKPC(var,process,x1,z1,qT)
+real(dp),dimension(1:13),intent(in)::var
+integer,dimension(1:4),intent(in)::process
+real(dp),intent(in)::x1,z1,qT
+real(dp)::PreFactorKPC,uniPart,scaleMu
+
+!!!! universal part
+
+!!!-----------------------------------------------------------------
+!!!------  IT IS FOR THE LEADING POWER!!! YET!!!
+!!!-----------------------------------------------------------------
+
+!!!! zeta*zeta=Q^2
+scaleMu=var(2)
+
+SELECT CASE(process(1))
+  case(0)
+      PreFactorKPC=1._dp
+  CASE(1)
+      !!! uniPart is the prefactor for the cross-section
+      !2 pi aEm^2/Q^4 y^2/(1-epsilon)/sqrt[1-g2*rho2]*z1/z
+      uniPart=pix2*alphaEM(scaleMu)**2/(var(3)**2)*var(6)**2/((1d0-var(7))*sqrt(1-var(10)))*(z1/var(5))
+
+      PreFactorKPC=uniPart*HardCoefficientSIDIS(scaleMu)*&
+      hc2*1d9!from GeV to pbarn
+
+  CASE(2)
+      !!!! same as for case(1) but with factor Q2/y
+
+      !!! uniPart is the prefactor for the cross-section
+      !2 pi aEm^2/Q^2 y/(1-epsilon)/sqrt[1-g2*rho2]*z1/z
+      uniPart=pix2*alphaEM(scaleMu)**2/var(3)*var(6)/((1d0-var(7))*sqrt(1-var(10)))*(z1/var(5))
+
+      PreFactorKPC=uniPart*HardCoefficientSIDIS(scaleMu)*&
+      hc2*1d9!from GeV to pbarn
+
+  CASE(3)
+      !!!! same as for case(1) but with factor x/y
+
+      !!! uniPart is the prefactor for the cross-section
+      !2 pi aEm^2/Q^2 y/(1-epsilon)/sqrt[1-g2*rho2]*z1/z
+      uniPart=pix2*alphaEM(scaleMu)**2/(var(3)**2)*(var(6)*var(4))/((1d0-var(7))*sqrt(1-var(10)))*(z1/var(5))
+
+      PreFactorKPC=uniPart*HardCoefficientSIDIS(scaleMu)*&
+      hc2*1d9!from GeV to pbarn
+
+  CASE DEFAULT
+      PreFactorKPC=0._dp
+      write(*,*) ErrorString(' unknown process p1=',moduleName), process(2)
+      ERROR STOP color('Evaluation stop.',c_red_bold)
+END SELECT
+end function PreFactorKPC
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CUTS RELATED FUNCTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -685,24 +760,40 @@ integer,dimension(1:4),intent(in)::process
 
 GlobalCounter=GlobalCounter+1
 
-call CalculateX1Z1qT(x1,z1,qT,var)
+!!!! KPC formula
+if(useKPC) then
+    if(TMDF_KPC_IsconvergenceLost()) then
+      xSec=1d9
+      return
+    end if
 
-!!! setting values of scales
-    !!!! If exact scales, zeta*zeta=Q^2-qT^2.
-if(exactScales) then
-  scaleMu=sqrt(var(3)-qT**2)
-  scaleZeta=var(3)-qT**2
-else
-  scaleMu=var(2)
-  scaleZeta=var(3)
+    call CalculateX1Z1qT(x1,z1,qT,var)
+
+    scaleMu=var(2)
+    scaleZeta=var(3)
+
+    !!!!! (Q^2,qT,x1,z1,mu,procc)
+    FF=KPC_SIDISconv(var(3),qT,x1,z1,scaleMu*c2_global,process(2:4))
+    xSec=PreFactorKPC(var,process,x1,z1,qT)*FF
+
+else !!!! LP formula
+
+  call CalculateX1Z1qT(x1,z1,qT,var)
+
+  !!! setting values of scales
+  !!!! If exact scales, zeta*zeta=Q^2-qT^2.
+  if(exactScales) then
+    scaleMu=sqrt(var(3)-qT**2)
+    scaleZeta=var(3)-qT**2
+  else
+    scaleMu=var(2)
+    scaleZeta=var(3)
+  end if
+
+
+  FF=TMDF_F(var(3),qT,x1,z1,scaleMu*c2_global,scaleZeta,scaleZeta,process(2:4))
+  xSec=PreFactor2(var,process,x1,z1,qT)*FF
 end if
-
-if(scaleMu*c2_global<1.d0) then
-write(*,*) "---->",scaleMu,c2_global
-end if
-
-FF=TMDF_F(var(3),qT,x1,z1,scaleMu*c2_global,scaleZeta,scaleZeta,process(2:4))
-xSec=PreFactor2(var,process,x1,z1,qT)*FF
 
 !write(*,*) "{",var(3),",",x1,"},"!,z1
 end function xSec

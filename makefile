@@ -119,7 +119,8 @@ $(SOURCEDIR)/Code/TMDF/Fourier_byOgata.f90
 
 TMDKPCFiles=\
 $(SOURCEDIR)/Code/TMDF_KPC/TMDpairs.f90\
-$(SOURCEDIR)/Code/TMDF_KPC/KERNELpairs_DY.f90
+$(SOURCEDIR)/Code/TMDF_KPC/KERNELpairs_DY.f90\
+$(SOURCEDIR)/Code/TMDF_KPC/KERNELpairs_SIDIS.f90
 
 aTMDeSetupFiles=\
 $(SOURCEDIR)/Code/aTMDe_setup/placeHolder.f90
