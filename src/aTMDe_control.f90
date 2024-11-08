@@ -225,7 +225,7 @@ subroutine artemide_Initialize(file,prefix,order)
     call MoveTO(51,'*p1  ')
     read(51,*) include_TMDF_KPC
 
-    call MoveTO(51,'*16   ')
+    call MoveTO(51,'*17   ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_eeTMDFF
         if(include_eeTMDFF) then

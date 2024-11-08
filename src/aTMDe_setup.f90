@@ -1404,7 +1404,7 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('# ---------------------------------------------------------------------------')")
     write(51,"('# ----                           PARAMETERS OF eeTMDFF                  -----')")
     write(51,"('# ---------------------------------------------------------------------------')")
-    write(51,"('*16  :')")
+    write(51,"('*17  :')")
     write(51,"('*p1  : initialize eeTMDFF module')")
     write(51,*) include_eeTMDFF
     write(51,"(' ')")
@@ -2200,7 +2200,7 @@ subroutine ReadConstantsFile(file,prefix)
 
     !# ----                           PARAMETERS OF eeTMDFF                   -----
     if(FILEversion>31) then !!!!! eeTMDFF was introduced in the 32.
-    call MoveTO(51,'*16  ')
+    call MoveTO(51,'*17  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_eeTMDFF
     call MoveTO(51,'*A   ')
