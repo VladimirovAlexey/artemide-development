@@ -22,7 +22,7 @@ private
 
 !!!!!! 1=accurate but slow
 !!!!!! 2=fast but not accurate
-#define INTEGRATION_MODE 1
+#define INTEGRATION_MODE 2
 
 !Current version of module
 character (len=7),parameter :: moduleName="TMDX-DY"
@@ -800,10 +800,10 @@ function Xsec_Qint_Yint(var,process,incCut,CutParam,Qmin_in,Qmax_in,ymin_in,ymax
 #elif INTEGRATION_MODE==2
 !!!! in this case I only check for the Z-boson peak
 !!!! if it is in the region, I integrate over it specially
-  if(Qmin_in<MZ-2 .and. MZ+2<QMax_in) then
-    Xsec_Qint_Yint=Integrate_G7(integrandOverQ,Qmin_in,MZ-2)
-    Xsec_Qint_Yint=Xsec_Qint_Yint+Integrate_G7(integrandOverQ,MZ-2,MZ+2)
-    Xsec_Qint_Yint=Xsec_Qint_Yint+Integrate_G7(integrandOverQ,MZ+2,Qmax_in)
+  if(Qmin_in<MZ-3 .and. MZ+3<QMax_in) then
+    Xsec_Qint_Yint=Integrate_G7(integrandOverQ,Qmin_in,MZ-3)
+    Xsec_Qint_Yint=Xsec_Qint_Yint+Integrate_SA(integrandOverQ,MZ-3,MZ+3,toleranceINT)
+    Xsec_Qint_Yint=Xsec_Qint_Yint+Integrate_G7(integrandOverQ,MZ+3,Qmax_in)
   else
     Xsec_Qint_Yint=Integrate_G7(integrandOverQ,Qmin_in,Qmax_in)
   end if
