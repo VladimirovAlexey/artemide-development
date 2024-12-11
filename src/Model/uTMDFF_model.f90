@@ -85,10 +85,10 @@ function FNP(x,bT,hadron,lambdaNP)
         !!! sea
         FNP0=(1+lambdaNP(4)*bb)*Fmain
         !!! uBar
-        !FNP3=(1+lambdaNP(9)*bb)*Fmain
+        FNP3=(1+lambdaNP(9)*bb)*Fmain
 
-        if(hadron==1) FNP=(/FNP0,FNP0,FNP0,FNP0,FNP2,0.d0,FNP0,FNP1,FNP0,FNP0,FNP0/) !!!! pion+ [u dBar]
-        if(hadron==3) FNP=(/FNP0,FNP0,FNP0,FNP1,FNP0,0.d0,FNP2,FNP0,FNP0,FNP0,FNP0/) !!!! pion- [d uBar]
+        if(hadron==1) FNP=(/FNP0,FNP0,FNP0,FNP3,FNP2,0.d0,FNP0,FNP1,FNP0,FNP0,FNP0/) !!!! pion+ [u dBar]
+        if(hadron==3) FNP=(/FNP0,FNP0,FNP0,FNP1,FNP0,0.d0,FNP2,FNP3,FNP0,FNP0,FNP0/) !!!! pion- [d uBar]
     else if(hadron==2 .or. hadron==4) then
         !!! kaon
         Fmain=1._dp/cosh(lambdaNP(5)*bT/x)
@@ -133,7 +133,7 @@ end function bSTAR
 pure function muOPE(bt,x,y,c4)
     real(dp),intent(in)::bt,x,y,c4
 
-    muOPE=C0_const*c4*x/bT+2d0
+    muOPE=C0_const*c4*x/bT+5d0
 
     if(muOPE>100d0) then
         muOPE=99d0

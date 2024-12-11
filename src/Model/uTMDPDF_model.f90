@@ -83,9 +83,9 @@ function FNP(x,bT,hadron,lambdaNP)
 !    ART25
      wu=lambdaNP(1)*(1-x)**lambdaNP(5)+x*lambdaNP(2)
      wd=lambdaNP(3)*(1-x)**lambdaNP(7)+x*lambdaNP(4)
-     wubar=lambdaNP(1)*(1-x)+x*lambdaNP(6)
-     wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(8)
-     wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)
+     wubar=lambdaNP(1)+x*lambdaNP(6)
+     wdbar=lambdaNP(3)+x*lambdaNP(8)
+     wr=lambdaNP(9)+x*lambdaNP(10)
 
 
     if(wu<0d0 .or. wd<0d0 .or. wubar<0d0 .or. wdbar<0d0 .or. wr<0d0) then
