@@ -17,7 +17,7 @@ private
 character (len=5),parameter :: version="v3.01"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=32
+integer,parameter::inputVer=33
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -138,8 +138,8 @@ real(dp)::SiversTMDPDF_hOGATA_TMM,SiversTMDPDF_toleranceOGATA_TMM,SiversTMDPDF_m
 
 !-------------------- wgtTMDPDF parameters
 logical::include_wgtTMDPDF
-character*8::wgtTMDPDF_order
-logical::wgtTMDPDF_makeGrid,wgtTMDPDF_withGluon,wgtTMDPDF_runGridTest
+character*8::wgtTMDPDF_order,wgtTMDPDF_orderLX
+logical::wgtTMDPDF_makeGrid,wgtTMDPDF_withGluon,wgtTMDPDF_runGridTest,wgtTMDPDF_largeX
 integer::wgtTMDPDF_numHadron
 character*8::wgtTMDPDF_order_tw3
 logical::wgtTMDPDF_makeGrid_tw3,wgtTMDPDF_withGluon_tw3,wgtTMDPDF_runGridTest_tw3
@@ -468,6 +468,8 @@ subroutine SetupDefault(order)
     wgtTMDPDF_withGluon=.false.
     wgtTMDPDF_numHadron=1
     wgtTMDPDF_runGridTest=.false.
+    wgtTMDPDF_largeX=.false.
+    wgtTMDPDF_orderLX=trim("NLO")
     wgtTMDPDF_lambdaLength=2
     wgtTMDPDF_BMAX_ABS=100.d0
     wgtTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
@@ -1248,6 +1250,10 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) wgtTMDPDF_makeGrid
     write(51,"('*p3  : run the test of the grid (takes some time)')")
     write(51,*) wgtTMDPDF_runGridTest
+    write(51,"('*p4  : Use large-X resummation in the coefficient function of OPE')")
+    write(51,*) wgtTMDPDF_largeX
+    write(51,"('*p5  : Order of the large-X resummation (should be bigger-or-equal to order in p1)')")
+    write(51,*) wgtTMDPDF_orderLX
     write(51,"(' ')")
     write(51,"('*C   : ---- Parameters of NP model ----')")
     write(51,"('*p1  : Length of lambdaNP')")
@@ -2067,6 +2073,12 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) wgtTMDPDF_makeGrid
     call MoveTO(51,'*p3  ')
     read(51,*) wgtTMDPDF_runGridTest
+    if(FILEversion>32) then !!!!! largeX for qgt was introduced in the 33.
+        call MoveTO(51,'*p4  ')
+        read(51,*) wgtTMDPDF_largeX
+        call MoveTO(51,'*p5  ')
+        read(51,*) wgtTMDPDF_orderLX
+    end if
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')
     read(51,*) wgtTMDPDF_lambdaLength

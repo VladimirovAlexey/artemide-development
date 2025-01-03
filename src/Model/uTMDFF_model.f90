@@ -74,7 +74,7 @@ function FNP(x,bT,hadron,lambdaNP)
     real(dp)::bb,w1,w2,Fmain
 
     bb=bT**2/x**2
-    
+    !!ART25
     if(hadron==1 .or. hadron==3) then
         !!! pion
         Fmain=1._dp/cosh(lambdaNP(1)*bT/x)
@@ -106,6 +106,7 @@ function FNP(x,bT,hadron,lambdaNP)
     else
         FNP=1._dp/cosh(lambdaNP(1)*bT/x)*(/1.d0,1.d0,1.d0,1.d0,1.d0,0.d0,1.d0,1.d0,1.d0,1.d0,1.d0/)
     end if
+
 
 end function FNP
   

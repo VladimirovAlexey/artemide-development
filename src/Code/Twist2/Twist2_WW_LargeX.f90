@@ -8,17 +8,20 @@
 !	Be AWARE of possible clash of variable names.
 !
 !	This part collect the definition of expressions used in the large-X resummation
+!     of WW-terms
 !
 !	v.3.00 Created (AV, 19.07.2024)
 !
 !				A.Vladimirov (19.07.2024)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+!! Coefficient function
+INCLUDE 'Code/Twist2/largeX_ADs.f90'
+
 !!! The large-X resummation leds to the following expression
-!!! (\delta(1-x)-A/(1-x)^(1+A)) Exp[EXP]
+!!! Exp[EXP]/(1-x)^A
 !!! where A and EXP are perturbative expressions
 !!! in this module create these expressions from the known part
-
 
 !!!!!Argument of the exponent
 !!! QUARK channel
@@ -100,19 +103,17 @@ end function LargeX_A_g_g
 !!!! The ordinary convolution \int_x^1 dy/y C(y) PDF(x/y) = CxF(x)/x
 !!!! the parameters x,y for model are defined as in this formula
 
-!!!! the computation with large-X resummation has different structure
-!!!! The delta-term exponentiates and mutiply the (..)_+ part
+!!!! the computation with large-X resummation is the same as usual computation with modified coeff.function.
+!!!! Note, that for WW term there is no delta and (..)_+ contributions.
 function CxF_largeX_compute(x,bT,hadron,includeGluon)
     real(dp),dimension(-5:5)::CxF_largeX_compute
     integer, intent(in)::hadron
     real(dp),intent(in)::x,bT
     logical,intent(in)::includeGluon
-    real(dp):: bTcurrent,lx
+    real(dp):: bTcurrent
 
-    real(dp),dimension(-5:5)::deltaPart,PLUSremnant
-    real(dp):: muAt1,asAt1,LogAt1,Cqq,Cgg,Csingqq,Csinggg,alpha_powerQ_at1,alpha_powerG_at1
+    real(dp):: muAt1,asAt1,LogAt1,Cqq,Cgg,alpha_powerQ_at1,alpha_powerG_at1,exp_qq,exp_gg
     integer::NfAt1
-    real(dp),dimension(1:3)::CplusAt1_gg,CplusAt1_qq
     real(dp),dimension(-5:5)::PDFat1
 
     real(dp),dimension(1:parametrizationLength):: Bqq,Bqg,Bgq,Bgg,Bqqb,Bqqp
@@ -164,51 +165,31 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
       ERROR STOP ErrorString('The powerG of large-X resummation is bigger than 0.9',moduleName)
     end if
 
-    !!!! the computation with large-X resummation has different structure
-    !!!! if there is no large-X resummation all terms are additive
-    !!!! if there is large-X resummation them delta-term exponentiates and mutiply the (..)_+ part
-
-    !!!! delta-part in the resummed case is exp(....)
-    Cqq=exp(LargeX_EXP_q_q(asAt1,NfAt1,LogAt1))
+    !!!! The exponent term
+    exp_qq=exp(LargeX_EXP_q_q(asAt1,NfAt1,LogAt1))
     if(includeGluon) then
-        Cgg=exp(LargeX_EXP_g_g(asAt1,NfAt1,LogAt1))
+        exp_gg=exp(LargeX_EXP_g_g(asAt1,NfAt1,LogAt1))
     else
-        Cgg=0._dp
+        exp_gg=0._dp
     end if
-    deltaPart=(/Cqq,Cqq,Cqq,Cqq,Cqq,Cgg,Cqq,Cqq,Cqq,Cqq,Cqq/)
 
-
-    !!! it is expected that orderLX>=orderMain
-    !!!! other parts contribute only if order >LO
+    !!!! it is expected the resummation orde is >0
     if(orderLX>0) then
-
-      !!!! the ''remnant term'' is f(x)/(1-x)^a
-
-      Csingqq=(1-x)**(-alpha_powerQ_at1)
-      if(includeGluon) then
-        Csinggg=(1-x)**(-alpha_powerG_at1)
-      else
-        Csinggg=0._dp
-      end if
-
-      PLUSremnant=(/Csingqq,Csingqq,Csingqq,Csingqq,Csingqq,&
-    Csinggg,Csingqq,Csingqq,Csingqq,Csingqq,Csingqq/)*PDFat1
-
 
     !!! if mu is y-independent then one can use the value of coeff at y=1
     !!! and do not update them for each iteration of the integral
     if(.not.IsMuYdependent) then
-        Bqq=Coeff_q_q_reg(asAt1,NfAt1,LogAt1)
-        Bqg=Coeff_q_g_reg(asAt1,NfAt1,LogAt1)
+        Bqq=Coeff_q_q_reg_largeX(asAt1,NfAt1,LogAt1)
+        Bqg=Coeff_q_g_reg_largeX(asAt1,NfAt1,LogAt1)
         if(includeGluon) then
-        Bgq=Coeff_g_q_reg(asAt1,NfAt1,LogAt1)
-        Bgg=Coeff_g_g_reg(asAt1,NfAt1,LogAt1)
+        Bgq=Coeff_g_q_reg_largeX(asAt1,NfAt1,LogAt1)
+        Bgg=Coeff_g_g_reg_largeX(asAt1,NfAt1,LogAt1)
         else
         Bgq=0._dp
         Bgg=0._dp
         end if
-        Bqqb=Coeff_q_qb_reg(asAt1,NfAt1,LogAt1)
-        Bqqp=Coeff_q_qp_reg(asAt1,NfAt1,LogAt1)
+        Bqqb=Coeff_q_qb_reg_largeX(asAt1,NfAt1,LogAt1)
+        Bqqp=Coeff_q_qp_reg_largeX(asAt1,NfAt1,LogAt1)
     end if
 
     !!! for smaller x, the part y~1 can be computed approximately (the xCUT is necesary since if x~y the error grows)
@@ -219,8 +200,7 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
     end if
 
     !!!!! minus signs are because of definition alpha-coefficient
-    CxF_largeX_compute=deltaPart*(PLUSremnant-Integrate_GK_array5(FFplus,x,yCUT,toleranceINT)-Integrate_largey_PLUS())&
-            +Integrate_GK_array5(FFreg,x,yCUT,toleranceINT)+Integrate_largey_Reg()
+    CxF_largeX_compute=Integrate_GK_array5(FFreg,x,yCUT,toleranceINT)+Integrate_largey_Reg()
 
     else
       !!!!! order =0
@@ -266,24 +246,31 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
             LogCurrent=LogMuB(bTcurrent,x,y)
             NfCurrent=activeNf(muCurrent)
 
-            Aqq=sum(var*Coeff_q_q_reg(asCurrent,NfCurrent,LogCurrent))
-            Aqg=sum(var*Coeff_q_g_reg(asCurrent,NfCurrent,LogCurrent))
+            Aqq=sum(var*Coeff_q_q_reg_largeX(asCurrent,NfCurrent,LogCurrent)) &
+                      +exp_qq/(1-y)**LargeX_A_q_q(asCurrent,NfCurrent,LogCurrent) !!!! only quark and gluon get large-x change
+            Aqg=sum(var*Coeff_q_g_reg_largeX(asCurrent,NfCurrent,LogCurrent))
             if(includeGluon) then
-            Agq=sum(var*Coeff_g_q_reg(asCurrent,NfCurrent,LogCurrent))
-            Agg=sum(var*Coeff_g_g_reg(asCurrent,NfCurrent,LogCurrent))
+            Agq=sum(var*Coeff_g_q_reg_largeX(asCurrent,NfCurrent,LogCurrent))
+            Agg=sum(var*Coeff_g_g_reg_largeX(asCurrent,NfCurrent,LogCurrent))&
+                      +exp_gg/(1-y)**LargeX_A_g_g(asCurrent,NfCurrent,LogCurrent) !!!! only quark and gluon get large-x change
             else
             Agq=0._dp
             Agg=0._dp
             end if
-            Aqqb=sum(var*Coeff_q_qb_reg(asCurrent,NfCurrent,LogCurrent))
-            Aqqp=sum(var*Coeff_q_qp_reg(asCurrent,NfCurrent,LogCurrent))
+            Aqqb=sum(var*Coeff_q_qb_reg_largeX(asCurrent,NfCurrent,LogCurrent))
+            Aqqp=sum(var*Coeff_q_qp_reg_largeX(asCurrent,NfCurrent,LogCurrent))
 
             PDFs=xf(x/y,muCurrent,hadron)
         else
-            Aqq=sum(var*Bqq)
+            Aqq=sum(var*Bqq)+exp_qq/(1-y)**alpha_powerQ_at1
             Aqg=sum(var*Bqg)
+            if(includeGluon) then
             Agq=sum(var*Bgq)
-            Agg=sum(var*Bgg)
+            Agg=sum(var*Bgg)+exp_gg/(1-y)**alpha_powerG_at1
+            else
+            Agq=0._dp
+            Agg=0._dp
+            end if
             Aqqb=sum(var*Bqqb)
             Aqqp=sum(var*Bqqp)
 
@@ -307,141 +294,6 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
         Aqq*PDFs(5)+Aqqb*PDFs(-5)+Aqqp*PDFsum+Aqg*PDFs(0)/)
     end function FFreg
 
-    !!! (..)_+ integrand
-    !!! this part is int [alpha(y)f(x/y)/(1-y)^{1+alpha(y)}-alpha(1)f(x)/(1-y)^{1+alpha(1)}]
-    function FFplus(y)
-        real(dp),dimension(-5:5)::FFplus
-        real(dp),intent(in)::y
-        real(dp),dimension(-5:5)::PDF,inter1,inter2
-        real(dp)::muCurrent,asCurrent,LogCurrent,dummy1,dummy2,alpha_inter
-        integer::NfCurrent
-
-        !!!! if mu is y-dependent one needs to update the values each step
-        if(IsMuYdependent) then
-            muCurrent=muOPE(bTcurrent,x,y,c4_global)
-            asCurrent=As(muCurrent)
-            LogCurrent=LogMuB(bTcurrent,x,y)
-            NfCurrent=activeNf(muCurrent)
-
-            !!!! expression at y
-            alpha_inter=LargeX_A_q_q(asCurrent,NfCurrent,LogCurrent)
-            dummy1=alpha_inter/(1-y)**(1+alpha_inter)
-
-            if(includeGluon) then
-                alpha_inter=LargeX_A_g_g(asCurrent,NfCurrent,LogCurrent)
-                dummy2=alpha_inter/(1-y)**(1+alpha_inter)
-            else
-                dummy2=0._dp
-            end if
-            PDF=xf(x/y,muCurrent,hadron)
-
-            inter1=(/dummy1,dummy1,dummy1,dummy1,dummy1,&
-            dummy2,dummy1,dummy1,dummy1,dummy1,dummy1/)
-
-            !!!! expression at y=1
-            dummy1=alpha_powerQ_at1/(1-y)**(1+alpha_powerQ_at1)
-
-            if(includeGluon) then
-                dummy2=alpha_powerG_at1/(1-y)**(1+alpha_powerG_at1)
-            else
-                dummy2=0._dp
-            end if
-
-            inter2=(/dummy1,dummy1,dummy1,dummy1,dummy1,&
-            dummy2,dummy1,dummy1,dummy1,dummy1,dummy1/)
-
-            FFplus=(inter1*PDF-inter2*PDFat1)
-        else
-
-            !!!! expression at y=1
-            dummy1=alpha_powerQ_at1/(1-y)**(1+alpha_powerQ_at1)
-
-            if(includeGluon) then
-                dummy2=alpha_powerG_at1/(1-y)**(1+alpha_powerG_at1)
-            else
-                dummy2=0._dp
-            end if
-
-            PDF=xf(x/y,muAt1,hadron)
-
-            inter2=(/dummy1,dummy1,dummy1,dummy1,dummy1,&
-            dummy2,dummy1,dummy1,dummy1,dummy1,dummy1/)
-
-            FFplus=inter2*(PDF-PDFat1)
-        end if
-
-    end function FFplus
-
-
-    !!!!! approximate integration of y~1. It is presice up to 5-6 digits for y~0.9999, and x<0.8
-    !!!!! This is a part that result from the (..)_+ distribution
-    !!!!! the approximation is like that
-    !!!!! \int_y0^1 dy/y [f(x/y)-f(x)]/(1-y) \sim (1-y0) x f'(x) for y0->1
-    !!!!! it is the same as [f(x/y0)-f(x)] for y0->1
-    !!!!! and similar for ~log-terms
-    function Integrate_largey_PLUS()
-        real(dp),dimension(-5:5)::Integrate_largey_PLUS
-        real(dp),dimension(1:3)::Cplus_qq,Cplus_gg
-        real(dp)::muCurrent,asCurrent,LogCurrent,dummy1,dummy2,alpha_inter
-        integer::NfCurrent
-        real(dp),dimension(-5:5)::PDFs,inter1,inter2
-
-        !!!!The integrals over (..)_+ is
-        if(IsMuYdependent) then
-            !!! if mu is y-dependent one needs to update the values of parameters for each y
-            muCurrent=muOPE(bTcurrent,x,yCUT,c4_global)
-            asCurrent=As(muCurrent)
-            LogCurrent=LogMuB(bTcurrent,x,yCUT)
-            NfCurrent=activeNf(muCurrent)
-
-            PDFs=xf(x/yCUT,muCurrent,hadron)
-
-            !!!! expression at y
-            alpha_inter=LargeX_A_q_q(asCurrent,NfCurrent,LogCurrent)
-            dummy1=alpha_inter/(1-yCUT)**(alpha_inter)/(1-alpha_inter)
-
-            if(includeGluon) then
-                alpha_inter=LargeX_A_g_g(asCurrent,NfCurrent,LogCurrent)
-                dummy2=alpha_inter/(1-yCUT)**(1+alpha_inter)/(1-alpha_inter)
-            else
-                dummy2=0._dp
-            end if
-            PDFs=xf(x/yCUT,muCurrent,hadron)
-
-            inter1=(/dummy1,dummy1,dummy1,dummy1,dummy1,&
-            dummy2,dummy1,dummy1,dummy1,dummy1,dummy1/)
-
-            !!!! expression at y=1
-            dummy1=alpha_powerQ_at1/(1-yCUT)**(alpha_powerQ_at1)/(1-alpha_inter)
-
-            if(includeGluon) then
-                dummy2=alpha_powerG_at1/(1-yCUT)**(alpha_powerG_at1)/(1-alpha_inter)
-            else
-                dummy2=0._dp
-            end if
-
-            inter2=(/dummy1,dummy1,dummy1,dummy1,dummy1,&
-            dummy2,dummy1,dummy1,dummy1,dummy1,dummy1/)
-
-            Integrate_largey_PLUS=(inter1*PDFs-inter2*PDFat1)
-        else
-            PDFs=xf(x/yCUT,muAt1,hadron)
-
-            !!!! expression at y=1
-            dummy1=alpha_powerQ_at1/(1-yCUT)**(alpha_powerQ_at1)/(1-alpha_inter)
-
-            if(includeGluon) then
-                dummy2=alpha_powerG_at1/(1-yCUT)**(alpha_powerG_at1)/(1-alpha_inter)
-            else
-                dummy2=0._dp
-            end if
-
-            Integrate_largey_PLUS=(/dummy1,dummy1,dummy1,dummy1,dummy1,&
-            dummy2,dummy1,dummy1,dummy1,dummy1,dummy1/)*(PDFs-PDFat1)
-        end if
-
-    end function Integrate_largey_PLUS
-
     !!!!! approximate integration of y~1. It is presice up to 5-6 digits for y~0.9999, and x<0.8
     !!!!! the approximation is done as
     !!!!! \int_y0^1 f(x/y) g[y] \sim f[x]\int_y0^1 g[y] the integrals over g[y] are taken analytically for y0->1
@@ -454,12 +306,18 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
         !!! the integral over regular part is simpler
         !!!! it is just the value f[x]int_x^1 ...
         var=parametrizationStringAt1(yCUT)
-        Aqq=sum(var*Bqq)
+        Aqq=sum(var*Bqq)+exp_qq/(1-yCUT)**alpha_powerQ_at1
         Aqg=sum(var*Bqg)
+        if(includeGluon) then
         Agq=sum(var*Bgq)
-        Agg=sum(var*Bgg)
+        Agg=sum(var*Bgg)+exp_gg/(1-yCUT)**alpha_powerG_at1
+        else
+        Agq=0._dp
+        Agg=0._dp
+        end if
         Aqqb=sum(var*Bqqb)
         Aqqp=sum(var*Bqqp)
+
 
         PDFs=xf(x,muAt1,hadron)
 

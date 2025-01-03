@@ -12,7 +12,7 @@
  
 *A   : ---- Global I/O ----
 *p1  : Input file Version (used to check version compatibility)
-          32
+          33
 *p2  : Output level (0 = no output except critical, 1 = + WARNINGS, 2 = + info,  3 = + details)
            2
 *p3  : Message trigger (the number of continious non-critical warning before stop showing them)
@@ -556,6 +556,10 @@
  T
 *p3  : run the test of the grid (takes some time)
            F
+*p4  : Use large-X resummation in the coefficient function of OPE
+ F
+*p5  : Order of large-X resummation (should be bigger-or-equal to order in p1)
+ N3LO
 
 *C   : ---- Parameters of NP model ----
 *p1  : Length of lambdaNP

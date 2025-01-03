@@ -229,8 +229,13 @@ function CxF_compute(x,bT,hadron,includeGluon)
         else
             Aqq=sum(var*Bqq)
             Aqg=sum(var*Bqg)
+            if(includeGluon) then
             Agq=sum(var*Bgq)
             Agg=sum(var*Bgg)
+            else
+            Agq=0._dp
+            Agg=0._dp
+            end if
             Aqqb=sum(var*Bqqb)
             Aqqp=sum(var*Bqqp)
 
@@ -378,8 +383,13 @@ function CxF_compute(x,bT,hadron,includeGluon)
         var=parametrizationStringAt1(yCUT)
         Aqq=sum(var*Bqq)
         Aqg=sum(var*Bqg)
-        Agq=sum(var*Bgq)
-        Agg=sum(var*Bgg)
+        if(includeGluon) then
+            Agq=sum(var*Bgq)
+            Agg=sum(var*Bgg)
+        else
+            Agq=0._dp
+            Agg=0._dp
+        end if
         Aqqb=sum(var*Bqqb)
         Aqqp=sum(var*Bqqp)
 
