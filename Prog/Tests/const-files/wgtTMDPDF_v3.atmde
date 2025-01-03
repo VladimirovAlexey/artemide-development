@@ -559,7 +559,7 @@
 *p4  : Use large-X resummation in the coefficient function of OPE
  T
 *p5  : Order of large-X resummation (should be bigger-or-equal to order in p1)
- NNLO
+ N3LO
 
 *C   : ---- Parameters of NP model ----
 *p1  : Length of lambdaNP
