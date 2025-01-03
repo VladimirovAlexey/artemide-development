@@ -77,7 +77,7 @@ $(SOURCEDIR)/aTMDe_control.f90
 Twist2Files=\
 $(SOURCEDIR)/Code/Twist2/Twist2Convolution.f90 \
 $(SOURCEDIR)/Code/Twist2/largeX_ADs.f90 \
-$(SOURCEDIR)/Code/Twist2/Twist2_WW_LargeX.f90 \
+$(SOURCEDIR)/Code/Twist2/Twist2_WW.f90 \
 $(SOURCEDIR)/Code/Twist2/Twist2LargeX.f90 \
 $(SOURCEDIR)/Code/Twist2/Twist2_ChGrid.f90 \
 $(SOURCEDIR)/Code/Twist2/Twist2-AS-term.f90

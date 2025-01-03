@@ -111,14 +111,11 @@ contains
 !! Coefficient function
 INCLUDE 'Code/wgtTMDPDF/coeffFunc.f90'
 
-!! Mellin convolution routine
-INCLUDE 'Code/Twist2/Twist2Convolution.f90'
-
 !! Coefficient function
 INCLUDE 'Code/wgtTMDPDF/coeffFunc_largeX.f90'
 
 !! Mellin convolution routine
-INCLUDE 'Code/Twist2/Twist2_WW_LargeX.f90'
+INCLUDE 'Code/Twist2/Twist2_WW.f90'
 
 
 function wgtTMDPDF_OPE_IsInitialized()

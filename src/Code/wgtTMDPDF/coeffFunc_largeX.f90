@@ -11,16 +11,15 @@
 
 !!!! parametrizationString=(/1d0,z,Log(z),Log(1d0-z)/)
 
-!!!!!coefficient function q<-q regular-part  
-!!!!! note that the order counting starts from 1=LO, 2=NLO etc. Because 0=delta contribution only[in Twist2Convolution]
+!!!!!coefficient function q<-q regular-part
 pure function Coeff_q_q_reg_largeX(alpha,Nf,Lmu)
     real(dp),dimension(1:parametrizationLength)::Coeff_q_q_reg_largeX
     real(dp), intent(in)::alpha,Lmu
     integer,intent(in)::Nf
 
     !! the Leading order is 1, it is WW-part of worm-gear function
-    Coeff_q_q_reg_largeX=(/1d0,0d0,0d0,0d0/) !1
-    if(orderMain>=2) then
+    Coeff_q_q_reg_largeX=(/0d0,0d0,0d0,0d0/) !1
+    if(orderMain>=1) then
               
         Coeff_q_q_reg_largeX=Coeff_q_q_reg_largeX+alpha*4d0/3d0*(/&
         2d0*Lmu-2d0, -2d0*Lmu+2d0, 2d0*Lmu-2d0, 0d0/) !
@@ -30,7 +29,6 @@ pure function Coeff_q_q_reg_largeX(alpha,Nf,Lmu)
 end function Coeff_q_q_reg_largeX
 
 !!!!!coefficient function q<-g regular-part  
-!!!!! note that the order counting starts from 1=LO, 2=NLO etc. Because 0=delta contribution only[in Twist2Convolution]
 pure function Coeff_q_g_reg_largeX(alpha,Nf,Lmu)
     real(dp),dimension(1:parametrizationLength)::Coeff_q_g_reg_largeX
     real(dp), intent(in)::alpha,Lmu
@@ -38,7 +36,7 @@ pure function Coeff_q_g_reg_largeX(alpha,Nf,Lmu)
 
     !! the Leading order is always zero, therefore calculation should be done only for order >=1
     Coeff_q_g_reg_largeX=(/0d0,0d0,0d0,0d0/)
-    if(orderMain>=2) then
+    if(orderMain>=1) then
         Coeff_q_g_reg_largeX=Coeff_q_g_reg_largeX+alpha*(/-2d0*Lmu+1d0, 2d0*Lmu-1d0, -Lmu+0.5d0, 0d0/)
     end if
 end function Coeff_q_g_reg_largeX

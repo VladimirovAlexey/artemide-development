@@ -76,7 +76,6 @@ pure function Coeff_g_g_plus(alpha,Nf,Lmu)
 end function Coeff_g_g_plus
 
 !!!!!coefficient function q<-q regular-part  
-!!!!! note that the order counting starts from 1=LO, 2=NLO etc. Because 0=delta contribution only[in Twist2Convolution]
 pure function Coeff_q_q_reg(alpha,Nf,Lmu)
     real(dp),dimension(1:parametrizationLength)::Coeff_q_q_reg
     real(dp), intent(in)::alpha,Lmu
@@ -84,7 +83,7 @@ pure function Coeff_q_q_reg(alpha,Nf,Lmu)
 
     !! the Leading order is 1, it is WW-part of worm-gear function
     Coeff_q_q_reg=(/1d0,0d0,0d0,0d0/) !1
-    if(orderMain>=2) then
+    if(orderMain>=1) then
               
         Coeff_q_q_reg=Coeff_q_q_reg+alpha*4d0/3d0*(/&
         -Lmu-2d0-zeta2, -2d0*Lmu+2d0, 2d0*Lmu-2d0, -4d0*Lmu/) !
@@ -94,7 +93,6 @@ pure function Coeff_q_q_reg(alpha,Nf,Lmu)
 end function Coeff_q_q_reg
 
 !!!!!coefficient function q<-g regular-part  
-!!!!! note that the order counting starts from 1=LO, 2=NLO etc. Because 0=delta contribution only[in Twist2Convolution]
 pure function Coeff_q_g_reg(alpha,Nf,Lmu)
     real(dp),dimension(1:parametrizationLength)::Coeff_q_g_reg
     real(dp), intent(in)::alpha,Lmu
@@ -102,7 +100,7 @@ pure function Coeff_q_g_reg(alpha,Nf,Lmu)
 
     !! the Leading order is always zero, therefore calculation should be done only for order >=1
     Coeff_q_g_reg=(/0d0,0d0,0d0,0d0/)
-    if(orderMain>=2) then
+    if(orderMain>=1) then
         Coeff_q_g_reg=Coeff_q_g_reg+alpha*(/-2d0*Lmu+1d0, 2d0*Lmu-1d0, -Lmu+0.5d0, 0d0/)
     end if
 end function Coeff_q_g_reg

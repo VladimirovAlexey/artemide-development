@@ -77,31 +77,40 @@ function FNP(x,bT,hadron,lambdaNP)
   real(dp),intent(in)::lambdaNP(:)
     real(dp)::FNP0
 
-    FNP0=Exp(-0.5d0*bT**2)
+    FNP0=Exp(-lambdaNP(1)*bT**2)
 
     FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
 end function FNP
   
-!!!! This is the function b* that enters the logarithms of coefficient function in tw2-part
+!!!! This is the function b* that enters the logarithms of coefficient function
 !!!! at small-b it should be ~b to match the collinear regime
 !!!! at large-b it is a part of model
 !!!! x -- is the global x for TMDPDF,
 !!!! y -- is the convolution variable in the definition \int dy/y C(y) PDF(x/y)
 pure function bSTAR(bT,x,y)
     real(dp),intent(in)::bT,x,y
+    real(dp)::ee
 
-    bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
+    ee=exp(-0.04d0*bT**2)
+
+    !!!! ART25
+    bSTAR=bT*ee+(1-ee)*C0_const/muOPE(bT,x,y,1.d0)
+
+
+    !bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
+    !bSTAR=bT/sqrt(1d0+(bT/1.d0)**2)
+
 end function bSTAR
-  
-!!!!This function is the mu(x,b), which is used inside the OPE in tw2-part
+
+!!!!This function is the mu(x,b), which is used inside the OPE
 !!!! x -- is the global x for TMDPDF,
 !!!! y -- is the convolution variable in the definition \int dy/y C(y) PDF(x/y)
 !!!! c4-- is the scale variation variable
 pure function muOPE(bt,x,y,c4)
     real(dp),intent(in)::bt,x,y,c4
 
-    muOPE=C0_const*c4/bT+2d0
-    
+    muOPE=C0_const*c4/bT+5d0
+
     if(muOPE>1000d0) then
         muOPE=1000d0
     end if
