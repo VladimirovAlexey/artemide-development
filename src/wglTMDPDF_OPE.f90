@@ -1,13 +1,13 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !            arTeMiDe 3.00
 !
-!    Evaluation of the small-b OPE for wgtTMDPDF
+!    Evaluation of the small-b OPE for wglTMDPDF
 !
-!    if you use this module please, quote ????.????
+!    if you use this module please, quote 2209.00962
 !
-!    ver 3.00: release (AV, 21.07.2023)
+!    ver 3.00: release (AV, 07.01.2024)
 !
-!                A.Vladimirov (21.07.2023)
+!                A.Vladimirov (07.01.2024)
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -18,18 +18,18 @@
 ! * only global variables are kept here
 ! * the most part of the code is universal, and shared by many such modules
 
-module Grid_wgtTMDPDF
+module Grid_wglTMDPDF
 INCLUDE 'Code/Twist2/Twist2_ChGrid.f90'
-end module Grid_wgtTMDPDF
+end module Grid_wglTMDPDF
 
-module wgtTMDPDF_OPE
+module wglTMDPDF_OPE
 use aTMDe_Numerics
 use IntegrationRoutines
 use IO_functions
 use QCDinput
 use TMD_AD, only : Dpert_atL
-use wgtTMDPDF_model
-use Grid_wgtTMDPDF
+use wglTMDPDF_model
+use Grid_wglTMDPDF
 implicit none
 
 !------------------------LOCALs -----------------------------------------------
@@ -38,9 +38,9 @@ private
 
 !Current version of module
 character (len=5),parameter :: version="v3.01"
-character (len=13),parameter :: moduleName="wgtTMDPDF_OPE"
+character (len=13),parameter :: moduleName="wglTMDPDF_OPE"
 !Last appropriate version of constants-file
-integer,parameter::inputver=33
+integer,parameter::inputver=34
 
 !--- general
 logical:: started=.false.
@@ -98,10 +98,10 @@ logical :: gridReady!!!!indicator that grid is ready to use. If it is .true., th
 
 
 !!--------------------------------------Public interface-----------------------------------------
-public::wgtTMDPDF_OPE_IsInitialized,wgtTMDPDF_OPE_Initialize,wgtTMDPDF_OPE_convolution
-public::wgtTMDPDF_OPE_resetGrid,wgtTMDPDF_OPE_SetPDFreplica,wgtTMDPDF_OPE_SetScaleVariation
-public::wgtTMDPDF_OPE_tw3_convolution,wgtTMDPDF_OPE_tw3_testGrid,wgtTMDPDF_OPE_tw3_resetGrid
-public::wgtTMDPDF_OPE_tw3_SetPDFreplica,wgtTMDPDF_OPE_tw3_SetScaleVariation
+public::wglTMDPDF_OPE_IsInitialized,wglTMDPDF_OPE_Initialize,wglTMDPDF_OPE_convolution
+public::wglTMDPDF_OPE_resetGrid,wglTMDPDF_OPE_SetPDFreplica,wglTMDPDF_OPE_SetScaleVariation
+public::wglTMDPDF_OPE_tw3_convolution,wglTMDPDF_OPE_tw3_testGrid,wglTMDPDF_OPE_tw3_resetGrid
+public::wglTMDPDF_OPE_tw3_SetPDFreplica,wglTMDPDF_OPE_tw3_SetScaleVariation
 
 !!!!!!----FOR TEST
 !public::MakeGrid,ExtractFromGrid,CxF_compute,TestGrid
@@ -109,22 +109,22 @@ public::wgtTMDPDF_OPE_tw3_SetPDFreplica,wgtTMDPDF_OPE_tw3_SetScaleVariation
 contains
 
 !! Coefficient function
-INCLUDE 'Code/wgtTMDPDF/coeffFunc.f90'
+INCLUDE 'Code/wglTMDPDF/coeffFunc.f90'
 
 !! Coefficient function
-INCLUDE 'Code/wgtTMDPDF/coeffFunc_largeX.f90'
+INCLUDE 'Code/wglTMDPDF/coeffFunc_largeX.f90'
 
 !! Mellin convolution routine
 INCLUDE 'Code/Twist2/Twist2_WW.f90'
 
 
-function wgtTMDPDF_OPE_IsInitialized()
-    logical::wgtTMDPDF_OPE_IsInitialized
-    wgtTMDPDF_OPE_IsInitialized=started
-end function wgtTMDPDF_OPE_IsInitialized
+function wglTMDPDF_OPE_IsInitialized()
+    logical::wglTMDPDF_OPE_IsInitialized
+    wglTMDPDF_OPE_IsInitialized=started
+end function wglTMDPDF_OPE_IsInitialized
 
 !! Initialization of the package
-subroutine wgtTMDPDF_OPE_Initialize(file,prefix)
+subroutine wglTMDPDF_OPE_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
     character(len=300)::path
@@ -327,7 +327,7 @@ subroutine wgtTMDPDF_OPE_Initialize(file,prefix)
 
     call Twist2_ChGrid_Initialize(path,'*13  ','*E   ',numberOfHadrons,withGluon,moduleName,outputLevel)
     
-    !!! Model initialisation is called from the wgtTMDPDF-module
+    !!! Model initialisation is called from the wglTMDPDF-module
     
     !!!!!!!Checking the x-dependance of muOPE
     IsMuYdependent=testMU()
@@ -354,10 +354,10 @@ subroutine wgtTMDPDF_OPE_Initialize(file,prefix)
     started=.true.
     messageCounter=0
 
-    if(outputLevel>0) write(*,*) color('----- arTeMiDe.wgtTMDPDF_OPE '//trim(version)//': .... initialized',c_green)
+    if(outputLevel>0) write(*,*) color('----- arTeMiDe.wglTMDPDF_OPE '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) ' '
 
-end subroutine wgtTMDPDF_OPE_Initialize
+end subroutine wglTMDPDF_OPE_Initialize
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
@@ -368,13 +368,13 @@ function xf(x,Q,hadron)
     integer:: hadron
     real(dp), dimension(-5:5):: xf
     
-    xf=x_gPDF(x,Q,hadron)
+    xf=x_hPDF(x,Q,hadron)
     
 end function xf
 
 
-function wgtTMDPDF_OPE_convolution(x,b,h,addGluon)
-    real(dp),dimension(-5:5)::wgtTMDPDF_OPE_convolution
+function wglTMDPDF_OPE_convolution(x,b,h,addGluon)
+    real(dp),dimension(-5:5)::wglTMDPDF_OPE_convolution
     real(dp),intent(in)::x,b
     integer,intent(in)::h
     logical,optional,intent(in)::addGluon
@@ -388,42 +388,42 @@ function wgtTMDPDF_OPE_convolution(x,b,h,addGluon)
         gluon=withGluon
     end if
 
-    !!!! test for boundaries is done in wgtTMDPDF_lowScale5 (on the enty to this procedure)
+    !!!! test for boundaries is done in wglTMDPDF_lowScale5 (on the enty to this procedure)
 
     !!!! case NA
     if(orderMain==-50) then
         if(gluon) then
-            wgtTMDPDF_OPE_convolution=1._dp
+            wglTMDPDF_OPE_convolution=1._dp
         else
-            wgtTMDPDF_OPE_convolution=(/1._dp,1._dp,1._dp,1._dp,1._dp,0._dp,1._dp,1._dp,1._dp,1._dp,1._dp/)
+            wglTMDPDF_OPE_convolution=(/1._dp,1._dp,1._dp,1._dp,1._dp,0._dp,1._dp,1._dp,1._dp,1._dp,1._dp/)
         end if
         return
     end if
 
-    !!!! The factor 1/x is removed because the WW part of wgt is multiplied by x
+    !!!! The factor 1/x is replace by (-x) because the WW part of wgl is multiplied by -x^2
 
     !!! computation
     if(useGrid) then
         if(gridReady) then
-            wgtTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)
+            wglTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)*(-x)
         else
             call Warning_Raise('Called OPE_convolution while grid is not ready.',messageCounter,messageTrigger,moduleName)
-            call wgtTMDPDF_OPE_resetGrid()
-            wgtTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)
+            call wglTMDPDF_OPE_resetGrid()
+            wglTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)*(-x)
         end if
     else
         if(resumLargeX) then
-            wgtTMDPDF_OPE_convolution=CxF_largeX_compute(x,b,h,gluon)
+            wglTMDPDF_OPE_convolution=CxF_largeX_compute(x,b,h,gluon)*(-x)
         else
-            wgtTMDPDF_OPE_convolution=CxF_compute(x,b,h,gluon)
+            wglTMDPDF_OPE_convolution=CxF_compute(x,b,h,gluon)*(-x)
         end if
     end if
 
-end function wgtTMDPDF_OPE_convolution
+end function wglTMDPDF_OPE_convolution
 
 !!! this is convolution with twist3 PDF
-function wgtTMDPDF_OPE_tw3_convolution(x,b,h,addGluon)
-    real(dp),dimension(-5:5)::wgtTMDPDF_OPE_tw3_convolution
+function wglTMDPDF_OPE_tw3_convolution(x,b,h,addGluon)
+    real(dp),dimension(-5:5)::wglTMDPDF_OPE_tw3_convolution
     real(dp),intent(in)::x,b
     integer,intent(in)::h
     logical,optional,intent(in)::addGluon
@@ -437,26 +437,26 @@ function wgtTMDPDF_OPE_tw3_convolution(x,b,h,addGluon)
         gluon=withGluonTW3
     end if
 
-    !!!! test for boundaries is done in wgtTMDPDF_lowScale5 (on the enty to this procedure)
+    !!!! test for boundaries is done in wglTMDPDF_lowScale5 (on the enty to this procedure)
 
     !!!! case NA
     if(orderMain==-50) then
         if(gluon) then
-            wgtTMDPDF_OPE_tw3_convolution=1._dp
+            wglTMDPDF_OPE_tw3_convolution=1._dp
         else
-            wgtTMDPDF_OPE_tw3_convolution=(/1._dp,1._dp,1._dp,1._dp,1._dp,0._dp,1._dp,1._dp,1._dp,1._dp,1._dp/)
+            wglTMDPDF_OPE_tw3_convolution=(/1._dp,1._dp,1._dp,1._dp,1._dp,0._dp,1._dp,1._dp,1._dp,1._dp,1._dp/)
         end if
         return
     end if
 
     !!!!! perturbative convolution is not implemented yet
 
-end function wgtTMDPDF_OPE_tw3_convolution
+end function wglTMDPDF_OPE_tw3_convolution
 
 
 !!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
 !!! This subroutine force reconstruction of the grid (if griding is ON)
-subroutine wgtTMDPDF_OPE_resetGrid()
+subroutine wglTMDPDF_OPE_resetGrid()
     gridReady=.false.
     if(useGrid) then
         if(outputLevel>1) write(*,*) 'arTeMiDe ',moduleName,':  Grid Reset. with c4=',c4_global
@@ -469,66 +469,66 @@ subroutine wgtTMDPDF_OPE_resetGrid()
 
         gridReady=.true.
     end if
-end subroutine wgtTMDPDF_OPE_resetGrid
+end subroutine wglTMDPDF_OPE_resetGrid
 
 !! call QCDinput to change the PDF replica number
 !! unset the grid, since it should be recalculated fro different PDF replica.
-subroutine wgtTMDPDF_OPE_SetPDFreplica(rep,hadron)
+subroutine wglTMDPDF_OPE_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
     logical::newPDF
 
-    call QCDinput_SetgPDFreplica(rep,hadron,newPDF)
+    call QCDinput_SethPDFreplica(rep,hadron,newPDF)
     if(newPDF) then
         gridReady=.false.
-        call wgtTMDPDF_OPE_resetGrid()
+        call wglTMDPDF_OPE_resetGrid()
     else
         if(outputLevel>1) write(*,"('arTeMiDe ',A,':  replica of PDF (',I4,' is the same as the used one. Nothing is done!')") &
         moduleName, rep
     end if
 
-end subroutine wgtTMDPDF_OPE_SetPDFreplica
+end subroutine wglTMDPDF_OPE_SetPDFreplica
 
 !!!! this routine set the variations of scales
 !!!! it is used for the estimation of errors
-subroutine wgtTMDPDF_OPE_SetScaleVariation(c4_in)
+subroutine wglTMDPDF_OPE_SetScaleVariation(c4_in)
     real(dp),intent(in)::c4_in
     if(c4_in<0.1d0 .or. c4_in>10.d0) then
         if(outputLevel>0) write(*,*) WarningString('variation in c4 is enourmous. c4 is set to 2',moduleName)
         c4_global=2d0
-        call wgtTMDPDF_OPE_resetGrid()
+        call wglTMDPDF_OPE_resetGrid()
     else if(abs(c4_in-c4_global)<toleranceGEN) then
-        if(outputLevel>1) write(*,*) color('wgtTMDPDF: c4-variation is ignored. c4='//real8ToStr(c4_global),c_yellow)
+        if(outputLevel>1) write(*,*) color('wglTMDPDF: c4-variation is ignored. c4='//real8ToStr(c4_global),c_yellow)
     else
         c4_global=c4_in
-        if(outputLevel>1) write(*,*) color('wgtTMDPDF: set scale variations c4 as:'//real8ToStr(c4_global),c_yellow)
-        call wgtTMDPDF_OPE_resetGrid()
+        if(outputLevel>1) write(*,*) color('wglTMDPDF: set scale variations c4 as:'//real8ToStr(c4_global),c_yellow)
+        call wglTMDPDF_OPE_resetGrid()
     end if
-end subroutine wgtTMDPDF_OPE_SetScaleVariation
+end subroutine wglTMDPDF_OPE_SetScaleVariation
 
 !!! This subroutine force reconstruction of the grid (if griding is ON)
-subroutine wgtTMDPDF_OPE_tw3_resetGrid()
+subroutine wglTMDPDF_OPE_tw3_resetGrid()
     !!!!! not implemented yet
-end subroutine wgtTMDPDF_OPE_tw3_resetGrid
+end subroutine wglTMDPDF_OPE_tw3_resetGrid
 
 !!! This subroutine force reconstruction of the grid (if griding is ON)
-subroutine wgtTMDPDF_OPE_tw3_testGrid()
+subroutine wglTMDPDF_OPE_tw3_testGrid()
     !!!!! not implemented yet
-end subroutine wgtTMDPDF_OPE_tw3_testGrid
+end subroutine wglTMDPDF_OPE_tw3_testGrid
 
 !! call QCDinput to change the PDF replica number
 !! unset the grid, since it should be recalculated fro different PDF replica.
-subroutine wgtTMDPDF_OPE_tw3_SetPDFreplica(rep,hadron)
+subroutine wglTMDPDF_OPE_tw3_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
 
     !!!! not implemented yet
 
-end subroutine wgtTMDPDF_OPE_tw3_SetPDFreplica
+end subroutine wglTMDPDF_OPE_tw3_SetPDFreplica
 
 !!!! this routine set the variations of scales
 !!!! it is used for the estimation of errors
-subroutine wgtTMDPDF_OPE_tw3_SetScaleVariation(c4_in)
+subroutine wglTMDPDF_OPE_tw3_SetScaleVariation(c4_in)
     real(dp),intent(in)::c4_in
     !!!! not implemented yet
-end subroutine wgtTMDPDF_OPE_tw3_SetScaleVariation
+end subroutine wglTMDPDF_OPE_tw3_SetScaleVariation
 
-end module wgtTMDPDF_OPE
+end module wglTMDPDF_OPE

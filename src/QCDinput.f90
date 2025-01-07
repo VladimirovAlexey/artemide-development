@@ -98,7 +98,24 @@ character (len=7),parameter :: moduleName="lpPDF_1"
 !INCLUDE 'Code/LHA/LHA_PDF.f90'
 end module lpLHAPDF_1
 
-!!!------------------------------hPDF-------------------
+!!!------------------------------gPDF (helicity)-------------------
+module gLHAPDF_1
+use IO_functions
+implicit none
+character (len=6),parameter :: moduleName="gPDF_1"
+#include "Code/LHA/LHA_PDF.f90"
+!INCLUDE 'Code/LHA/LHA_PDF.f90'
+end module gLHAPDF_1
+
+module gLHAPDF_2
+use IO_functions
+implicit none
+character (len=6),parameter :: moduleName="gPDF_2"
+#include "Code/LHA/LHA_PDF.f90"
+!INCLUDE 'Code/LHA/LHA_PDF.f90'
+end module gLHAPDF_2
+
+!!!------------------------------hPDF (transversity)-------------------
 module hLHAPDF_1
 use IO_functions
 implicit none
@@ -137,6 +154,9 @@ use uLHAFF_6, only : ReadInfo_uFF6 => ReadInfo, SetReplica_uFF6 => SetReplica, x
 !!
 use lpLHAPDF_1, only : ReadInfo_lpPDF1 => ReadInfo, SetReplica_lpPDF1 => SetReplica, xPDF_lpPDF1 => xPDF
 !!
+use gLHAPDF_1, only : ReadInfo_gPDF1 => ReadInfo, SetReplica_gPDF1 => SetReplica, xPDF_gPDF1 => xPDF
+use gLHAPDF_2, only : ReadInfo_gPDF2 => ReadInfo, SetReplica_gPDF2 => SetReplica, xPDF_gPDF2 => xPDF
+!!
 use hLHAPDF_1, only : ReadInfo_hPDF1 => ReadInfo, SetReplica_hPDF1 => SetReplica, xPDF_hPDF1 => xPDF
 use hLHAPDF_2, only : ReadInfo_hPDF2 => ReadInfo, SetReplica_hPDF2 => SetReplica, xPDF_hPDF2 => xPDF
 implicit none
@@ -147,8 +167,8 @@ private
 
 public::QCDinput_Initialize,QCDinput_IsInitialized
 public::As,activeNf
-public::xPDF,xFF,x_lp_PDF,x_hPDF
-public:: QCDinput_SetPDFreplica, QCDinput_SetFFreplica, QCDinput_SetlpPDFreplica,QCDinput_SethPDFreplica
+public::xPDF,xFF,x_lp_PDF,x_gPDF,x_hPDF
+public:: QCDinput_SetPDFreplica, QCDinput_SetFFreplica, QCDinput_SetlpPDFreplica,QCDinput_SetgPDFreplica,QCDinput_SethPDFreplica
 
 character (len=8),parameter :: moduleName="QCDinput"
 !Current version of module
@@ -172,6 +192,10 @@ integer,allocatable::current_replica_uFFs(:)
 !---lpPDFs
 integer::num_of_lpPDFs
 integer,allocatable::current_replica_lpPDFs(:)
+
+!---gPDFs
+integer::num_of_gPDFs
+integer,allocatable::current_replica_gPDFs(:)
 
 !---hPDFs
 integer::num_of_hPDFs
@@ -197,7 +221,7 @@ end function QCDinput_IsInitialized
 
   character(len=:),allocatable::pathToLHA
   character(len=:),allocatable::alphaNAME
-  character(len=64),allocatable::names_uPDF(:),names_uFF(:),names_lpPDF(:),names_hPDF(:)
+  character(len=64),allocatable::names_uPDF(:),names_uFF(:),names_lpPDF(:),names_gPDF(:),names_hPDF(:)
   integer::i,FILEver
   integer,allocatable::replicas(:)
 
@@ -317,8 +341,28 @@ end function QCDinput_IsInitialized
     end if
 
     
-    !!!---------------------------------------- Search for hPDF initialization options
+    !!!---------------------------------------- Search for gPDF initialization options
     call MoveTO(51,'*E   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) num_of_gPDFs
+    if(num_of_gPDFs>2) then
+      CLOSE (51, STATUS='KEEP')
+      ERROR STOP ErrorString('Maximum allowed number of gPDFs is 2. Requested '//trim(inttostr(num_of_uPDFs)),moduleName)
+    else if(num_of_gPDFs>0) then
+      allocate(names_gPDF(1:num_of_gPDFs))
+      call MoveTO(51,'*p2  ')
+      do i=1,num_of_gPDFs
+        read(51,"(A)") lineToRead
+        names_gPDF(i)=trim(adjustl(lineToRead))
+      end do
+
+    else
+      !!! initialization is not needed
+      if(outputLevel>2) write(*,*)'    no gPDFs to initialize...'
+    end if
+
+    !!!---------------------------------------- Search for hPDF initialization options
+    call MoveTO(51,'*F   ')
     call MoveTO(51,'*p1  ')
     read(51,*) num_of_hPDFs
     if(num_of_hPDFs>2) then
@@ -396,6 +440,17 @@ end function QCDinput_IsInitialized
   if(num_of_lpPDFs>0) then
     current_replica_lpPDFs(1)=0
     call ReadInfo_lpPDF1(trim(names_lpPDF(1)),pathToLHA,outputLevel)
+  end if
+
+  !!!! initialization of gPDFs (only 2 maximum PDFs allowed)
+  allocate(current_replica_gPDFs(1:num_of_gPDFs))
+  if(num_of_gPDFs>0) then
+    current_replica_gPDFs(1)=0
+    call ReadInfo_gPDF1(trim(names_gPDF(1)),pathToLHA,outputLevel)
+  end if
+  if(num_of_gPDFs>1) then
+    current_replica_gPDFs(2)=0
+    call ReadInfo_gPDF2(trim(names_gPDF(2)),pathToLHA,outputLevel)
   end if
 
   !!!! initialization of hPDFs (only 2 maximum PDFs allowed)
@@ -502,6 +557,33 @@ subroutine QCDinput_SetlpPDFreplica(rep,hadron,newPDF)
       newPDF=.true.
     end if
 end subroutine QCDinput_SetlpPDFreplica
+
+!!! set a different replica of gPDF (pointing to hadron)
+!!! check whatever its the same or not.
+!!! in the case the replica is same as stored -- does not change PDF (newPDF=false)
+!!! in the case the replica is different -- does change PDF (newPDF=true)
+subroutine QCDinput_SetgPDFreplica(rep,hadron,newPDF)
+    integer,intent(in):: rep,hadron
+    logical,intent(out)::newPDF
+
+    if(hadron<1 .or. hadron>num_of_gPDFs) &
+      ERROR STOP ErrorString('SetgPDFreplica. Called unexisting hadron. h= '//trim(inttostr(hadron)),moduleName)
+    !!! if the number of replica to change coincides with the already used. Do not change it
+    if(current_replica_gPDFs(hadron)==rep) then
+      newPDF=.false.
+    else
+      current_replica_gPDFs(hadron)=rep
+
+      SELECT CASE(hadron)
+        CASE (1)
+          call SetReplica_gPDF1(rep)
+        CASE (2)
+          call SetReplica_gPDF2(rep)
+        END SELECT
+
+      newPDF=.true.
+    end if
+end subroutine QCDinput_SetgPDFreplica
 
 !!! set a different replica of hPDF (pointing to hadron)
 !!! check whatever its the same or not.
@@ -639,9 +721,28 @@ function x_lp_PDF(x,Q,hadron)
   END SELECT
 
 end function x_lp_PDF
-  
+
 !!!!array of x times PDF(x,Q) for hadron 'hadron'
 !!! helicity PDF
+!!!! array is (-5:5) (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
+function x_gPDF(x,Q,hadron)
+    real(dp),intent(in) :: x,Q
+    integer,intent(in):: hadron
+    real(dp), dimension(-5:5):: x_gPDF
+
+    SELECT CASE(hadron)
+    CASE(1)
+      x_gPDF=xPDF_gPDF1(x,Q)
+    CASE(2)
+      x_gPDF=xPDF_gPDF2(x,Q)
+    CASE DEFAULT
+      ERROR STOP ErrorString('xgPDF. Called unexisting hadron. h= '//trim(inttostr(hadron)),moduleName)
+  END SELECT
+
+end function x_gPDF
+
+!!!!array of x times PDF(x,Q) for hadron 'hadron'
+!!! transversity PDF
 !!!! array is (-5:5) (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
 function x_hPDF(x,Q,hadron)
     real(dp),intent(in) :: x,Q
