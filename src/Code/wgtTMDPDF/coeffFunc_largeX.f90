@@ -11,6 +11,14 @@
 
 !!!! parametrizationString=(/1d0,z,Log(z),Log(1d0-z)/)
 
+!!!!! Some WW-terms have common factor to be multiplied by
+!!!!! for exampel wgt=1, wgl=-z
+pure function commonFactor_largeX(z)
+    real(dp)::commonFactor_largeX
+    real(dp), intent(in)::z
+    commonFactor_largeX=1.d0
+end function commonFactor_largeX
+
 !!!!!coefficient function q<-q regular-part
 pure function Coeff_q_q_reg_largeX(alpha,Nf,Lmu)
     real(dp),dimension(1:parametrizationLength)::Coeff_q_q_reg_largeX

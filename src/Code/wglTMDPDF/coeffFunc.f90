@@ -16,7 +16,11 @@ pure function parametrizationString(z)
     real(dp),dimension(1:parametrizationLength)::parametrizationString
     !lz=Log(z)
     !l1z=Log(1d0-z)
-    parametrizationString=(/1d0,z,Log(z),Log(1d0-z)/)
+
+    !!!! I multiply it by extra (-z), because the convolution is
+    !!!! -x^2\int dy/y^2 c[x/y]h[y] = x \int dy/y (-x/y c[x/y] h[y])
+    !!!! and the factor -x/y is included in the coefficient function (including the tree order)
+    parametrizationString=(/1d0,z,Log(z),Log(1d0-z)/)*(-z)
 
 end function parametrizationString
 
@@ -30,7 +34,7 @@ pure function parametrizationStringAt1(z)
     
     zz=(1d0-z)
     
-    parametrizationStringAt1=(/zz,zz,0d0,zz*(Log(zz)-1d0)/)
+    parametrizationStringAt1=(/-zz,-zz,0d0,-zz*(Log(zz)-1d0)/)
 
 end function parametrizationStringAt1
 
@@ -86,7 +90,7 @@ pure function Coeff_q_q_reg(alpha,Nf,Lmu)
     if(orderMain>=1) then
               
         Coeff_q_q_reg=Coeff_q_q_reg+alpha*4d0/3d0*(/&
-        -3d0*Lmu-zeta2, 0d0, 0d0, -4d0*Lmu/) !
+        -3d0*Lmu-zeta2, 0d0, 4d0*Lmu, -4d0*Lmu/) !
         
     !  write(*,*) 'regularPart=', regularPart/x
     end if

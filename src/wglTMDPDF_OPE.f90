@@ -400,22 +400,24 @@ function wglTMDPDF_OPE_convolution(x,b,h,addGluon)
         return
     end if
 
-    !!!! The factor 1/x is replace by (-x) because the WW part of wgl is multiplied by -x^2
+    !!!! The factor 1/x is replace by 1 because the WW part of wgl is
+    !!!! -x^2\int dy/y^2 c[x/y]h[y] = x \int dy/y (-x/y c[x/y] h[y])
+    !!!! so x is canceled, and the factor x/y is included in the coefficient function
 
     !!! computation
     if(useGrid) then
         if(gridReady) then
-            wglTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)*(-x)
+            wglTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)
         else
             call Warning_Raise('Called OPE_convolution while grid is not ready.',messageCounter,messageTrigger,moduleName)
             call wglTMDPDF_OPE_resetGrid()
-            wglTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)*(-x)
+            wglTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)
         end if
     else
         if(resumLargeX) then
-            wglTMDPDF_OPE_convolution=CxF_largeX_compute(x,b,h,gluon)*(-x)
+            wglTMDPDF_OPE_convolution=CxF_largeX_compute(x,b,h,gluon)
         else
-            wglTMDPDF_OPE_convolution=CxF_compute(x,b,h,gluon)*(-x)
+            wglTMDPDF_OPE_convolution=CxF_compute(x,b,h,gluon)
         end if
     end if
 

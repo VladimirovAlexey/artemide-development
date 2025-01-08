@@ -421,7 +421,7 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
         exp_gg=0._dp
     end if
 
-    !!!! it is expected the resummation orde is >0
+    !!!! it is expected the resummation order is >0
     if(orderLX>0) then
 
     !!! if mu is y-independent then one can use the value of coeff at y=1
@@ -497,7 +497,7 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
             alpha_inter=LargeX_A_q_q(asCurrent,NfCurrent,LogCurrent)
 
             Aqq=sum(var*Coeff_q_q_reg_largeX(asCurrent,NfCurrent,LogCurrent)) &
-                      +exp_qq/(1-y)**alpha_inter !!!! only quark and gluon get large-x change
+                      +commonFactor_largeX(y)*exp_qq/(1-y)**alpha_inter !!!! only quark and gluon get large-x change
             Aqg=sum(var*Coeff_q_g_reg_largeX(asCurrent,NfCurrent,LogCurrent))
             if(includeGluon) then
 
@@ -505,7 +505,7 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
 
             Agq=sum(var*Coeff_g_q_reg_largeX(asCurrent,NfCurrent,LogCurrent))
             Agg=sum(var*Coeff_g_g_reg_largeX(asCurrent,NfCurrent,LogCurrent))&
-                      +exp_gg/(1-y)**alpha_inter !!!! only quark and gluon get large-x change
+                      +commonFactor_largeX(y)*exp_gg/(1-y)**alpha_inter !!!! only quark and gluon get large-x change
             else
             Agq=0._dp
             Agg=0._dp
@@ -515,11 +515,11 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
 
             PDFs=xf(x/y,muCurrent,hadron)
         else
-            Aqq=sum(var*Bqq)+exp_qq/(1-y)**alpha_powerQ_at1
+            Aqq=sum(var*Bqq)+commonFactor_largeX(y)*exp_qq/(1-y)**alpha_powerQ_at1
             Aqg=sum(var*Bqg)
             if(includeGluon) then
             Agq=sum(var*Bgq)
-            Agg=sum(var*Bgg)+exp_gg/(1-y)**alpha_powerG_at1
+            Agg=sum(var*Bgg)+commonFactor_largeX(y)*exp_gg/(1-y)**alpha_powerG_at1
             else
             Agq=0._dp
             Agg=0._dp
@@ -559,11 +559,11 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
         !!! the integral over regular part is simpler
         !!!! it is just the value f[x]int_x^1 ...
         var=parametrizationStringAt1(yCUT)
-        Aqq=sum(var*Bqq)+exp_qq*(1-yCUT)**(1-alpha_powerQ_at1)/(1-alpha_powerQ_at1)
+        Aqq=sum(var*Bqq)+commonFactor_largeX(yCUT)*exp_qq*(1-yCUT)**(1-alpha_powerQ_at1)/(1-alpha_powerQ_at1)
         Aqg=sum(var*Bqg)
         if(includeGluon) then
         Agq=sum(var*Bgq)
-        Agg=sum(var*Bgg)+exp_gg*(1-yCUT)**(1-alpha_powerG_at1)/(1-alpha_powerG_at1)
+        Agg=sum(var*Bgg)+commonFactor_largeX(yCUT)*exp_gg*(1-yCUT)**(1-alpha_powerG_at1)/(1-alpha_powerG_at1)
         else
         Agq=0._dp
         Agg=0._dp

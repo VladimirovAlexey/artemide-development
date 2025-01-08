@@ -9,7 +9,19 @@
 !!!--------------The order is accumulative pertrubative order of coefficient =1,2,3 (LO,NLO,NNLO)---------
 !!!-------------------------------------------------------------------------------------------------------
 
-!!!! parametrizationString=(/1d0,z,Log(z),Log(1d0-z)/)
+    !!!! I multiply it by extra (-z), because the convolution is
+    !!!! -x^2\int dy/y^2 c[x/y]h[y] = x \int dy/y (-x/y c[x/y] h[y])
+    !!!! and the factor -x/y is included in the coefficient function (including the tree order)
+
+!!!! parametrizationString=(/1d0,z,Log(z),Log(1d0-z)/)*(-z)
+
+!!!!! Some WW-terms have common factor to be multiplied by
+!!!!! for exampel wgt=1, wgl=-z
+pure function commonFactor_largeX(z)
+    real(dp)::commonFactor_largeX
+    real(dp), intent(in)::z
+    commonFactor_largeX=-z
+end function commonFactor_largeX
 
 !!!!!coefficient function q<-q regular-part
 pure function Coeff_q_q_reg_largeX(alpha,Nf,Lmu)
@@ -19,7 +31,7 @@ pure function Coeff_q_q_reg_largeX(alpha,Nf,Lmu)
 
     !! the Leading order is 1, it is WW-part of worm-gear function
     !! This 1 is accounded in the large-x convolution
-    Coeff_q_q_reg_largeX=(/0d0,0d0,0d0,0d0/) !
+    Coeff_q_q_reg_largeX=(/0d0,0d0,4d0*Lmu,0d0/) !
     !!! WGL absorbes all finite parts into the resummation formula
 end function Coeff_q_q_reg_largeX
 
