@@ -30,9 +30,15 @@ pure function Coeff_q_q_reg_largeX(alpha,Nf,Lmu)
     integer,intent(in)::Nf
 
     !! the Leading order is 1, it is WW-part of worm-gear function
-    !! This 1 is accounded in the large-x convolution
-    Coeff_q_q_reg_largeX=(/0d0,0d0,4d0*Lmu,0d0/) !
-    !!! WGL absorbes all finite parts into the resummation formula
+    Coeff_q_q_reg_largeX=(/0d0,0d0,0d0,0d0/) !1
+    if(orderMain>=1) then
+
+        Coeff_q_q_reg_largeX=Coeff_q_q_reg_largeX+alpha*4d0/3d0*&
+            (/0d0,0d0,4d0*Lmu,0d0/)
+
+    !  write(*,*) 'regularPart=', regularPart/x
+    end if
+
 end function Coeff_q_q_reg_largeX
 
 !!!!!coefficient function q<-g regular-part  

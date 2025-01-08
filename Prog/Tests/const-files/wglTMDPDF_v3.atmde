@@ -746,15 +746,15 @@
  
 *B   : ---- OPE[tw2] main definitions ----
 *p1  : Order of coefficient function
- LO
+ NLO
 *p2  : Prepare grid
  F
 *p3  : run the test of the grid (takes some time)
  F
 *p4  : Use large-X resummation in the coefficient function of OPE
- F
+ T
 *p5  : Order of the large-X resummation (should be bigger-or-equal to order in p1)
- NLO     
+ N3LO     
  
 *C   : ---- Parameters of NP model ----
 *p1  : Length of lambdaNP
