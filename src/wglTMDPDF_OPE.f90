@@ -177,7 +177,7 @@ subroutine wglTMDPDF_OPE_Initialize(file,prefix)
     !$read(51,*) i
     !$ call OMP_set_num_threads(i)
 
-    call MoveTO(51,'*13   ')
+    call MoveTO(51,'*16   ')
     call MoveTO(51,'*p1  ')
     read(51,*) initRequired
     if(.not.initRequired) then

@@ -66,15 +66,14 @@
  
 *E   : ----gPDF (helicity) sets----
 *p1  : total number of PDFs to initialize (0= initialization is skipped; maximum 2)
-           1
-*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
- DSSV19_REP
- 
-*F   : ----hPDF (transversity) sets----
-*p1  : total number of PDFs to initialize (0= initialization is skipped; maximum 2)
            0
 *p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
- 
+  
+*F   : ----hPDF (transversity) sets----
+*p1  : total number of PDFs to initialize (0= initialization is skipped; maximum 2)
+           1
+*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number
+ JAM22-transversity_proton_lo
  
 # ---------------------------------------------------------------------------
 # ----                           PARAMETERS OF EWinput                  -----
@@ -563,7 +562,7 @@
 # ---------------------------------------------------------------------------
 *13  :
 *p1  : initialize wgtTMDPDF module
- T
+ F
  
 *A   : ---- Main definitions ----
 *p1  : Include gluon TMDPDFs
@@ -737,7 +736,7 @@
 # ---------------------------------------------------------------------------
 *16  :
 *p1  : initialize wglTMDPDF module
- F
+ T
  
 *A   : ---- Main definitions ----
 *p1  : Include gluon TMDPDFs
@@ -749,7 +748,7 @@
 *p1  : Order of coefficient function
  LO
 *p2  : Prepare grid
- T
+ F
 *p3  : run the test of the grid (takes some time)
  F
 *p4  : Use large-X resummation in the coefficient function of OPE

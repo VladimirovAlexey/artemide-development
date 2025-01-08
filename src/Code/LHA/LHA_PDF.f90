@@ -408,9 +408,14 @@ subroutine SetReplica(num)
             if(i==0 .and. FlavorArray(j)==21) then
                 FlavorPermutationIndex(i)=j
                 k=k+1
-            else if(i/=0 .and. i>=-5 .and. i<=5 .and. FlavorArray(j)==i) then
+                exit
+            !else if(i/=0 .and. i>=-5 .and. i<=5 .and. FlavorArray(j)==i) then
+            else if(FlavorArray(j)==i) then
                 FlavorPermutationIndex(i)=j
                 k=k+1
+                exit
+            else !!!!! if there was no entry, I set the corresponding index to -50
+                FlavorPermutationIndex(i)=-50
             end if
         end do
     end do
@@ -420,7 +425,14 @@ subroutine SetReplica(num)
 #endif
 
     if(k/=11) then
-        ERROR STOP ErrorString("The flavor numbering list does not map to (-5:5)",moduleName)
+        write(*,*) WarningString(&
+            "The flavor numbering list in "//trim(PDFname)//" does not map to standard (-5:5).",moduleName)
+#if DEBUGMODE==1
+        write(*,*) "The interpretaion of permutation is the following (-50=empty)"
+        write(*,*) "Entry :", FlavorArray
+        write(*,*) "Interpretation :", FlavorPermutationIndex
+#endif
+        !!ERROR STOP ErrorString("The flavor numbering list does not map to (-5:5)",moduleName)
     end if
 
 #if DEBUGMODE==1
@@ -482,7 +494,11 @@ subroutine SetReplica(num)
                 read(51,*) PDFentry
                 !!!write(*,*) i,indexQ+k
                 do j=-5,5
-                    MainGrid(i,indexQ+k,j)=PDFentry(FlavorPermutationIndex(j))
+                    if(FlavorPermutationIndex(j)==-50) then !!!! absent entry replaced by 0
+                        MainGrid(i,indexQ+k,j)=0._dp
+                    else
+                        MainGrid(i,indexQ+k,j)=PDFentry(FlavorPermutationIndex(j))
+                    end if
                 end do
                 dummyI=dummyI+1
             end do
