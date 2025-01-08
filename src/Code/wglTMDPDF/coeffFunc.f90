@@ -86,7 +86,7 @@ pure function Coeff_q_q_reg(alpha,Nf,Lmu)
     if(orderMain>=1) then
               
         Coeff_q_q_reg=Coeff_q_q_reg+alpha*4d0/3d0*(/&
-        -3*Lmu-zeta2, 0d0, 0d0, -4d0*Lmu/) !
+        -3d0*Lmu-zeta2, 0d0, 0d0, -4d0*Lmu/) !
         
     !  write(*,*) 'regularPart=', regularPart/x
     end if

@@ -18,14 +18,9 @@ pure function Coeff_q_q_reg_largeX(alpha,Nf,Lmu)
     integer,intent(in)::Nf
 
     !! the Leading order is 1, it is WW-part of worm-gear function
-    Coeff_q_q_reg_largeX=(/0d0,0d0,0d0,0d0/) !1
-    if(orderMain>=1) then
-              
-        Coeff_q_q_reg_largeX=Coeff_q_q_reg_largeX+alpha*4d0/3d0*(/&
-        2d0*Lmu-2d0, -2d0*Lmu+2d0, 2d0*Lmu-2d0, 0d0/) !
-        
-    !  write(*,*) 'regularPart=', regularPart/x
-    end if
+    !! This 1 is accounded in the large-x convolution
+    Coeff_q_q_reg_largeX=(/0d0,0d0,0d0,0d0/) !
+    !!! WGL absorbes all finite parts into the resummation formula
 end function Coeff_q_q_reg_largeX
 
 !!!!!coefficient function q<-g regular-part  
@@ -34,11 +29,8 @@ pure function Coeff_q_g_reg_largeX(alpha,Nf,Lmu)
     real(dp), intent(in)::alpha,Lmu
     integer,intent(in)::Nf
 
-    !! the Leading order is always zero, therefore calculation should be done only for order >=1
+    !! the gluon-mixing is always zero, for transversily polarized quarks
     Coeff_q_g_reg_largeX=(/0d0,0d0,0d0,0d0/)
-    if(orderMain>=1) then
-        Coeff_q_g_reg_largeX=Coeff_q_g_reg_largeX+alpha*(/-2d0*Lmu+1d0, 2d0*Lmu-1d0, -Lmu+0.5d0, 0d0/)
-    end if
 end function Coeff_q_g_reg_largeX
 
 !!!!!coefficient function g<-q regular-part  
@@ -47,12 +39,8 @@ pure function Coeff_g_q_reg_largeX(alpha,Nf,Lmu)
     real(dp), intent(in)::alpha,Lmu
     integer,intent(in)::Nf
 
-    !! the Leading order is always zero, therefore calculation should be done only for order >=1
+    !! there is no gluon, for transversily polarized quarks
     Coeff_g_q_reg_largeX=(/0d0,0d0,0d0,0d0/)
-    !   if(orderMain>=1) then
-    !     Coeff_g_q=Coeff_g_q+alpha*(/0d0/)!
-    !     
-    !   end if
 end function Coeff_g_q_reg_largeX
 
     !!!!!coefficient function g<-g regular-part  
@@ -61,11 +49,8 @@ function Coeff_g_g_reg_largeX(alpha,Nf,Lmu)
     real(dp), intent(in)::alpha,Lmu
     integer,intent(in)::Nf
 
-    !! the Leading order is always zero, therefore calculation should be done only for order >=1
-    Coeff_g_g_reg_largeX=(/1d0,0d0,0d0,0d0/)
-
-    if(outputLevel>0) write(*,*) &
-            WarningString('gluon part of worm-gear T function is not known. Set alike quark.',moduleName)
+    !! there is no gluon, for transversily polarized quarks
+    Coeff_g_g_reg_largeX=(/0d0,0d0,0d0,0d0/)
 
 end function Coeff_g_g_reg_largeX
 
