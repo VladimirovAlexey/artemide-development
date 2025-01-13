@@ -379,7 +379,7 @@ subroutine lpTMDPDF_OPE_SetPDFreplica(rep,hadron)
         gridReady=.false.
         call lpTMDPDF_OPE_resetGrid()
     else
-        if(outputLevel>1) write(*,"('arTeMiDe ',A,':  replica of PDF (',I4,' is the same as the used one. Nothing is done!')") &
+        if(outputLevel>1) write(*,"('arTeMiDe ',A,':  replica of PDF (',I4,') is the same as the used one. Nothing is done!')") &
         moduleName, rep
     end if
 

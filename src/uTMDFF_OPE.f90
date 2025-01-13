@@ -420,12 +420,12 @@ subroutine uTMDFF_OPE_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
     logical::newPDF
 
-    call QCDinput_SetPDFreplica(rep,hadron,newPDF)
+    call QCDinput_SetFFreplica(rep,hadron,newPDF)
     if(newPDF) then
         gridReady=.false.
         call uTMDFF_OPE_resetGrid()
     else
-        if(outputLevel>1) write(*,"('arTeMiDe ',A,':  replica of FF (',I4,' is the same as the used one. Nothing is done!')") &
+        if(outputLevel>1) write(*,"('arTeMiDe ',A,':  replica of FF (',I4,') is the same as the used one. Nothing is done!')") &
         moduleName, rep
     end if
 
