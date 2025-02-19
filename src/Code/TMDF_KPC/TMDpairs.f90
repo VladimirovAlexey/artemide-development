@@ -121,7 +121,7 @@ SELECT CASE(process(3))
   !----------------------------------------------------------------------------------
   !-------------------------SIDIS----------------------------------------------------
   !----------------------------------------------------------------------------------
-  CASE (2001) !h1->h2 where !!!! unpolarized SIDIS
+  CASE (2001,2011,2021,2031) !h1->h2 where !!!! unpolarized SIDIS
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inKT(x1,sqrt(k1),mu,Q2,h1)
     FB=uTMDFF_inKT(x2,sqrt(k2),mu,Q2,h2)
@@ -135,6 +135,26 @@ SELECT CASE(process(3))
       +FA(-3)*FB(-3)/9.d0&
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
+
+  CASE (2004,2014,2024,2034) !h1->h2 where !!!! unpolarized SIDIS (BM x COLLINS)-part
+    ! e_q^2 *F_q(A)*F_q(B)
+    FA=uTMDPDF_inKT(x1,sqrt(k1),mu,Q2,h1) !!!!!! CHANGE TO BM
+    FB=uTMDFF_inKT(x2,sqrt(k2),mu,Q2,h2)  !!!!!! CHANGE TO COLLINS
+    TMD_pair=FA(1)*FB(1)/9.d0&
+      +FA(2)*FB(2)*4.d0/9.d0&
+      +FA(3)*FB(3)/9.d0&
+      +FA(4)*FB(4)*4d0/9.d0&
+      +FA(5)*FB(5)/9d0&
+      +FA(-1)*FB(-1)/9.d0&
+      +FA(-2)*FB(-2)*4.d0/9.d0&
+      +FA(-3)*FB(-3)/9.d0&
+      +FA(-4)*FB(-4)*4d0/9.d0&
+      +FA(-5)*FB(-5)/9d0
+
+  ! Si tomo estas funciones prueba sí saca numerines, así que algo está pasando con uTMDPDF y uTMDFF ?
+  CASE(999)
+    TMD_pair=(Exp(-0.2d0*k1)+1/(k1+2.))*(Exp(-0.2d0*k2)+1/(k2+2.))
+!     TMD_pair=1._dp
 
 
   CASE DEFAULT

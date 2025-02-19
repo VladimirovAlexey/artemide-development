@@ -92,6 +92,7 @@ logical :: gridReady!!!!indicator that grid is ready to use. If it is .true., th
 !!--------------------------------------Public interface-----------------------------------------
 public::uTMDFF_OPE_IsInitialized,uTMDFF_OPE_Initialize,uTMDFF_OPE_convolution
 public::uTMDFF_OPE_resetGrid,uTMDFF_OPE_SetPDFreplica,uTMDFF_OPE_SetScaleVariation
+public::uTMDFF_X0_AS,uTMDFF_OPE_FF
 
 !!!!!!----FOR TEST
 !public::MakeGrid,ExtractFromGrid,CxF_compute,TestGrid
@@ -106,6 +107,9 @@ INCLUDE 'Code/Twist2/Twist2LargeX.f90'
 
 !! Mellin convolution routine
 INCLUDE 'Code/Twist2/Twist2Convolution.f90'
+
+!! Mellin convolution for AS-term
+INCLUDE 'Code/Twist2/Twist2-AS-term.f90'
 
 function uTMDFF_OPE_IsInitialized()
     logical::uTMDFF_OPE_IsInitialized
@@ -346,6 +350,17 @@ function xf(x,Q,hadron)
     
 end function xf
 
+!!!! this is function which sends PDF directly to the output
+!!!! needed solely for analysis of TMDs, to not to run LHAPDF again
+!!!! NOTE: it is not mutiplied by x
+function uTMDFF_OPE_FF(x,mu,hadron)
+    real(dp) :: x,mu
+    integer:: hadron
+    real(dp), dimension(-5:5):: uTMDFF_OPE_FF
+
+    uTMDFF_OPE_FF=xFF(x,mu,hadron)/x
+
+end function uTMDFF_OPE_FF
 
 !!!!! in the case of TMDFF one computes the convolution as
 !!! int_z^1 dy/y C[z/y] d[y]/y^2 = 1/z^3 int_z^1 dy [y^2C](y) D[z/y],
@@ -397,6 +412,44 @@ function uTMDFF_OPE_convolution(x,b,h,addGluon)
 
 end function uTMDFF_OPE_convolution
 
+function uTMDFF_X0_AS(x,mu,mu0,h,addGluon)
+    real(dp),dimension(-5:5)::uTMDFF_X0_AS
+    real(dp),intent(in)::x,mu,mu0
+    integer,intent(in)::h
+    logical,optional,intent(in)::addGluon
+
+    logical::gluon
+
+    !!! check gluonity
+    if(present(addGluon)) then
+        gluon=addGluon
+    else
+        gluon=withGluon
+    end if
+
+      !!! test boundaries
+    if(x>1d0) then
+        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
+        uTMDFF_X0_AS=0._dp
+        return
+    else if(x==1.d0) then
+        uTMDFF_X0_AS=0._dp
+        return
+    else if(x<1d-12) then
+        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
+        stop
+    end if
+
+    !!!! case NA
+    if(orderMain==-50) then
+        uTMDFF_X0_AS=0._dp
+        return
+    end if
+
+    !!! computation
+    uTMDFF_X0_AS=CxF_AS(x,mu,mu0,h,gluon)/x**3
+
+end function uTMDFF_X0_AS
 
 !!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
 !!! This subroutine force reconstruction of the grid (if griding is ON)

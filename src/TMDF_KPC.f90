@@ -410,37 +410,99 @@ end function INT_overTHETA
 !!!--------------------------------------------------------------------------------------------------
 !!!----------------------------------- SIDIS PART -------------------------------------------------------
 !!!--------------------------------------------------------------------------------------------------
+!!!--------------------------------------------------------------------------------------------------
+!!!----------------------------------- SIDIS PART -------------------------------------------------------
+!!!--------------------------------------------------------------------------------------------------
 
 !!!--------------------------------------------------------------------------------------------------
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!! Function that computes the integral for KPC convolution in SIDIS
 !!! proc1 = (int,int,int) is the process def for TMD*TMD, and for the integral kernel
-!!! Q2, qT, x1,z1, mu are usual SIDIS variables
+!!! Q2, qT, x1, z1 and mu are the usual SIDIS variables
 !!! NOTE: that Q2 is SIDIS kinematic variable, and mu is the factorization scale
-!!!-----
-!!! comments about convolution:
-function KPC_SIDISconv(Q2,qT_in,x1,z1,mu,proc1)
-    real(dp),intent(in)::Q2,qT_in,x1,z1,mu
-    integer,intent(in),dimension(1:3)::proc1
-    real(dp)::KPC_SIDISconv
 
-    real(dp)::qT
+    function KPC_SIDISconv(Q2, qT_in, x1, z1 ,mu, proc1)
 
-    if(qT_in<qTMIN) then
-        qT=qTMIN
-    else
-        qT=qT_in
-    end if
+        real(dp) :: KPC_SIDISconv
 
-    LocalCounter=0
+        real(dp), intent(in) :: Q2, x1, z1, mu, qT_in
+        integer, intent(in), dimension(1:3) :: proc1
 
-    !!!! TO BE WRITTEN!!!!
-    KPC_SIDISconv=1.d0
+        real(dp) :: tau2, dT, qT
 
-    !!!!! FUNCTIONS TO CALL
-    !!!!! TMD_pair(Q2,xi1,xi2,K1,K2,mu,proc1)  <<--- in TMDpairs
-    !!!!! SIDIS_KERNEL(??????,process)          <<<--- in KERNELpairs_SIDIS (to be written)
+        if(qT_in < qTMIN) then
+            qT = qTMIN
+        else
+            qT = qT_in
+        end if
 
-end function KPC_SIDISconv
+        LocalCounter = 0
+
+        tau2 = Q2 + qT**2
+        dT = qT**2/tau2
+
+        KPC_SIDISconv = Integrate_GK(Integrand_forDeltat2, 0._dp, 1._dp, toleranceINT)
+
+    contains
+
+
+    ! Integral over Deltat over integral over theta
+    function Integrand_forDeltat2(Deltat2)
+
+        real(dp) :: Integrand_forDeltat2
+        real(dp), intent(in) :: Deltat2
+        real(dp) :: Deltat
+
+        Deltat = sqrt(Deltat2)
+
+        Integrand_forDeltat2 = INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, mu, proc1, Deltat)
+!         write(*,"('{',F16.12,',',F16.8,'},')") Deltat2,Integrand_forDeltat2
+
+    end function Integrand_forDeltat2
+
+    end function KPC_SIDISconv
+
+    ! Integral over theta at given Deltat
+    function INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, mu, proc1, Deltat)
+
+        real(dp), intent(in) :: Q2, tau2, dT, x1, z1, mu, Deltat
+        integer, intent(in), dimension(1:3) :: proc1
+        real(dp) :: INT_overTHETA_SIDIS
+
+        INT_overTHETA_SIDIS=Integrate_GK(Integrand_forTHETA_SIDIS, 0._dp, 2*pi, toleranceINT)
+
+    contains
+
+    ! Integrand
+    function Integrand_forTHETA_SIDIS(theta)
+
+        real(dp) :: Integrand_forTHETA_SIDIS
+        real(dp), intent(in) :: theta
+        real(dp) :: S, Lam, xi, zeta, K, kh, cosT
+
+        cosT = cos(theta)
+
+        S = (2-x1)/x1*dT+sqrt(1-x1)*2*Deltat*sqrt(dT*(1+dT))*cosT/x1
+
+        Lam = (1+dT)*(x1**2*(1+dT)+4*(2-x1)*sqrt(1-x1)*sqrt(dT*(1+dT))*Deltat*cosT&
+        +4*(1-x1)*(dT*(1+Deltat*Deltat*cosT*cosT)+Deltat*Deltat))
+
+        xi = x1*(1-S+sqrt(Lam))/2
+        zeta = 2*z1/(1+S+sqrt(Lam))
+
+        K = tau2*(-1+Lam+2*S-S**2)/4
+        kh = tau2*(-1+Lam-2*S-S**2)/4
+
+        if(K < toleranceGEN) K = toleranceGEN
+        if(kh < toleranceGEN) kh = toleranceGEN
+
+        LocalCounter = LocalCounter + 1
+
+        Integrand_forTHETA_SIDIS = 2*(1-x1)*z1*(1+dT)/sqrt(Lam)/(1+S+sqrt(Lam))/(x1**2)&
+        *SIDIS_KERNEL(Q2,tau2,dT*tau2,S,Lam,proc1(3))*TMD_pair(Q2,xi,zeta,K,kh,mu,proc1)
+
+    end function Integrand_forTHETA_SIDIS
+
+    end function INT_overTHETA_SIDIS
 
 end module TMDF_KPC

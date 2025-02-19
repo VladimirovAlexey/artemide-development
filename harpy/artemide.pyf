@@ -12,6 +12,7 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
     use utmdpdf
     use utmdpdf_ope
     use utmdff
+    use utmdff_ope
     use siverstmdpdf
     use lptmdpdf
     use wgttmdpdf
@@ -303,6 +304,30 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
         integer :: hadron
         real*8 dimension(11) :: utmdff_kt_50_optimal
     end function utmdff_kt_50_optimal
+    function utmdff_g0(x,mu,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 :: x
+        real*8 :: mu
+        integer :: hadron
+        real*8 dimension(11) :: utmdff_g0
+    end function utmdff_g0
+    function utmdff_x0(x,mu,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 :: x
+        real*8 :: mu
+        integer :: hadron
+        real*8 dimension(11) :: utmdff_x0
+    end function utmdff_x0
+    function utmdff_asx0(x,mu,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 :: x
+        real*8 :: mu
+        integer :: hadron
+        real*8 dimension(11) :: utmdff_asx0
+    end function utmdff_asx0
+    function utmdff_ff(x,mu,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 :: x
+        real*8 :: mu
+        integer :: hadron
+        real*8 dimension(11) :: utmdff_ff
+    end function utmdff_ff
     function lptmdpdf_kt_50_evolved(x,bt,muf,zetaf,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         real*8 :: x
         real*8 :: bt
