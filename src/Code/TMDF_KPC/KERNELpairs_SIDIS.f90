@@ -23,7 +23,7 @@ SELECT CASE(process)
 ! Va dentro del prefactor2 creo
 
 CASE (999,2001,1) !F_UU,T f D-part
-    SIDIS_KERNEL = 1+tau2**2/2/Q2**2*((S+sqrt(Lam))**2-1)
+    SIDIS_KERNEL = 1!+tau2**2/2/Q2**2*((S+sqrt(Lam))**2-1)
 
 CASE (2011) !F_UU,L f D-part
     SIDIS_KERNEL = tau2**2/2/Q2**2*((S+sqrt(Lam))**2-1)

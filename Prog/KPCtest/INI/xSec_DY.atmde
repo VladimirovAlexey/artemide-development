@@ -216,15 +216,15 @@
 *p5  : Number of nodes in the X-subgrid
    16
 *p6  : Number of subgrids in KT (required to read the next line)
-   5
+   6
 *p7  : Intervals for subgrids in KT (below and above ultimate points the value is frozen)
-0.01  1.0  5.  15. 50. 200.
+0.0001 0.01  1.0  5.  15. 50. 200.
 *p8  : Number of nodes in the KT-subgrid
    16
 *p9  : Minimal Q in the grid
    1.0000000000000
 *p10 : Maximal Q in the grid
-   200.0000000000000
+   400.0000000000000
 *p11 : Number of nodes in the Q-grid
    40
 *p12 : Number of subgrids in B [for Hankel transform] (required to read the next line)
@@ -248,7 +248,7 @@
 # ---------------------------------------------------------------------------
 *5   :
 *p1  : initialize uTMDFF module
- T
+ F
 
 *A   : ---- Main definitions ----
 *p1  : Include gluon TMDPDF

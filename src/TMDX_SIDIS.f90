@@ -638,7 +638,7 @@ real(dp)::PreFactorKPC,uniPart,scaleMu
 !!!! universal part
 
 !!!-----------------------------------------------------------------
-!!!------  IT IS FOR THE LEADING POWER!!! YET!!!
+!!!------  Prefactors KPC case (TO BE CHECKED!!)
 !!!-----------------------------------------------------------------
 
 !!!! zeta*zeta=Q^2
@@ -649,8 +649,8 @@ SELECT CASE(process(1))
       PreFactorKPC=1._dp
   CASE(1)
       !!! uniPart is the prefactor for the cross-section
-      !2 pi aEm^2/Q^4 y^2/(1-epsilon)/sqrt[1-g2*rho2]*z1/z
-      uniPart=pix2*alphaEM(scaleMu)**2/(var(3)**2)*var(6)**2/((1d0-var(7))*sqrt(1-var(10)))*(z1/var(5))
+      !pi^2 aEm^2/Q^2 y^2/(1-epsilon)/sqrt[1-g2*rho2]
+      uniPart=pi2*alphaEM(scaleMu)**2/(var(3))*var(6)**2/((1d0-var(7))*sqrt(1-var(10)))
 
       PreFactorKPC=uniPart*HardCoefficientSIDIS(scaleMu)*&
       hc2*1d9!from GeV to pbarn
@@ -658,9 +658,7 @@ SELECT CASE(process(1))
   CASE(2)
       !!!! same as for case(1) but with factor Q2/y
 
-      !!! uniPart is the prefactor for the cross-section
-      !2 pi aEm^2/Q^2 y/(1-epsilon)/sqrt[1-g2*rho2]*z1/z
-      uniPart=pix2*alphaEM(scaleMu)**2/var(3)*var(6)/((1d0-var(7))*sqrt(1-var(10)))*(z1/var(5))
+      uniPart=pi2*alphaEM(scaleMu)**2/(var(3))*var(6)/((1d0-var(7))*sqrt(1-var(10)))
 
       PreFactorKPC=uniPart*HardCoefficientSIDIS(scaleMu)*&
       hc2*1d9!from GeV to pbarn
@@ -669,8 +667,7 @@ SELECT CASE(process(1))
       !!!! same as for case(1) but with factor x/y
 
       !!! uniPart is the prefactor for the cross-section
-      !2 pi aEm^2/Q^2 y/(1-epsilon)/sqrt[1-g2*rho2]*z1/z
-      uniPart=pix2*alphaEM(scaleMu)**2/(var(3)**2)*(var(6)*var(4))/((1d0-var(7))*sqrt(1-var(10)))*(z1/var(5))
+      uniPart=pix2*alphaEM(scaleMu)**2/(var(3))*(var(6)*var(4))/((1d0-var(7))*sqrt(1-var(10)))
 
       PreFactorKPC=uniPart*HardCoefficientSIDIS(scaleMu)*&
       hc2*1d9!from GeV to pbarn
@@ -681,7 +678,6 @@ SELECT CASE(process(1))
       ERROR STOP color('Evaluation stop.',c_red_bold)
 END SELECT
 end function PreFactorKPC
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CUTS RELATED FUNCTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -793,6 +789,7 @@ else !!!! LP formula
 
   FF=TMDF_F(var(3),qT,x1,z1,scaleMu*c2_global,scaleZeta,scaleZeta,process(2:4))
   xSec=PreFactor2(var,process,x1,z1,qT)*FF
+
 end if
 
 !write(*,*) "{",var(3),",",x1,"},"!,z1

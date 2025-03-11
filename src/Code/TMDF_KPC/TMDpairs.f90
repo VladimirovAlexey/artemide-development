@@ -153,8 +153,9 @@ SELECT CASE(process(3))
 
   ! Si tomo estas funciones prueba sí saca numerines, así que algo está pasando con uTMDPDF y uTMDFF ?
   CASE(999)
-    TMD_pair=(Exp(-0.2d0*k1)+1/(k1+2.))*(Exp(-0.2d0*k2)+1/(k2+2.))
+  !  TMD_pair=(Exp(-0.2d0*k1)+1/(k1+2.))*(Exp(-0.2d0*k2)+1/(k2+2.))
 !     TMD_pair=1._dp
+  TMD_pair=Exp(-0.1*k1)*Exp(-0.4*k2)
 
 
   CASE DEFAULT

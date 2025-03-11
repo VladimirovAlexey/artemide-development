@@ -10,7 +10,7 @@
 !	This part is devoted to the calculation of Mellin convolution between
 !       PDF and the coefficient function.
 !       CxF_AS(x,mu,hadron) = real(-5:5)
-!   In the second-transverse moment [i.e.  \int d^2 kT kT^2] (see [????.????] for details)
+!   In the second-transverse moment [i.e.  \int d^2 kT kT^2] (see [2402.01836] for details)
 !
 !	v.3.00 Created (AV, 16.11.2023)
 !

@@ -283,6 +283,7 @@ function KPC_DYconv(Q2,qT_in,x1,x2,mu,proc1)
     real(dp)::KPC_DYconv
 
     real(dp)::tau2,deltaT,qT
+    logical::exist
 
     if(qT_in<qTMIN) then
         qT=qTMIN
@@ -295,8 +296,17 @@ function KPC_DYconv(Q2,qT_in,x1,x2,mu,proc1)
     tau2=Q2+qT**2
     deltaT=qT**2/tau2
 
+!       inquire(file="out1.txt", exist=exist)
+!      if (exist) then
+!          open(unit=10,file="out1.txt",action="write",position="append",status="old")
+!      else
+!          open(unit=10,file="out1.txt",action="write",status="new")
+!      end if
+
     !KPC_DYconv=Integrate_GK(Integrand_forTheta,0._dp,pi,toleranceINT)
     KPC_DYconv=Integrate_GK(Integrand_forAlpha,0._dp,piHalf,toleranceINT)
+
+     !close(10)
 
 contains
 
@@ -334,7 +344,7 @@ function INT_overALPHA(Q2,tau2,deltaT,x1,x2,mu,proc1,cT)
     integer,intent(in),dimension(1:3)::proc1
     real(dp)::INT_overALPHA
 
-    INT_overALPHA=Integrate_GK(Integrand_forALPHA,0._dp,piHalf,toleranceINT)
+    INT_overALPHA=Integrate_SA(Integrand_forALPHA,0._dp,piHalf,toleranceINT)
 
 contains
 
@@ -402,6 +412,11 @@ function Integrand_forTHETA(theta)
 
     !!! it is divided by 2 (instead of 4), because the integral over cos(theta) is over (0,pi).
     Integrand_forTHETA=TMD_pair(Q2,xi1,xi2,K1,K2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,sA,cosT,proc1(3))*sA
+
+
+!     write (10,'(F12.6,",",F12.6,",",F12.6,",",F24.16,",",F24.16,",",F24.16,",",F24.16)') Q2,theta,sA,Integrand_forTHETA, &
+!      TMD_pair(Q2,xi1,xi2,K1,K2,mu,proc1), sqrt(k1), sqrt(k2)
+
 end function Integrand_forTHETA
 
 end function INT_overTHETA
@@ -421,88 +436,91 @@ end function INT_overTHETA
 !!! Q2, qT, x1, z1 and mu are the usual SIDIS variables
 !!! NOTE: that Q2 is SIDIS kinematic variable, and mu is the factorization scale
 
-    function KPC_SIDISconv(Q2, qT_in, x1, z1 ,mu, proc1)
+function KPC_SIDISconv(Q2, qT_in, x1, z1 ,mu, proc1)
+    real(dp) :: KPC_SIDISconv
+    real(dp), intent(in) :: Q2, x1, z1, mu, qT_in
+    integer, intent(in), dimension(1:3) :: proc1
+    real(dp) :: tau2, dT, qT
 
-        real(dp) :: KPC_SIDISconv
+    if(qT_in < qTMIN) then
+        qT = qTMIN
+    else
+        qT = qT_in
+    end if
 
-        real(dp), intent(in) :: Q2, x1, z1, mu, qT_in
-        integer, intent(in), dimension(1:3) :: proc1
+    LocalCounter = 0
 
-        real(dp) :: tau2, dT, qT
+    tau2 = Q2 + qT**2
+    dT = qT**2/tau2
 
-        if(qT_in < qTMIN) then
-            qT = qTMIN
-        else
-            qT = qT_in
-        end if
+    KPC_SIDISconv = Integrate_GK(Integrand_forDeltat2, 0._dp, 1._dp, toleranceINT)
 
-        LocalCounter = 0
+contains
 
-        tau2 = Q2 + qT**2
-        dT = qT**2/tau2
+! Integral over Deltat over integral over theta
+function Integrand_forDeltat2(Deltat)
+    real(dp) :: Integrand_forDeltat2
+    real(dp), intent(in) :: Deltat
+    !real(dp) :: Deltat
 
-        KPC_SIDISconv = Integrate_GK(Integrand_forDeltat2, 0._dp, 1._dp, toleranceINT)
-
-    contains
-
-
-    ! Integral over Deltat over integral over theta
-    function Integrand_forDeltat2(Deltat2)
-
-        real(dp) :: Integrand_forDeltat2
-        real(dp), intent(in) :: Deltat2
-        real(dp) :: Deltat
-
-        Deltat = sqrt(Deltat2)
-
-        Integrand_forDeltat2 = INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, mu, proc1, Deltat)
+    !Deltat = sqrt(Deltat2)
+    Integrand_forDeltat2 = INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, mu, proc1, Deltat)
 !         write(*,"('{',F16.12,',',F16.8,'},')") Deltat2,Integrand_forDeltat2
 
-    end function Integrand_forDeltat2
+end function Integrand_forDeltat2
 
-    end function KPC_SIDISconv
+end function KPC_SIDISconv
 
-    ! Integral over theta at given Deltat
-    function INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, mu, proc1, Deltat)
+! Integral over theta at given Deltat
+function INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, mu, proc1, Deltat)
+    real(dp), intent(in) :: Q2, tau2, dT, x1, z1, mu, Deltat
+    integer, intent(in), dimension(1:3) :: proc1
+    real(dp) :: INT_overTHETA_SIDIS
 
-        real(dp), intent(in) :: Q2, tau2, dT, x1, z1, mu, Deltat
-        integer, intent(in), dimension(1:3) :: proc1
-        real(dp) :: INT_overTHETA_SIDIS
+    INT_overTHETA_SIDIS=Integrate_GK(Integrand_forTHETA_SIDIS, 0._dp, pix2, toleranceINT)
 
-        INT_overTHETA_SIDIS=Integrate_GK(Integrand_forTHETA_SIDIS, 0._dp, 2*pi, toleranceINT)
+contains
 
-    contains
+! Integrand
+function Integrand_forTHETA_SIDIS(theta)
+    real(dp) :: Integrand_forTHETA_SIDIS
+    real(dp), intent(in) :: theta
+    real(dp) :: S, Lam, xi, zeta, K, kh, cosT
 
-    ! Integrand
-    function Integrand_forTHETA_SIDIS(theta)
+    cosT = cos(theta)
 
-        real(dp) :: Integrand_forTHETA_SIDIS
-        real(dp), intent(in) :: theta
-        real(dp) :: S, Lam, xi, zeta, K, kh, cosT
+    S = ((2-x1)*dT+2*Deltat*cosT*sqrt(dT*(1+dT)*(1-x1)))/x1
 
-        cosT = cos(theta)
+    Lam = (1.d0+dT)*((1+dT)+4*(2-x1)/x1**2*sqrt((1-x1)*dT*(1+dT))*Deltat*cosT&
+    +4*(1-x1)/x1**2*(Deltat**2+dT*(1+(Deltat*cosT)**2)))
 
-        S = (2-x1)/x1*dT+sqrt(1-x1)*2*Deltat*sqrt(dT*(1+dT))*cosT/x1
 
-        Lam = (1+dT)*(x1**2*(1+dT)+4*(2-x1)*sqrt(1-x1)*sqrt(dT*(1+dT))*Deltat*cosT&
-        +4*(1-x1)*(dT*(1+Deltat*Deltat*cosT*cosT)+Deltat*Deltat))
+    xi = x1*(1-S+sqrt(Lam))/2
+    zeta = 2._dp*z1/(1+S+sqrt(Lam))
 
-        xi = x1*(1-S+sqrt(Lam))/2
-        zeta = 2*z1/(1+S+sqrt(Lam))
+    K = tau2*(Lam-(S-1._dp)**2)/4
+    kh = tau2*(Lam-(S+1._dp)**2)/4
 
-        K = tau2*(-1+Lam+2*S-S**2)/4
-        kh = tau2*(-1+Lam-2*S-S**2)/4
+    if(K < toleranceGEN) K = toleranceGEN
+    if(kh < toleranceGEN) kh = toleranceGEN
 
-        if(K < toleranceGEN) K = toleranceGEN
-        if(kh < toleranceGEN) kh = toleranceGEN
+    LocalCounter = LocalCounter + 1
 
-        LocalCounter = LocalCounter + 1
+    Integrand_forTHETA_SIDIS = 2*(1-x1)*zeta*(1+dT)/(x1**2*sqrt(Lam))*Deltat&
+    *SIDIS_KERNEL(Q2,tau2,dT*tau2,S,Lam,proc1(3))*TMD_pair(Q2,xi,zeta,K,kh,mu,proc1)
 
-        Integrand_forTHETA_SIDIS = 2*(1-x1)*z1*(1+dT)/sqrt(Lam)/(1+S+sqrt(Lam))/(x1**2)&
-        *SIDIS_KERNEL(Q2,tau2,dT*tau2,S,Lam,proc1(3))*TMD_pair(Q2,xi,zeta,K,kh,mu,proc1)
+!     write(*,*) "--------->>>", Q2, tau2, dT, x1, z1
+!     write(*,*) "Deltat,cosT -->>>", Deltat,cosT
+!     write(*,*) "Lam, S--->",Lam,S
+!     write(*,*) "K,kh--->",K,kh
+!     write(*,*) "xi,zeta--->",xi,zeta
+!     write(*,*) "1--->", 2*(1-x1)*zeta*(1+dT)/(x1**2*sqrt(Lam))*Deltat
+!     write(*,*) "2--->", SIDIS_KERNEL(Q2,tau2,dT*tau2,S,Lam,proc1(3))
+!     write(*,*) TMD_pair(Q2,xi,zeta,K,kh,mu,proc1)
+!     stop
 
-    end function Integrand_forTHETA_SIDIS
+end function Integrand_forTHETA_SIDIS
 
-    end function INT_overTHETA_SIDIS
+end function INT_overTHETA_SIDIS
 
 end module TMDF_KPC
