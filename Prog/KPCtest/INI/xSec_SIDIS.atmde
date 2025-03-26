@@ -302,9 +302,9 @@
 *p2  : run the test of the grid (takes some time)
  F
 *p3  : Number of subgrids in X (required to read the next line)
-   3
+   4
 *p4  : Intervals for subgrids in X (must include 1., as the last point)
- 0.05  0.1  0.7  1.
+ 0.01 0.05  0.1  0.7  1.
 *p5  : Number of nodes in the X-subgrid
    16
 *p6  : Number of subgrids in KT (required to read the next line)
