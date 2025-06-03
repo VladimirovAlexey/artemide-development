@@ -163,6 +163,7 @@ SELECT CASE(process(3))
     write(*,*) color('Evaluation stop',c_red_bold)
     stop
  END SELECT
+ write(44,*) sqrt(k1),FA(1)
 
 
 end function TMD_pair

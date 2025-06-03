@@ -518,7 +518,7 @@ contains
 function Integrand_forTHETA_SIDIS(theta)
     real(dp) :: Integrand_forTHETA_SIDIS
     real(dp), intent(in) :: theta
-    real(dp) :: S, Lam, xi, zeta, K, kh, cosT
+    real(dp) :: S, Lam, xi, zeta, K, kh, cosT,RRR
 
     cosT = cos(theta)
 
@@ -538,9 +538,9 @@ function Integrand_forTHETA_SIDIS(theta)
     if(kh < toleranceGEN) kh = toleranceGEN
 
     LocalCounter = LocalCounter + 1
-
+    RRR=TMD_pair(Q2,xi,zeta,K,kh,mu,proc1)
     Integrand_forTHETA_SIDIS = 2*(1-x1)*zeta*(1+dT)/(x1**2*sqrt(Lam))*Deltat&
-    *SIDIS_KERNEL(Q2,tau2,dT*tau2,S,Lam,proc1(3))*TMD_pair(Q2,xi,zeta,K,kh,mu,proc1)
+    *SIDIS_KERNEL(Q2,tau2,dT*tau2,S,Lam,proc1(3))*RRR
 
 !     write(*,*) "--------->>>", Q2, tau2, dT, x1, z1
 !     write(*,*) "Deltat,cosT -->>>", Deltat,cosT
@@ -553,6 +553,8 @@ function Integrand_forTHETA_SIDIS(theta)
 !     stop
 
     !write(44,*) Deltat,theta,Integrand_forTHETA_SIDIS
+    !write(44,*) Deltat,theta,TMD_pair(Q2,xi,zeta,K,kh,mu,proc1)
+
 
 end function Integrand_forTHETA_SIDIS
 

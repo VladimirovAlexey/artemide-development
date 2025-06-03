@@ -2497,122 +2497,70 @@ List of enumeration of structures functions
 
 10000$\leqslant$\texttt{N}$<$20000
 \\
-\begin{longtable}{||l|p{6cm}|c|c||p{7cm}|c||}
+\begin{longtable}{||l|p{6cm}|c|c||p{6cm}|c|c|c||}
 \hline\hline
-\texttt{N} & ~~$z_{ff'}$~~& ~~$F_1$~~ & ~~$F_2$~~&  Short description & Gluon req. 
+\texttt{N} & ~~$z_{ff'}$~~& ~~$F_1$~~ & ~~$F_2$~~&  Short description & Gluon & LP & KPC
 \\\hline
-10000 &  &  &  &  & 
+10000 &  &  &  &  & &\checkmark &
 \\
-19999 & -- & -- & -- & Test cases (see \ref{TMDF:tests}) & no
+19999 & -- & -- & -- & Test cases (see \ref{TMDF:tests}) & no &\checkmark &
 \\
-19998 &  &  &  &  & 
+19998 &  &  &  &  & &\checkmark &
 \\\hline\hline
-10001 & $-M\delta_{\bar f f'}|e_f|^2$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$h_1^{\uparrow}+h_2\to\gamma$ & no
+10001 & $-M\delta_{\bar f f'}|e_f|^2$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$h_1^{\uparrow}+h_2\to\gamma$ & no &\checkmark &
 \\\hline
-10003 & $-M\Ds\delta_{\bar f f'}\frac{z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$h_1^{\uparrow}+h_2\to Z+\gamma$ & no
+10003 & $-M\Ds\delta_{\bar f f'}\frac{z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$h_1^{\uparrow}+h_2\to Z+\gamma$ & no &\checkmark &
 \\\hline
-10004 & $-M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$h_1^{\uparrow}+h_2\to W^+$ & no
+10004 & $-M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$h_1^{\uparrow}+h_2\to W^+$ & no &\checkmark &
 \\\hline
-10008 & $-M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$h_1^{\uparrow}+h_2\to W^-$ & no
+10008 & $-M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $-(f_{1T}^\perp)^p$ & $f_1$ & (Sivers)$h_1^{\uparrow}+h_2\to W^-$ & no &\checkmark &
 \\\hline
-10011 & $+M\delta_{\bar f f'}|e_f|^2$ & $f^h_1$ & $-(f_{1T}^\perp)^{p}$ & (Sivers)$h+p^\uparrow\to\gamma$ (with $h=2$) & no
+10011 & $+M\delta_{\bar f f'}|e_f|^2$ & $f^h_1$ & $-(f_{1T}^\perp)^{p}$ & (Sivers)$h+p^\uparrow\to\gamma$ & no &\checkmark &
 \\\hline \hline
-12001 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^p$ & $d^{h_1}_1$ & (Sivers)$p^{\uparrow}+\gamma\to h_1$ & no
+12001 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{h_1}$ & $d^{h_2}_1$ & (Sivers)$h_1^{\uparrow}+\gamma\to h_2$ & no &\checkmark &
+\\\hline 
+12002 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_2}_1$ & (Sivers)$d^{\uparrow}+\gamma\to h_2$. Here, d is isoscalar target $(p+n)_{h_1}/2$. & no &\checkmark &
 \\\hline
-1200N & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^p$ & $d^{h_N}_1$ & (Sivers)$p^{\uparrow}+\gamma\to h_N$, for $N=\{1,...,9\}$ (including case 12001) & no
+12003 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^n$ & $d^{h_N}_1$ & (Sivers)$n^{\uparrow}+\gamma\to h_N$.  Here, n is neutron target $n=h_1(u\leftrightarrow d)$. & no &\checkmark &
 \\\hline \hline
-12011 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_1}_1$ & (Sivers)$d^{\uparrow}+\gamma\to h_1$. Here, d is isoscalar target $(p+n)/2$. & no
+12101 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{p}$ & $d^{h_{1+2}}_1$ & (Sivers)$p^{\uparrow}+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$. Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument ignoring its value). & no &\checkmark &
 \\\hline
-1201N & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_N}_1$ & (Sivers)$d^{\uparrow}+\gamma\to h_N$, for $N=\{1,...,9\}$ (including case 12011). Here, d is isoscalar target $(p+n)/2$. & no
-\\\hline \hline
-12021 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^p$ & $d^{\bar h_1}_1$ & (Sivers)$p^{\uparrow}+\gamma\to \bar h_1$ & no
+12102 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{p}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$p^{\uparrow}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$. Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument ignoring its value). & no &\checkmark &
 \\\hline
-1202N & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^p$ & $d^{\bar h_N}_1$ & (Sivers)$p^{\uparrow}+\gamma\to \bar h_N$, for $N=\{1,...,9\}$ (including case 12021) & no
-\\\hline \hline
-12031 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{\bar h_1}_1$ & (Sivers)$d^{\uparrow}+\gamma\to \bar h_1$. Here, d is isoscalar target $(p+n)/2$. & no
+12103 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_{1+2}}_1$ & (Sivers)$d^{\uparrow}+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ and d is isoscalar target $(p+n)/2$. Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument ignoring its value). & no &\checkmark &
 \\\hline
-1203N & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{\bar h_N}_1$ & (Sivers)$d^{\uparrow}+\gamma\to \bar h_N$, for $N=\{1,...,9\}$ (including case 12031). Here, d is isoscalar target $(p+n)/2$. & no
-\\\hline\hline
-1204N & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^d$ & $d^{h_N}_1$ & (Sivers)$n^{\uparrow}+\gamma\to h_N$, for $N=\{1,...,9\}$, n is neutron target $n=p(u\leftrightarrow d)$. & no
+12104 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$d^{\uparrow}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and d is isoscalar target $(p+n)/2$. Computed strictly with produced hadron 1,2 and 3 (accounts only the sign of $h_2$ argument ignoring its value). & no &\checkmark &
 \\\hline
-1205N & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^d$ & $d^{\bar h_N}_1$ & (Sivers)$n^{\uparrow}+\gamma\to \bar h_N$, for $N=\{1,...,9\}$, n is neutron target $n=p(u\leftrightarrow d)$. & no
-\\\hline \hline
-12101 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{p}$ & $d^{h_{1+2}}_1$ & (Sivers)$p^{\uparrow}+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ & no
+12105 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2}}_1$ & (Sivers)$n^{\uparrow}+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ and n is neutron target $n=p(u\leftrightarrow d)$. Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument ignoring its value). & no &\checkmark &
 \\\hline
-12102 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{p}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$p^{\uparrow}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ & no
-\\\hline
-12103 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_{1+2}}_1$ & (Sivers)$d^{\uparrow}+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ and d is isoscalar target $(p+n)/2$. & no
-\\\hline
-12104 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$d^{\uparrow}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and d is isoscalar target $(p+n)/2$. & no
-\\\hline
-12105 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2}}_1$ & (Sivers)$n^{\uparrow}+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
-\\\hline
-12106 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$n^{\uparrow}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
-\\\hline
-12111 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{p}$ & $d^{h_{1+2}}_1$ & (Sivers)$p^{\uparrow}+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ & no
-\\\hline
-12112 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{p}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$p^{\uparrow}+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ & no
-\\\hline
-12113 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_{1+2}}_1$ & (Sivers)$d^{\uparrow}+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ and d is isoscalar target $(p+n)/2$. & no
-\\\hline
-12114 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{d}$ & $d^{h_{1+2+3}}_1$ & (Sivers))$d^{\uparrow}+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and d is isoscalar target $(p+n)/2$. & no
-\\\hline
-12115 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2}}_1$ & (Sivers)$n^{\uparrow}+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
-\\\hline
-12116 & $-M\delta_{f\bar f'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$n^{\uparrow}+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
+12106 & $-M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2+3}}_1$ & (Sivers)$n^{\uparrow}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and n is neutron target $n=p(u\leftrightarrow d)$. Computed strictly with produced hadron 1,3 and 2 (accounts only the sign of $h_2$ argument ignoring its value). & no &\checkmark &
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \\\hline \hline
-\multicolumn{6}{||c||}{$\downarrow\downarrow\downarrow$ Enumeration for $F_{LT}$ in SIDIS is same as for $F_{UT}$ with ($12\to 13$) $\downarrow\downarrow\downarrow$}
+\multicolumn{8}{||c||}{$\downarrow\downarrow\downarrow$ Enumeration for $F_{LT}$ in SIDIS is same as for $F_{UT}$ with ($12\to 13$) $\downarrow\downarrow\downarrow$}
 \\\hline \hline
-13001 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^p$ & $d^{h_1}_1$ & (wgt)$p^{\uparrow}+\gamma\to h_1$ & no
+13001 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^{h_1}$ & $d^{h_2}_1$ & (wgt)$h_1^{\uparrow}+\gamma\to h_1$ & no &\checkmark &
 \\\hline
-1300N & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^p$ & $d^{h_N}_1$ & (wgt)$p^{\uparrow}+\gamma\to h_N$, for $N=\{1,...,9\}$ (including case 12001) & no
+13002 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^{d}$ & $d^{h_2}_1$ & (wgt)$d^{\uparrow}+\gamma\to h_2$. Here, d is isoscalar target $(p+n)_{h_1}/2$. & no &\checkmark &
+\\\hline
+13003 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^d$ & $d^{h_2}_1$ & (wgt)$n^{\uparrow}+\gamma\to h_2$. Here, n is neutron target $n=h_1(u\leftrightarrow d)$. & no &\checkmark &
 \\\hline \hline
-13011 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^{d}$ & $d^{h_1}_1$ & (wgt)$d^{\uparrow}+\gamma\to h_1$. Here, d is isoscalar target $(p+n)/2$. & no
+13101 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^{h}$ & $d^{h_{1+2}}_1$ & (wgt)$p^{\uparrow}+\gamma\to h_{1+2}$, where $h_{1+2}=1+2$. Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument ignoring its value) & no &\checkmark &
 \\\hline
-1301N & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^{d}$ & $d^{h_N}_1$ & (wgt)$d^{\uparrow}+\gamma\to h_N$, for $N=\{1,...,9\}$ (including case 12011). Here, d is isoscalar target $(p+n)/2$. & no
-\\\hline \hline
-13021 & $+M\delta_{f\bar f'}|e_f|^2$~~&$(g_{1T}^\perp)^p$ & $d^{\bar h_1}_1$ & (wgt)$p^{\uparrow}+\gamma\to \bar h_1$ & no
+13102 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^{h}$ & $d^{h_{1+2+3}}_1$ & (wgt)$p^{\uparrow}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$. Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument ignoring its value) & no &\checkmark &
 \\\hline
-1302N & $+M\delta_{f\bar f'}|e_f|^2$~~&$(g_{1T}^\perp)^p$ & $d^{\bar h_N}_1$ & (wgt)$p^{\uparrow}+\gamma\to \bar h_N$, for $N=\{1,...,9\}$ (including case 12021) & no
-\\\hline \hline
-13031 & $+M\delta_{f\bar f'}|e_f|^2$~~&$(g_{1T}^\perp)^{d}$ & $d^{\bar h_1}_1$ & (wgt)$d^{\uparrow}+\gamma\to \bar h_1$. Here, d is isoscalar target $(p+n)/2$. & no
+13103 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^{d}$ & $d^{h_{1+2}}_1$ & (wgt)$d^{\uparrow}+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ and d is isoscalar target $(p+n)_h/2$. Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument ignoring its value) & no &\checkmark &
 \\\hline
-1303N & $+M\delta_{f\bar f'}|e_f|^2$~~&$(g_{1T}^\perp)^{d}$ & $d^{\bar h_N}_1$ & (wgt)$d^{\uparrow}+\gamma\to \bar h_N$, for $N=\{1,...,9\}$ (including case 12031). Here, d is isoscalar target $(p+n)/2$. & no
-\\\hline\hline
-1304N & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^d$ & $d^{h_N}_1$ & (wgt)$n^{\uparrow}+\gamma\to h_N$, for $N=\{1,...,9\}$, n is neutron target $n=p(u\leftrightarrow d)$. & no
+13104 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^{d}$ & $d^{h_{1+2+3}}_1$ & (wgt)$d^{\uparrow}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and d is isoscalar target $(p+n)/2$. Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument ignoring its value) & no &\checkmark &
 \\\hline
-1305N & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^d$ & $d^{\bar h_N}_1$ & (wgt)$n^{\uparrow}+\gamma\to \bar h_N$, for $N=\{1,...,9\}$, n is neutron target $n=p(u\leftrightarrow d)$. & no
-\\\hline \hline
-13101 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^{p}$ & $d^{h_{1+2}}_1$ & (wgt)$p^{\uparrow}+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ & no
+13105 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^{n}$ & $d^{h_{1+2}}_1$ & (wgt)$n^{\uparrow}+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ and n is neutron target $n=p(u\leftrightarrow d)$. Computed strictly with produced hadron 1 and 2 (accounts only the sign of $h_2$ argument ignoring its value) & no &\checkmark &
 \\\hline
-13102 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^{p}$ & $d^{h_{1+2+3}}_1$ & (wgt)$p^{\uparrow}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ & no
+13106 & $+M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2+3}}_1$ & (wgt)$n^{\uparrow}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and n is neutron target $n=p(u\leftrightarrow d)$.Computed strictly with produced hadron 1, 2 and 3 (accounts only the sign of $h_2$ argument ignoring its value)  & no &\checkmark &
 \\\hline
-13103 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^{d}$ & $d^{h_{1+2}}_1$ & (wgt)$d^{\uparrow}+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ and d is isoscalar target $(p+n)/2$. & no
+13200 & $+M\Ds\delta_{\bar f f'}\frac{\bar z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $(g_{1T}^\perp)^p$ & $(-1)^f f_1$ & $G_{TU}^1$ cross-section in $h_1^{\uparrow}+h_2\to Z+\gamma$ & no &\checkmark &
 \\\hline
-13104 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^{d}$ & $d^{h_{1+2+3}}_1$ & (wgt)$d^{\uparrow}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and d is isoscalar target $(p+n)/2$. & no
+13201 & $+M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $(g_{1T}^\perp)^p$ & $(-1)^ff_1$ & $G_{TU}^1$ cross-section in $h_1^{\uparrow}+h_2\to W^+$ & no &\checkmark &
 \\\hline
-13105 & $+M\delta_{ff'}|e_f|^2$~~&$(g_{1T}^\perp)^{n}$ & $d^{h_{1+2}}_1$ & (wgt)$n^{\uparrow}+\gamma\to h_{1+2}$, where $h_{1+2}=h_1+h_2$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
-\\\hline
-13106 & $+M\delta_{ff'}|e_f|^2$~~&$(f_{1T}^\perp)^{n}$ & $d^{h_{1+2+3}}_1$ & (wgt)$n^{\uparrow}+\gamma\to h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
-\\\hline
-13111 & $+M\delta_{f\bar f'}|e_f|^2$~~&$(g_{1T}^\perp)^{p}$ & $d^{h_{1+2}}_1$ & (wgt)$p^{\uparrow}+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ & no
-\\\hline
-13112 & $+M\delta_{f\bar f'}|e_f|^2$~~&$(g_{1T}^\perp)^{p}$ & $d^{h_{1+2+3}}_1$ & (wgt)$p^{\uparrow}+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ & no
-\\\hline
-13113 & $+M\delta_{f\bar f'}|e_f|^2$~~&$(g_{1T}^\perp)^{d}$ & $d^{h_{1+2}}_1$ & (wgt)$d^{\uparrow}+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ and d is isoscalar target $(p+n)/2$. & no
-\\\hline
-13114 & $+M\delta_{f\bar f'}|e_f|^2$~~&$(g_{1T}^\perp)^{d}$ & $d^{h_{1+2+3}}_1$ & (wgt)$d^{\uparrow}+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and d is isoscalar target $(p+n)/2$. & no
-\\\hline
-13115 & $+M\delta_{f\bar f'}|e_f|^2$~~&$(g_{1T}^\perp)^{n}$ & $d^{h_{1+2}}_1$ & (wgt)$n^{\uparrow}+\gamma\to \bar h_{1+2}$, where $h_{1+2}=h_1+h_2$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
-\\\hline
-13116 & $+M\delta_{f\bar f'}|e_f|^2$~~&$(g_{1T}^\perp)^{n}$ & $d^{h_{1+2+3}}_1$ & (wgt)$n^{\uparrow}+\gamma\to \bar h_{1+2+3}$, where $h_{1+2+3}=h_1+h_2+h_3$ and n is neutron target $n=p(u\leftrightarrow d)$. & no
-\\\hline
-13200 & $+M\Ds\delta_{\bar f f'}\frac{\bar z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $(g_{1T}^\perp)^p$ & $(-1)^f f_1$ & $G_{TU}^1$ cross-section in $h_1^{\uparrow}+h_2\to Z+\gamma$ & no
-\\\hline
-13201 & $+M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $(g_{1T}^\perp)^p$ & $(-1)^ff_1$ & $G_{TU}^1$ cross-section in $h_1^{\uparrow}+h_2\to W^+$ & no
-\\\hline
-13202 & $+M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $(g_{1T}^\perp)^p$ & $(-1)^ff_1$ & $G_{TU}^1$ cross-section in $h_1^{\uparrow}+h_2\to W^-$ & no
+13202 & $+M\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$ & $(g_{1T}^\perp)^p$ & $(-1)^ff_1$ & $G_{TU}^1$ cross-section in $h_1^{\uparrow}+h_2\to W^-$ & no &\checkmark &
 \\\hline\hline
 \end{longtable}
 
@@ -3466,6 +3414,10 @@ polarized DY
 
 \section{Version history}
 \begin{itemize}
+\item[\textbf{Ver.3.02}]
+\begin{itemize}
+	\item \textbf{TMDF}: the enumeration of Sivers and worm-gear related structure functions is updated.
+\end{itemize}
 \item[\textbf{Ver.3.01}]
 \begin{itemize}
 	\item general: Computation of WW convolution is split into separate code.

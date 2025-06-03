@@ -324,7 +324,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
  real(dp)::Integrand
  real(dp),intent(in)::b,x1,x2,mu,zeta1,zeta2,Q2
  integer,dimension(1:3),intent(in)::process_array
- integer::process,h,h1,h2
+ integer::process,h1,h2
  real(dp),dimension(-5:5)::FA,FB,FAB
  
  process=process_array(3) !! general process name
@@ -781,7 +781,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     !--------------------------------------------------------------------------------  
     CASE (10004) !pp-> W+
         FA=-SiversTMDPDF_inB(x1,b,mu,zeta1,h1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-        FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
+        FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)        !!!! The anti-quarks'ness is taken into account in the product
         
         Integrand=-global_mass_scale*paramW_L*(&
         paramW_UD*(FA(2)*FB(-1)+FA(-1)*FB(2))&        !u*dbar+dbar*u
@@ -794,7 +794,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     !--------------------------------------------------------------------------------  
     CASE (10005) !pp-> W-
         FA=-SiversTMDPDF_inB(x1,b,mu,zeta1,h1)  !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
-        FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
+        FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)        !!!! The anti-quarks'ness is taken into account in the product
         
         Integrand=-global_mass_scale*paramW_L*(&
         paramW_UD*(FA(1)*FB(-2)+FA(-2)*FB(1))&        !d*ubar+ubar*d
@@ -823,13 +823,27 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FAB(-3)/9.d0&
         +FAB(-4)*4d0/9.d0&
         +FAB(-5)/9d0)
-
     !--------------------------------------------------------------------------------
-    CASE (12011:12019) !Sivers asymmetry d->hN where n=last number (d=deutron=(p+n)/2)
+    CASE (12001) !Sivers asymmetry h1->h2 N
     ! e_q^2 *F_q(A)*F_q(B)
-    h=process-12010
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
+    Integrand=-global_mass_scale*(&
+        FA(1)*FB(1)/9.d0&
+        +FA(2)*FB(2)*4.d0/9.d0&
+        +FA(3)*FB(3)/9.d0&
+        +FA(4)*FB(4)*4d0/9.d0&
+        +FA(5)*FB(5)/9d0&
+        +FA(-1)*FB(-1)/9.d0&
+        +FA(-2)*FB(-2)*4.d0/9.d0&
+        +FA(-3)*FB(-3)/9.d0&
+        +FA(-4)*FB(-4)*4d0/9.d0&
+        +FA(-5)*FB(-5)/9d0)
+    !--------------------------------------------------------------------------------
+    CASE (12002) !Sivers asymmetry d->h2 N where n=last number (d=deutron=(p+n)/2)
+    ! e_q^2 *F_q(A)*F_q(B)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
     Integrand=-global_mass_scale*(&
         (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
         +FA(3)*FB(3)/9.d0&
@@ -840,43 +854,10 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
     !--------------------------------------------------------------------------------
-    CASE (12021:12029) !Sivers asymmetry p->bar-hN where n=last number
-    ! e_q^2 *F_q(A)*F_bar-q(B)
-    h=process-12020
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
-    Integrand=-global_mass_scale*(&
-        FA(1)*FB(-1)/9.d0&
-        +FA(2)*FB(-2)*4.d0/9.d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +FA(-1)*FB(1)/9.d0&
-        +FA(-2)*FB(2)*4.d0/9.d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
-    !--------------------------------------------------------------------------------
-    CASE (12031:12039) !Sivers asymmetry d->bar-hN where n=last number (d=deutron=(p+n)/2)
-    ! e_q^2 *F_q(A)*F_bar-q(B)
-    h=process-12030
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
-    Integrand=-global_mass_scale*(&
-        (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
-    !--------------------------------------------------------------------------------
-    CASE (12041:12049) !Sivers asymmetry p->hN where n=last number  (n=neutron=p(u<->d))
+    CASE (12003) !Sivers asymmetry n->hN (n=neutron=h1(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
-    h=process-12040
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
     Integrand=-global_mass_scale*(&
         FA(2)*FB(1)/9.d0&
         +FA(1)*FB(2)*4.d0/9.d0&
@@ -888,29 +869,16 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-3)*FB(-3)/9.d0&
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
-    !--------------------------------------------------------------------------------
-    CASE (12051:12059) !Sivers asymmetry p->bar-hN where n=last number (n=neutron=p(u<->d))
-    ! e_q^2 *F_q(A)*F_bar-q(B)
-    h=process-12050
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
-    Integrand=-global_mass_scale*(&
-        FA(2)*FB(-1)/9.d0&
-        +FA(1)*FB(-2)*4.d0/9.d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +FA(-2)*FB(1)/9.d0&
-        +FA(-1)*FB(2)*4.d0/9.d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
     !--------------------------------------------------------------------------------  
     !--------------------------------------------------------------------------------  
     CASE (12101) !p->h? where h?=h1+h2
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,h1)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)
+    end if
     Integrand=-global_mass_scale*(&
         FA(1)*FB(1)/9.d0&
         +FA(2)*FB(2)*4.d0/9.d0&
@@ -925,8 +893,12 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     !--------------------------------------------------------------------------------  
     CASE (12102) !p->h? where h?=h1+h2+h3
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,h1)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,-3)
+    end if
     Integrand=-global_mass_scale*(&
         FA(1)*FB(1)/9.d0&
         +FA(2)*FB(2)*4.d0/9.d0&
@@ -941,8 +913,12 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     !--------------------------------------------------------------------------------  
     CASE (12103) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,h1)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)
+    end if
     Integrand=-global_mass_scale*(&
         (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
         +FA(3)*FB(3)/9.d0&
@@ -955,8 +931,12 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     !--------------------------------------------------------------------------------  
     CASE (12104) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,h1)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,-3)
+    end if
     Integrand=-global_mass_scale*(&
         (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
         +FA(3)*FB(3)/9.d0&
@@ -969,8 +949,12 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     !--------------------------------------------------------------------------------  
     CASE (12105) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,h1)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,-3)
+    end if
     Integrand=-global_mass_scale*(&
         FA(2)*FB(1)/9.d0&
         +FA(1)*FB(2)*4.d0/9.d0&
@@ -985,8 +969,12 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     !--------------------------------------------------------------------------------  
     CASE (12106) !n->h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,h1)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,-3)
+    end if
     Integrand=-global_mass_scale*(&
         FA(2)*FB(1)/9.d0&
         +FA(1)*FB(2)*4.d0/9.d0&
@@ -998,107 +986,14 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-3)*FB(-3)/9.d0&
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
-    !------------------------------------------------------------------------------------
-    CASE (12111) !p->bar h? where h?=h1+h2
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
-    Integrand=-global_mass_scale*(&
-        FA(1)*FB(-1)/9.d0&
-        +FA(2)*FB(-2)*4.d0/9.d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +FA(-1)*FB(1)/9.d0&
-        +FA(-2)*FB(2)*4.d0/9.d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
-    !--------------------------------------------------------------------------------  
-    CASE (12112) !p->bar h? where h?=h1+h2+h3
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
-    Integrand=-global_mass_scale*(&
-        FA(1)*FB(-1)/9.d0&
-        +FA(2)*FB(-2)*4.d0/9.d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +FA(-1)*FB(1)/9.d0&
-        +FA(-2)*FB(2)*4.d0/9.d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
-    !--------------------------------------------------------------------------------  
-    CASE (12113) !d->bar h? where h?=h1+h2 (d=deutron=(p+n)/2)
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
-    Integrand=-global_mass_scale*(&
-        (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
-    !--------------------------------------------------------------------------------  
-    CASE (12114) !d->bar h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
-    Integrand=-global_mass_scale*(&
-        (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
-    !------------------------------------------------------------------------------------
-    CASE (12115) !n->bar h? where h?=h1+h2 (n=neutron=p(u<->d))
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
-    Integrand=-global_mass_scale*(&
-        FA(2)*FB(-1)/9.d0&
-        +FA(1)*FB(-2)*4.d0/9.d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +FA(-2)*FB(1)/9.d0&
-        +FA(-1)*FB(2)*4.d0/9.d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
-    !--------------------------------------------------------------------------------  
-    CASE (12116) !n->bar h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=SiversTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
-    Integrand=-global_mass_scale*(&
-        FA(2)*FB(-1)/9.d0&
-        +FA(1)*FB(-2)*4.d0/9.d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +FA(-2)*FB(1)/9.d0&
-        +FA(-1)*FB(2)*4.d0/9.d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
     !--------------------------------------------------------------------------------
     !----------------------------------WGT-related asymetries------------------------
     !-------------------------------------------------------------------------------
     !---------------------------------SIDIS-----------------------------------------    
-    CASE (13001:13009) !A_LT asymmetry p->hN where n=last number
+    CASE (13001) !A_LT asymmetry p->hN
     ! e_q^2 *F_q(A)*F_q(B)
-    h=process-13000
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
     Integrand=+global_mass_scale*(&
         FA(1)*FB(1)/9.d0&
         +FA(2)*FB(2)*4.d0/9.d0&
@@ -1111,11 +1006,10 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
     !--------------------------------------------------------------------------------  
-    CASE (13011:13019) !A_LT asymmetry d->hN where n=last number (d=deutron=(p+n)/2)
+    CASE (13002) !A_LT asymmetry d->hN (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
-    h=process-13010
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
     Integrand=+global_mass_scale*(&
         (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
         +FA(3)*FB(3)/9.d0&
@@ -1125,44 +1019,11 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-3)*FB(-3)/9.d0&
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
-    !--------------------------------------------------------------------------------  
-    CASE (13021:13029) !A_LT asymmetry p->bar-hN where n=last number
-    ! e_q^2 *F_q(A)*F_bar-q(B)
-    h=process-13020
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
-    Integrand=+global_mass_scale*(&
-        FA(1)*FB(-1)/9.d0&
-        +FA(2)*FB(-2)*4.d0/9.d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +FA(-1)*FB(1)/9.d0&
-        +FA(-2)*FB(2)*4.d0/9.d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
-    !--------------------------------------------------------------------------------  
-    CASE (13031:13039) !A_LT asymmetry d->bar-hN where n=last number (d=deutron=(p+n)/2)
-    ! e_q^2 *F_q(A)*F_bar-q(B)
-    h=process-13030
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
-    Integrand=+global_mass_scale*(&
-        (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
     !--------------------------------------------------------------------------------
-    CASE (13041:13049) !A_LT asymmetry p->hN where n=last number  (n=neutron=p(u<->d))
+    CASE (13003) !A_LT asymmetry n->hN  (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
-    h=process-13040
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
     Integrand=+global_mass_scale*(&
         FA(2)*FB(1)/9.d0&
         +FA(1)*FB(2)*4.d0/9.d0&
@@ -1175,28 +1036,15 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
     !--------------------------------------------------------------------------------  
-    CASE (13051:13059) !A_LT asymmetry p->bar-hN where n=last number (n=neutron=p(u<->d))
-    ! e_q^2 *F_q(A)*F_bar-q(B)
-    h=process-13050
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,h)
-    Integrand=+global_mass_scale*(&
-        FA(2)*FB(-1)/9.d0&
-        +FA(1)*FB(-2)*4.d0/9.d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +FA(-2)*FB(1)/9.d0&
-        +FA(-1)*FB(2)*4.d0/9.d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
-    !--------------------------------------------------------------------------------  
     !--------------------------------------------------------------------------------  
     CASE (13101) !p->h? where h?=h1+h2
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)
+    end if
     Integrand=+global_mass_scale*(&
         FA(1)*FB(1)/9.d0&
         +FA(2)*FB(2)*4.d0/9.d0&
@@ -1211,8 +1059,12 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     !--------------------------------------------------------------------------------  
     CASE (13102) !p->h? where h?=h1+h2+h3
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,-3)
+    end if
     Integrand=+global_mass_scale*(&
         FA(1)*FB(1)/9.d0&
         +FA(2)*FB(2)*4.d0/9.d0&
@@ -1227,8 +1079,12 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     !--------------------------------------------------------------------------------  
     CASE (13103) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)
+    end if
     Integrand=+global_mass_scale*(&
         (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
         +FA(3)*FB(3)/9.d0&
@@ -1241,8 +1097,12 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     !--------------------------------------------------------------------------------  
     CASE (13104) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,-3)
+    end if
     Integrand=+global_mass_scale*(&
         (FA(1)+FA(2))*(FB(1)+4d0*FB(2))/18d0&
         +FA(3)*FB(3)/9.d0&
@@ -1255,8 +1115,12 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     !--------------------------------------------------------------------------------  
     CASE (13105) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)
+    end if
     Integrand=+global_mass_scale*(&
         FA(2)*FB(1)/9.d0&
         +FA(1)*FB(2)*4.d0/9.d0&
@@ -1271,8 +1135,12 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     !--------------------------------------------------------------------------------  
     CASE (13106) !n->h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
+    if(h2>0) then
+        FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
+    else
+        FB=uTMDFF_inB(x2,b,mu,zeta2,-1)+uTMDFF_inB(x2,b,mu,zeta2,-2)+uTMDFF_inB(x2,b,mu,zeta2,-3)
+    end if
     Integrand=+global_mass_scale*(&
         FA(2)*FB(1)/9.d0&
         +FA(1)*FB(2)*4.d0/9.d0&
@@ -1284,98 +1152,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-3)*FB(-3)/9.d0&
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
-    !------------------------------------------------------------------------------------
-    CASE (13111) !p->bar h? where h?=h1+h2
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
-    Integrand=+global_mass_scale*(&
-        FA(1)*FB(-1)/9.d0&
-        +FA(2)*FB(-2)*4.d0/9.d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +FA(-1)*FB(1)/9.d0&
-        +FA(-2)*FB(2)*4.d0/9.d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
-    !--------------------------------------------------------------------------------  
-    CASE (13112) !p->bar h? where h?=h1+h2+h3
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
-    Integrand=+global_mass_scale*(&
-        FA(1)*FB(-1)/9.d0&
-        +FA(2)*FB(-2)*4.d0/9.d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +FA(-1)*FB(1)/9.d0&
-        +FA(-2)*FB(2)*4.d0/9.d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
-    !--------------------------------------------------------------------------------  
-    CASE (13113) !d->bar h? where h?=h1+h2 (d=deutron=(p+n)/2)
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
-    Integrand=+global_mass_scale*(&
-        (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
-    !--------------------------------------------------------------------------------  
-    CASE (13114) !d->bar h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
-    Integrand=+global_mass_scale*(&
-        (FA(1)+FA(2))*(FB(-1)+4d0*FB(-2))/18d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +(FA(-1)+FA(-2))*(FB(1)+4d0*FB(2))/18d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
-    !------------------------------------------------------------------------------------
-    CASE (13115) !n->bar h? where h?=h1+h2 (n=neutron=p(u<->d))
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)
-    Integrand=+global_mass_scale*(&
-        FA(2)*FB(-1)/9.d0&
-        +FA(1)*FB(-2)*4.d0/9.d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +FA(-2)*FB(1)/9.d0&
-        +FA(-1)*FB(2)*4.d0/9.d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
-    !--------------------------------------------------------------------------------  
-    CASE (13116) !n->bar h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
-    ! e_q^2 *F_q(A)*F_bq(B)
-    FA=wgtTMDPDF_inB(x1,b,mu,zeta1,1)
-    FB=uTMDFF_inB(x2,b,mu,zeta2,1)+uTMDFF_inB(x2,b,mu,zeta2,2)+uTMDFF_inB(x2,b,mu,zeta2,3)
-    Integrand=+global_mass_scale*(&
-        FA(2)*FB(-1)/9.d0&
-        +FA(1)*FB(-2)*4.d0/9.d0&
-        +FA(3)*FB(-3)/9.d0&
-        +FA(4)*FB(-4)*4d0/9.d0&
-        +FA(5)*FB(-5)/9d0&
-        +FA(-2)*FB(1)/9.d0&
-        +FA(-1)*FB(2)*4.d0/9.d0&
-        +FA(-3)*FB(3)/9.d0&
-        +FA(-4)*FB(4)*4d0/9.d0&
-        +FA(-5)*FB(5)/9d0)
+
     !--------------------------------------------------------------------------------
     !-------------------------SPECIAL DY CASES---------------------------------------  
     CASE (13200) !pp->Z+gamma        

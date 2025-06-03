@@ -68,23 +68,18 @@ function FNP(x,bT,hadron,lambdaNP)
     real(dp),intent(in)::lambdaNP(:)
 
     real(dp)::bProfile
-    real(dp)::FNPu,FNPd,FNPs,FNPsea,Normu,Normd,Normsea,YY
+    real(dp)::FNPu,FNPd,FNPs,FNPsea
 
-    !!! profile in b is common for all (5 parameters)    
-    YY=(lambdaNP(1)+x*lambdaNP(2))*(bT**2)/sqrt(1d0+Abs(lambdaNP(3))*x**2*bT**2)
-    bProfile=exp(-YY)
-    !bProfile=1d0/cosh((lambdaNP(1)+x**2*lambdaNP(2))*bT)
+    !!! profile in b is common for all
+    bProfile=1._dp/cosh(lambdaNP(1)*bT)
     
-    !!! u-quark(3 parameters)
-    Normu=(3d0+lambdaNP(7)+lambdaNP(8)*(1+lambdaNP(7)))/((lambdaNP(7)+1d0)*(lambdaNP(7)+2d0)*(lambdaNP(7)+3d0))    
-    FNPu=lambdaNP(6)*(1-x)*x**lambdaNP(7)*(1+lambdaNP(8)*x)/Normu
-    !!! d-quark(3 parameters)
-    Normd=(3d0+lambdaNP(10)+lambdaNP(11)*(1+lambdaNP(10)))/((lambdaNP(10)+1d0)*(lambdaNP(10)+2d0)*(lambdaNP(10)+3d0))    
-    FNPd=lambdaNP(9)*(1-x)*x**lambdaNP(10)*(1+lambdaNP(11)*x)/Normd
+    !!! u-quark
+    FNPu=lambdaNP(2)*(1-x**2)
+    !!! d-quark
+    FNPd=lambdaNP(3)*(1-x**2)
     !!! sea-quark(3 parameters)
-    Normsea=1d0/((lambdaNP(13)+1d0)*(lambdaNP(13)+2d0))    
-    FNPs=lambdaNP(12)*(1-x)*x**lambdaNP(13)/Normsea
-    FNPsea=lambdaNP(14)*(1-x)*x**lambdaNP(13)/Normsea
+    FNPs=lambdaNP(4)*(1-x**2)
+    FNPsea=lambdaNP(5)*(1-x**2)
     
     FNP=bProfile*(/0d0,0d0,FNPsea,FNPsea,FNPsea,0d0,FNPd,FNPu,FNPs,0d0,0d0/)
 
@@ -97,8 +92,17 @@ end function FNP
 !!!! y -- is the convolution variable in the definition \int dy/y C(y) PDF(x/y)
 pure function bSTAR(bT,x,y)
     real(dp),intent(in)::bT,x,y
+    real(dp)::ee
 
-    bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
+    ee=exp(-0.04d0*bT**2)
+
+    !!!! ART25
+    bSTAR=bT*ee+(1-ee)*C0_const/muOPE(bT,x,y,1.d0)
+
+    !!!! ART23
+    !bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
+    !bSTAR=bT/sqrt(1d0+(bT/1.d0)**2)
+
 end function bSTAR
 
 !!!!This function is the mu(x,b), which is used inside the OPE
@@ -108,8 +112,7 @@ end function bSTAR
 pure function muOPE(bt,x,y,c4)
     real(dp),intent(in)::bt,x,y,c4
 
-    muOPE=C0_const*c4/bT+2d0
-
+    muOPE=C0_const*c4/bT+5d0
     if(muOPE>1000d0) then
         muOPE=1000d0
     end if
