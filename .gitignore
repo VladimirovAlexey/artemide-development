@@ -7,6 +7,8 @@ a.out
 *.out
 *.mod
 *.o
+fort.*
+
 aTMDe-temporary
 
 # result of python compilation
