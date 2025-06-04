@@ -1,0 +1,354 @@
+%\documentclass[12pt]{article}
+\documentclass[prd,nofootinbib,eqsecnum,final]{revtex4}
+%,preprint,tightenlines,floatfix,showpacs,showkeys,preprintnumbers,
+%\usepackage[dvips]{graphicx,color}
+\usepackage{hyperref}
+\usepackage{graphicx,color}
+  \usepackage{bm}% bold math
+   \usepackage{amsmath}
+    \usepackage{amssymb}
+     \usepackage{pifont}
+%      \usepackage{simplewick}
+%      \usepackage{srcltx}
+\usepackage{tikz}
+\usepackage[most]{tcolorbox}
+\usepackage{rotating}
+\usepackage{multirow}
+\usepackage{longtable}
+%\usepackage[makeroom]{cancel}
+%\usepackage{fullpage}%full page style
+\usepackage{listings}
+
+%%%%%%%%%%%%%%%%%% ReNew Commands %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\Ds}{\displaystyle}
+
+\newcommand{\nn}{\nonumber}
+
+\newcommand{\tr}{\mathrm{tr}}
+\newcommand{\Tr}{\mathrm{Tr}}
+\newcommand{\sign}{\text{sign}}
+\newcommand{\even}{\text{even}}
+\newcommand{\odd}{\text{odd}}
+\newcommand{\sh}{\text{sh}}
+\newcommand{\ch}{\text{ch}}
+\newcommand{\const}{\text{const.}}
+\newcommand{\Li}{\text{Li}}
+\newcommand{\ot}{\leftarrow}
+
+\newcommand{\partialboth}{\!\!\stackrel{\leftrightarrow}{\partial}\!\!}
+
+\renewcommand{\(}{\left(}
+\renewcommand{\)}{\right)}
+\renewcommand{\[}{\left[}
+\renewcommand{\]}{\right]}
+
+\renewcommand{\Im}{\text{Im}}
+\renewcommand{\Re}{\text{Re}}
+
+\renewcommand{\vec}[1]{\bm{#1}}
+\newcommand{\fnot}[1]{\not{\! #1}}
+
+%\definecolor{green}{rgb}{0.133,0.56,0}
+\newcommand{\red}[1]{{\color[rgb]{1,0,0} #1}}
+\newcommand{\blue}[1]{{\color{blue} #1}}
+\newcommand{\gray}[1]{{\color{gray} #1}}
+
+\newcommand{\bboxed}[1]{\blue{\boxed{#1}}}
+
+\lstdefinestyle{DOS}
+{
+    backgroundcolor=\color{black},
+    basicstyle=\scriptsize\color{white}\ttfamily
+}
+%%%%%%%%%%%%%%%%%%%%%CODE FROM INTERNET FOR GRID WITH COORDIATES%%%%
+\makeatletter
+\def\grd@save@target#1{%
+  \def\grd@target{#1}}
+\def\grd@save@start#1{%
+  \def\grd@start{#1}}
+\tikzset{
+  grid with coordinates/.style={
+    to path={%
+      \pgfextra{%
+        \edef\grd@@target{(\tikztotarget)}%
+        \tikz@scan@one@point\grd@save@target\grd@@target\relax
+        \edef\grd@@start{(\tikztostart)}%
+        \tikz@scan@one@point\grd@save@start\grd@@start\relax
+        \draw[minor help lines] (\tikztostart) grid (\tikztotarget);
+        \draw[major help lines] (\tikztostart) grid (\tikztotarget);
+        \grd@start
+        \pgfmathsetmacro{\grd@xa}{\the\pgf@x/1cm}
+        \pgfmathsetmacro{\grd@ya}{\the\pgf@y/1cm}
+        \grd@target
+        \pgfmathsetmacro{\grd@xb}{\the\pgf@x/1cm}
+        \pgfmathsetmacro{\grd@yb}{\the\pgf@y/1cm}
+        \pgfmathsetmacro{\grd@xc}{\grd@xa + \pgfkeysvalueof{/tikz/grid with coordinates/major step}}
+        \pgfmathsetmacro{\grd@yc}{\grd@ya + \pgfkeysvalueof{/tikz/grid with coordinates/major step}}
+        \foreach \x in {\grd@xa,\grd@xc,...,\grd@xb}
+        \node[anchor=north] at (\x,\grd@ya) {\pgfmathprintnumber{\x}};
+        \foreach \y in {\grd@ya,\grd@yc,...,\grd@yb}
+        \node[anchor=east] at (\grd@xa,\y) {\pgfmathprintnumber{\y}};
+      }
+    }
+  },
+  minor help lines/.style={
+    help lines,
+    step=\pgfkeysvalueof{/tikz/grid with coordinates/minor step}
+  },
+  major help lines/.style={
+    help lines,
+    line width=\pgfkeysvalueof{/tikz/grid with coordinates/major line width},
+    step=\pgfkeysvalueof{/tikz/grid with coordinates/major step}
+  },
+  grid with coordinates/.cd,
+  minor step/.initial=.2,
+  major step/.initial=1,
+  major line width/.initial=1pt,
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\title{SnowFlake ver.2.00}
+\author{Alexey A. Vladimirov \\ \today}
+\noaffiliation
+\begin{abstract}
+User manual for \texttt{SnowFlake} package, that performed evolution for twist-three PDFs.
+\center{\red{\textbf{Manual is updating.}}}
+\end{abstract}
+\maketitle
+
+\begin{tcolorbox}
+\begin{center}
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+
+~
+
+If you it, please, quote [Simone Rodini, Lorenzo Rossi, Alexey Vladimirov, 2405.01162 ]
+\\
+~
+\\
+If you find mistakes, have suggestions or questions, please, write to: 
+\\
+~
+\\
+Alexey Vladimirov: \textit{alexeyvl@ucm.es} or \textit{vladimirov.aleksey@gmail.com}
+\end{center}
+\end{tcolorbox}
+
+\begin{center}
+\textbf{The theory and the description of the algorithm are given in the publication. This manual contains only information about commands, structure and how to use the package.}
+\end{center}
+
+\section{General description}
+
+The package contains three modules
+\begin{itemize}
+\item \texttt{HexGrid}: The module specifies the grid, and contains various auxiliary functions
+\item \texttt{EvolutionKernels}: The module contains routines for computation of evolution kernels, and implementation of Runge-Kuta
+\item \texttt{SnowFlake}: The module contains the user interface, and perform transformation between various inputs
+\end{itemize}
+The default way of operating is calling \texttt{SnowFlake} and its public routines. Also, it is simple to modify the grid specification, by changing corresponding variables in the top of \texttt{HexGrid.f90} file.
+
+\section{HexGrid}
+
+The grid is a composition of 6 grids (one for each sector of the hexagon). Each sub-grid is 2D, and  is parametrized by 2 integers:
+$$n=0,...,N_R, \qquad k=0,...,N_\phi .$$
+Here, $N_\phi$ is number of points on the segment, and $N_R$ is the number of points long the radios i.e. the total number of points on perimeter is $N_p=6N_\phi-1$. For simplification of programming, the composition of 2D grid is transformed to 1D with $N=0,...,(6N_\phi)(N_R+1)$.
+
+Furthermore, the grid along $r$ is stretched by function (default)
+$$
+\rho(r)=1-\frac{\ln r}{\ln x_{\text{min}}},\qquad\Leftrightarrow \qquad r(\rho)=x_{\text{min}}^{1-\rho},
+$$
+where $x_{\text{min}}$ is the minimal allowed $r$.
+
+The public interface consists of the following functions
+\begin{longtable}{||p{5cm}|p{2cm}|p{9cm}||}
+Function & output & Description
+\\
+\hline\hline
+\texttt{RP\_fromX12(x1,x2,r,phi)} & sub. & Transforms $x_{1,2}$ to ($r,\phi$)
+\\\hline
+\texttt{X123\_fromRP(r,phi,x1,x2,x3)} & sub. & Transforms ($r,\phi$) to $x_{1,2,3}$
+\\\hline
+\texttt{get\_X123\_from\_1Dindex(s,x1,x2,x3)} & sub. & Returns $x_{1,2,3}$ corresponding to the 1D index s.
+\\\hline
+\texttt{GETgrid(F)} & (real)(0:N) & Create (1D array )$F1$ from the real function $F(x1,x2)$
+\\\hline
+\texttt{GETinterpolation(x1,x2,grid)} & real & Find interpolation of grid into the point $x_{1,2}$
+\\\hline
+\texttt{GETinterpolatorB(n,x1,x2,c)} & real & Returns the interpolation function corresponding to the interpolation $n$ at point $x_{1,2}$. Integer parameter c is to select option. c=0 normal, c=1 derivative with respect to $\rho$, c=2 derivative with respect to $\phi$
+\end{longtable}
+
+\section{EvolutionKernels}
+
+The module compute and store the expression for kernels. This operation must be done in the begining of operation and consumes some time (depending on the setup). Also this module provide elementary evolution (by RG method) with a given kernel.
+
+The public interface consists of the following functions
+\begin{longtable}{||p{6cm}|p{1cm}|p{9cm}||}
+Function & output & Description
+\\
+\hline\hline
+\texttt{EvolutionKernels\_Initialize()} & sub. & Computes all elementary kernels, and store them as internal variables.
+\\\hline
+\texttt{EvNonSinglet(F,alpha,t0,t1)} & sub. & Evolve function $F$ (1D array) from $\mu_0$ to $\mu_1$ with the kernel $\mathbb{H}_{NS}$. Input variables are $t_0=\ln(\mu^2_0)$ and $t_1=\ln(\mu^2_1)$. The coupling constant in alpha(t). The result is updated value of $F$
+\\\hline
+\texttt{EvSingletPLUS(F,Fg,alpha,t0,t1,nf)} & sub. & Evolve function $F$ and $F_g$ (1D arrays) from $\mu_0$ to $\mu_1$ with the singlet matrix $\mathbb{H}^+$. Input variables are $t_0=\ln(\mu^2_0)$ and $t_1=\ln(\mu^2_1)$. The coupling constant in alpha(t). Evolution is done at constant $N_f=$\texttt{nf} (int). The result is updated values of $F$ and $F_g$.
+\\\hline
+\texttt{EvSingletMINUS(F,Fg,alpha,t0,t1,nf)} & sub. & Evolve function $F$ and $F_g$ (1D arrays) from $\mu_0$ to $\mu_1$ with the singlet matrix $\mathbb{H}^-$. Input variables are $t_0=\ln(\mu^2_0)$ and $t_1=\ln(\mu^2_1)$. The coupling constant in alpha(t). Evolution is done at constant $N_f=$\texttt{nf} (int). The result is updated values of $F$ and $F_g$.
+\\\hline
+\texttt{EvSingletMINUS(F,Fg,alpha,t0,t1,nf)} & sub. & Evolve function $F$ and $F_g$ (1D arrays) from $\mu_0$ to $\mu_1$ with the singlet matrix $\mathbb{H}^-$. Input variables are $t_0=\ln(\mu^2_0)$ and $t_1=\ln(\mu^2_1)$. The coupling constant in alpha(t). Evolution is done at constant $N_f=$\texttt{nf} (int). The result is updated values of $F$ and $F_g$.
+\\\hline
+\texttt{EvChirlaOdd(F,alpha,t0,t1)} & sub. & Evolve function $F$ (1D array) from $\mu_0$ to $\mu_1$ with the kernel $\mathbb{H}_{CO}$. Input variables are $t_0=\ln(\mu^2_0)$ and $t_1=\ln(\mu^2_1)$. The coupling constant in alpha(t). The result is updated value of $F$
+\\\hline
+\texttt{SaveKernels(path)} & sub. & Saves the computed kernels into text-files that are possible to load later. The \texttt{path} points to the directory where kernels will be stored.
+\\\hline
+\texttt{ReadKernels(path)} & sub. & Read the computed kernels from text-files stored in \texttt{path}.
+\\\hline
+\end{longtable}
+
+\section{SnowFlake}
+
+This module take as input the boundary conditions and deshifrate them, then evolve this configuration to a give scale and store grids of distributions as internal variable. Upon request it provide an interpolation to a given point $(Q,x_1,x_2)$, in a requested format.
+
+The main procedure is 
+\begin{center}
+\texttt{ComputeEvolution(mu0,mu1,alpha,G1,U1,D1,S1,C1,B1,G2,U2,D2,S2,C2,B2,inputQ,inputG)}
+\end{center}
+where obligatory arguments are
+\begin{itemize}
+\item \texttt{mu0} is the value $\mu_0$ at which the boundary condition is specified
+\item \texttt{mu1} is the value $\mu_1$ the maximum value of scale (up to which the evolution is prepared)
+\item \texttt{alpha} is an external function of single real variable. $\alpha_s(\mu)=g^2/(4\pi)$.
+\end{itemize}
+For values $\mu_0<\mu_c$ the c-quark is set to zero. For $\mu_0<\mu_b$ the b-quark is set to zero. \textbf{This procedure prepare the grids of solution for evolution equation, from $\mu_0$ to $\mu_1$.}
+
+\textbf{All the rest arguments are optional and thus must be provided as with ``\texttt{G1=...}'' syntax}. They are
+\begin{itemize}
+\item \texttt{G1,U1,D1,S1,C1,B1,G2,U2,D2,S2,C2,B2} external real-valued functions of (x1,x2) [real,real], corresponding to \{gluon,u,d,s,c,b\} flavors, and type 1,2 (depending on \texttt{inputQ,inputG}). \red{If not provided, these functions replaced by zeros.}
+\item \texttt{inputQ} can be \texttt{'T'}, \texttt{'S'}, \texttt{'C'}(default). For the cases
+\begin{itemize}
+\item[\texttt{'T'}] Input quark functions \texttt{Q1} and \texttt{Q2} are interpreted as functions $T(x_1,x_2,x_3)$ and $\Delta T(x_1,x_2,x_3)$
+\item[\texttt{'S'}] Input quark functions \texttt{Q1} and \texttt{Q2} are interpreted as functions $S^+(x_1,x_2,x_3)$ and $S^-(x_1,x_2,x_3)$
+\item[\texttt{'C'}] Input quark functions \texttt{Q1} and \texttt{Q2} are interpreted as functions $\mathfrak{S}^+(x_1,x_2,x_3)$ and $\mathfrak{S}^-(x_1,x_2,x_3)$
+\end{itemize}
+\item \texttt{inputG} can be \texttt{'T'}, \texttt{'C'}(default). For the cases
+\begin{itemize}
+\item[\texttt{'T'}] Input quark functions \texttt{G1} and \texttt{G2} are interpreted as functions $T^+_{3F}(x_1,x_2,x_3)$ and $T^-_{3F}(x_1,x_2,x_3)$
+\item[\texttt{'C'}] Input quark functions \texttt{G1} and \texttt{G2} are interpreted as functions $\mathfrak{F}^+(x_1,x_2,x_3)$ and $\mathfrak{F}^-(x_1,x_2,x_3)$
+\end{itemize}
+\end{itemize}
+The grid in $Q$ is made using the variable $t=2\ln(Q/\mu_0)$, with the step $\Delta t$ defined in the INI-file. The interpolation is linear (\textbf{UPDATE! to polynomial}). Beyond the limits of $Q$ the extrapolation is done.
+
+After call of this subroutine the module stores the result in the internal format. It can be accessed by the function
+\begin{center}
+\texttt{GetPDF(x1,x2,Q,f,outputT)}
+\end{center}
+where obligatory arguments are
+\begin{itemize}
+\item \texttt{x1, x2} the values of ($x_1,x_2$) at which the function is interpolated.
+\item \texttt{Q} the scale of distribution.
+\item \texttt{f} (int) specifies the flavor and the type of function. $f=0,1,2,3,4,5$ which corresponds to $g, d, u, s, c, b$ (a la LHAPDF numeration).
+\end{itemize}
+The argument \texttt{outputT} is optional it can be
+\begin{itemize}
+\item[\texttt{'T'}] Returns $T^+_{3F}$ for $f=0$ or $f=10$, $T^-_{3F}$ for $f=-10$, and $T$ for $f=1..5$ and $\Delta T$ for $f=-1..-5$
+\item[\texttt{'S'}] Returns $T^+_{3F}$ for $f=0$ or $f=10$, $T^-_{3F}$ for $f=-10$, and $S^+$ for $f=1..5$ and $S^-$ for $f=-1..-5$
+\item[\texttt{'C'}] (default) Returns $\mathfrak{F}^+$ for $f=0$ or $f=10$, $\mathfrak{F}^-$ for $f=-10$, and $\mathfrak{S}^+$ for $f=1..5$ and $\mathfrak{S}^-$ for $f=-1..-5$
+\end{itemize}
+
+\begin{tcolorbox}
+\begin{center}
+\textbf{\red{IMPORTANT:}}
+
+The boundary conditions must satisfy the physical symmetry. Otherwise the result is not reliable.
+\end{center}
+\end{tcolorbox}
+
+Same procedure is used for the evolution of chiral-odd distributions. In this case use
+\begin{center}
+\texttt{ComputeEvolutionChiralOdd(mu0,mu1,alpha,U1,D1,S1,C1,B1)}
+\end{center}
+and
+\begin{center}
+\texttt{GetPDFChiralOdd(x1,x2,Q,f)}
+\end{center}
+There are no flags (since the input/output has unique form), no gluons and \texttt{f} can be only $1,2,3,4,5$. The type of the function ($H$ or $E$) is defined by the symmetry of boundary condition.
+
+The showflake also computes the functions $\bar g_2(x,Q)$ and $d_2(x,Q)$ which are defined as
+\begin{eqnarray}
+\bar g_{2,f}(x,Q)=\int_x^1 \frac{dy}{y}\(\Delta q_T(y)+\Delta q_T(-y)\),\qquad \Delta q(y)=\int [d\xi]\frac{\mathfrak{S}^+(\xi_{1,2,3})-\mathfrak{S}^-(\xi_{1,2,3})}{2}\frac{d}{d\xi_3}\frac{\delta(y+\xi_3)-\delta(y-\xi_1)}{\xi_1+\xi_3}.
+\end{eqnarray}
+and
+\begin{eqnarray}
+d_{2,f}(Q)=\frac{1}{2}\int_{x_{\min}}^1 dx ~x^2 ~\bar g_{2,f}(x,Q).
+\end{eqnarray}
+The corresponding functions are
+\begin{center}
+\texttt{G2(x,Q,f)},\qquad \texttt{D2(Q,f)}.
+\end{center}
+In both cases there are also function
+\begin{center}
+\texttt{G2\_List(x,Q,f)},\qquad \texttt{D2\_List(Q,f)},
+\end{center}
+which are defined for the list of variables, and produce the list of result. There are computed in parallel, and give some gain in the evaluation velocity.
+
+The integer $f$ specifies the target and is defined via the following table
+\begin{longtable}{||c|c|p{12cm}||}
+\texttt{f} & target & Description
+\\
+\hline\hline
+1, 2, 3, 4, 5 & d, u, s, c, b & 
+\\\hline
+11 & u-d & 
+\\\hline
+12 & u+d & 
+\\\hline
+100 & p & \begin{eqnarray}\nn
+\bar g_{2,p}&=&\frac{4}{9}\(\bar g_{2,u}+\bar g_{2,c}(x,Q)\)+\frac{1}{9}\(\bar g_{2,d}+\bar g_{2,s}+\bar g_{2,b}\)
+\\\nn
+d_{2,p}(x,Q)&=&\frac{4}{9}\(d_{2,u}+d_{2,c}\)+\frac{1}{9}\(d_{2,d}+d_{2,s}(x,Q)+d_{2,b}\).
+\end{eqnarray}
+\\\hline
+101 & n & \begin{eqnarray}\nn
+\bar g_{2,n}&=&\frac{4}{9}\(\bar g_{2,d}+\bar g_{2,c}\)+\frac{1}{9}\(\bar g_{2,u}+\bar g_{2,s}+\bar g_{2,b}\)
+\\\nn
+d_{2,n}&=&\frac{4}{9}\(d_{2,d}+d_{2,c}\)+\frac{1}{9}\(d_{2,u}+d_{2,s}+d_{2,b}\).
+\end{eqnarray}
+\\\hline
+102 & d=$\frac{p+n}{2}$ & \begin{eqnarray}\nn
+\bar g_{2,d}&=&\frac{5}{18}\(\bar g_{2,d}+\bar g_{2,c}+\bar g_{2,u}+\bar g_{2,s}+\bar g_{2,b}\)
+\\\nn
+d_{2,d}&=&\frac{5}{18}\(d_{2,d}+d_{2,c}+d_{2,u}+d_{2,s}+d_{2,b}\).
+\end{eqnarray}
+\\\hline\hline
+\end{longtable}
+
+
+Another function defined in snowflake is $g_{1T}$. It is the small-b asymptotic of the worm-gear-T function (for that reason it is refereed as WGT). The definition is
+\begin{eqnarray}
+g_{1T}(x)&=&
+2x\int [dy] \Bigg[
+\frac{\theta(y_1<-x;y_3>x)}{y_1y_3^2}S^+(y_{123})
+\\\nn &&
++\(\frac{\theta(y_1<-x;y_3<x)}{y_2^2y_1}+\frac{\theta(y_3>x;y_1>-x)}{y_2^2y_3}\)\(S^+(y_{123})-S^+(-x,0,x)\)
+\Bigg].
+\end{eqnarray}
+for $x>0$, and 
+\begin{eqnarray}
+g_{1T}(x)&=&
+2x\int [dy] \Bigg[
+\frac{\theta(y_1>-x;y_3<x)}{y_1y_3^2}S^+(y_{123})
+\\\nn &&
++\(\frac{\theta(y_1>-x;y_3>x)}{y_2^2y_1}+\frac{\theta(y_3<x;y_1<-x)}{y_2^2y_3}\)\(S^+(y_{123})-S^+(-x,0,x)\)
+\Bigg].
+\end{eqnarray}
+There two function related to this element
+\begin{center}
+\texttt{WGT(x,Q,f)},\qquad \texttt{WGT\_fList(x,Q)}.
+\end{center}
+The first is defined for $-1<x<1$ and $f=1,..,5$. The second is defined for $0<x<1$ and returns the list (-5:5) of WGT's as 
+$$\{-g_b(-x),-g_c(-x),-g_s(-x),-g_u(-x),-g_d(-x),0,g_d(x),g_u(x),g_s(x),g_c(x),g_b(x)\}.$$
+It correspond to the flavor structure of WGT function.
+
+\end{document}

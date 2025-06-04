@@ -1,0 +1,121 @@
+%\documentclass[12pt]{article}
+\documentclass[prd,nofootinbib,eqsecnum,final]{revtex4}
+%,preprint,tightenlines,floatfix,showpacs,showkeys,preprintnumbers,
+%\usepackage[dvips]{graphicx,color}
+\usepackage{hyperref}
+\usepackage{graphicx,color}
+  \usepackage{bm}% bold math
+   \usepackage{amsmath}
+    \usepackage{amssymb}
+     \usepackage{pifont}
+%      \usepackage{simplewick}
+%      \usepackage{srcltx}
+\usepackage{tikz}
+\usepackage[most]{tcolorbox}
+\usepackage{rotating}
+\usepackage{multirow}
+\usepackage{longtable}
+%\usepackage[makeroom]{cancel}
+%\usepackage{fullpage}%full page style
+\usepackage{listings}
+
+%%%%%%%%%%%%%%%%%% ReNew Commands %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\Ds}{\displaystyle}
+
+\newcommand{\nn}{\nonumber}
+
+\newcommand{\tr}{\mathrm{tr}}
+\newcommand{\Tr}{\mathrm{Tr}}
+\newcommand{\sign}{\text{sign}}
+\newcommand{\even}{\text{even}}
+\newcommand{\odd}{\text{odd}}
+\newcommand{\sh}{\text{sh}}
+\newcommand{\ch}{\text{ch}}
+\newcommand{\const}{\text{const.}}
+\newcommand{\Li}{\text{Li}}
+\newcommand{\ot}{\leftarrow}
+
+\newcommand{\partialboth}{\!\!\stackrel{\leftrightarrow}{\partial}\!\!}
+
+\renewcommand{\(}{\left(}
+\renewcommand{\)}{\right)}
+\renewcommand{\[}{\left[}
+\renewcommand{\]}{\right]}
+
+\renewcommand{\Im}{\text{Im}}
+\renewcommand{\Re}{\text{Re}}
+
+\renewcommand{\vec}[1]{\bm{#1}}
+\newcommand{\fnot}[1]{\not{\! #1}}
+
+%\definecolor{green}{rgb}{0.133,0.56,0}
+\newcommand{\red}[1]{{\color[rgb]{1,0,0} #1}}
+\newcommand{\blue}[1]{{\color{blue} #1}}
+\newcommand{\gray}[1]{{\color{gray} #1}}
+
+\newcommand{\bboxed}[1]{\blue{\boxed{#1}}}
+
+\lstdefinestyle{DOS}
+{
+    backgroundcolor=\color{black},
+    basicstyle=\scriptsize\color{white}\ttfamily
+}
+%%%%%%%%%%%%%%%%%%%%%CODE FROM INTERNET FOR GRID WITH COORDIATES%%%%
+\makeatletter
+\def\grd@save@target#1{%
+  \def\grd@target{#1}}
+\def\grd@save@start#1{%
+  \def\grd@start{#1}}
+\tikzset{
+  grid with coordinates/.style={
+    to path={%
+      \pgfextra{%
+        \edef\grd@@target{(\tikztotarget)}%
+        \tikz@scan@one@point\grd@save@target\grd@@target\relax
+        \edef\grd@@start{(\tikztostart)}%
+        \tikz@scan@one@point\grd@save@start\grd@@start\relax
+        \draw[minor help lines] (\tikztostart) grid (\tikztotarget);
+        \draw[major help lines] (\tikztostart) grid (\tikztotarget);
+        \grd@start
+        \pgfmathsetmacro{\grd@xa}{\the\pgf@x/1cm}
+        \pgfmathsetmacro{\grd@ya}{\the\pgf@y/1cm}
+        \grd@target
+        \pgfmathsetmacro{\grd@xb}{\the\pgf@x/1cm}
+        \pgfmathsetmacro{\grd@yb}{\the\pgf@y/1cm}
+        \pgfmathsetmacro{\grd@xc}{\grd@xa + \pgfkeysvalueof{/tikz/grid with coordinates/major step}}
+        \pgfmathsetmacro{\grd@yc}{\grd@ya + \pgfkeysvalueof{/tikz/grid with coordinates/major step}}
+        \foreach \x in {\grd@xa,\grd@xc,...,\grd@xb}
+        \node[anchor=north] at (\x,\grd@ya) {\pgfmathprintnumber{\x}};
+        \foreach \y in {\grd@ya,\grd@yc,...,\grd@yb}
+        \node[anchor=east] at (\grd@xa,\y) {\pgfmathprintnumber{\y}};
+      }
+    }
+  },
+  minor help lines/.style={
+    help lines,
+    step=\pgfkeysvalueof{/tikz/grid with coordinates/minor step}
+  },
+  major help lines/.style={
+    help lines,
+    line width=\pgfkeysvalueof{/tikz/grid with coordinates/major line width},
+    step=\pgfkeysvalueof{/tikz/grid with coordinates/major step}
+  },
+  grid with coordinates/.cd,
+  minor step/.initial=.2,
+  major step/.initial=1,
+  major line width/.initial=1pt,
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\title{SnowFlake ver.1.00}
+\author{Alexey A. Vladimirov \\ \today}
+\noaffiliation
+\begin{abstract}
+User manual for \texttt{SnowFlake} package, that performed evolution for twist-three PDFs.
+\center{\red{\textbf{Manual is updating.}}}
+\end{abstract}
+\maketitle
+
+\end{document}

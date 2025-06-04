@@ -30,6 +30,7 @@ FOPT=
 
 ################################################################### LIST OF FILES ####################################
 SOURCEDIR       = $(aTMDeHOME)/src
+SNOWDIR         = $(aTMDeHOME)/src_snowflake
 BIN		= $(aTMDeHOME)/bin
 OBJ		= $(aTMDeHOME)/obj
 MOD		= $(aTMDeHOME)/mod
@@ -143,7 +144,30 @@ $(SOURCEDIR)/Model/TMDR_model.f90 \
 $(SOURCEDIR)/Model/uTMDFF_model.f90 \
 $(SOURCEDIR)/Model/uTMDPDF_model.f90 
 
+
+SNOW_SOURCEFILES = \
+$(SNOWDIR)/IO_snowflake.f90 \
+$(SNOWDIR)/HexGrid.f90 \
+$(SNOWDIR)/EvolutionKernels.f90 \
+$(SNOWDIR)/LHA_alpha_snowflake.f90 \
+$(SNOWDIR)/SnowFlake_Model.f90 \
+$(SNOWDIR)/SnowFlake.f90
+
+SNOW_CommonFiles=\
+$(SNOWDIR)/commonVariables.f90
+
+SNOW_ExtraFiles=\
+$(SNOWDIR)/ExpressionsForKernels.f90\
+$(SNOWDIR)/ExpressionsForG2.f90\
+$(SNOWDIR)/ExpressionsForD2.f90
+
 aTMDeOBJ = \
+$(OBJ)/IO_snowflake.o \
+$(OBJ)/HexGrid.o \
+$(OBJ)/EvolutionKernels.o \
+$(OBJ)/LHA_alpha_snowflake.o \
+$(OBJ)/SnowFlake_Model.o\
+$(OBJ)/SnowFlake.o \
 $(OBJ)/aTMDe_Numerics.o \
 $(OBJ)/IO_functions.o \
 $(OBJ)/IntegrationRoutines.o \
@@ -183,7 +207,7 @@ $(OBJ)/TMDF.o \
 $(OBJ)/TMDX_DY.o \
 $(OBJ)/TMDX_SIDIS.o \
 $(OBJ)/TMDF_KPC.o \
-$(OBJ)/aTMDe_control.o 
+$(OBJ)/aTMDe_control.o
 
 #these are utility object needed to compale any artemide module
 aTMDeUTILITY = \
@@ -209,10 +233,46 @@ update: $(BIN)/update-const
 
 
 obj: $(aTMDeOBJ) $(aTMDeFILES) $(aTMDeMODEL) $(Twist2Files) $(TMD_ADFiles) $(TMDRFiles) $(uTMDPDFFiles) $(uTMDFFFiles) \
- $(lpTMDFFFiles) $(SiversTMDPDFFiles) $(wgtTMDPDFFiles) $(wglTMDPDFFiles) $(TMDKPCFiles)
+ $(lpTMDFFFiles) $(SiversTMDPDFFiles) $(wgtTMDPDFFiles) $(wglTMDPDFFiles) $(TMDKPCFiles) \
+ $(SNOW_SOURCEFILES) $(SNOW_CommonFiles) $(SNOW_ExtraFiles)
 
+###########################################
+######## part of Snowflake make-file
+###########################################
 
+$(OBJ)/IO_snowflake.o: $(SNOWDIR)/IO_snowflake.f90  $(SNOW_CommonFiles)
+	$(FC) -c $(SNOWDIR)/IO_snowflake.f90
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
 
+$(OBJ)/HexGrid.o: $(SNOWDIR)/HexGrid.f90 $(SNOWDIR)/IO_snowflake.f90 $(SNOW_CommonFiles)
+	$(FC) -c $(SNOWDIR)/HexGrid.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/EvolutionKernels.o: $(SNOWDIR)/EvolutionKernels.f90 $(SNOW_ExtraFiles) $(SNOWDIR)/HexGrid.f90 $(SNOWDIR)/IO_snowflake.f90 $(SNOW_CommonFiles)
+	$(FC) -c $(SNOWDIR)/EvolutionKernels.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/LHA_alpha_snowflake.o: $(SNOWDIR)/LHA_alpha_snowflake.f90 $(SNOWDIR)/IO_snowflake.f90 $(SNOW_CommonFiles)
+	$(FC) -c $(SNOWDIR)/LHA_alpha_snowflake.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/SnowFlake_Model.o: $(SNOWDIR)/SnowFlake_Model.f90 $(SNOWDIR)/LHA_alpha_snowflake.f90 $(SNOW_CommonFiles)
+	$(FC) -c $(SNOWDIR)/SnowFlake_Model.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/SnowFlake.o: $(SNOWDIR)/SnowFlake.f90 $(SNOWDIR)/EvolutionKernels.f90 $(SNOWDIR)/HexGrid.f90 $(SNOWDIR)/IO_snowflake.f90 $(SNOW_CommonFiles)
+	$(FC) -c $(SNOWDIR)/SnowFlake.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+###########################################
+######## part of artemide make-file
+###########################################
 
 $(OBJ)/aTMDe_Numerics.o: $(SOURCEDIR)/Code/aTMDe_Numerics.f90
 	$(FC) -c $(SOURCEDIR)/Code/aTMDe_Numerics.f90
@@ -329,7 +389,7 @@ $(OBJ)/lpTMDPDF.o: $(SOURCEDIR)/lpTMDPDF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Mode
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/SiversTMDPDF_model.o: $(SOURCEDIR)/Model/SiversTMDPDF_model.f90 $(aTMDeUTILITY)
+$(OBJ)/SiversTMDPDF_model.o: $(SOURCEDIR)/Model/SiversTMDPDF_model.f90 $(OBJ)/SnowFlake.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/Model/SiversTMDPDF_model.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -347,7 +407,7 @@ $(OBJ)/SiversTMDPDF.o: $(SOURCEDIR)/SiversTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TM
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/wgtTMDPDF_model.o: $(SOURCEDIR)/Model/wgtTMDPDF_model.f90 $(aTMDeUTILITY)
+$(OBJ)/wgtTMDPDF_model.o: $(SOURCEDIR)/Model/wgtTMDPDF_model.f90 $(OBJ)/SnowFlake.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/Model/wgtTMDPDF_model.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -383,7 +443,7 @@ $(OBJ)/wglTMDPDF.o: $(SOURCEDIR)/wglTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/BoerMuldersTMDPDF_model.o: $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 $(aTMDeUTILITY)
+$(OBJ)/BoerMuldersTMDPDF_model.o: $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 $(OBJ)/SnowFlake.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -461,6 +521,11 @@ program:
 	echo $(TARGET)
 	#$(FC) $(aTMDeHOME)/Prog/$(TARGET) $(aTMDeOBJ) $(FOPT) -I$(MOD)
 	$(FC) $(TARGET) $(aTMDeOBJ) $(FOPT) -I$(MOD)
+
+
+test-snow:
+	$(FC) $(aTMDeHOME)/Prog_snowflake/TEST.f90 $(aTMDeOBJ) $(FOPT) -I$(MOD)
+	./a.out
 	
 test: 
 	$(FC) $(aTMDeHOME)/Prog/test.f90 $(aTMDeOBJ) $(FOPT) -I$(MOD)
@@ -484,5 +549,5 @@ harpy-signature:
 	echo 'end python module artemide' >> $(HDIR)/artemide.pyf
 
 harpy: 
-	f2py -c --f90exec=$(Fpath) --f77exec=$(F77path) --f90flags=$(FflagsHARPY) $(FOPT) -lgomp -I$(MOD) $(aTMDeFILES) $(HDIR)/harpy.f90 $(HDIR)/artemide.pyf
+	f2py -c --f90exec=$(Fpath) --f77exec=$(F77path) --f90flags=$(FflagsHARPY) $(FOPT) -lgomp -I$(MOD) $(aTMDeFILES) $(SNOW_SOURCEFILES) $(HDIR)/harpy.f90 $(HDIR)/artemide.pyf
 	mv artemide*.so $(HDIR)
