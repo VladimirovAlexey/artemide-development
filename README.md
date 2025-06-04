@@ -21,10 +21,8 @@ The standalone version of snoflake is in VladimirovAlexey/SnowFlake repository.
 	
 	The file "constants" must be in the same location as your program. Also check it, it accumulates all options.
 
+------------------------------------------------------------------------------------------------------
 
-------------------------------------------------------------------------------------------------------
-**Older (<3.01) versions of artemide use LHAPDF** it should be specified in make file. Modern versions do not need it.
-------------------------------------------------------------------------------------------------------
 Commands in make
 
 make
@@ -44,6 +42,14 @@ make program TARGET=path
 
 make update TARGET=path
 => Updates the constants file "path" to the current version of artemide
+
+------------------------------------------------------------------------------------------------------
+
+The _snowflake_ is used together with pre-computed kernels. These files are too large to be included into repository (upto 300-400 Mb depending on the setup). They could be created by compiling abd running _Prog_snowflake/saveKernels.f90_ (see details in the file itself). This could take few hours for dense grids. Alternatively, I can send them by request.
+
+------------------------------------------------------------------------------------------------------
+
+*Older (<3.01) versions of artemide use LHAPDF* it should be specified in make file. Modern versions do not need it.
 
 -------------------------------------------------------------------------------------------------------
 See manual for details on artemide  in /Manual/artemide
