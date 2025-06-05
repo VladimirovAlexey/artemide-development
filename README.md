@@ -26,7 +26,13 @@ The standalone version of snoflake is in VladimirovAlexey/SnowFlake repository.
 Commands in make
 
 make
-=> Compiles the artemide package
+=> Compiles the artemide package (complete)
+
+make artemide
+=> Compiles the artemide only
+
+make snow
+=> Compiles the snowflake only
 
 make test
 => Compiles the simple test code and runs it

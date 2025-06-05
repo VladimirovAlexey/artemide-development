@@ -5,6 +5,7 @@
 module wgtTMDPDF_model
 use aTMDe_Numerics
 use IO_functions
+use SnowFlake
 implicit none
 
 private
@@ -50,21 +51,21 @@ contains
 
 !!!!!! Write nessecery model intitialization.
 subroutine ModelInitialization(lengthNP)
-    integer,intent(in)::lengthNP
-    !!!!!! here are the initial parameters!!
-    allocate(NPparam(1:lengthNP))
-    NPparam=0._dp
-    
-    !!write(*,*) color(">>>  The model for wgtTMDPDF for ART23   <<<",c_cyan)
+integer,intent(in)::lengthNP
+!!!!!! here are the initial parameters!!
+allocate(NPparam(1:lengthNP))
+NPparam=0._dp
+
+!!write(*,*) color(">>>  The model for wgtTMDPDF for ART23   <<<",c_cyan)
     
 end subroutine ModelInitialization
 
 !!!!!! Write nessecery model update (e.g. save current NP-parameters)
 !!!!!! newNPParams is the new NP-array
 subroutine ModelUpdate(newNPParams)  
-    real(dp),intent(in):: newNPParams(:)
-    
-    NPparam=newNPParams !! save new vector of NP-parameters
+real(dp),intent(in):: newNPParams(:)
+
+NPparam=newNPParams !! save new vector of NP-parameters
 
 end subroutine ModelUpdate
 
@@ -72,14 +73,15 @@ end subroutine ModelUpdate
 !!! non=perturbative parameters are lambdaNP()
 !!! x-- is the bjorken variable of TMD
 function FNP(x,bT,hadron,lambdaNP)
-  real(dp),intent(in)::x,bT    
-  integer,intent(in)::hadron
-  real(dp),intent(in)::lambdaNP(:)
-    real(dp)::FNP0
+real(dp),intent(in)::x,bT
+integer,intent(in)::hadron
+real(dp),intent(in)::lambdaNP(:)
+real(dp)::FNP0
 
-    FNP0=Exp(-lambdaNP(1)*bT**2)
+!!! profile in b is common for all
+FNP0=1._dp/cosh(lambdaNP(1)*bT)
 
-    FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
+FNP=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
 end function FNP
   
 !!!! This is the function b* that enters the logarithms of coefficient function
@@ -88,18 +90,17 @@ end function FNP
 !!!! x -- is the global x for TMDPDF,
 !!!! y -- is the convolution variable in the definition \int dy/y C(y) PDF(x/y)
 pure function bSTAR(bT,x,y)
-    real(dp),intent(in)::bT,x,y
-    real(dp)::ee
+real(dp),intent(in)::bT,x,y
+real(dp)::ee
 
-    ee=exp(-0.04d0*bT**2)
+ee=exp(-0.04d0*bT**2)
 
-    !!!! ART25
-    bSTAR=bT*ee+(1-ee)*C0_const/muOPE(bT,x,y,1.d0)
+!!!! ART25
+bSTAR=bT*ee+(1-ee)*C0_const/muOPE(bT,x,y,1.d0)
 
-
-    !bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
-    !bSTAR=bT/sqrt(1d0+(bT/1.d0)**2)
-
+!!!! ART23
+!bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
+!bSTAR=bT/sqrt(1d0+(bT/1.d0)**2)
 end function bSTAR
 
 !!!!This function is the mu(x,b), which is used inside the OPE
@@ -107,27 +108,28 @@ end function bSTAR
 !!!! y -- is the convolution variable in the definition \int dy/y C(y) PDF(x/y)
 !!!! c4-- is the scale variation variable
 pure function muOPE(bt,x,y,c4)
-    real(dp),intent(in)::bt,x,y,c4
+real(dp),intent(in)::bt,x,y,c4
 
-    muOPE=C0_const*c4/bT+5d0
-
-    if(muOPE>1000d0) then
-        muOPE=1000d0
-    end if
+muOPE=C0_const*c4/bT+5d0
+if(muOPE>100d0) then
+    muOPE=100d0
+end if
 end function muOPE
 
 !!! This is  non-perturbative function that multiplies tw3-part
 !!! non=perturbative parameters are lambdaNP()
 !!! x-- is the bjorken variable of TMD
 function FNP_tw3(x,bT,hadron,lambdaNP)
-  real(dp),intent(in)::x,bT
-  integer,intent(in)::hadron
-  real(dp),intent(in)::lambdaNP(:)
-  real(dp)::FNP0
+real(dp),intent(in)::x,bT
+integer,intent(in)::hadron
+real(dp),intent(in)::lambdaNP(:)
+real(dp)::FNP0,mu,ff(-5:5)
 
-    FNP0=Exp(-0.5d0*bT**2)
+FNP0=1._dp/cosh(lambdaNP(1)*bT)
+mu=muOPE_tw3(bT,1.d0,1.d0,1.d0)
+ff=WGT_fList(x,mu)
 
-    FNP_tw3=FNP0*(/1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0,1d0/)
+FNP_tw3=FNP0*ff
 end function FNP_tw3
 
 !!!! This is the function b* that enters the logarithms of coefficient function in tw3-part
@@ -136,9 +138,17 @@ end function FNP_tw3
 !!!! x -- is the global x for TMDPDF,
 !!!! y -- is the convolution variable in the definition \int dy/y C(y) PDF(x/y)
 pure function bSTAR_tw3(bT,x,y)
-    real(dp),intent(in)::bT,x,y
+real(dp),intent(in)::bT,x,y
+real(dp)::ee
 
-    bSTAR_tw3=bT/sqrt(1d0+(bT/500d0)**2)
+ee=exp(-0.04d0*bT**2)
+
+!!!! ART25
+bSTAR_tw3=bT*ee+(1-ee)*C0_const/muOPE(bT,x,y,1.d0)
+
+!!!! ART23
+!bSTAR=bT/sqrt(1d0+(bT/500d0)**2)
+!bSTAR=bT/sqrt(1d0+(bT/1.d0)**2)
 end function bSTAR_tw3
 
 !!!!This function is the mu(x,b), which is used inside the OPE in tw3-part
@@ -146,13 +156,12 @@ end function bSTAR_tw3
 !!!! y -- is the convolution variable in the definition \int dy/y C(y) PDF(x/y)
 !!!! c4-- is the scale variation variable
 pure function muOPE_tw3(bt,x,y,c4)
-    real(dp),intent(in)::bt,x,y,c4
+real(dp),intent(in)::bt,x,y,c4
 
-    muOPE_tw3=C0_const*c4/bT+2d0
-
-    if(muOPE_tw3>1000d0) then
-        muOPE_tw3=1000d0
-    end if
+muOPE_tw3=C0_const*c4/bT+5d0
+if(muOPE_tw3>100d0) then
+    muOPE_tw3=100d0
+end if
 end function muOPE_tw3
 
 end module wgtTMDPDF_model

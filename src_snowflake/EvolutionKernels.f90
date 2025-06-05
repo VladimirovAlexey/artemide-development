@@ -607,7 +607,7 @@ if(IncludeG2Matrix) then
     allocate(D2matrix(0:NUM_TOT))
     call Read1DMatrix(D2matrix,trim(path)//trim("D2.ker"))
 
-    call PreComputeMatrixD2(D2matrix,G2matrix)
+    !call PreComputeMatrixD2(D2matrix,G2matrix)
 end if
 
 if(IncludeWGTMatrix) then

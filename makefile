@@ -162,12 +162,6 @@ $(SNOWDIR)/ExpressionsForG2.f90\
 $(SNOWDIR)/ExpressionsForD2.f90
 
 aTMDeOBJ = \
-$(OBJ)/IO_snowflake.o \
-$(OBJ)/HexGrid.o \
-$(OBJ)/EvolutionKernels.o \
-$(OBJ)/LHA_alpha_snowflake.o \
-$(OBJ)/SnowFlake_Model.o\
-$(OBJ)/SnowFlake.o \
 $(OBJ)/aTMDe_Numerics.o \
 $(OBJ)/IO_functions.o \
 $(OBJ)/IntegrationRoutines.o \
@@ -209,6 +203,14 @@ $(OBJ)/TMDX_SIDIS.o \
 $(OBJ)/TMDF_KPC.o \
 $(OBJ)/aTMDe_control.o
 
+snowOBJ = \
+$(OBJ)/IO_snowflake.o \
+$(OBJ)/HexGrid.o \
+$(OBJ)/EvolutionKernels.o \
+$(OBJ)/LHA_alpha_snowflake.o \
+$(OBJ)/SnowFlake_Model.o\
+$(OBJ)/SnowFlake.o \
+
 #these are utility object needed to compale any artemide module
 aTMDeUTILITY = \
 $(OBJ)/aTMDe_Numerics.o \
@@ -232,9 +234,13 @@ update: $(BIN)/update-const
 	./bin/update-const $(TARGET)
 
 
-obj: $(aTMDeOBJ) $(aTMDeFILES) $(aTMDeMODEL) $(Twist2Files) $(TMD_ADFiles) $(TMDRFiles) $(uTMDPDFFiles) $(uTMDFFFiles) \
+obj: $(snowOBJ) $(aTMDeOBJ) $(aTMDeFILES) $(aTMDeMODEL) $(Twist2Files) $(TMD_ADFiles) $(TMDRFiles) $(uTMDPDFFiles) $(uTMDFFFiles) \
  $(lpTMDFFFiles) $(SiversTMDPDFFiles) $(wgtTMDPDFFiles) $(wglTMDPDFFiles) $(TMDKPCFiles) \
  $(SNOW_SOURCEFILES) $(SNOW_CommonFiles) $(SNOW_ExtraFiles)
+
+snow: $(snowOBJ)
+
+artemide: $(aTMDeOBJ)
 
 ###########################################
 ######## part of Snowflake make-file
@@ -520,7 +526,7 @@ clean:
 program: 
 	echo $(TARGET)
 	#$(FC) $(aTMDeHOME)/Prog/$(TARGET) $(aTMDeOBJ) $(FOPT) -I$(MOD)
-	$(FC) $(TARGET) $(aTMDeOBJ) $(FOPT) -I$(MOD)
+	$(FC) $(TARGET) $(aTMDeOBJ) $(snowOBJ) $(FOPT) -I$(MOD)
 
 
 test-snow:

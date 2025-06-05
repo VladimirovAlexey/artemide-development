@@ -353,6 +353,11 @@ function TMD_opt(x,bT,hadron)
     TMD_opt=wgtTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)&
         +wgtTMDPDF_OPE_tw3_convolution(x,bT,abs(hadron))*FNP_tw3(x,bT,abs(hadron),lambdaNP)
 
+!     write(*,*) "1--->",wgtTMDPDF_OPE_convolution(x,bT,abs(hadron))
+!     write(*,*) "2--->",FNP(x,bT,abs(hadron),lambdaNP)
+!     write(*,*) "3--->",wgtTMDPDF_OPE_tw3_convolution(x,bT,abs(hadron))
+!     write(*,*) "4--->",FNP_tw3(x,bT,abs(hadron),lambdaNP)
+
     if(hadron<0) TMD_opt=TMD_opt(5:-5:-1)
 
 end function TMD_opt

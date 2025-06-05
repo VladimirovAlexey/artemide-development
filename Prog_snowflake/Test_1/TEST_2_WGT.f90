@@ -16,7 +16,7 @@ integer::i,j
 real*8::t1,t2
 
 !call  SnowFlake_Initialize("Snowflake.ini")
-call  SnowFlake_Initialize("prog/TEST.ini")
+call  SnowFlake_Initialize("Prog_snowflake/TEST.ini")
 
 mu0=1.d0
 mu1=25.d0
@@ -33,10 +33,12 @@ call ComputeEvolution(mu0,mu1,alpha,U1=Tu,D1=Td,S1=Ts,U2=dTu,D2=dTd,S2=dTs,G1=Tp
 ! write(*,*) dTmm(0.2d0,0.1d0),dTmm(0.2d0,-0.1d0),dTmm(0.3d0,0.1d0)
 
 
-do i=0,30
+do i=0,10
 write(*,'("{",F5.2,",",F12.6,"},")') 0.01d0+i*0.02,WGT(0.01d0+i*0.02,5.d0,2)
 end do
 
+
+write(*,*) WGT_fList(0.1d0,5.d0)
 
 contains
         !!!!! functions from the examplei n the paper
