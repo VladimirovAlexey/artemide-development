@@ -13,7 +13,7 @@ public::SnowFlake_Model_Initialize,SetNPparameters
 
 public::alpha
 !public::Tu,Td,Ts,dTu,dTd,dTs
-public::SplusU,SplusD,SplusR,SminusU,SminusD,SminusR
+public::SplusU,SplusD,SplusS,SminusU,SminusD,SminusS
 public::Tp,Tm
 
 contains
@@ -112,30 +112,30 @@ function SminusD(x,y)
 end function SminusD
 
 !!!! function S^+_d
-function SplusR(x,y)
+function SplusS(x,y)
     real*8,intent(in)::x,y
-    real*8::SplusR
+    real*8::SplusS
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SplusR=H(x,y,NPparam(0),NPparam(1))*NPparam(10)
+        SplusS=H(x,y,NPparam(0),NPparam(1))*NPparam(10)
     else
-        SplusR=0.d0
+        SplusS=0.d0
     end if
-end function SplusR
+end function SplusS
 
 !!!! function S^-_d
-function SminusR(x,y)
+function SminusS(x,y)
     real*8,intent(in)::x,y
-    real*8::SminusR
+    real*8::SminusS
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SminusR=H(x,y,NPparam(0),NPparam(1))*NPparam(11)*y
+        SminusS=H(x,y,NPparam(0),NPparam(1))*NPparam(11)*y
     else
-        SminusR=0.d0
+        SminusS=0.d0
     end if
-end function SminusR
+end function SminusS
 
 ! !!!! function T_u
 ! function Tu(x,y)
@@ -241,7 +241,7 @@ function dTp(x,y)
     end if
 end function dTp
 
-!!!! function T_{3F}^-
+!!!! function Delta T_{3F}^-
 function dTm(x,y)
     real*8,intent(in)::x,y
     real*8::dTm

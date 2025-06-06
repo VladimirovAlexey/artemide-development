@@ -46,7 +46,7 @@ subroutine UpdateEvolutionTable(mu0,mu1)
 real*8,intent(in)::mu0,mu1
 
 !call ComputeEvolution(mu0,mu1,alpha,U1=Tu,D1=Td,S1=Ts,U2=dTu,D2=dTd,S2=dTs,G1=Tp,G2=Tm,inputQ="T",inputG="T")
-call ComputeEvolution(mu0,mu1,alpha,U1=SplusU,D1=SplusD,S1=SplusR,U2=SminusU,D2=SminusD,S2=SminusR,G1=Tp,G2=Tm,&
+call ComputeEvolution(mu0,mu1,alpha,U1=SplusU,D1=SplusD,S1=SplusS,U2=SminusU,D2=SminusD,S2=SminusS,G1=Tp,G2=Tm,&
     inputQ="C",inputG="T")
 
 end subroutine UpdateEvolutionTable
@@ -80,6 +80,38 @@ real*8,dimension(1:ListLength)::SnowFlake_D2_List
 call D2_List(SnowFlake_D2_List,Q,f)
 
 end function SnowFlake_D2_List
+
+
+!!!!!! Returns the twist-3 function with option T
+function GetTw3PDF_T(x1,x2,Q,f)
+real*8,intent(in)::x1,x2                      !x-variables
+real*8,intent(in)::Q                          !Q
+integer,intent(in)::f                         !flavor
+
+GetTw3PDF_T=GetPDF(x1,x2,Q,f,outputT='T')
+
+end function GetTw3PDF_T
+
+!!!!!! Returns the twist-3 function with option S
+function GetTw3PDF_S(x1,x2,Q,f)
+real*8,intent(in)::x1,x2                      !x-variables
+real*8,intent(in)::Q                          !Q
+integer,intent(in)::f                         !flavor
+
+GetTw3PDF_S=GetPDF(x1,x2,Q,f,outputT='S')
+
+end function GetTw3PDF_S
+
+!!!!!! Returns the twist-3 function with option C
+function GetTw3PDF_C(x1,x2,Q,f)
+real*8,intent(in)::x1,x2                      !x-variables
+real*8,intent(in)::Q                          !Q
+integer,intent(in)::f                         !flavor
+
+GetTw3PDF_C=GetPDF(x1,x2,Q,f,outputT='C')
+
+end function GetTw3PDF_C
+
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

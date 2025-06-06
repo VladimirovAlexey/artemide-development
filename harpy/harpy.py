@@ -88,6 +88,60 @@ def D2List(Q,f):
                                        numpy.asfortranarray(f),
                                        len(Q))
 
+def get_PDF_tw3(x1,x2,Q,f,output="T"):
+    """
+    Return the value of tw3 PDF at (x1,x2,-x1-x2) at Q
+    The option output coincides with the definition in snowflake
+    
+     
+
+    Parameters
+    ----------
+    x1 : float in [-1,1]
+        Bjorken x1
+    x2 : float in [-1,1]
+        Bjorken x2
+    Q : float >0
+        scale
+    f : integer 1,2,3,...
+        flavor
+    output : charcther, optional
+        can be 'T', 'S', or 'C'
+
+    Returns
+    -------
+    float
+
+    """
+    
+    if not isinstance(x1, float):
+        raise ValueError("parameter x1 must be float")
+    if not isinstance(x2, float):
+        raise ValueError("parameter x2 must be float")
+    if (x1<-1.) or (x1>1.):
+        return 0.
+    if (x2<-1.) or (x2>1.):
+        return 0.
+    if (x2+x1<-1.) or (x2+x1>1.):
+        return 0.
+    if not isinstance(Q, float):
+        raise ValueError("parameter Q must be float")
+    if (Q<0.8):
+        raise ValueError("parameter Q must be positive (>0.8)")
+    if not isinstance(f, int):
+        raise ValueError("parameter f must be integer")
+    elif not(f in [-10,0,1,2,3,4,5]):
+        raise ValueError("parameter f must be -10,0,1,..,5")
+        
+    if output=="T":
+        return artemide.harpy.gettw3pdf_t(x1,x2,Q,f)
+    elif output=="C":
+        return artemide.harpy.gettw3pdf_c(x1,x2,Q,f)
+    elif output=="S":
+        return artemide.harpy.gettw3pdf_s(x1,x2,Q,f)
+    else:
+        raise ValueError("parameter 'output' must be T, C, or S")
+
 ################## artemide-part
 
 def initialize(fileName):
