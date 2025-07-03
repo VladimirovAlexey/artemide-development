@@ -16,6 +16,7 @@ fort.*
 
 #linux trash
 .nfs*
+*.kate-swp
 
 #Large Kernel-Files
 *.ker

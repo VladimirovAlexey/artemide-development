@@ -6,7 +6,8 @@
 aTMDeHOME       = $(PWD)
 
 #PUT YOUR FORTRAN COMPILER
-FCompilator=f95 
+FCompilator=f95
+#FCompilator=gfortran
 
 #PUT HERE extra flags for compilator (put "space" if not flags requared)
 Fflags= -O3 -cpp -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -fopenmp
@@ -15,8 +16,10 @@ FflagsHARPY= '-O3 -cpp -march=native  -fforce-addr -fstrength-reduce -fcaller-sa
 #### Fir debuging
 #Fflags=  -O3 -cpp -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -Wall -fopenmp
 #path to fortran compilator (needed for f2py)
-Fpath=/usr/bin/f95
-F77path=/usr/bin/f77
+#Fpath=/usr/bin/f95
+#F77path=/usr/bin/f77
+Fpath=/usr/bin/gfortran
+F77path=/usr/bin/gfortran
 
 #options for COMILATOR to compile QCDinput. e.g. link to LHA
 #FOPT=$(shell lhapdf-config --ldflags)
