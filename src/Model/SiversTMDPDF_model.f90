@@ -92,6 +92,23 @@ FNPbB=-pi*GetPDF(x,0.d0,mu,5,outputT="T")
 
 FNP=bProfile*(/FNPbB,FNPcB,FNPsB,FNPuB,FNPdB,0d0,FNPd,FNPu,FNPs,FNPc,FNPb/)
 
+
+    if(ISNAN(FNP(5)) .or.ISNAN(FNP(4)) .or.ISNAN(FNP(3)) .or.ISNAN(FNP(2)) .or.ISNAN(FNP(1))) then
+        write(*,*) "------NAN INSIDE THE SIVERTMDPDF-model -----"
+        write(*,*) "x,bT,hadron,lambdaNP--->",x,bT,hadron,lambdaNP
+        write(*,*) "mu--->",mu
+        write(*,*) "--->",FNP
+        write(*,*) "bProfile--->",bProfile
+    end if
+
+    if(abs(FNP(1))>10d10 .or.abs(FNP(2))>10d10 .or.abs(FNP(3))>10d10) then
+    write(*,*) "------HUGE NUMBER INSIDE THE SIVERTMDPDF-model -----"
+    write(*,*) "x,bT,hadron,lambdaNP--->",x,bT,hadron,lambdaNP
+    write(*,*) "mu--->",mu
+    write(*,*) "--->",FNP
+    write(*,*) "bProfile--->",bProfile
+    end if
+
 end function FNP
   
 !!!! This is the function b* that enters the logarithms of coefficient function

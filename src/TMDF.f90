@@ -21,6 +21,7 @@ module TMDF
 use aTMDe_Numerics
 use IO_functions
 use TMDF_ogata
+use TMDR
 use EWinput
 use uTMDPDF
 use uTMDFF
@@ -1197,8 +1198,12 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
    write(*,*) ErrorString('Integrand evaluated to NaN',moduleName)
    write(*,*) 'bT=',b, 'x1,x2=',x1,x2,' process=',process
    write(*,*) 'mu=',mu, 'Q2=',Q2
-   !write(*,*) 'Current set of NP parameters ------------'
-   !write(*,*) currentNP
+
+   write(*,*) '------- FA value -------'
+   write(*,*) FA
+   write(*,*) '------- FB value -------'
+   write(*,*) FB
+
    call TMDF_convergenceISlost()
    Integrand=1d10
    end if
@@ -1207,8 +1212,12 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
    write(*,*) ErrorString('Integrand evaluated to >10^32',moduleName)
    write(*,*) 'bT=',b, 'x1,x2=',x1,x2,' process=',process
    write(*,*) 'mu=',mu, 'Q2=',Q2
-   !write(*,*) 'Current set of NP parameters ------------'
-   !write(*,*) currentNP
+   write(*,*) '------- FA value -------'
+   write(*,*) FA
+   write(*,*) '------- FB value -------'
+   write(*,*) FB
+   write(*,*) '------- R factor -------'
+   write(*,*) TMDR_Rzeta(b,mu,zeta1,1),TMDR_Rzeta(b,mu,zeta2,1)
    call TMDF_convergenceISlost()
    Integrand=1d10
    end if

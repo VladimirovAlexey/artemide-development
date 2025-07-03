@@ -9,7 +9,7 @@ INCLUDE 'commonVariables.f90'
 
 real(dp),allocatable,dimension(:)::NPparam
 
-public::SnowFlake_Model_Initialize,SetNPparameters
+public::SnowFlake_Model_Initialize,SetNPparameters,PrintParameters
 
 public::alpha
 !public::Tu,Td,Ts,dTu,dTd,dTs
@@ -36,6 +36,7 @@ real(dp),dimension(:),intent(in)::lambda
 
 if(size(lambda)/=size(NPparam)) then
     write(*,*) ErrorString("Size of NP array is not correct! Nothing is done.", "SnowFlake_Model")
+    write(*,*) size(lambda),size(NPparam)
     return
 end if
 
@@ -43,17 +44,24 @@ NPparam=lambda
 
 end subroutine SetNPparameters
 
+subroutine PrintParameters()
+write(*,*) "SNOWFLAKE PARAMETERS---->"
+write(*,*) NPparam
+write(*,*) "<-------"
+
+end subroutine PrintParameters
+
 !!!! This is a ``cut function'' which supposed to be
 !!!! 1 at x1=x2=x3=0,
 !!!! 0 at at border
 !!!! to be consitent with the rest it must be symmetric in x1<->x3
-function H(x,y,a,b)
+function H(x,y,a,b,c)
     real*8,intent(in)::x,y
-    real*8,intent(in)::a,b
+    real*8,intent(in)::a,b,c
     real*8::H
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        H=((1-x**2)*(1-(x+y)**2)*(1-y**2))**a/(x**2+y**2+(x+y)**2)**b
+        H=((1-x**2)*(1-(x+y)**2))**a*(1-y**2)**b/(x**2+y**2+(x+y)**2)**c
     else
         H=0.d0
     end if
@@ -66,7 +74,7 @@ function SplusU(x,y)
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SplusU=H(x,y,NPparam(0),NPparam(1))*(NPparam(2)+NPparam(3)*x*(-x-y))
+        SplusU=H(x,y,NPparam(0),NPparam(1),NPparam(2))*(NPparam(3)+NPparam(4)*x*(-x-y))
     else
         SplusU=0.d0
     end if
@@ -79,7 +87,7 @@ function SminusU(x,y)
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SminusU=H(x,y,NPparam(0),NPparam(1))*(NPparam(4)*x+NPparam(5)*(-x-y))
+        SminusU=H(x,y,NPparam(0),NPparam(1),NPparam(2))*(NPparam(5)*x+NPparam(6)*(-x-y))
     else
         SminusU=0.d0
     end if
@@ -92,7 +100,7 @@ function SplusD(x,y)
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SplusD=H(x,y,NPparam(0),NPparam(1))*(NPparam(6)+NPparam(7)*x*(-x-y))
+        SplusD=H(x,y,NPparam(0),NPparam(1),NPparam(2))*(NPparam(7)+NPparam(8)*x*(-x-y))
     else
         SplusD=0.d0
     end if
@@ -105,7 +113,7 @@ function SminusD(x,y)
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SminusD=H(x,y,NPparam(0),NPparam(1))*(NPparam(8)*x+NPparam(9)*(-x-y))
+        SminusD=H(x,y,NPparam(0),NPparam(1),NPparam(2))*(NPparam(9)*x+NPparam(10)*(-x-y))
     else
         SminusD=0.d0
     end if
@@ -118,7 +126,7 @@ function SplusS(x,y)
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SplusS=H(x,y,NPparam(0),NPparam(1))*NPparam(10)
+        SplusS=H(x,y,NPparam(0),NPparam(1),NPparam(2))*(NPparam(11)+NPparam(12)*x*(-x-y))
     else
         SplusS=0.d0
     end if
@@ -131,7 +139,7 @@ function SminusS(x,y)
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SminusS=H(x,y,NPparam(0),NPparam(1))*NPparam(11)*y
+        SminusS=H(x,y,NPparam(0),NPparam(1),NPparam(2))*NPparam(13)*y
     else
         SminusS=0.d0
     end if
@@ -144,7 +152,7 @@ end function SminusS
 !     real*8,parameter::pi=3.141592653589793d0
 !
 !     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-!         Tu=NPparam(2)*H(x,y,NPparam(0),NPparam(1))*(1.d0+NPparam(3)*(2*x+y))
+!         Tu=NPparam(2)*H(x,y,NPparam(0),NPparam(1),NPparam(2))*(1.d0+NPparam(3)*(2*x+y))
 !     else
 !         Tu=0.d0
 !     end if
@@ -157,7 +165,7 @@ end function SminusS
 !     real*8,parameter::pi=3.141592653589793d0
 !
 !     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-!         Td=NPparam(8)*H(x,y,NPparam(0),NPparam(1))*(1.d0+NPparam(9)*(2*x+y))
+!         Td=NPparam(8)*H(x,y,NPparam(0),NPparam(1),NPparam(2))*(1.d0+NPparam(9)*(2*x+y))
 !     else
 !         Td=0.d0
 !     end if
@@ -168,7 +176,7 @@ end function SminusS
 !     real*8,intent(in)::x,y
 !     real*8::Ts
 !
-!     Ts=NPparam(14)*H(x,y,NPparam(0),NPparam(1))
+!     Ts=NPparam(14)*H(x,y,NPparam(0),NPparam(1),NPparam(2))
 ! end function Ts
 !
 ! !!!! function Delta T_u
@@ -178,7 +186,7 @@ end function SminusS
 !     real*8,parameter::pi=3.141592653589793d0
 !
 !     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-!         dTu=NPparam(5)*H(x,y,NPparam(0),NPparam(1))*(1.d0+NPparam(6)*(2*x+y))*y
+!         dTu=NPparam(5)*H(x,y,NPparam(0),NPparam(1),NPparam(2))*(1.d0+NPparam(6)*(2*x+y))*y
 !     else
 !         dTu=0.d0
 !     end if
@@ -191,7 +199,7 @@ end function SminusS
 !     real*8,parameter::pi=3.141592653589793d0
 !
 !     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-!         dTd=NPparam(11)*H(x,y,NPparam(0),NPparam(1))*(1.d0+NPparam(12)*(2*x+y))*y
+!         dTd=NPparam(11)*H(x,y,NPparam(0),NPparam(1),NPparam(2))*(1.d0+NPparam(12)*(2*x+y))*y
 !     else
 !         dTd=0.d0
 !     end if
@@ -202,7 +210,7 @@ end function SminusS
 !     real*8,intent(in)::x,y
 !     real*8::dTs
 !
-!     dTs=NPparam(14)*H(x,y,NPparam(0),NPparam(1))*y
+!     dTs=NPparam(14)*H(x,y,NPparam(0),NPparam(1),NPparam(2))*y
 ! end function dTs
 !
 !!!! function T_{3F}^+
@@ -211,7 +219,7 @@ function Tp(x,y)
     real*8::Tp
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        Tp=NPparam(14)*H(x,y,NPparam(0),NPparam(1))*(2*x+y)
+        Tp=NPparam(14)*H(x,y,NPparam(0),NPparam(1),NPparam(2))*(2*x+y)
     else
         Tp=0.d0
     end if
@@ -223,7 +231,7 @@ function Tm(x,y)
     real*8::Tm
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        Tm=NPparam(15)*H(x,y,NPparam(0),NPparam(1))*y
+        Tm=NPparam(15)*H(x,y,NPparam(0),NPparam(1),NPparam(2))*y
     else
         Tm=0.d0
     end if
@@ -235,7 +243,7 @@ function dTp(x,y)
     real*8::dTp
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        dTp=NPparam(16)*H(x,y,NPparam(0),NPparam(1))
+        dTp=NPparam(16)*H(x,y,NPparam(0),NPparam(1),NPparam(2))
     else
         dTp=0.d0
     end if
@@ -247,7 +255,7 @@ function dTm(x,y)
     real*8::dTm
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        dTm=NPparam(17)*H(x,y,NPparam(0),NPparam(1))*(2*x+y)*y
+        dTm=NPparam(17)*H(x,y,NPparam(0),NPparam(1),NPparam(2))*(2*x+y)*y
     else
         dTm=0.d0
     end if

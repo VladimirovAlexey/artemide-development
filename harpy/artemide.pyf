@@ -19,6 +19,7 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
     use boermulderstmdpdf
     use tmdr_model
     use tmdr
+    use tmdf
     use snowflake
     use snowflake_model
     logical, optional :: started=.false.

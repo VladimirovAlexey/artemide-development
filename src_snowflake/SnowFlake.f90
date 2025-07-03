@@ -8,6 +8,7 @@ module SnowFlake
 use IO_snowflake
 use HexGrid
 use EvolutionKernels
+use SnowFlake_Model
 implicit none
 
 private

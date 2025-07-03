@@ -20,6 +20,7 @@ use wgtTMDPDF
 use BoerMuldersTMDPDF
 use TMDR_model
 use TMDR
+use TMDF
 use SnowFlake
 use SnowFlake_Model
 
@@ -784,6 +785,7 @@ end function GetTw3PDF_C
     real*8::DY_xSec_Single
     real*8::X
     
+    call TMDF_ResetCounters()
     call xSec_DY(X,process,s,qT,Q,y,includeCuts,CutParameters)
     DY_xSec_Single=X
   
@@ -800,6 +802,7 @@ end function GetTw3PDF_C
     real*8,intent(in),dimension(:,:)::CutParameters	!(p1,p2,eta1,eta2)
     real*8,dimension(1:ListLength)::DY_xSec_List
     
+    call TMDF_ResetCounters()
     call xSec_DY_List(DY_xSec_List,process,s,qT,Q,y,includeCuts,CutParameters)
   
   end function DY_xSec_List
@@ -815,6 +818,7 @@ end function GetTw3PDF_C
     real*8,intent(in),dimension(:,:)::CutParameters	!(p1,p2,eta1,eta2)
     real*8,dimension(1:ListLength)::DY_xSec_List_APPROXIMATE
 
+    call TMDF_ResetCounters()
     call xSec_DY_List_APPROXIMATE(DY_xSec_List_APPROXIMATE,process,s,qT,Q,y,includeCuts,CutParameters)
 
   end function DY_xSec_List_APPROXIMATE
@@ -830,6 +834,7 @@ end function GetTw3PDF_C
     real*8,intent(in),dimension(:,:)::CutParameters	!(p1,p2,eta1,eta2)
     real*8,dimension(1:ListLength)::DY_xSec_BINLESS_List
 
+    call TMDF_ResetCounters()
     call xSec_DY_List_BINLESS(DY_xSec_BINLESS_List,process,s,qT,Q,y,includeCuts,CutParameters)
   
   end function DY_xSec_BINLESS_List
@@ -850,6 +855,7 @@ end function GetTw3PDF_C
     real*8,intent(in),dimension(1:4)::Cuts			!(ymin,yMax,W2min,W2max)
     real*8::SIDIS_xSec_Single
     
+    call TMDF_ResetCounters()
     call xSec_SIDIS(SIDIS_xSec_Single,process,s,pT,z,x,Q,doCut,Cuts)
   
   end function SIDIS_xSec_Single
@@ -866,6 +872,7 @@ end function GetTw3PDF_C
     real*8,intent(in),dimension(1:2)::masses			!(mTARGET,mPRODUCT)
     real*8::SIDIS_xSec_Single_withMasses
     
+    call TMDF_ResetCounters()
     call xSec_SIDIS(SIDIS_xSec_Single_withMasses,process,s,pT,z,x,Q,doCut,Cuts,masses)
   
   end function SIDIS_xSec_Single_withMasses
@@ -883,6 +890,7 @@ end function GetTw3PDF_C
     real*8,intent(in),dimension(:,:)::masses			!(mTARGET,mPRODUCT)
     real*8,dimension(1:ListLength)::SIDIS_xSec_List
     
+    call TMDF_ResetCounters()
     call xSec_SIDIS_List_forharpy(SIDIS_xSec_List,process,s,pT,z,x,Q,doCut,Cuts,masses)
   
   end function SIDIS_xSec_List
@@ -898,6 +906,7 @@ end function GetTw3PDF_C
     real*8,intent(in),dimension(:,:)::masses			!(mTARGET,mPRODUCT)
     real*8,dimension(1:ListLength)::SIDIS_xSec_BINLESS_List
     
+    call TMDF_ResetCounters()
     call xSec_SIDIS_BINLESS_List_forharpy(SIDIS_xSec_BINLESS_List,process,s,pT,z,x,Q,masses)
   
   end function SIDIS_xSec_BINLESS_List
