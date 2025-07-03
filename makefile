@@ -6,8 +6,8 @@
 aTMDeHOME       = $(PWD)
 
 #PUT YOUR FORTRAN COMPILER
-FCompilator=f95
-#FCompilator=gfortran
+#FCompilator=f95
+FCompilator=gfortran
 
 #PUT HERE extra flags for compilator (put "space" if not flags requared)
 Fflags= -O3 -cpp -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -fopenmp
