@@ -562,5 +562,5 @@ harpy-signature:
 	echo 'end python module artemide' >> $(HDIR)/artemide.pyf
 
 harpy: 
-	f2py -c --f90exec=$(Fpath) --f77exec=$(F77path) --f90flags=$(FflagsHARPY) $(FOPT) -lgomp -I$(MOD) $(aTMDeFILES) $(SNOW_SOURCEFILES) $(HDIR)/harpy.f90 $(HDIR)/artemide.pyf
+	f2py -c --f90exec=$(Fpath) --f77exec=$(F77path) --f90flags=$(FflagsHARPY) $(FOPT) -lgomp -I$(MOD) -I$(SOURCEDIR) -I$(SNOWDIR) $(aTMDeFILES) $(SNOW_SOURCEFILES) $(HDIR)/harpy.f90 $(HDIR)/artemide.pyf
 	mv artemide*.so $(HDIR)
