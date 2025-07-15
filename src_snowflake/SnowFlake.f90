@@ -128,6 +128,8 @@ read(51,*) stepT
 
 CLOSE (51, STATUS='KEEP')
 
+!$ call OMP_set_num_threads(allowedNumProcessor)
+
 Qmin=1.
 Qmax=2.
 maxT=1

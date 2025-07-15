@@ -35,8 +35,8 @@ real(dp)::zero=1d-12
 real(dp)::toleranceINT=1d-8
 !!!! Runge-Kutta maximal step
 real(dp)::RGh_max=0.001_dp
-!!!! Number of processeor allows for parralel computation
-integer::allowedNumProcessor=10
+!!!! Number of processesor allows for parralel computation
+integer::allowedNumProcessor=16
 
 !!!! Setup chiral even evolution
 logical:: IncludeChiralEvenEvolution=.true.

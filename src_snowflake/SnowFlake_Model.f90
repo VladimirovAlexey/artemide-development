@@ -231,35 +231,11 @@ function Tm(x,y)
     real*8::Tm
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        Tm=NPparam(15)*H(x,y,NPparam(0),NPparam(1),NPparam(2))*y
+        Tm=NPparam(15)*H(x,y,NPparam(0),NPparam(1),NPparam(2))
     else
         Tm=0.d0
     end if
 end function Tm
-
-!!!! function Delta T_{3F}^+
-function dTp(x,y)
-    real*8,intent(in)::x,y
-    real*8::dTp
-
-    if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        dTp=NPparam(16)*H(x,y,NPparam(0),NPparam(1),NPparam(2))
-    else
-        dTp=0.d0
-    end if
-end function dTp
-
-!!!! function Delta T_{3F}^-
-function dTm(x,y)
-    real*8,intent(in)::x,y
-    real*8::dTm
-
-    if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        dTm=NPparam(17)*H(x,y,NPparam(0),NPparam(1),NPparam(2))*(2*x+y)*y
-    else
-        dTm=0.d0
-    end if
-end function dTm
 
 !!!!!! Function for alpha_s of QCD.
 function alpha(mu)
