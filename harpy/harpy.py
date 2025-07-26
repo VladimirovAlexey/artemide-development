@@ -130,8 +130,8 @@ def get_PDF_tw3(x1,x2,Q,f,output="T"):
         raise ValueError("parameter Q must be positive (>0.8)")
     if not isinstance(f, int):
         raise ValueError("parameter f must be integer")
-    elif not(f in [-10,0,1,2,3,4,5]):
-        raise ValueError("parameter f must be -10,0,1,..,5")
+    elif not(f in [-10,-5,-4,-3,-2,-1,0,1,2,3,4,5]):
+        raise ValueError("parameter f must be -10,-5,..,-1,0,1,..,5")
         
     if output=="T":
         return artemide.harpy.gettw3pdf_t(x1,x2,Q,f)

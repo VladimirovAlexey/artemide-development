@@ -139,7 +139,7 @@ function SminusS(x,y)
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SminusS=H(x,y,NPparam(0),NPparam(1),NPparam(2))*NPparam(13)*y
+        SminusS=H(x,y,NPparam(0),NPparam(1),NPparam(2))*(NPparam(13)*x+NPparam(14)*(-x-y))
     else
         SminusS=0.d0
     end if
@@ -219,7 +219,7 @@ function Tp(x,y)
     real*8::Tp
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        Tp=NPparam(14)*H(x,y,NPparam(0),NPparam(1),NPparam(2))*(2*x+y)
+        Tp=NPparam(15)*H(x,y,NPparam(0),NPparam(1),NPparam(2))*(2*x+y)
     else
         Tp=0.d0
     end if
@@ -231,7 +231,7 @@ function Tm(x,y)
     real*8::Tm
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        Tm=NPparam(15)*H(x,y,NPparam(0),NPparam(1),NPparam(2))
+        Tm=NPparam(16)*H(x,y,NPparam(0),NPparam(1),NPparam(2))
     else
         Tm=0.d0
     end if
