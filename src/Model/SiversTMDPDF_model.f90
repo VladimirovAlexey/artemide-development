@@ -8,6 +8,7 @@ module SiversTMDPDF_model
 use aTMDe_Numerics
 use IO_functions
 use SnowFlake
+!use SnowFlake_Model
 implicit none
 
 private
@@ -78,36 +79,38 @@ bProfile=1._dp/cosh(lambdaNP(1)*bT)
 
 mu=muOPE(bT,x,1.d0,1.d0)
 
-FNPd=-pi*GetPDF(-x,0.d0,mu,1,outputT="T")
-FNPu=-pi*GetPDF(-x,0.d0,mu,2,outputT="T")
-FNPs=-pi*GetPDF(-x,0.d0,mu,3,outputT="T")
-FNPc=-pi*GetPDF(-x,0.d0,mu,4,outputT="T")
-FNPb=-pi*GetPDF(-x,0.d0,mu,5,outputT="T")
+FNPd=-pi*GetPDF(-x,0.0000000001d0,mu,1,outputT="T")
+FNPu=-pi*GetPDF(-x,0.0000000001d0,mu,2,outputT="T")
+FNPs=-pi*GetPDF(-x,0.0000000001d0,mu,3,outputT="T")
+FNPc=-pi*GetPDF(-x,0.0000000001d0,mu,4,outputT="T")
+FNPb=-pi*GetPDF(-x,0.0000000001d0,mu,5,outputT="T")
 
-FNPdB=-pi*GetPDF(x,0.d0,mu,1,outputT="T")
-FNPuB=-pi*GetPDF(x,0.d0,mu,2,outputT="T")
-FNPsB=-pi*GetPDF(x,0.d0,mu,3,outputT="T")
-FNPcB=-pi*GetPDF(x,0.d0,mu,4,outputT="T")
-FNPbB=-pi*GetPDF(x,0.d0,mu,5,outputT="T")
+FNPdB=-pi*GetPDF(x,0.0000000001d0,mu,1,outputT="T")
+FNPuB=-pi*GetPDF(x,0.0000000001d0,mu,2,outputT="T")
+FNPsB=-pi*GetPDF(x,0.0000000001d0,mu,3,outputT="T")
+FNPcB=-pi*GetPDF(x,0.0000000001d0,mu,4,outputT="T")
+FNPbB=-pi*GetPDF(x,0.0000000001d0,mu,5,outputT="T")
 
 FNP=bProfile*(/FNPbB,FNPcB,FNPsB,FNPuB,FNPdB,0d0,FNPd,FNPu,FNPs,FNPc,FNPb/)
 
 
-    if(ISNAN(FNP(5)) .or.ISNAN(FNP(4)) .or.ISNAN(FNP(3)) .or.ISNAN(FNP(2)) .or.ISNAN(FNP(1))) then
-        write(*,*) "------NAN INSIDE THE SIVERTMDPDF-model -----"
-        write(*,*) "x,bT,hadron,lambdaNP--->",x,bT,hadron,lambdaNP
-        write(*,*) "mu--->",mu
-        write(*,*) "--->",FNP
-        write(*,*) "bProfile--->",bProfile
-    end if
-
-    if(abs(FNP(1))>10d10 .or.abs(FNP(2))>10d10 .or.abs(FNP(3))>10d10) then
-    write(*,*) "------HUGE NUMBER INSIDE THE SIVERTMDPDF-model -----"
+if(ISNAN(FNP(5)) .or.ISNAN(FNP(4)) .or.ISNAN(FNP(3)) .or.ISNAN(FNP(2)) .or.ISNAN(FNP(1))) then
+    write(*,*) "------ NAN INSIDE THE SIVERTMDPDF-model -----"
     write(*,*) "x,bT,hadron,lambdaNP--->",x,bT,hadron,lambdaNP
     write(*,*) "mu--->",mu
     write(*,*) "--->",FNP
     write(*,*) "bProfile--->",bProfile
-    end if
+    !call  PrintParameters()
+end if
+
+if(abs(FNP(1))>10d10 .or.abs(FNP(2))>10d10 .or.abs(FNP(3))>10d10) then
+    write(*,*) "------ HUGE NUMBER INSIDE THE SIVERTMDPDF-model -----"
+    write(*,*) "x,bT,hadron,lambdaNP--->",x,bT,hadron,lambdaNP
+    write(*,*) "mu--->",mu
+    write(*,*) "--->",FNP
+    write(*,*) "bProfile--->",bProfile
+    !call  PrintParameters()
+end if
 
 end function FNP
   

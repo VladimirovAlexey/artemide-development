@@ -975,6 +975,12 @@ END SELECT
 !!!!! interpolation
 GetPDF=(t_here-t_low)*(f2-f1)+f1
 
+if(ISNAN(GetPDF)) then
+write(*,*) "------ NAN INSIDE THE snowflake GETPDF -----"
+write(*,*) "x1, x2, Q, f, outputT ----> ",x1,x2,Q,f,outputT
+write(*,*) "t_here,t_low, f2,f1 ---->", t_here,t_low, f2,f1
+end if
+
 end function GetPDF
 
 !!!!! Computes interpolation flavor f for chiral odd-case
@@ -1546,10 +1552,10 @@ end function G2
 
 !!!!! return the function of G2 computed over the parralel list
 subroutine G2_List(res,x,Q,f)
-real(dp),dimension(:),intent(in)::x
-real(dp),dimension(:),intent(in)::Q
-integer,dimension(:),intent(in)::f
-real(dp),dimension(:),intent(out)::res
+real(dp),dimension(1:),intent(in)::x
+real(dp),dimension(1:),intent(in)::Q
+integer,dimension(1:),intent(in)::f
+real(dp),dimension(1:),intent(out)::res
 
 integer::i,length
 length=size(x)
@@ -1644,9 +1650,9 @@ end function D2
 
 !!!!! return the function of G2 computed over the parralel list
 subroutine D2_List(res,Q,f)
-real(dp),dimension(:),intent(in)::Q
-integer,dimension(:),intent(in)::f
-real(dp),dimension(:),intent(out)::res
+real(dp),dimension(1:),intent(in)::Q
+integer,dimension(1:),intent(in)::f
+real(dp),dimension(1:),intent(out)::res
 
 integer::i,length
 length=size(Q)

@@ -78,6 +78,9 @@ def setNPparameters_tw3(l):
         raise TypeError()
         
 def G2List(x,Q,f):
+    if(len(x)!=len(Q) or len(x)!=len(f)):
+        raise ValueError("Lengths of list is different")
+        
     return artemide.harpy.snowflake_g2_list(numpy.asfortranarray(x),\
                                        numpy.asfortranarray(Q),\
                                        numpy.asfortranarray(f),

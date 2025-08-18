@@ -6,10 +6,10 @@
 program SnowflakeTEST
 use Snowflake
 use Snowflake_Model
-
+use SiversTMDPDF_model
 implicit none
 
-real*8::mu0,mu1,Q(0:20),dd(0:20),xx(0:20),x,Q0
+real*8::mu0,mu1,x,Q0,ss(-5:5)
 integer::i,ff(0:20)
 
 !call  SnowFlake_Initialize("Snowflake.ini")
@@ -24,20 +24,12 @@ call SetNPparameters(&
     -1.0000000000000000d0,        3.0000000000000000d0,       -1.5000000000000000d0,       -1.0000000000000000d0,&
     -1.2000000000000000d0,        0.0000000000000000d0/))
 
+call ModelInitialization(2)
+
 mu0=1.d0
 mu1=105.d0
 call ComputeEvolution(mu0,mu1,alpha,U1=SplusU,D1=SplusD,S1=SplusS,U2=SminusU,D2=SminusD,S2=SminusS,G1=Tp,G2=Tm,&
     inputQ="C",inputG="T")
-!call ComputeEvolution(mu0,mu1,alpha,U1=Tu,U2=dTu,inputQ="T",inputG="T")
-!
-! write(*,*) Tu(0.2d0,0.1d0),Tu(0.2d0,-0.1d0),Tu(0.3d0,0.1d0)
-! write(*,*) Td(0.2d0,0.1d0),Td(0.2d0,-0.1d0),Td(0.3d0,0.1d0)
-! write(*,*) Ts(0.2d0,0.1d0),Ts(0.2d0,-0.1d0),Ts(0.3d0,0.1d0)
-! write(*,*) dTu(0.2d0,0.1d0),dTu(0.2d0,-0.1d0),dTu(0.3d0,0.1d0)
-! write(*,*) dTd(0.2d0,0.1d0),dTd(0.2d0,-0.1d0),dTd(0.3d0,0.1d0)
-! write(*,*) dTs(0.2d0,0.1d0),dTs(0.2d0,-0.1d0),dTs(0.3d0,0.1d0)
-! write(*,*) dTpp(0.2d0,0.1d0),dTpp(0.2d0,-0.1d0),dTpp(0.3d0,0.1d0)
-! write(*,*) dTmm(0.2d0,0.1d0),dTmm(0.2d0,-0.1d0),dTmm(0.3d0,0.1d0)
 
 x=0.18935864271087760d0
 Q0=24.732691d0
@@ -48,24 +40,9 @@ write(*,*) "s ",GetPDF(x,0.d0,Q0,3,outputT="T"),GetPDF(-x,0.d0,Q0,3,outputT="T")
 write(*,*) "u ",GetPDF(x,0.d0,Q0,2,outputT="T"),GetPDF(-x,0.d0,Q0,2,outputT="T")
 write(*,*) "s ",GetPDF(x,0.d0,Q0,1,outputT="T"),GetPDF(-x,0.d0,Q0,1,outputT="T")
 
-do i=0,20
-xx(i)=0.3d0+i*0.01
-Q(i)=2.d0+i
-ff(i)=2
-end do
+ss=FNP(x,0.065007299988276146d0,1,(/0.5d0,0.d0/))
 
-! write(*,*) '------'
-!
-! call D2_list(dd,Q,ff)
-! do i=0,20
-! write(*,'("{",F5.2,",",F12.6,",",F12.6,"},")') Q(i),D2(Q(i),ff(i)),dd(i)
-! end do
-!
-! write(*,*) '------'
-!
-! call G2_list(dd,xx,Q,ff)
-! do i=0,20
-! write(*,'("{",F5.2,",",F12.6,",",F12.6,"},")') Q(i),G2(xx(i),Q(i),ff(i)),dd(i)
-! end do
+write(*,*) "---", ss
+
 
 end program SnowflakeTEST

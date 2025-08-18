@@ -435,7 +435,7 @@ end function GETgrid
 function GETinterpolation(x1,x2,grid)
 real(dp),intent(in)::x1,x2
 !real(dp),dimension(0:NUM_TOT),intent(in)::grid
-real(dp),dimension(:),intent(in)::grid
+real(dp),dimension(0:),intent(in)::grid
 real(dp)::GETinterpolation
 
 real(dp)::rho,phi
@@ -449,6 +449,16 @@ mG=getSubgrid_PHI(phi)
 !!!!! inside the grid just compute the interpolation
 GETinterpolation=interpolation_in_grid(rho,phi,mG,grid)
 
+! ! !!!!! debug
+! ! if(ISNAN(GETinterpolation)) then
+! ! write(*,*) "-------- NAN in snowflake GETinterpolation ------ "
+! ! write(*,*) "rho,phi,mG",rho,phi,mG
+! ! write(*,*) "grid ----->>>>> ",grid
+! ! write(*,*) " "
+! ! GETinterpolation=interpolation_in_grid_DEBUG(rho,phi,mG,grid)
+! ! error stop
+! ! end if
+
 end function GETinterpolation
 
 
@@ -458,7 +468,7 @@ function interpolation_in_grid(rho,phi,mG,grid)
 real(dp),intent(in)::rho,phi
 integer,intent(in)::mG
 !real(dp),dimension(0:NUM_TOT),intent(in)::grid
-real(dp),dimension(:),intent(in)::grid
+real(dp),dimension(0:),intent(in)::grid
 real(dp)::interpolation_in_grid
 
 real(dp)::t,u !!!! these are values of rho and phi in the subgrid space
@@ -517,6 +527,99 @@ end do
 interpolation_in_grid=interpolation_in_grid/sum(deltaT)/sum(deltaU)
 
 end function interpolation_in_grid
+
+!!!!!!!!! ------ THIS VERSION OF THE FUNCTION IS USED FOR DEBUGGIN ------
+! ! !!!!! compute the interpolation from the grid to a given point rho and phi in a given subgrid
+! ! !!!!! it is assumed that subgrid is already computed correctly
+! ! function interpolation_in_grid_DEBUG(rho,phi,mG,grid)
+! ! real(dp),intent(in)::rho,phi
+! ! integer,intent(in)::mG
+! ! !real(dp),dimension(0:NUM_TOT),intent(in)::grid
+! ! real(dp),dimension(0:),intent(in)::grid
+! ! real(dp)::interpolation_in_grid_DEBUG
+! !
+! ! real(dp)::t,u !!!! these are values of rho and phi in the subgrid space
+! ! real(dp)::deltaT(0:NUM_RHO),deltaU(0:NUM_PHI)
+! !
+! ! integer::i,j,n_here,m_here
+! !
+! ! !!!!!! 3) get coordinates in this subgrid
+! ! t=1-2*rho
+! ! u=1-2*(phi-mG)
+! !
+! ! write(*,*) "3)"
+! ! write(*,*) "t=",t
+! ! write(*,*) "u=",u
+! ! write(*,*) " "
+! !
+! ! !!!!!! 4) constract list of bary-centric weights for t, and u
+! ! deltaT=t-nodes_inRHO
+! ! deltaU=u-nodes_inPHI
+! !
+! ! write(*,*) "4)"
+! ! write(*,*) "deltaT=",deltaT
+! ! write(*,*) " "
+! ! write(*,*) "deltaU=",deltaU
+! ! write(*,*) " "
+! ! write(*,*) " "
+! !
+! ! !!!!!! 5) check that if the point is too close to the node, we replace the weight by 1, and rest ->0
+! ! !!!!!!    also I use this pass to make the proper baricentic formula =fact(i)/(t-t_i)
+! ! do i=0,NUM_RHO
+! !     if(abs(deltaT(i))<zero) then
+! !         deltaT=0._dp !!! all -> zero
+! !         deltaT(i)=1._dp !!!! only i->1
+! !         exit
+! !     end if
+! !     deltaT(i)=nodeFactors_inRHO(i)/deltaT(i)
+! ! end do
+! !
+! ! do j=0,NUM_PHI
+! !     if(abs(deltaU(j))<zero) then
+! !         deltaU=0._dp !!! all -> zero
+! !         deltaU(j)=1._dp !!!! only i->1
+! !         exit
+! !     end if
+! !     deltaU(j)=nodeFactors_inPHI(j)/deltaU(j)
+! ! end do
+! !
+! ! write(*,*) "5)"
+! ! write(*,*) "deltaT=",deltaT
+! ! write(*,*) " "
+! ! write(*,*) "deltaU=",deltaU
+! ! write(*,*) " "
+! ! write(*,*) " "
+! !
+! ! !!!!!! 6) Finally, I can interpolate
+! ! interpolation_in_grid_DEBUG=0._dp
+! ! do i=0,NUM_RHO
+! !     !!!! the global index is computed as G=n*(NUM_TOT_PHI+1)+M
+! !     !!!! where M=mG*NUM_PHI+m
+! !     !!!! so I precompute some parts of index
+! !     n_here=i*(NUM_TOT_PHI+1) !!!!!=n*(NUM_TOT_PHI+1)
+! !     do j=0,NUM_PHI-1
+! !         m_here=n_here+mG*NUM_PHI
+! !         interpolation_in_grid_DEBUG=interpolation_in_grid_DEBUG+deltaT(i)*deltaU(j)*grid(m_here+j)
+! !         if(isnan(grid(m_here+j))) then
+! !             write(*,*) "  :->",i,j,m_here,grid(m_here+j)
+! !         end if
+! !     end do
+! !     !!!! since the last point is cycled I should take it separately
+! !     if(mG==5) then
+! !         interpolation_in_grid_DEBUG=interpolation_in_grid_DEBUG+deltaT(i)*deltaU(NUM_PHI)*grid(n_here)
+! !     else
+! !         interpolation_in_grid_DEBUG=interpolation_in_grid_DEBUG+deltaT(i)*deltaU(NUM_PHI)*grid(n_here+(mG+1)*NUM_PHI)
+! !     end if
+! ! end do
+! !
+! ! write(*,*) "6)"
+! ! write(*,*) "interpolation_in_grid=",interpolation_in_grid_DEBUG
+! ! write(*,*) " "
+! !
+! ! !!!!!! 7) Devide by total weights
+! ! interpolation_in_grid_DEBUG=interpolation_in_grid_DEBUG/sum(deltaT)/sum(deltaU)
+! !
+! ! end function interpolation_in_grid_DEBUG
 
 
 !!!! computes the interpolator function to the point x1,x2 from the grid which contains points n, relative to this point
@@ -899,7 +1002,7 @@ end function dPHI_dX2
 !!!! returns the grid
 function Dgrid_dRHO(grid)
 !real(dp), dimension(0:NUM_TOT),intent(in):: grid
-real(dp), dimension(:),intent(in):: grid
+real(dp), dimension(0:),intent(in):: grid
 real(dp), dimension(0:NUM_TOT):: Dgrid_dRHO
 
 integer::s,i,n
@@ -944,7 +1047,7 @@ end function Dgrid_dRHO
 !!!! returns the grid
 function Dgrid_dPHI(grid)
 !real(dp), dimension(0:NUM_TOT),intent(in):: grid
-real(dp), dimension(:),intent(in):: grid
+real(dp), dimension(0:),intent(in):: grid
 real(dp), dimension(0:NUM_TOT):: Dgrid_dPHI
 
 integer::s,n,mG,i,j
@@ -972,7 +1075,7 @@ end function Dgrid_dPHI
 !!!! returns the grid
 function Dgrid_dX2(grid)
 !real(dp), dimension(0:NUM_TOT),intent(in):: grid
-real(dp), dimension(:),intent(in):: grid
+real(dp), dimension(0:),intent(in):: grid
 real(dp), dimension(0:NUM_TOT):: Dgrid_dX2
 
 real(dp), dimension(0:NUM_TOT):: DgridRHO,DgridPHI
