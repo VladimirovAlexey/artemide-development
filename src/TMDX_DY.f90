@@ -9,13 +9,13 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module TMDX_DY
 use aTMDe_Numerics
-use IO_functions
+use aTMDe_IO
 use TMDF
 use TMDF_KPC
 use LeptonCutsDY
 use QCDinput
 use EWinput
-use IntegrationRoutines
+use aTMDe_Integration
 
 implicit none
 private
@@ -33,8 +33,8 @@ integer,parameter::inputver=30
 real(dp) :: toleranceINT=0.0001d0
 real(dp) :: toleranceGEN=0.0000001d0
 
-integer::outputlevel
-integer::messageTrigger
+integer::outputlevel=2
+type(Warning_OBJ)::Warning_Handler
 
 !!!!
 !!!! in the module the kinematic is stored in the varibles "kinematic" real(dp),dimension(1:6)
@@ -59,7 +59,6 @@ real(dp)::c2_global!,muHard_global
 
 integer::GlobalCounter
 integer::CallCounter
-integer::messageCounter
 
 real(dp)::hc2
 
@@ -87,7 +86,7 @@ subroutine TMDX_DY_Initialize(file,prefix)
   character(len=300)::path
   logical::initRequired,dummyLogical
   character(len=8)::orderMain
-  integer::i,FILEver
+  integer::i,FILEver,messageTrigger
   !$ integer:: omp_get_thread_num
 
   if(started) return
@@ -228,6 +227,7 @@ subroutine TMDX_DY_Initialize(file,prefix)
 
   CLOSE (51, STATUS='KEEP')
 
+  Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
 
   !$     if(outputLevel>2) write(*,*) '------TEST OF PARALLEL PROCESSING ----------'
   !$OMP PARALLEL
@@ -270,7 +270,6 @@ subroutine TMDX_DY_Initialize(file,prefix)
 
   GlobalCounter=0
   CallCounter=0
-  messageCounter=0
 
   started=.true.
 
@@ -291,7 +290,7 @@ subroutine TMDX_DY_ResetCounters()
   if(outputlevel>2) call TMDX_DY_ShowStatistic()
   GlobalCounter=0
   CallCounter=0
-  messageCounter=0
+  call Warning_Handler%Reset()
 end subroutine TMDX_DY_ResetCounters
   
 subroutine TMDX_DY_ShowStatistic()
@@ -841,7 +840,7 @@ end if
 
 !!!------------------------- checking Q----------
 if(Q_min_in<0.9d0) then
-  call Warning_Raise('Attempt to compute xSec with Q<0.9.',messageCounter,messageTrigger,moduleName)
+  call Warning_Handler%WarningRaise('Attempt to compute xSec with Q<0.9.')
   write(*,*) "Qmin =",Q_min_in," (Qmin set to 1.GeV)"
   Q_min=1._dp
 else
@@ -849,7 +848,7 @@ else
 end if
 
 if(Q_max_in<Q_min) then
-  call Warning_Raise('Attempt to compute xSec with Qmax<Qmin. RESULT 0',messageCounter,messageTrigger,moduleName)
+  call Warning_Handler%WarningRaise('Attempt to compute xSec with Qmax<Qmin. RESULT 0')
   Xsec_PTint_Qint_Yint=0._dp
   return
 end if
@@ -857,7 +856,7 @@ Q_max=Q_max_in
 
 !!!------------------------- checking S----------
 if(s_in<0.9d0) then
-  call Warning_Raise('Attempt to compute xSec with s<0.9.',messageCounter,messageTrigger,moduleName)
+  call Warning_Handler%WarningRaise('Attempt to compute xSec with s<0.9.')
   write(*,*) "s =",s_in," (s set to Qmin)"
   s=Q_min
 else
@@ -866,7 +865,7 @@ end if
 
 !!!------------------------- checking PT----------
 if(qT_min_in<0.0d0) then
-  call Warning_Raise('Attempt to compute xSec with qT<0.',messageCounter,messageTrigger,moduleName)
+  call Warning_Handler%WarningRaise('Attempt to compute xSec with qT<0.')
   write(*,*) "qTmin =",qT_min_in," (qTmin set to 0.GeV)"
   qT_min=1._dp
 else
@@ -874,7 +873,7 @@ else
 end if
 
 if(qT_max_in<qT_min) then
-  call Warning_Raise('Attempt to compute xSec with qTmax<qTmin. RESULT 0',messageCounter,messageTrigger,moduleName)
+  call Warning_Handler%WarningRaise('Attempt to compute xSec with qTmax<qTmin. RESULT 0')
   Xsec_PTint_Qint_Yint=0._dp
   return
 end if
@@ -883,7 +882,7 @@ qT_max=qT_max_in
 !!!------------------------- checking Y----------
 
 if(ymax_in<ymin_in) then
-  call Warning_Raise('Attempt to compute xSec with Ymax<Ymin. RESULT 0',messageCounter,messageTrigger,moduleName)
+  call Warning_Handler%WarningRaise('Attempt to compute xSec with Ymax<Ymin. RESULT 0')
   Xsec_PTint_Qint_Yint=0._dp
   return
 end if
@@ -1039,7 +1038,7 @@ function Xsec_PTint_Qint_Yint_APROX(process,incCut,CutParam,s_in,qt_min_in,qt_ma
 
   !!!------------------------- checking Q----------
   if(Q_min_in<0.9d0) then
-    call Warning_Raise('Attempt to compute xSec with Q<0.9.',messageCounter,messageTrigger,moduleName)
+    call Warning_Handler%WarningRaise('Attempt to compute xSec with Q<0.9.')
     write(*,*) "Qmin =",Q_min_in," (Qmin set to 1.GeV)"
     Q_min=1._dp
   else
@@ -1047,7 +1046,7 @@ function Xsec_PTint_Qint_Yint_APROX(process,incCut,CutParam,s_in,qt_min_in,qt_ma
   end if
 
   if(Q_max_in<Q_min) then
-    call Warning_Raise('Attempt to compute xSec with Qmax<Qmin. RESULT 0',messageCounter,messageTrigger,moduleName)
+    call Warning_Handler%WarningRaise('Attempt to compute xSec with Qmax<Qmin. RESULT 0')
     Xsec_PTint_Qint_Yint_APROX=0._dp
     return
   end if
@@ -1055,7 +1054,7 @@ function Xsec_PTint_Qint_Yint_APROX(process,incCut,CutParam,s_in,qt_min_in,qt_ma
 
   !!!------------------------- checking S----------
   if(s_in<0.9d0) then
-    call Warning_Raise('Attempt to compute xSec with s<0.9.',messageCounter,messageTrigger,moduleName)
+    call Warning_Handler%WarningRaise('Attempt to compute xSec with s<0.9.')
     write(*,*) "s =",s_in," (s set to Qmin)"
     s=Q_min
   else
@@ -1064,7 +1063,7 @@ function Xsec_PTint_Qint_Yint_APROX(process,incCut,CutParam,s_in,qt_min_in,qt_ma
 
   !!!------------------------- checking PT----------
   if(qT_min_in<0.0d0) then
-    call Warning_Raise('Attempt to compute xSec with qT<0.',messageCounter,messageTrigger,moduleName)
+    call Warning_Handler%WarningRaise('Attempt to compute xSec with qT<0.')
     write(*,*) "qTmin =",qT_min_in," (qTmin set to 0.GeV)"
     qT_min=1._dp
   else
@@ -1072,7 +1071,7 @@ function Xsec_PTint_Qint_Yint_APROX(process,incCut,CutParam,s_in,qt_min_in,qt_ma
   end if
 
   if(qT_max_in<qT_min) then
-    call Warning_Raise('Attempt to compute xSec with qTmax<qTmin. RESULT 0',messageCounter,messageTrigger,moduleName)
+    call Warning_Handler%WarningRaise('Attempt to compute xSec with qTmax<qTmin. RESULT 0')
     Xsec_PTint_Qint_Yint_APROX=0._dp
     return
   end if
@@ -1081,7 +1080,7 @@ function Xsec_PTint_Qint_Yint_APROX(process,incCut,CutParam,s_in,qt_min_in,qt_ma
   !!!------------------------- checking Y----------
 
   if(ymax_in<ymin_in) then
-    call Warning_Raise('Attempt to compute xSec with Ymax<Ymin. RESULT 0',messageCounter,messageTrigger,moduleName)
+    call Warning_Handler%WarningRaise('Attempt to compute xSec with Ymax<Ymin. RESULT 0')
     Xsec_PTint_Qint_Yint_APROX=0._dp
     return
   end if

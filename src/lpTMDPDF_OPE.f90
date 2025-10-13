@@ -24,8 +24,8 @@ end module Grid_lpTMDPDF
 
 module lpTMDPDF_OPE
 use aTMDe_Numerics
-use IntegrationRoutines
-use IO_functions
+use aTMDe_Integration
+use aTMDe_IO
 use QCDinput
 use lpTMDPDF_model
 use Grid_lpTMDPDF
@@ -48,9 +48,7 @@ logical:: started=.false.
 !! 1=initialization details
 !! 2=WARNINGS
 integer::outputLevel=2
-!! variable that count number of WARNING mesagges. In order not to spam too much
-integer::messageTrigger=6
-integer::messageCounter=0 !!! actual counter
+type(Warning_OBJ)::Warning_Handler
 
 !!!------------------------- PARAMETERS DEFINED IN THE INI-file--------------
 
@@ -126,7 +124,7 @@ subroutine lpTMDPDF_OPE_Initialize(file,prefix)
     character(len=300)::path
     logical::initRequired
     character(len=8)::order_global
-    integer::i,FILEver
+    integer::i,FILEver,messageTrigger
     real(dp),allocatable::subGridsX(:),subGridsB(:)
 
     if(started) return
@@ -259,6 +257,8 @@ subroutine lpTMDPDF_OPE_Initialize(file,prefix)
     read(51,*) subGridsB
 
     CLOSE (51, STATUS='KEEP')
+
+    Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
     c4_global=1d0
 
     xMin=subGridsX(0)
@@ -293,7 +293,6 @@ subroutine lpTMDPDF_OPE_Initialize(file,prefix)
     end if
 
     started=.true.
-    messageCounter=0
 
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.lpTMDPDF_OPE '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) ' '
@@ -345,7 +344,7 @@ function lpTMDPDF_OPE_convolution(x,b,h,addGluon)
         if(gridReady) then
             lpTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)/x
         else
-            call Warning_Raise('Called OPE_convolution while grid is not ready.',messageCounter,messageTrigger,moduleName)
+            call Warning_Handler%WarningRaise('Called OPE_convolution while grid is not ready.')
             call lpTMDPDF_OPE_resetGrid()
             lpTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)/x
         end if
@@ -394,10 +393,10 @@ subroutine lpTMDPDF_OPE_SetScaleVariation(c4_in)
         c4_global=2d0
         call lpTMDPDF_OPE_resetGrid()
     else if(abs(c4_in-c4_global)<toleranceGEN) then
-        if(outputLevel>1) write(*,*) color('lpTMDPDF: c4-variation is ignored. c4='//real8ToStr(c4_global),c_yellow)
+        if(outputLevel>1) write(*,*) color('lpTMDPDF: c4-variation is ignored. c4='//numToStr(c4_global),c_yellow)
     else
         c4_global=c4_in
-        if(outputLevel>1) write(*,*) color('lpTMDPDF: set scale variations c4 as:'//real8ToStr(c4_global),c_yellow)
+        if(outputLevel>1) write(*,*) color('lpTMDPDF: set scale variations c4 as:'//numToStr(c4_global),c_yellow)
         call lpTMDPDF_OPE_resetGrid()
     end if
 end subroutine lpTMDPDF_OPE_SetScaleVariation

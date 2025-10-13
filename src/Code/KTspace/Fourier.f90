@@ -158,8 +158,7 @@ function Fourier_ev(x,qT_in,mu,zeta,hadron)
     end do
 
     if(k>=Nmax) then
-        if(outputlevel>0) call Warning_Raise('OGATA quadrature diverge. TMD decaing too slow?',&
-            messageCounter,messageTrigger,moduleName)
+        if(outputlevel>0) call Warning_Handler%WarningRaise('OGATA quadrature diverge. TMD decaing too slow?')
             if(outputlevel>2) then
             write(*,*) 'Information over the last call ----------'
             write(*,*) partDone
@@ -236,8 +235,7 @@ function Fourier_opt(x,qT_in,hadron)
     end do
 
     if(k>=Nmax) then
-        if(outputlevel>0) call Warning_Raise('OGATA quadrature diverge. TMD decaing too slow?',&
-            messageCounter,messageTrigger,moduleName)
+        if(outputlevel>0) call Warning_Handler%WarningRaise('OGATA quadrature diverge. TMD decaing too slow?')
             if(outputlevel>2) then
             write(*,*) 'Information over the last call ----------'
             write(*,*) partDone

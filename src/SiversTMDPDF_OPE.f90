@@ -20,8 +20,8 @@
 
 module SiversTMDPDF_OPE
 use aTMDe_Numerics
-use IntegrationRoutines
-use IO_functions
+use aTMDe_Integration
+use aTMDe_IO
 use QCDinput
 use SiversTMDPDF_model
 implicit none
@@ -43,9 +43,7 @@ logical:: started=.false.
 !! 1=initialization details
 !! 2=WARNINGS
 integer::outputLevel=2
-!! variable that count number of WARNING mesagges. In order not to spam too much
-integer::messageTrigger=6
-integer::messageCounter=0 !!! actual counter
+type(Warning_OBJ)::Warning_Handler
 
 !!!------------------------- PARAMETERS DEFINED IN THE INI-file--------------
 
@@ -101,7 +99,7 @@ subroutine SiversTMDPDF_OPE_Initialize(file,prefix)
     character(len=300)::path
     logical::initRequired
     character(len=8)::order_global
-    integer::i,FILEver
+    integer::i,FILEver,messageTrigger
 
     if(started) return
 
@@ -202,6 +200,9 @@ subroutine SiversTMDPDF_OPE_Initialize(file,prefix)
      end if
 
     CLOSE (51, STATUS='KEEP')
+
+    Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
+
     c4_global=1d0
 
     !!! call initializations for Grids
@@ -220,7 +221,6 @@ subroutine SiversTMDPDF_OPE_Initialize(file,prefix)
 !     end if
 
     started=.true.
-    messageCounter=0
 
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.SiversTMDPDF_OPE '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) ' '

@@ -109,15 +109,24 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\title{artemide ver.3.00}
-\author{Alexey A. Vladimirov \\ \today}
-\noaffiliation
-\begin{abstract}
-User manual for \texttt{artemide} package, which evaluated TMDs and related cross-sections.
-\center{\red{\textbf{Manual is updating.}}}
-\end{abstract}
-\maketitle
+\thispagestyle{empty}
+\vspace*{\fill}
 
+\begin{center}
+{\Huge \texttt{artemide}} 
+\\\vspace{0.5cm}
+{\huge ver.3.03}
+\\
+\vspace{1cm}
+{\large Alexey Vladimirov}
+\\
+\today
+\\
+\vspace{1cm}
+\large \red{\textbf{Manual is ever updating.}}
+\end{center}
+
+\vspace{1cm}
 \begin{tcolorbox}
 \begin{center}
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
@@ -146,6 +155,9 @@ Alexey Vladimirov: \textit{alexeyvl@ucm.es} or \textit{vladimirov.aleksey@gmail.
 \textbf{\blue{Dev Repository:~}}\href{https://github.com/VladimirovAlexey/artemide-development}{https://github.com/VladimirovAlexey/artemide-development}
 \end{center}
 
+\vspace*{\fill}
+
+\clearpage
 
 \tableofcontents
 
@@ -606,313 +618,17 @@ rightupper=0mm]
 \end{figure}
 
 \newpage
+\section{Utility modules}
+\label{untility}
 
-\section{Theory}
-
-\begin{center}
-\red{\textbf{This section is under construction.}}
-\end{center}
-
-In this section, the details of theoretical input coded in \texttt{artemide} is given. This section does not pretend to be a comprehensive review of TMD factorization. Only superficial details and references to particular realizations are given. For detailed and accurate description of the theory see specialized literature.
-
-\subsection{Definition of TMD distributions}
-
-\red{TO BE WRITTEN}. In this section, there will be operator definition of TMD distributions, and details on way the perturbative matching and NP-medeling is realized in \texttt{artemide}.
-
-\begin{eqnarray}
-F_f(x,b)=\int_x^1 \frac{dz}{z}C_{f\ot f'}(z,b^*,c_4\mu_\text{OPE})f_{f'}(\frac{z}{x},c_4\mu_\text{OPE})f^f_{NP}(x,z,b,\{\lambda\}),
-\end{eqnarray}
-where $f_f(x,\mu)$ is PDF of flavor $f$, $C$ is the coefficient function in $\zeta$-prescription, $f_{NP}$ is the non-perturbative function. The variable $c_4$ is used to test the scale variation sensitivity of the TMD PDF. The NNLO coefficient functions used in the module were evaluated in \cite{Echevarria:2016scs} (please, cite it if use).
-
-
-\red{PLAN TO ADD}
+Utility modules are used in practically every other module of \texttt{artemide}. They include common definitions and routines that are not related to physics, but to programming. This set includes the following modules
 \begin{itemize}
-\item Definition of TMD distributions, operators, Lorenz structures, coordinate and momentum space. 
-\item Perturbative matching, and $\zeta$-prescription
-\item NP-modeling
+\item \textbf{aTMDe\_numerics} which defines the numeric precisions (default is \texttt{dp}=\texttt{selected\_real\_kind(15, 307)}, and standard mathematical constants.
+\item \textbf{aTMDe\_interfaces} which defines standard procedure interfaces
+\item \textbf{aTMDe\_IO} which defines functions for text coloring, and printing in the terminal, as well as, count system for warning messages
+\item \textbf{aTMDe\_integration} which defines elementary integration routines. Specific integrations (such as the Hankel transform) are made specially in corresponding modules.
+\item \textbf{aTMDe\_invMatrix} which defines the operation of matrix inverse.
 \end{itemize}
-
-
-\subsection{Evolution of TMD distributions}
-
-The detailed theory is given in the article \cite{Scimemi:2018xaf}. The NLO rapidity anomalous dimension has been evaluated in \cite{Echevarria:2015byo}. The NNLO rapidity anomalous dimension has been evaluated in \cite{Vladimirov:2016dll,Vladimirov:2017ksc}.
-
-The evolution of TMD distribution of any kind is given by the following pair of equations
-\begin{eqnarray}\label{def:TMD_ev_UV}
-\mu^2 \frac{d}{d\mu^2} F_{f\ot h}(x,b;\mu,\zeta)&=&\frac{\gamma^f_F(\mu,\zeta)}{2}F_{f\ot h}(x,b;\mu,\zeta),
-\\\label{def:TMD_ev_RAP}
-\zeta\frac{d}{d\zeta}F_{f \ot h}(x,b;\mu,\zeta)&=& -\mathcal{D}^f(\mu,b)F_{f\ot h}(x,b;\mu,\zeta),
-\end{eqnarray}
-where $F_{f\ot h}$ is the TMD distribution (TMDPDF or TMDFF) of the parton $f$ in hadron $h$. The function $\gamma_F(\mu,\zeta)$ is called the TMD anomalous dimension and contains both single and double logarithms. The function $\mathcal{D}(\mu,b)$ is called the rapidity anomalous dimension. TMD and rapidity anomalous dimensions have not unified notation in the literature, for comparison of notation see table I in ref.\cite{Scimemi:2018xaf}. The only important quantum number for TMDs is the color representation the initiating parton, which is tied to the parton flavor, namely, quark (fundamental representation) or gluon (adjoint representation). However,  as the TMD evolution does not mix the flavors and  for simplicity of  notation, we omit the flavor index $f$ in this section, unless it is important. 
-
-The uniqueness of solution for the coupled system (\ref{def:TMD_ev_UV})-(\ref{def:TMD_ev_RAP}) is guaranteed by \textit{the integrability condition}
-\begin{eqnarray}\label{th:consitency}
-\zeta \frac{d}{d\zeta}\gamma_F(\mu,\zeta)=-\mu \frac{d}{d\mu}\mathcal{D}(\mu,b),
-\end{eqnarray} 
-The mutual dependence can be worked out  explicitlydue to the fact that the ultraviolet divergences of the TMD operator partially overlap with the rapidity divergences, (see e.g.\cite{Collins:2011zzd,Vladimirov:2017ksc}), 
-\begin{eqnarray}\label{th:dGammaF=G}
-\zeta \frac{d}{d\zeta}\gamma_F(\mu,\zeta)=-\Gamma(\mu),
-\\\label{th:dDD=G}
-\mu \frac{d}{d\mu}\mathcal{D}(\mu,b)=\Gamma(\mu),
-\end{eqnarray}
-where $\Gamma$ is the (light-like) cusp anomalous dimension. The equation (\ref{th:dGammaF=G}) entirely fixes the logarithm dependence of the TMD anomalous dimension, which reads
-\begin{eqnarray}\label{th:gammaV}
-\gamma_F(\mu,\zeta)=\Gamma(\mu) \ln\(\frac{\mu^2}{\zeta}\)-\gamma_V(\mu).
-\end{eqnarray}
-The anomalous dimension $\gamma_V$ refers to the finite part of the renormalization of the vector form factor. In contrast, the equation (\ref{th:dDD=G}) cannot fix the logarithmic part of $\mathcal{D}$ entirely, but only order by order in  perturbation theory, because the parameter $\mu$ is also responsible for the running of the coupling constant.
-
-The solution of eq.~(\ref{def:TMD_ev_UV})-(\ref{def:TMD_ev_RAP})  can be written as
-\begin{eqnarray}\label{th:TMD_evol}
-F(x,b;\mu_f,\zeta_f)=R[b;(\mu_f,\zeta_f)\to (\mu_i,\zeta_i)]F(x,b;\mu_i,\zeta_i),
-\end{eqnarray}
-where $R$ is the TMD evolution factor. The general form of the evolution factor is
-\begin{eqnarray}\label{th:TMD_R}
-R[b;(\mu_f,\zeta_f)\to (\mu_i,\zeta_i)]=\exp\[\int_P \(\gamma_F(\mu,\zeta)\frac{d\mu}{\mu} -\mathcal{D}(\mu,b)\frac{d\zeta}{\zeta}\)\] ,
-\end{eqnarray}
-where $(\mu_f,\zeta_f)$ and $(\mu_i,\zeta_i)$ refer respectively to a final  and initial set of scales. Here, the $\int_P$ denotes the line integral along the path $P$ in the $(\mu,\zeta)$-plane from the point $(\mu_f,\zeta_f)$ to the point $(\mu_i,\zeta_i)$. The integration can be done on an arbitrary path $P$, and the solution is independent on it, thanks to the integrability condition eq.~(\ref{th:consitency}). 
-
-The TMD evolution factor $R$ obeys the transitivity relation
-\begin{eqnarray}\label{th:transitivity}
-R[b;(\mu_1,\zeta_1)\to (\mu_2,\zeta_2)]=R[b;(\mu_1,\zeta_1)\to (\mu_3,\zeta_3)]R[b;(\mu_3,\zeta_3)\to (\mu_2,\zeta_2)],
-\end{eqnarray}
-where $(\mu_3,\zeta_3)$ is arbitrary point in $(\mu,\zeta)$-plane and the  point inversion property
-\begin{eqnarray}\label{th:inversion}
-R[b;(\mu_1,\zeta_1)\to (\mu_2,\zeta_2)]=R^{-1}[b;(\mu_2,\zeta_2)\to (\mu_1,\zeta_1)].
-\end{eqnarray}
-These equations are the cornerstones of the evolution mechanism, since they allow an universal definition of the non-perturbative distributions and the comparison of different experiments. 
-
-Different realizations of TMD evolution (if they are compatible with the factorization theorem) can be casted into selected of different paths of integration \red{ADD PICTURE}. All choices are equivalent, up to next-to-given order perturbative corrections, treatment of NP parts, and implementation of matching for TMD distributions. In \texttt{artemide} sevaral paths are presented, however, the matching of TMD distribution to collinear distributions is done in $\zeta$-prescription.
-
-\subsubsection{Equipotential lines \& $\zeta$-prescription}
-
-The $\zeta$-prescription is based on consideration of equipotential lines for evolution equations (\ref{def:TMD_ev_UV})-(\ref{def:TMD_ev_RAP}) (or lines of null-evolution, for description of evolution potential and its properties see \cite{Scimemi:2018xaf}). An equipotential line $\ell(b)=(\mu,\zeta)$ is determined by values of anomalous dimensions $\gamma_F$ and $\mathcal{D}$ at given $b$. The equation for line $\ell(b)$ can be written in the form $\zeta=\zeta(\mu,b)$. In this parameterization the for function $\zeta(\mu,b)$ is
-\begin{eqnarray}\label{TMDR_th:3}
--\Gamma(\mu)\ln\(\frac{\zeta(\mu,b)}{\mu^2}\)-\gamma_V(\mu)=2\mathcal{D}(\mu,b)\frac{d\ln\zeta(\mu,b)}{d\ln\mu^2}.
-\end{eqnarray}
-Among set of equipotential lines there is a single special equipotential line, which passes thorough the saddle point of the evolution field. The saddle point $(\mu_{\text{saddle}},\zeta_{\text{saddle}})$ is defined by the equations
-\begin{eqnarray}\label{TMDR_th:4}
-\mathcal{D}(\mu_{\text{saddle}},b)=0,\qquad \gamma_V(\mu_{\text{saddle}},\zeta_{\text{saddle}})=0.
-\end{eqnarray}
-Note, that the value of $\mu_{\text{saddle}}$ depends on value of $b$, and on NP model for $\mathcal{D}$. In general it could be found only numerically. In typical models $\mu_{\text{saddle}}$ is decreasing monotonous function of $b$. At certain large values of $b$ it passes though the Landau pole, and its value could not be determined. This line we denote as
-\begin{eqnarray}\label{TMDR_th:12}
-\textbf{special equipotential line}=\zeta_\mu(b),\qquad (\mu_{\text{saddle}},\zeta_{\text{saddle}})\in \zeta_\mu(b).
-\end{eqnarray}
-
-By definition a TMD distribution is the same for all points of equipotential line. In particular it means that there is no dependence on variable $\mu$, since a variation of $\mu$ is compensated by appropriate variation in $\zeta(\mu)$. 
-
-\textbf{Important note:} The presence of NP part in $\mathcal{D}$ makes determination of special line involved. We distinguish three ``realizations'' of the special line. The exact which is determined by equation (\ref{TMDR_th:3}) and boundary conditions (\ref{TMDR_th:12}) (its values can be calculated by function \texttt{zetaSL}). The perturbative realization where NP part is dropped (its values can be calculated by functions \texttt{zetaMUperp} and \texttt{zetaMUresum}). And user-defined which is given by user in \texttt{TMDR\_model.f90} file.
-
-\subsubsection{Exact solution for evolution to special line}
-
-There is a possibility to define the evolution to the optimal equipotential line in perturbation theory for any NP input, at any $b$. Instead of problematic variable $b$ one uses the function $\mathcal{D}(\mu,b)$ as a variable. With the ansatz $\zeta_\mu=\mu^2 \exp(-g(\mu,b))$ we rewrite equation (\ref{TMDR_th:3}) as
-\begin{eqnarray}
-2\mathcal{D}(\mu,b)\(1-\frac{dg(\mu,b)}{d\ln \mu^2}\)-\Gamma(\mu)g(\mu,b)+\gamma_V(\mu)=0.
-\end{eqnarray}
-or
-\begin{eqnarray}\label{TMDR_th:16}
-2\mathcal{D}\(1-\frac{\partial g(\mu,\mathcal{D})}{\partial \ln \mu^2}-\frac{\Gamma(\mu)}{2}g'(\mu,\mathcal{D})\)-\Gamma(\mu)g(\mu,\mathcal{D})+\gamma_V(\mu)=0,
-\end{eqnarray}
-where $g'=d g/d\mathcal{D}$. The boundary condition (\ref{TMDR_th:4}) is transformed to the condition that $g$ is regular at $\mathcal{D}\to 0$. Note, that this condition does not depends on $b$ and thus determines the function unambiguously at any $b$, even if saddle point is behind the Landau-pole values. 
-
-The equation (\ref{TMDR_th:16}) is simplified further with introduction of new function $\tilde g(a_s,\mathcal{D})=\mathcal{D} g(\mu,\mathcal{D})$:
-\begin{eqnarray}\label{TMDR_th:17}
-2\mathcal{D}+2\beta(a_s)\frac{\partial \tilde g(a_s,\mathcal{D})}{\partial a_s}-\Gamma(a_s)\tilde g'(a_s,\mathcal{D})+\gamma_V(a_s)=0,
-\end{eqnarray}
-with boundary condition $\tilde g(a_s,0)=0$. The general solution reads
-\begin{eqnarray}
-\tilde g(a_s,\mathcal{D})=-\frac{\mathcal{D}}{2}\int^{a_s} \frac{da}{\beta(a)}-\int^{a_s} da \frac{\gamma_V(a)}{2\beta(a)}
--\int^{a_s} da \frac{\Gamma(a)}{2\beta(a)}\int^a\frac{da'}{\beta(a')}+\Phi\(\mathcal{D}+\int^{a_s} da \frac{\Gamma(a)}{2\beta(a)}\),
-\end{eqnarray}
-where $\Phi$ is a solution of the following transcendental equation
-\begin{eqnarray}
-\Phi\(\int^{a_s} da \frac{\Gamma(a)}{2\beta(a)}\)=\int^{a_s} da \frac{\gamma_V(a)}{2\beta(a)}
-+\int^{a_s} da \frac{\Gamma(a)}{2\beta(a)}\int^a\frac{da'}{\beta(a')}.
-\end{eqnarray}
-Unfortunately, this equation is practically impossible to solve for higher then NNLL anomalous dimensions. It is straightforward to show that at large-$\mathcal{D}$ the solution is
-\begin{eqnarray}
-\tilde g(a_s,\mathcal{D}\to \infty)=\mathcal{D}\int^{a_s}\frac{-1}{\beta(a)}da+...~.
-\end{eqnarray}
-Note that asymptotic is defined up to a constant.
-
-
-The function $g$ is convenient to derive as perturbative expansion
-\begin{eqnarray}\label{TMDR_th:20}
-g(\mu,\mathcal{D})=\frac{1}{a_s(\mu)}\sum_{n=0}^\infty a_s^n(\mu) g_n(\mathcal{D}).
-\end{eqnarray}
-We have found
-\begin{eqnarray}
-g_0&=&\frac{e^{-p}+p-1}{\beta_0 p},
-\\
-g_1&=&g_0\(\frac{\beta_1}{\beta_0}-\frac{\Gamma_1}{\Gamma_0}\)+\frac{\gamma_1}{\gamma_0}-\frac{\beta_1}{2\beta_0^2}p,
-\\
-g_2&=&g_0\frac{\beta_2\Gamma_0-\beta_1\Gamma_1}{\beta_0\Gamma_0}+\frac{\ch p-1}{p}\frac{\beta_0\Gamma_1^2-\beta_0\Gamma_0\Gamma_2+\beta_1\Gamma_0\Gamma_1-\beta_2\Gamma_0}{\beta_0^2\Gamma_0^2}+\frac{e^p-1}{p}\frac{\Gamma_0\gamma_2-\Gamma_1\gamma_1}{\Gamma_0^2},
-\end{eqnarray}
-where $p=2\beta_0 \mathcal{D}/\Gamma_0$. 
-
-There is an additional problem that appears at NNNLO, namely, the coefficient $g_3$ is negative. It results to a singular solution for  $\zeta_\mu$ at large-$\mathcal{D}$. It indicates that the series has bad convergence properties. This problems occur for very large $\mathcal{D}>0.9 - 1.1$. Currently to by-pass this problem the 4-loop exact $\zeta$-line is not used (3-loop expression is used instead). For small-$\mathcal{D}$ the difference is negligible.
-
-The solution for the evolution from $(\mu,\zeta)\to(\mu,\zeta_\mu)$ is
-\begin{eqnarray}
-R[b;(\mu,\zeta)\to(\mu,\zeta_\mu)]=\exp\(-\mathcal{D}(\mu)\ln\(\frac{\zeta}{\mu^2}\)-\mathcal{D}(\mu,b)g(\mu,\mathcal{D})\).
-\end{eqnarray}
-
-
-\subsection{Expressions for evolution functions in \texttt{artemide}}
-
-Here are the expression for various evolution functions how they are written in \texttt{artemide} in \texttt{TMDR}-module.
-
-\subsubsection{Fixed order RAD:}
-\begin{tcolorbox}
-\texttt{Dpert(mu,bT,f)}: ~~~returns $\mathcal{D}^f(b,\mu)$ [real(dp)]
-\\
-\texttt{mu, bT} [real(dp)] scales in GeV, \texttt{f}[integer] flavour. 
-\\
-Order is controlled by \texttt{orderD} ($=n_{\text{max}}$). At \texttt{orderD}=0, \texttt{Dpert}=0.
-\end{tcolorbox}
-
-Solving (\ref{th:dDD=G}) we get
-\begin{eqnarray}
-\mathcal{D}(b,\mu)=\sum_{n=1}^\infty a_s^n \sum_{k=0}^n \mathbf{L}_\mu^k d^{(n,k)},
-\end{eqnarray}
-where $d^{(n,0)}$ are obtained by calculation. The coefficients $d^{(n,k)}$ are
-\begin{eqnarray*}
-d^{(1,1)}&=&\frac{\Gamma_0}{2},
-\\
-d^{(2,2)}&=&\frac{\Gamma_0\beta_0}{4},
-\\
-d^{(2,1)}&=&\frac{\Gamma_1}{2},
-\\
-d^{(3,3)}&=&\frac{\Gamma_0\beta_0^2}{6},
-\\
-d^{(3,2)}&=&\frac{\Gamma_0\beta_1+2\Gamma_1\beta_0}{4},
-\\
-d^{(3,1)}&=&\frac{\Gamma_2+4\beta_0 d^{(2,0)}}{2},
-\end{eqnarray*}
-where flavor on both sides is the same.
-
-\subsubsection{Resummed RAD:}
-\begin{tcolorbox}
-\texttt{Dresum(mu,bT,f)}: ~~~returns $\mathcal{D}_{\text{resum}}^f(b,\mu)$ [real(dp)]
-\\
-\texttt{mu, bT} [real(dp)] scales in GeV, \texttt{f}[integer] flavour. 
-\\
-Order is controlled by \texttt{orderDresum} ($=n_{\text{max}}$). At \texttt{orderDresum}=0, \texttt{Dresum}=$-\frac{\Gamma_0}{2\beta_0}\ln(1-X)$.
-\end{tcolorbox}
-
-One can resumm the logarithms in this expression and write it as
-\begin{eqnarray}
-\mathcal{D}_{\text{resum}}=-\frac{\Gamma_0}{2\beta_0}\Big[\ln(1-X)+\sum_{n=1}^\infty \frac{a_s^n}{(1-X)^n}\sum_{k,l=0}^n X^k \ln^l(1-X)d_r^{(n,k,l)}\Big],\qquad X=\beta_0 a_s \mathbf{L}_\mu,
-\end{eqnarray}
-the coefficients $d_r$ are 
-\begin{eqnarray*}
-d_r^{(1,0,1)}&=&B_1,\qquad d_r^{(1,1,0)}=B_1-G_1,\qquad d_r^{(1,0,0)}=0,
-\\
-d_r^{(2,0,2)}&=&-\frac{B^2_1}{2},\qquad d_r^{(2,0,1)}=B_1G_1,
-\\
-d_r^{(2,2,0)}&=&\frac{1}{2}\(G_2-B_1G_1-B_2+B_1^2\)
-\qquad
-d_r^{(2,1,0)}=B_1G_1-G_2,
-\\
-d_r^{(2,0,0)}&=&-2\frac{d^{(2,0)}\beta_0}{\Gamma_0},\qquad d_r^{(2,2,2)}=d_r^{(2,1,1)}=0,
-\end{eqnarray*}
-\begin{eqnarray*}
-d_r^{(3,0,3)}&=&\frac{B_1^3}{3},\qquad d_r^{(3,0,2)}=-\frac{B_1^3}{2}-B_1^2G_1,
-\qquad d_r^{(3,0,1)}=B_1G_2+4\frac{d^{(2,0)}\beta_1}{\Gamma_0},
-\\
-d_r^{(3,1,1)}&=&B_1B_2-B_1^3,\qquad \text{ other }d^{(3,k>0,l>0)}_r=0,
-\\
-d_r^{(3,3,0)}&=&\frac{1}{3}\(B_1^3-2B_1B_2+B_3-B_1^2G_1+B_2G_1+B_1G_2-G_3\),
-\\
-d_r^{(3,2,0)}&=&-\frac{1}{2}B_1^3+B_1B_2-\frac{B_3}{2}+B_1^2G_1-B_2G_1-B_1G_2+G_3,
-\\
-d_r^{(3,1,0)}&=&B_1G_2-G_3,\qquad d_r^{(3,0,0)}=-2\frac{d^{(3,0)}\beta_0}{\Gamma_0}
-\end{eqnarray*}
-Here,
-$$G_i=\frac{\Gamma_i}{\Gamma_0},\qquad B_i=\frac{\beta_i}{\beta_0}$$
-
-\subsubsection{Fixed order $\zeta$-line:}
-\begin{tcolorbox}
-\texttt{zetaMUpert(mu,bT,f)}: ~~~returns $\zeta^f(b,\mu)$ [real(dp)]
-\\
-\texttt{mu, bT} [real(dp)] scales in GeV, \texttt{f}[integer] flavour. 
-\\
-Order is controlled by \texttt{orderZETA} ($=n_{\text{max}}$). At \texttt{orderZETA}<0, \texttt{zetaMUpert}=1.
-\end{tcolorbox}
-
-The solution of (\ref{TMDR_th:3}) in PT can be written as
-\begin{eqnarray}
-\zeta^f(b,\mu)=\frac{C_0 \mu}{b}e^{-v},\qquad v=\sum_{n=0}^\infty a_s^n \sum_{k=0}^{n+1}\mathbf{L}_\mu v^{(n,k)}.
-\end{eqnarray}
-The \textit{perturbative boundary condition} is that $v$ is regular at $\mathbf{L}\to0$. The first coefficients are 
-\begin{eqnarray*}
-&& v^{(0,0)}=g_1,\qquad v^{(0,1)}=0,
-\\
-&& v^{(1,2)}=\frac{\beta_0}{12},\qquad v^{(1,1)}=0,\qquad v^{(1,0)}=\mathbf{d}^{(2,0)}-g_1G_1+g_2,
-\\
-&& v^{(2,3)}=\frac{\beta_0^2}{24},\qquad v^{(2,2)}=\frac{\beta_0}{12}\(B_1+G_1\),\qquad v^{(2,1)}=\frac{\beta_0}{2}\(\frac{8}{3}\mathbf{d}^{(2,0)}-g_1G_1+g_2\),
-\\
-&& v^{(2,0)}=\mathbf{d}^{(3,0)}-\mathbf{d}^{(2,0)}G_1+g_1G_1^2-g_2G_1-g_1G_2+g_3,
-\end{eqnarray*}
-here
-$$
-\mathbf{d}^{(n,k)}=\frac{d^{(n,k)}}{\Gamma_0},\qquad g_i=\frac{\gamma_V^{(i)}}{\Gamma_0},\qquad G_i=\frac{\Gamma_i}{\Gamma_0},\qquad B_i=\frac{\beta_i}{\beta_0}.
-$$
-
-\subsubsection{Resummed $\zeta$-line:}
-\begin{tcolorbox}
-\texttt{zetaMUresum(mu,bT,f)}: ~~~returns $\zeta_{\text{resum}}^f(b,\mu)$ [real(dp)]
-\\
-\texttt{mu, bT} [real(dp)] scales in GeV, \texttt{f}[integer] flavour. 
-\\
-Order is controlled by \texttt{orderZETA}.
-\\
-\textbf{\red{REMOVED in v.2.03. TO BE REINTRODUCED LATER.}}
-\end{tcolorbox}
-
-\subsubsection{Exact $\zeta$-line:}
-\begin{tcolorbox}
-\texttt{zetaSL(mu,bT,f)}: ~~~returns $\zeta_{\text{exact}}^f(b,\mu)$ [real(dp)]
-\\
-\texttt{mu, bT} [real(dp)] scales in GeV, \texttt{f}[integer] flavour. 
-\\
-Order is controlled by \texttt{orderZETA}. At \texttt{orderZETA}<0, \texttt{zetaMUpert}=1.
-\\
-\textbf{\red{Currently at the order =3, the result is NNLO. Due to instability of N$^3$LO at very large $\mathcal{D}$.}}
-\end{tcolorbox}
-
-The solution for $\zeta$ can be written as
-\begin{eqnarray}
-\zeta(b,\mu)=\mu^2 \exp\(-g(a_s,\mathcal{D})\).
-\end{eqnarray}
-The function $g$ is convinient to present as
-\begin{eqnarray}
-g(a_s,\mathcal{D})=\frac{\Omega(a_s,p)}{a_s\beta_0},\qquad p=\frac{2\beta_0 \mathcal{D}}{\Gamma_0},
-\end{eqnarray}
-where $\Omega$ is convenient to present in the following form
-\begin{eqnarray}
-\Omega(a_s,p)=\sum_{n=0}^\infty a_s^n \Omega_n(p),
-\end{eqnarray}
-with
-\begin{eqnarray*}
-&&\Omega_0=z_1,\qquad \Omega_1=(B_1-G_1)z_1+g_1-\frac{B_1}{2}p,
-\\
-&& 
-\Omega_2=\frac{B_2-B_1G_1+G_1^2-G_2}{2}z_1+\frac{-B_2+B_1G_1+G_1^2-G_2-2G_1g_1+2g_2}{2}z_{-1}+g_2-g_1G_1
-\\
-&&
-\Omega_3=\frac{2B_3+B_1^2G_1-B_2G_1-G_1^3+3 G_1G_2-B_1B_2-B_1G_2-2G_3}{6}z_1
-\\&&
-+\frac{G_1-B_1}{2}\(-B_2+B_1G_1+G_1^2-G_2-2G_1g_1+2g_2\)z_{-1}
-\\&&
-\Big[\frac{-B_3+B_1^2G_1+2B_2G_1-4G_1^3+6G_1G_2-B_1B_2+B_1G_2-2G_3}{12}+(2G_1-B_1)\frac{G_1g_1-g_2}{2}-\frac{G_2g_1-g_3}{2}\Big]z_{-2}
-\\&&
-+G_1^2g_1-G_2g_1-G_1g_2+g_3.
-\end{eqnarray*}
-Here
-\begin{eqnarray}
-B_i=\frac{\beta_i}{\beta_0},\qquad G_i=\frac{\Gamma_i}{\Gamma_0},\qquad g_i=\gamma^{(i)}\frac{\beta_0}{\Gamma_0},\qquad z_n=\frac{e^{-n p}-1+n p}{p}.
-\end{eqnarray}
-Note that  $\lim_{p\to 0}z_n\sim n^2 p/2$.
 
 \newpage
 
@@ -3262,9 +2978,9 @@ The factor $\mathcal{P}$ is the fiducial-cut factor (multiplied within the \text
 \\\hline\hline
 \end{longtable}
 
-\section{APPENDICES}
+\appendix
 
-\subsection{Equivalence between process-enumeration in ver.$<3$}
+\section{Equivalence between process-enumeration in ver.$<3$}
 
 In the versions of artemide $<3$, the enumeration of processes was done with 3 integers $[\tilde a,\tilde b,\tilde c]$, where $\tilde a$ and $\tilde b$ determined the prefactor, and $\tilde c$ determined the actual process. In fact, first number was not used (extremely rarely), thus it was eliminated in version $>3$. Instead, the numeration of hadrons was added. In artemide $>3$ the process is enumerated by four integers $[b,c,h_1,h_2]$ where $b$ determines the prefactor, $c$ the type of process and $h_1$ and $h_2$ the hadrons for scattering.
 
@@ -3414,6 +3130,11 @@ polarized DY
 
 \section{Version history}
 \begin{itemize}
+\item[\textbf{Ver.3.03}]
+\begin{itemize}
+	\item \textbf{IO\_functions, IntegrationRoutines, InverseMatrix} are renamed to \textbf{aTMDe\_IO, aTMDe\_Integration, aTMDe\_invMatrix} for naming unification purposes.
+	\item \textbf{many modules:} code cleaning, unification of interfaces.
+\end{itemize}
 \item[\textbf{Ver.3.02}]
 \begin{itemize}
 	\item \textbf{wgtTMDPDF\_OPE} \& \textbf{wglTMDPDF\_OPE}: fixed incorrect reading of order for twist-3 coefficient function.
@@ -3687,11 +3408,10 @@ polarized DY
 \item[\textbf{Ver.1}] Release: \texttt{uTMDPDF}, \texttt{TMDR}, \texttt{TMDs} and \texttt{TMDX} modules. Only Drell-Yan-like cross-sections.
 \end{itemize}
 
+
+
 \clearpage
 
-\bibliography{bibfile}
-
-\newpage
 \section{Version of input-file}
 \begin{enumerate}
 \setcounter{enumi}{30}
@@ -3704,7 +3424,321 @@ polarized DY
 
 
 
+\newpage
+
+\section{Theory}
+
+\begin{center}
+\red{\textbf{This section is under construction.}}
+\end{center}
+
+In this section, the details of theoretical input coded in \texttt{artemide} is given. This section does not pretend to be a comprehensive review of TMD factorization. Only superficial details and references to particular realizations are given. For detailed and accurate description of the theory see specialized literature.
+
+\subsection{Definition of TMD distributions}
+
+\red{TO BE WRITTEN}. In this section, there will be operator definition of TMD distributions, and details on way the perturbative matching and NP-medeling is realized in \texttt{artemide}.
+
+\begin{eqnarray}
+F_f(x,b)=\int_x^1 \frac{dz}{z}C_{f\ot f'}(z,b^*,c_4\mu_\text{OPE})f_{f'}(\frac{z}{x},c_4\mu_\text{OPE})f^f_{NP}(x,z,b,\{\lambda\}),
+\end{eqnarray}
+where $f_f(x,\mu)$ is PDF of flavor $f$, $C$ is the coefficient function in $\zeta$-prescription, $f_{NP}$ is the non-perturbative function. The variable $c_4$ is used to test the scale variation sensitivity of the TMD PDF. The NNLO coefficient functions used in the module were evaluated in \cite{Echevarria:2016scs} (please, cite it if use).
+
+
+\red{PLAN TO ADD}
+\begin{itemize}
+\item Definition of TMD distributions, operators, Lorenz structures, coordinate and momentum space. 
+\item Perturbative matching, and $\zeta$-prescription
+\item NP-modeling
+\end{itemize}
+
+
+\subsection{Evolution of TMD distributions}
+
+The detailed theory is given in the article \cite{Scimemi:2018xaf}. The NLO rapidity anomalous dimension has been evaluated in \cite{Echevarria:2015byo}. The NNLO rapidity anomalous dimension has been evaluated in \cite{Vladimirov:2016dll,Vladimirov:2017ksc}.
+
+The evolution of TMD distribution of any kind is given by the following pair of equations
+\begin{eqnarray}\label{def:TMD_ev_UV}
+\mu^2 \frac{d}{d\mu^2} F_{f\ot h}(x,b;\mu,\zeta)&=&\frac{\gamma^f_F(\mu,\zeta)}{2}F_{f\ot h}(x,b;\mu,\zeta),
+\\\label{def:TMD_ev_RAP}
+\zeta\frac{d}{d\zeta}F_{f \ot h}(x,b;\mu,\zeta)&=& -\mathcal{D}^f(\mu,b)F_{f\ot h}(x,b;\mu,\zeta),
+\end{eqnarray}
+where $F_{f\ot h}$ is the TMD distribution (TMDPDF or TMDFF) of the parton $f$ in hadron $h$. The function $\gamma_F(\mu,\zeta)$ is called the TMD anomalous dimension and contains both single and double logarithms. The function $\mathcal{D}(\mu,b)$ is called the rapidity anomalous dimension. TMD and rapidity anomalous dimensions have not unified notation in the literature, for comparison of notation see table I in ref.\cite{Scimemi:2018xaf}. The only important quantum number for TMDs is the color representation the initiating parton, which is tied to the parton flavor, namely, quark (fundamental representation) or gluon (adjoint representation). However,  as the TMD evolution does not mix the flavors and  for simplicity of  notation, we omit the flavor index $f$ in this section, unless it is important. 
+
+The uniqueness of solution for the coupled system (\ref{def:TMD_ev_UV})-(\ref{def:TMD_ev_RAP}) is guaranteed by \textit{the integrability condition}
+\begin{eqnarray}\label{th:consitency}
+\zeta \frac{d}{d\zeta}\gamma_F(\mu,\zeta)=-\mu \frac{d}{d\mu}\mathcal{D}(\mu,b),
+\end{eqnarray} 
+The mutual dependence can be worked out  explicitlydue to the fact that the ultraviolet divergences of the TMD operator partially overlap with the rapidity divergences, (see e.g.\cite{Collins:2011zzd,Vladimirov:2017ksc}), 
+\begin{eqnarray}\label{th:dGammaF=G}
+\zeta \frac{d}{d\zeta}\gamma_F(\mu,\zeta)=-\Gamma(\mu),
+\\\label{th:dDD=G}
+\mu \frac{d}{d\mu}\mathcal{D}(\mu,b)=\Gamma(\mu),
+\end{eqnarray}
+where $\Gamma$ is the (light-like) cusp anomalous dimension. The equation (\ref{th:dGammaF=G}) entirely fixes the logarithm dependence of the TMD anomalous dimension, which reads
+\begin{eqnarray}\label{th:gammaV}
+\gamma_F(\mu,\zeta)=\Gamma(\mu) \ln\(\frac{\mu^2}{\zeta}\)-\gamma_V(\mu).
+\end{eqnarray}
+The anomalous dimension $\gamma_V$ refers to the finite part of the renormalization of the vector form factor. In contrast, the equation (\ref{th:dDD=G}) cannot fix the logarithmic part of $\mathcal{D}$ entirely, but only order by order in  perturbation theory, because the parameter $\mu$ is also responsible for the running of the coupling constant.
+
+The solution of eq.~(\ref{def:TMD_ev_UV})-(\ref{def:TMD_ev_RAP})  can be written as
+\begin{eqnarray}\label{th:TMD_evol}
+F(x,b;\mu_f,\zeta_f)=R[b;(\mu_f,\zeta_f)\to (\mu_i,\zeta_i)]F(x,b;\mu_i,\zeta_i),
+\end{eqnarray}
+where $R$ is the TMD evolution factor. The general form of the evolution factor is
+\begin{eqnarray}\label{th:TMD_R}
+R[b;(\mu_f,\zeta_f)\to (\mu_i,\zeta_i)]=\exp\[\int_P \(\gamma_F(\mu,\zeta)\frac{d\mu}{\mu} -\mathcal{D}(\mu,b)\frac{d\zeta}{\zeta}\)\] ,
+\end{eqnarray}
+where $(\mu_f,\zeta_f)$ and $(\mu_i,\zeta_i)$ refer respectively to a final  and initial set of scales. Here, the $\int_P$ denotes the line integral along the path $P$ in the $(\mu,\zeta)$-plane from the point $(\mu_f,\zeta_f)$ to the point $(\mu_i,\zeta_i)$. The integration can be done on an arbitrary path $P$, and the solution is independent on it, thanks to the integrability condition eq.~(\ref{th:consitency}). 
+
+The TMD evolution factor $R$ obeys the transitivity relation
+\begin{eqnarray}\label{th:transitivity}
+R[b;(\mu_1,\zeta_1)\to (\mu_2,\zeta_2)]=R[b;(\mu_1,\zeta_1)\to (\mu_3,\zeta_3)]R[b;(\mu_3,\zeta_3)\to (\mu_2,\zeta_2)],
+\end{eqnarray}
+where $(\mu_3,\zeta_3)$ is arbitrary point in $(\mu,\zeta)$-plane and the  point inversion property
+\begin{eqnarray}\label{th:inversion}
+R[b;(\mu_1,\zeta_1)\to (\mu_2,\zeta_2)]=R^{-1}[b;(\mu_2,\zeta_2)\to (\mu_1,\zeta_1)].
+\end{eqnarray}
+These equations are the cornerstones of the evolution mechanism, since they allow an universal definition of the non-perturbative distributions and the comparison of different experiments. 
+
+Different realizations of TMD evolution (if they are compatible with the factorization theorem) can be casted into selected of different paths of integration \red{ADD PICTURE}. All choices are equivalent, up to next-to-given order perturbative corrections, treatment of NP parts, and implementation of matching for TMD distributions. In \texttt{artemide} sevaral paths are presented, however, the matching of TMD distribution to collinear distributions is done in $\zeta$-prescription.
+
+\subsubsection{Equipotential lines \& $\zeta$-prescription}
+
+The $\zeta$-prescription is based on consideration of equipotential lines for evolution equations (\ref{def:TMD_ev_UV})-(\ref{def:TMD_ev_RAP}) (or lines of null-evolution, for description of evolution potential and its properties see \cite{Scimemi:2018xaf}). An equipotential line $\ell(b)=(\mu,\zeta)$ is determined by values of anomalous dimensions $\gamma_F$ and $\mathcal{D}$ at given $b$. The equation for line $\ell(b)$ can be written in the form $\zeta=\zeta(\mu,b)$. In this parameterization the for function $\zeta(\mu,b)$ is
+\begin{eqnarray}\label{TMDR_th:3}
+-\Gamma(\mu)\ln\(\frac{\zeta(\mu,b)}{\mu^2}\)-\gamma_V(\mu)=2\mathcal{D}(\mu,b)\frac{d\ln\zeta(\mu,b)}{d\ln\mu^2}.
+\end{eqnarray}
+Among set of equipotential lines there is a single special equipotential line, which passes thorough the saddle point of the evolution field. The saddle point $(\mu_{\text{saddle}},\zeta_{\text{saddle}})$ is defined by the equations
+\begin{eqnarray}\label{TMDR_th:4}
+\mathcal{D}(\mu_{\text{saddle}},b)=0,\qquad \gamma_V(\mu_{\text{saddle}},\zeta_{\text{saddle}})=0.
+\end{eqnarray}
+Note, that the value of $\mu_{\text{saddle}}$ depends on value of $b$, and on NP model for $\mathcal{D}$. In general it could be found only numerically. In typical models $\mu_{\text{saddle}}$ is decreasing monotonous function of $b$. At certain large values of $b$ it passes though the Landau pole, and its value could not be determined. This line we denote as
+\begin{eqnarray}\label{TMDR_th:12}
+\textbf{special equipotential line}=\zeta_\mu(b),\qquad (\mu_{\text{saddle}},\zeta_{\text{saddle}})\in \zeta_\mu(b).
+\end{eqnarray}
+
+By definition a TMD distribution is the same for all points of equipotential line. In particular it means that there is no dependence on variable $\mu$, since a variation of $\mu$ is compensated by appropriate variation in $\zeta(\mu)$. 
+
+\textbf{Important note:} The presence of NP part in $\mathcal{D}$ makes determination of special line involved. We distinguish three ``realizations'' of the special line. The exact which is determined by equation (\ref{TMDR_th:3}) and boundary conditions (\ref{TMDR_th:12}) (its values can be calculated by function \texttt{zetaSL}). The perturbative realization where NP part is dropped (its values can be calculated by functions \texttt{zetaMUperp} and \texttt{zetaMUresum}). And user-defined which is given by user in \texttt{TMDR\_model.f90} file.
+
+\subsubsection{Exact solution for evolution to special line}
+
+There is a possibility to define the evolution to the optimal equipotential line in perturbation theory for any NP input, at any $b$. Instead of problematic variable $b$ one uses the function $\mathcal{D}(\mu,b)$ as a variable. With the ansatz $\zeta_\mu=\mu^2 \exp(-g(\mu,b))$ we rewrite equation (\ref{TMDR_th:3}) as
+\begin{eqnarray}
+2\mathcal{D}(\mu,b)\(1-\frac{dg(\mu,b)}{d\ln \mu^2}\)-\Gamma(\mu)g(\mu,b)+\gamma_V(\mu)=0.
+\end{eqnarray}
+or
+\begin{eqnarray}\label{TMDR_th:16}
+2\mathcal{D}\(1-\frac{\partial g(\mu,\mathcal{D})}{\partial \ln \mu^2}-\frac{\Gamma(\mu)}{2}g'(\mu,\mathcal{D})\)-\Gamma(\mu)g(\mu,\mathcal{D})+\gamma_V(\mu)=0,
+\end{eqnarray}
+where $g'=d g/d\mathcal{D}$. The boundary condition (\ref{TMDR_th:4}) is transformed to the condition that $g$ is regular at $\mathcal{D}\to 0$. Note, that this condition does not depends on $b$ and thus determines the function unambiguously at any $b$, even if saddle point is behind the Landau-pole values. 
+
+The equation (\ref{TMDR_th:16}) is simplified further with introduction of new function $\tilde g(a_s,\mathcal{D})=\mathcal{D} g(\mu,\mathcal{D})$:
+\begin{eqnarray}\label{TMDR_th:17}
+2\mathcal{D}+2\beta(a_s)\frac{\partial \tilde g(a_s,\mathcal{D})}{\partial a_s}-\Gamma(a_s)\tilde g'(a_s,\mathcal{D})+\gamma_V(a_s)=0,
+\end{eqnarray}
+with boundary condition $\tilde g(a_s,0)=0$. The general solution reads
+\begin{eqnarray}
+\tilde g(a_s,\mathcal{D})=-\frac{\mathcal{D}}{2}\int^{a_s} \frac{da}{\beta(a)}-\int^{a_s} da \frac{\gamma_V(a)}{2\beta(a)}
+-\int^{a_s} da \frac{\Gamma(a)}{2\beta(a)}\int^a\frac{da'}{\beta(a')}+\Phi\(\mathcal{D}+\int^{a_s} da \frac{\Gamma(a)}{2\beta(a)}\),
+\end{eqnarray}
+where $\Phi$ is a solution of the following transcendental equation
+\begin{eqnarray}
+\Phi\(\int^{a_s} da \frac{\Gamma(a)}{2\beta(a)}\)=\int^{a_s} da \frac{\gamma_V(a)}{2\beta(a)}
++\int^{a_s} da \frac{\Gamma(a)}{2\beta(a)}\int^a\frac{da'}{\beta(a')}.
+\end{eqnarray}
+Unfortunately, this equation is practically impossible to solve for higher then NNLL anomalous dimensions. It is straightforward to show that at large-$\mathcal{D}$ the solution is
+\begin{eqnarray}
+\tilde g(a_s,\mathcal{D}\to \infty)=\mathcal{D}\int^{a_s}\frac{-1}{\beta(a)}da+...~.
+\end{eqnarray}
+Note that asymptotic is defined up to a constant.
+
+
+The function $g$ is convenient to derive as perturbative expansion
+\begin{eqnarray}\label{TMDR_th:20}
+g(\mu,\mathcal{D})=\frac{1}{a_s(\mu)}\sum_{n=0}^\infty a_s^n(\mu) g_n(\mathcal{D}).
+\end{eqnarray}
+We have found
+\begin{eqnarray}
+g_0&=&\frac{e^{-p}+p-1}{\beta_0 p},
+\\
+g_1&=&g_0\(\frac{\beta_1}{\beta_0}-\frac{\Gamma_1}{\Gamma_0}\)+\frac{\gamma_1}{\gamma_0}-\frac{\beta_1}{2\beta_0^2}p,
+\\
+g_2&=&g_0\frac{\beta_2\Gamma_0-\beta_1\Gamma_1}{\beta_0\Gamma_0}+\frac{\ch p-1}{p}\frac{\beta_0\Gamma_1^2-\beta_0\Gamma_0\Gamma_2+\beta_1\Gamma_0\Gamma_1-\beta_2\Gamma_0}{\beta_0^2\Gamma_0^2}+\frac{e^p-1}{p}\frac{\Gamma_0\gamma_2-\Gamma_1\gamma_1}{\Gamma_0^2},
+\end{eqnarray}
+where $p=2\beta_0 \mathcal{D}/\Gamma_0$. 
+
+There is an additional problem that appears at NNNLO, namely, the coefficient $g_3$ is negative. It results to a singular solution for  $\zeta_\mu$ at large-$\mathcal{D}$. It indicates that the series has bad convergence properties. This problems occur for very large $\mathcal{D}>0.9 - 1.1$. Currently to by-pass this problem the 4-loop exact $\zeta$-line is not used (3-loop expression is used instead). For small-$\mathcal{D}$ the difference is negligible.
+
+The solution for the evolution from $(\mu,\zeta)\to(\mu,\zeta_\mu)$ is
+\begin{eqnarray}
+R[b;(\mu,\zeta)\to(\mu,\zeta_\mu)]=\exp\(-\mathcal{D}(\mu)\ln\(\frac{\zeta}{\mu^2}\)-\mathcal{D}(\mu,b)g(\mu,\mathcal{D})\).
+\end{eqnarray}
+
+
+\subsection{Expressions for evolution functions in \texttt{artemide}}
+
+Here are the expression for various evolution functions how they are written in \texttt{artemide} in \texttt{TMDR}-module.
+
+\subsubsection{Fixed order RAD:}
+\begin{tcolorbox}
+\texttt{Dpert(mu,bT,f)}: ~~~returns $\mathcal{D}^f(b,\mu)$ [real(dp)]
+\\
+\texttt{mu, bT} [real(dp)] scales in GeV, \texttt{f}[integer] flavour. 
+\\
+Order is controlled by \texttt{orderD} ($=n_{\text{max}}$). At \texttt{orderD}=0, \texttt{Dpert}=0.
+\end{tcolorbox}
+
+Solving (\ref{th:dDD=G}) we get
+\begin{eqnarray}
+\mathcal{D}(b,\mu)=\sum_{n=1}^\infty a_s^n \sum_{k=0}^n \mathbf{L}_\mu^k d^{(n,k)},
+\end{eqnarray}
+where $d^{(n,0)}$ are obtained by calculation. The coefficients $d^{(n,k)}$ are
+\begin{eqnarray*}
+d^{(1,1)}&=&\frac{\Gamma_0}{2},
+\\
+d^{(2,2)}&=&\frac{\Gamma_0\beta_0}{4},
+\\
+d^{(2,1)}&=&\frac{\Gamma_1}{2},
+\\
+d^{(3,3)}&=&\frac{\Gamma_0\beta_0^2}{6},
+\\
+d^{(3,2)}&=&\frac{\Gamma_0\beta_1+2\Gamma_1\beta_0}{4},
+\\
+d^{(3,1)}&=&\frac{\Gamma_2+4\beta_0 d^{(2,0)}}{2},
+\end{eqnarray*}
+where flavor on both sides is the same.
+
+\subsubsection{Resummed RAD:}
+\begin{tcolorbox}
+\texttt{Dresum(mu,bT,f)}: ~~~returns $\mathcal{D}_{\text{resum}}^f(b,\mu)$ [real(dp)]
+\\
+\texttt{mu, bT} [real(dp)] scales in GeV, \texttt{f}[integer] flavour. 
+\\
+Order is controlled by \texttt{orderDresum} ($=n_{\text{max}}$). At \texttt{orderDresum}=0, \texttt{Dresum}=$-\frac{\Gamma_0}{2\beta_0}\ln(1-X)$.
+\end{tcolorbox}
+
+One can resumm the logarithms in this expression and write it as
+\begin{eqnarray}
+\mathcal{D}_{\text{resum}}=-\frac{\Gamma_0}{2\beta_0}\Big[\ln(1-X)+\sum_{n=1}^\infty \frac{a_s^n}{(1-X)^n}\sum_{k,l=0}^n X^k \ln^l(1-X)d_r^{(n,k,l)}\Big],\qquad X=\beta_0 a_s \mathbf{L}_\mu,
+\end{eqnarray}
+the coefficients $d_r$ are 
+\begin{eqnarray*}
+d_r^{(1,0,1)}&=&B_1,\qquad d_r^{(1,1,0)}=B_1-G_1,\qquad d_r^{(1,0,0)}=0,
+\\
+d_r^{(2,0,2)}&=&-\frac{B^2_1}{2},\qquad d_r^{(2,0,1)}=B_1G_1,
+\\
+d_r^{(2,2,0)}&=&\frac{1}{2}\(G_2-B_1G_1-B_2+B_1^2\)
+\qquad
+d_r^{(2,1,0)}=B_1G_1-G_2,
+\\
+d_r^{(2,0,0)}&=&-2\frac{d^{(2,0)}\beta_0}{\Gamma_0},\qquad d_r^{(2,2,2)}=d_r^{(2,1,1)}=0,
+\end{eqnarray*}
+\begin{eqnarray*}
+d_r^{(3,0,3)}&=&\frac{B_1^3}{3},\qquad d_r^{(3,0,2)}=-\frac{B_1^3}{2}-B_1^2G_1,
+\qquad d_r^{(3,0,1)}=B_1G_2+4\frac{d^{(2,0)}\beta_1}{\Gamma_0},
+\\
+d_r^{(3,1,1)}&=&B_1B_2-B_1^3,\qquad \text{ other }d^{(3,k>0,l>0)}_r=0,
+\\
+d_r^{(3,3,0)}&=&\frac{1}{3}\(B_1^3-2B_1B_2+B_3-B_1^2G_1+B_2G_1+B_1G_2-G_3\),
+\\
+d_r^{(3,2,0)}&=&-\frac{1}{2}B_1^3+B_1B_2-\frac{B_3}{2}+B_1^2G_1-B_2G_1-B_1G_2+G_3,
+\\
+d_r^{(3,1,0)}&=&B_1G_2-G_3,\qquad d_r^{(3,0,0)}=-2\frac{d^{(3,0)}\beta_0}{\Gamma_0}
+\end{eqnarray*}
+Here,
+$$G_i=\frac{\Gamma_i}{\Gamma_0},\qquad B_i=\frac{\beta_i}{\beta_0}$$
+
+\subsubsection{Fixed order $\zeta$-line:}
+\begin{tcolorbox}
+\texttt{zetaMUpert(mu,bT,f)}: ~~~returns $\zeta^f(b,\mu)$ [real(dp)]
+\\
+\texttt{mu, bT} [real(dp)] scales in GeV, \texttt{f}[integer] flavour. 
+\\
+Order is controlled by \texttt{orderZETA} ($=n_{\text{max}}$). At \texttt{orderZETA}<0, \texttt{zetaMUpert}=1.
+\end{tcolorbox}
+
+The solution of (\ref{TMDR_th:3}) in PT can be written as
+\begin{eqnarray}
+\zeta^f(b,\mu)=\frac{C_0 \mu}{b}e^{-v},\qquad v=\sum_{n=0}^\infty a_s^n \sum_{k=0}^{n+1}\mathbf{L}_\mu v^{(n,k)}.
+\end{eqnarray}
+The \textit{perturbative boundary condition} is that $v$ is regular at $\mathbf{L}\to0$. The first coefficients are 
+\begin{eqnarray*}
+&& v^{(0,0)}=g_1,\qquad v^{(0,1)}=0,
+\\
+&& v^{(1,2)}=\frac{\beta_0}{12},\qquad v^{(1,1)}=0,\qquad v^{(1,0)}=\mathbf{d}^{(2,0)}-g_1G_1+g_2,
+\\
+&& v^{(2,3)}=\frac{\beta_0^2}{24},\qquad v^{(2,2)}=\frac{\beta_0}{12}\(B_1+G_1\),\qquad v^{(2,1)}=\frac{\beta_0}{2}\(\frac{8}{3}\mathbf{d}^{(2,0)}-g_1G_1+g_2\),
+\\
+&& v^{(2,0)}=\mathbf{d}^{(3,0)}-\mathbf{d}^{(2,0)}G_1+g_1G_1^2-g_2G_1-g_1G_2+g_3,
+\end{eqnarray*}
+here
+$$
+\mathbf{d}^{(n,k)}=\frac{d^{(n,k)}}{\Gamma_0},\qquad g_i=\frac{\gamma_V^{(i)}}{\Gamma_0},\qquad G_i=\frac{\Gamma_i}{\Gamma_0},\qquad B_i=\frac{\beta_i}{\beta_0}.
+$$
+
+\subsubsection{Resummed $\zeta$-line:}
+\begin{tcolorbox}
+\texttt{zetaMUresum(mu,bT,f)}: ~~~returns $\zeta_{\text{resum}}^f(b,\mu)$ [real(dp)]
+\\
+\texttt{mu, bT} [real(dp)] scales in GeV, \texttt{f}[integer] flavour. 
+\\
+Order is controlled by \texttt{orderZETA}.
+\\
+\textbf{\red{REMOVED in v.2.03. TO BE REINTRODUCED LATER.}}
+\end{tcolorbox}
+
+\subsubsection{Exact $\zeta$-line:}
+\begin{tcolorbox}
+\texttt{zetaSL(mu,bT,f)}: ~~~returns $\zeta_{\text{exact}}^f(b,\mu)$ [real(dp)]
+\\
+\texttt{mu, bT} [real(dp)] scales in GeV, \texttt{f}[integer] flavour. 
+\\
+Order is controlled by \texttt{orderZETA}. At \texttt{orderZETA}<0, \texttt{zetaMUpert}=1.
+\\
+\textbf{\red{Currently at the order =3, the result is NNLO. Due to instability of N$^3$LO at very large $\mathcal{D}$.}}
+\end{tcolorbox}
+
+The solution for $\zeta$ can be written as
+\begin{eqnarray}
+\zeta(b,\mu)=\mu^2 \exp\(-g(a_s,\mathcal{D})\).
+\end{eqnarray}
+The function $g$ is convinient to present as
+\begin{eqnarray}
+g(a_s,\mathcal{D})=\frac{\Omega(a_s,p)}{a_s\beta_0},\qquad p=\frac{2\beta_0 \mathcal{D}}{\Gamma_0},
+\end{eqnarray}
+where $\Omega$ is convenient to present in the following form
+\begin{eqnarray}
+\Omega(a_s,p)=\sum_{n=0}^\infty a_s^n \Omega_n(p),
+\end{eqnarray}
+with
+\begin{eqnarray*}
+&&\Omega_0=z_1,\qquad \Omega_1=(B_1-G_1)z_1+g_1-\frac{B_1}{2}p,
+\\
+&& 
+\Omega_2=\frac{B_2-B_1G_1+G_1^2-G_2}{2}z_1+\frac{-B_2+B_1G_1+G_1^2-G_2-2G_1g_1+2g_2}{2}z_{-1}+g_2-g_1G_1
+\\
+&&
+\Omega_3=\frac{2B_3+B_1^2G_1-B_2G_1-G_1^3+3 G_1G_2-B_1B_2-B_1G_2-2G_3}{6}z_1
+\\&&
++\frac{G_1-B_1}{2}\(-B_2+B_1G_1+G_1^2-G_2-2G_1g_1+2g_2\)z_{-1}
+\\&&
+\Big[\frac{-B_3+B_1^2G_1+2B_2G_1-4G_1^3+6G_1G_2-B_1B_2+B_1G_2-2G_3}{12}+(2G_1-B_1)\frac{G_1g_1-g_2}{2}-\frac{G_2g_1-g_3}{2}\Big]z_{-2}
+\\&&
++G_1^2g_1-G_2g_1-G_1g_2+g_3.
+\end{eqnarray*}
+Here
+\begin{eqnarray}
+B_i=\frac{\beta_i}{\beta_0},\qquad G_i=\frac{\Gamma_i}{\Gamma_0},\qquad g_i=\gamma^{(i)}\frac{\beta_0}{\Gamma_0},\qquad z_n=\frac{e^{-n p}-1+n p}{p}.
+\end{eqnarray}
+Note that  $\lim_{p\to 0}z_n\sim n^2 p/2$.
+
+\bibliography{bibfile}
+
 \end{document}
+
+
+
 
 \newpage
 

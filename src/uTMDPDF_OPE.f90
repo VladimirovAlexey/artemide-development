@@ -24,8 +24,8 @@ end module Grid_uTMDPDF
 
 module uTMDPDF_OPE
 use aTMDe_Numerics
-use IntegrationRoutines
-use IO_functions
+use aTMDe_Integration
+use aTMDe_IO
 use QCDinput
 use TMD_AD, only : Dpert_atL
 use uTMDPDF_model
@@ -49,9 +49,7 @@ logical:: started=.false.
 !! 1=initialization details
 !! 2=WARNINGS
 integer::outputLevel=2
-!! variable that count number of WARNING mesagges. In order not to spam too much
-integer::messageTrigger=6
-integer::messageCounter=0 !!! actual counter
+type(Warning_OBJ)::Warning_Handler
 
 !!!------------------------- PARAMETERS DEFINED IN THE INI-file--------------
 
@@ -132,7 +130,7 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     character(len=300)::path
     logical::initRequired
     character(len=8)::order_global
-    integer::i,FILEver
+    integer::i,FILEver,messageTrigger
     real(dp),allocatable::subGridsX(:),subGridsB(:)
 
     if(started) return
@@ -301,6 +299,9 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     read(51,*) subGridsB
 
     CLOSE (51, STATUS='KEEP')
+
+    Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
+
     c4_global=1d0
 
     xMin=subGridsX(0)
@@ -308,8 +309,7 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     bMax=subGridsB(size(subGridsB)-1)
 
     if(abs(subGridsX(size(subGridsX)-1)-1)>toleranceGEN) then
-        write(*,*) ErrorString("The last subgrid in X must complete by x=1. Initialization terminated",moduleName)
-        stop
+        ERROR STOP ErrorString("The last subgrid in X must complete by x=1. Initialization terminated",moduleName)
     end if
 
     call Twist2_ChGrid_Initialize(path,'*4   ','*E   ',numberOfHadrons,withGluon,moduleName,outputLevel)
@@ -339,7 +339,6 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     end if
 
     started=.true.
-    messageCounter=0
 
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.uTMDPDF_OPE '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) ' '
@@ -403,7 +402,7 @@ function uTMDPDF_OPE_convolution(x,b,h,addGluon)
         if(gridReady) then
             uTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)/x
         else
-            call Warning_Raise('Called OPE_convolution while grid is not ready.',messageCounter,messageTrigger,moduleName)
+            call Warning_Handler%WarningRaise('Called OPE_convolution while grid is not ready.')
             call uTMDPDF_OPE_resetGrid()
             uTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)/x
         end if
@@ -434,15 +433,14 @@ function uTMDPDF_X0_AS(x,mu,mu0,h,addGluon)
 
       !!! test boundaries
     if(x>1d0) then
-        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
+        call Warning_Handler%WarningRaise('Called x>1 (return 0). x='//numToStr(x))
         uTMDPDF_X0_AS=0._dp
         return
     else if(x==1.d0) then
         uTMDPDF_X0_AS=0._dp
         return
     else if(x<1d-12) then
-        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
-        stop
+        ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     end if
 
     !!!! case NA
@@ -499,10 +497,10 @@ subroutine uTMDPDF_OPE_SetScaleVariation(c4_in)
         c4_global=2d0
         call uTMDPDF_OPE_resetGrid()
     else if(abs(c4_in-c4_global)<toleranceGEN) then
-        if(outputLevel>1) write(*,*) color('uTMDPDF: c4-variation is ignored. c4='//real8ToStr(c4_global),c_yellow)
+        if(outputLevel>1) write(*,*) color('uTMDPDF: c4-variation is ignored. c4='//numToStr(c4_global),c_yellow)
     else
         c4_global=c4_in
-        if(outputLevel>1) write(*,*) color('uTMDPDF: set scale variations c4 as:'//real8ToStr(c4_global),c_yellow)
+        if(outputLevel>1) write(*,*) color('uTMDPDF: set scale variations c4 as:'//numToStr(c4_global),c_yellow)
         call uTMDPDF_OPE_resetGrid()
     end if
 end subroutine uTMDPDF_OPE_SetScaleVariation

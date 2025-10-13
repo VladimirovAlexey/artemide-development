@@ -11,12 +11,12 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module TMDX_SIDIS
 use aTMDe_Numerics
-use IO_functions
+use aTMDe_IO
 use TMDF
 use TMDF_KPC
 use QCDinput
 use EWinput
-use IntegrationRoutines
+use aTMDe_Integration
 
 implicit none
 private
@@ -34,8 +34,8 @@ integer,parameter::inputver=31
 real(dp) :: toleranceINT=0.0001d0
 real(dp) :: toleranceGEN=0.0000001d0
 
-integer::outputlevel
-integer::messageTrigger
+integer::outputlevel=2
+type(Warning_OBJ)::Warning_Handler
 
 logical::started=.false.
 
@@ -62,7 +62,6 @@ real(dp)::ptMIN_global=0.00001d0
 
 real(dp)::c2_global
 
-integer::messageCounter
 integer::GlobalCounter
 integer::CallCounter
 
@@ -88,7 +87,7 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
     character(len=300)::path
     logical::initRequired
     character(len=8)::orderMain
-    integer::FILEver
+    integer::FILEver,messageTrigger
 
     if(started) return
 
@@ -212,6 +211,8 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
 
     CLOSE (51, STATUS='KEEP')
 
+    Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
+
     if(.not.EWinput_IsInitialized()) then
         if(outputLevel>1) write(*,*) '.. initializing EWinput (from ',moduleName,')'
         if(present(prefix)) then
@@ -246,7 +247,6 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
 
     GlobalCounter=0
     CallCounter=0
-    messageCounter=0
 
 #if INTEGRATION_MODE==2
     write(*,*)  color('--------------------------------------------------------',c_red)
@@ -266,7 +266,7 @@ subroutine TMDX_SIDIS_ResetCounters()
 if(outputlevel>2) call TMDX_SIDIS_ShowStatistic()
 GlobalCounter=0
 CallCounter=0
-messageCounter=0
+call Warning_Handler%Reset()
 end subroutine TMDX_SIDIS_ResetCounters
   
 
@@ -812,7 +812,7 @@ real(dp)::zMin,zMax
 
 !!!!-- check th input z-values
 if(zmax_in > 1d0) then
-    call Warning_Raise('upper limit of z-integration is >1. It is set to 1.',messageCounter,messageTrigger,moduleName)
+    call Warning_Handler%WarningRaise('upper limit of z-integration is >1. It is set to 1.')
     zMax=1d0
   else
     zMax=zMax_in
@@ -890,12 +890,11 @@ else
 end if
 
 if(xmax > 1) then
-  call Warning_Raise('upper limit of x-integration is >1. It is set to 1.',messageCounter,messageTrigger,moduleName)
+  call Warning_Handler%WarningRaise('upper limit of x-integration is >1. It is set to 1.')
   xmax=1d0
 end if
 if(xmin < 0.000001d0) then
-  write(*,*) ErrorString('lower limit of x-integration is < 10^{-6}. Evaluation stop.',moduleName)
-  stop
+  ERROR STOP ErrorString('lower limit of x-integration is < 10^{-6}. Evaluation stop.',moduleName)
 end if
 
 !! in case of cut we determine the recut values
@@ -1154,88 +1153,56 @@ if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check IN
 
   !!! cheking sizes
   if(size(xx)/=length) then
-    write(*,*) ErrorString('xSec_SIDIS_List: sizes of xSec and s lists are not equal.',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of xSec and s lists are not equal.',moduleName)
   end if
   if(size(process,1)/=length) then
-    write(*,*) ErrorString('xSec_SIDIS_List: sizes of process and s lists are not equal.',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of process and s lists are not equal.',moduleName)
   end if
   if(size(pT,1)/=length) then
-    write(*,*) ErrorString('xSec_SIDIS_List: sizes of pT and s lists are not equal.',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of pT and s lists are not equal.',moduleName)
   end if
   if(size(x,1)/=length) then
-    write(*,*) ErrorString('xSec_SIDIS_List: sizes of x and s lists are not equal.',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of x and s lists are not equal.',moduleName)
   end if
   if(size(Q,1)/=length) then
-    write(*,*) ErrorString('xSec_SIDIS_List: sizes of Q and s lists are not equal.',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of Q and s lists are not equal.',moduleName)
   end if
   if(size(z,1)/=length) then
-    write(*,*) ErrorString('xSec_SIDIS_List: sizes of z and s lists are not equal.',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of z and s lists are not equal.',moduleName)
   end if
   if(size(doCut)/=length) then
-    write(*,*) ErrorString('xSec_SIDIS_List: sizes of doCut and s lists are not equal.',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of doCut and s lists are not equal.',moduleName)
   end if
   if(size(Cuts,1)/=length) then
-    write(*,*) ErrorString('xSec_SIDIS_List: sizes of Cuts and s lists are not equal.',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of Cuts and s lists are not equal.',moduleName)
   end if
   if(size(process,2)/=4) then
-    write(*,*) ErrorString('xSec_SIDIS_List: process list must be (:,1:3).',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: process list must be (:,1:3).',moduleName)
   end if
   if(size(pT,2)/=2) then
-    write(*,*) ErrorString('xSec_SIDIS_List: pt list must be (:,1:2).',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: pt list must be (:,1:2).',moduleName)
   end if
   if(size(x,2)/=2) then
-    write(*,*) ErrorString('xSec_SIDIS_List: x list must be (:,1:2).',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: x list must be (:,1:2).',moduleName)
   end if
   if(size(Q,2)/=2) then
-    write(*,*) ErrorString('xSec_SIDIS_List: Q list must be (:,1:2).',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: Q list must be (:,1:2).',moduleName)
   end if
   if(size(z,2)/=2) then
-    write(*,*) ErrorString('xSec_SIDIS_List: z list must be (:,1:2).',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: z list must be (:,1:2).',moduleName)
   end if
   if(size(Cuts,2)/=4) then
-    write(*,*) ErrorString('xSec_SIDIS_List: cuts list must be (:,1:4).',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: cuts list must be (:,1:4).',moduleName)
   end if
 
   CallCounter=CallCounter+length
   if(PRESENT(masses)) then
 
   if(size(masses,1)/=length) then
-    write(*,*) ErrorString('xSec_SIDIS_List: sizes of masses and s lists are not equal.',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of masses and s lists are not equal.',moduleName)
   end if
-      if(size(masses,2)/=2) then
-    write(*,*) ErrorString('xSec_SIDIS_List: mass list must be (:,1:2).',moduleName)
-    write(*,*) 'Evaluation stop'
-    stop
+  if(size(masses,2)/=2) then
+    ERROR STOP ErrorString('xSec_SIDIS_List: mass list must be (:,1:2).',moduleName)
   end if
 
   !$OMP PARALLEL DO DEFAULT(SHARED)

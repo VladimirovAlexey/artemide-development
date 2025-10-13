@@ -21,8 +21,8 @@
 !module Fourier_Levin
 
 use aTMDe_Numerics
-use IO_functions
-use InverseMatrix, only: Inverse
+use aTMDe_IO
+use aTMDe_invMatrix, only: Inverse
 
 implicit none
 

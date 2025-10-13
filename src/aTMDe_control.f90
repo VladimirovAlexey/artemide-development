@@ -10,7 +10,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module aTMDe_control
 use aTMDe_Numerics
-use IO_functions
+use aTMDe_IO
 use QCDinput
 use EWinput
 use uTMDPDF

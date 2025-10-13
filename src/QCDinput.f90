@@ -15,7 +15,8 @@
 
 !!!------------------------------uPDF-------------------
 module uLHAPDF_1
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 character (len=6),parameter :: moduleName="uPDF_1"
 #include "Code/LHA/LHA_PDF.f90"
@@ -23,7 +24,8 @@ character (len=6),parameter :: moduleName="uPDF_1"
 end module uLHAPDF_1
 
 module uLHAPDF_2
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 
 character (len=6),parameter :: moduleName="uPDF_2"
@@ -32,7 +34,8 @@ character (len=6),parameter :: moduleName="uPDF_2"
 end module uLHAPDF_2
 
 module uLHAPDF_3
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 character (len=6),parameter :: moduleName="uPDF_3"
 #include "Code/LHA/LHA_PDF.f90"
@@ -41,7 +44,8 @@ end module uLHAPDF_3
 
 !!!------------------------------uFF-------------------
 module uLHAFF_1
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 character (len=5),parameter :: moduleName="uFF_1"
 #include "Code/LHA/LHA_PDF.f90"
@@ -49,7 +53,8 @@ character (len=5),parameter :: moduleName="uFF_1"
 end module uLHAFF_1
 
 module uLHAFF_2
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 character (len=5),parameter :: moduleName="uFF_2"
 #include "Code/LHA/LHA_PDF.f90"
@@ -57,7 +62,8 @@ character (len=5),parameter :: moduleName="uFF_2"
 end module uLHAFF_2
 
 module uLHAFF_3
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 character (len=5),parameter :: moduleName="uFF_3"
 #include "Code/LHA/LHA_PDF.f90"
@@ -65,7 +71,8 @@ character (len=5),parameter :: moduleName="uFF_3"
 end module uLHAFF_3
 
 module uLHAFF_4
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 character (len=5),parameter :: moduleName="uFF_4"
 #include "Code/LHA/LHA_PDF.f90"
@@ -74,7 +81,8 @@ end module uLHAFF_4
 
 
 module uLHAFF_5
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 character (len=5),parameter :: moduleName="uFF_5"
 #include "Code/LHA/LHA_PDF.f90"
@@ -82,7 +90,8 @@ character (len=5),parameter :: moduleName="uFF_5"
 end module uLHAFF_5
 
 module uLHAFF_6
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 character (len=5),parameter :: moduleName="uFF_6"
 #include "Code/LHA/LHA_PDF.f90"
@@ -91,7 +100,8 @@ end module uLHAFF_6
 
 !!!------------------------------lpPDF-------------------
 module lpLHAPDF_1
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 character (len=7),parameter :: moduleName="lpPDF_1"
 #include "Code/LHA/LHA_PDF.f90"
@@ -100,7 +110,8 @@ end module lpLHAPDF_1
 
 !!!------------------------------gPDF (helicity)-------------------
 module gLHAPDF_1
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 character (len=6),parameter :: moduleName="gPDF_1"
 #include "Code/LHA/LHA_PDF.f90"
@@ -108,7 +119,8 @@ character (len=6),parameter :: moduleName="gPDF_1"
 end module gLHAPDF_1
 
 module gLHAPDF_2
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 character (len=6),parameter :: moduleName="gPDF_2"
 #include "Code/LHA/LHA_PDF.f90"
@@ -117,7 +129,8 @@ end module gLHAPDF_2
 
 !!!------------------------------hPDF (transversity)-------------------
 module hLHAPDF_1
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 character (len=6),parameter :: moduleName="hPDF_1"
 #include "Code/LHA/LHA_PDF.f90"
@@ -125,7 +138,8 @@ character (len=6),parameter :: moduleName="hPDF_1"
 end module hLHAPDF_1
 
 module hLHAPDF_2
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 character (len=6),parameter :: moduleName="hPDF_2"
 #include "Code/LHA/LHA_PDF.f90"
@@ -138,7 +152,7 @@ end module hLHAPDF_2
 
 module QCDinput
 use aTMDe_Numerics
-use IO_functions
+use aTMDe_IO
 use LHA_alpha, only : ReadInfo_alpha => ReadInfo, AlphaS_fromLHA => AlphaS
 !!
 use uLHAPDF_1, only : ReadInfo_uPDF1 => ReadInfo, SetReplica_uPDF1 => SetReplica, xPDF_uPDF1 => xPDF
@@ -282,7 +296,7 @@ end function QCDinput_IsInitialized
 
     if(num_of_uPDFs>3) then
       CLOSE (51, STATUS='KEEP')
-      ERROR STOP ErrorString('Maximum allowed number of uPDFs is 3. Requested '//trim(inttostr(num_of_uPDFs)),moduleName)
+      ERROR STOP ErrorString('Maximum allowed number of uPDFs is 3. Requested '//trim(numToStr(num_of_uPDFs)),moduleName)
     else if(num_of_uPDFs>0) then
 
       allocate(names_uPDF(1:num_of_uPDFs))
@@ -304,7 +318,7 @@ end function QCDinput_IsInitialized
 
     if(num_of_uFFs>6) then
       CLOSE (51, STATUS='KEEP')
-      ERROR STOP ErrorString('Maximum allowed number of uFFs is 6. Requested '//trim(inttostr(num_of_uFFs)),moduleName)
+      ERROR STOP ErrorString('Maximum allowed number of uFFs is 6. Requested '//trim(numToStr(num_of_uFFs)),moduleName)
     else if(num_of_uFFs>0) then
 
       allocate(names_uFF(1:num_of_uFFs))
@@ -325,7 +339,7 @@ end function QCDinput_IsInitialized
     read(51,*) num_of_lpPDFs
     if(num_of_lpPDFs>1) then
       CLOSE (51, STATUS='KEEP')
-      ERROR STOP ErrorString('Maximum allowed number of lpPDFs is 1. Requested '//trim(inttostr(num_of_uPDFs)),moduleName)
+      ERROR STOP ErrorString('Maximum allowed number of lpPDFs is 1. Requested '//trim(numToStr(num_of_uPDFs)),moduleName)
     else if(num_of_lpPDFs>0) then
 
       allocate(names_lpPDF(1:num_of_lpPDFs))
@@ -347,7 +361,7 @@ end function QCDinput_IsInitialized
     read(51,*) num_of_gPDFs
     if(num_of_gPDFs>2) then
       CLOSE (51, STATUS='KEEP')
-      ERROR STOP ErrorString('Maximum allowed number of gPDFs is 2. Requested '//trim(inttostr(num_of_uPDFs)),moduleName)
+      ERROR STOP ErrorString('Maximum allowed number of gPDFs is 2. Requested '//trim(numToStr(num_of_uPDFs)),moduleName)
     else if(num_of_gPDFs>0) then
       allocate(names_gPDF(1:num_of_gPDFs))
       call MoveTO(51,'*p2  ')
@@ -367,7 +381,7 @@ end function QCDinput_IsInitialized
     read(51,*) num_of_hPDFs
     if(num_of_hPDFs>2) then
       CLOSE (51, STATUS='KEEP')
-      ERROR STOP ErrorString('Maximum allowed number of hPDFs is 2. Requested '//trim(inttostr(num_of_uPDFs)),moduleName)
+      ERROR STOP ErrorString('Maximum allowed number of hPDFs is 2. Requested '//trim(numToStr(num_of_uPDFs)),moduleName)
     else if(num_of_hPDFs>0) then
       allocate(names_hPDF(1:num_of_hPDFs))
       call MoveTO(51,'*p2  ')
@@ -478,7 +492,7 @@ subroutine QCDinput_SetPDFreplica(rep,hadron,newPDF)
     logical,intent(out)::newPDF
 
     if(hadron<1 .or. hadron>num_of_uPDFs) &
-      ERROR STOP ErrorString('SetPDFreplica. Called unexisting hadron. h= '//trim(inttostr(hadron)),moduleName)
+      ERROR STOP ErrorString('SetPDFreplica. Called unexisting hadron. h= '//trim(numToStr(hadron)),moduleName)
     !!! if the number of replica to change coincides with the already used. Do not change it
     if(current_replica_uPDFs(hadron)==rep) then
       newPDF=.false.
@@ -507,7 +521,7 @@ subroutine QCDinput_SetFFreplica(rep,hadron,newPDF)
     logical,intent(out)::newPDF
 
     if(hadron<1 .or. hadron>num_of_uFFs) &
-      ERROR STOP ErrorString('SetFFreplica. Called unexisting hadron. h= '//trim(inttostr(hadron)),moduleName)
+      ERROR STOP ErrorString('SetFFreplica. Called unexisting hadron. h= '//trim(numToStr(hadron)),moduleName)
     !!! if the number of replica to change coincides with the already used. Do not change it
     if(current_replica_uFFs(hadron)==rep) then
       newPDF=.false.
@@ -542,7 +556,7 @@ subroutine QCDinput_SetlpPDFreplica(rep,hadron,newPDF)
     logical,intent(out)::newPDF
 
     if(hadron<1 .or. hadron>num_of_lpPDFs) &
-      ERROR STOP ErrorString('SetlpPDFreplica. Called unexisting hadron. h= '//trim(inttostr(hadron)),moduleName)
+      ERROR STOP ErrorString('SetlpPDFreplica. Called unexisting hadron. h= '//trim(numToStr(hadron)),moduleName)
     !!! if the number of replica to change coincides with the already used. Do not change it
     if(current_replica_lpPDFs(hadron)==rep) then
       newPDF=.false.
@@ -567,7 +581,7 @@ subroutine QCDinput_SetgPDFreplica(rep,hadron,newPDF)
     logical,intent(out)::newPDF
 
     if(hadron<1 .or. hadron>num_of_gPDFs) &
-      ERROR STOP ErrorString('SetgPDFreplica. Called unexisting hadron. h= '//trim(inttostr(hadron)),moduleName)
+      ERROR STOP ErrorString('SetgPDFreplica. Called unexisting hadron. h= '//trim(numToStr(hadron)),moduleName)
     !!! if the number of replica to change coincides with the already used. Do not change it
     if(current_replica_gPDFs(hadron)==rep) then
       newPDF=.false.
@@ -594,7 +608,7 @@ subroutine QCDinput_SethPDFreplica(rep,hadron,newPDF)
     logical,intent(out)::newPDF
 
     if(hadron<1 .or. hadron>num_of_hPDFs) &
-      ERROR STOP ErrorString('SethPDFreplica. Called unexisting hadron. h= '//trim(inttostr(hadron)),moduleName)
+      ERROR STOP ErrorString('SethPDFreplica. Called unexisting hadron. h= '//trim(numToStr(hadron)),moduleName)
     !!! if the number of replica to change coincides with the already used. Do not change it
     if(current_replica_hPDFs(hadron)==rep) then
       newPDF=.false.
@@ -670,7 +684,7 @@ function xPDF(x,Q,hadron)
       CASE(3)
         xPDF=xPDF_uPDF3(x,Q)
       CASE DEFAULT
-        ERROR STOP ErrorString('xPDF. Called unexisting hadron. h= '//trim(inttostr(hadron)),moduleName)
+        ERROR STOP ErrorString('xPDF. Called unexisting hadron. h= '//trim(numToStr(hadron)),moduleName)
     END SELECT
 
 end function xPDF
@@ -700,7 +714,7 @@ function xFF(x,Q,hadron)
       CASE(6)
         xFF=xPDF_uFF6(x,Q)
       CASE DEFAULT
-        ERROR STOP ErrorString('xFF. Called unexisting hadron. h= '//trim(inttostr(hadron)),moduleName)
+        ERROR STOP ErrorString('xFF. Called unexisting hadron. h= '//trim(numToStr(hadron)),moduleName)
     END SELECT
 
 end function xFF
@@ -717,7 +731,7 @@ function x_lp_PDF(x,Q,hadron)
     CASE(1)
       x_lp_PDF=xPDF_lpPDF1(x,Q)
     CASE DEFAULT
-      ERROR STOP ErrorString('x_lp_PDF. Called unexisting hadron. h= '//trim(inttostr(hadron)),moduleName)
+      ERROR STOP ErrorString('x_lp_PDF. Called unexisting hadron. h= '//trim(numToStr(hadron)),moduleName)
   END SELECT
 
 end function x_lp_PDF
@@ -736,7 +750,7 @@ function x_gPDF(x,Q,hadron)
     CASE(2)
       x_gPDF=xPDF_gPDF2(x,Q)
     CASE DEFAULT
-      ERROR STOP ErrorString('xgPDF. Called unexisting hadron. h= '//trim(inttostr(hadron)),moduleName)
+      ERROR STOP ErrorString('xgPDF. Called unexisting hadron. h= '//trim(numToStr(hadron)),moduleName)
   END SELECT
 
 end function x_gPDF
@@ -755,7 +769,7 @@ function x_hPDF(x,Q,hadron)
     CASE(2)
       x_hPDF=xPDF_hPDF2(x,Q)
     CASE DEFAULT
-      ERROR STOP ErrorString('xhPDF. Called unexisting hadron. h= '//trim(inttostr(hadron)),moduleName)
+      ERROR STOP ErrorString('xhPDF. Called unexisting hadron. h= '//trim(numToStr(hadron)),moduleName)
   END SELECT
 
 end function x_hPDF

@@ -16,8 +16,9 @@
 !				A.Vladimirov (17.04.2020)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-module IntegrationRoutines
+module aTMDe_Integration
 use aTMDe_numerics
+use aTMDe_interfaces
 implicit none
 
 private
@@ -43,15 +44,6 @@ real(dp),dimension(1:5,1:5),parameter::SA5_2D_w=reshape((/1._dp,4._dp,2._dp,4._d
 real(dp), parameter, dimension(1:3) :: Xi_g3 = (/-sqrt(0.6_dp),0._dp,sqrt(0.6_dp)/)
 real(dp), parameter, dimension(1:3) :: Wi_g3 = (/5._dp/9._dp,8._dp/9._dp,5._dp/9._dp/)
 
-!!! this is interface for function (-5:5) in the integration
-abstract interface 
-    function func_array5(x)
-        import::dp
-        real(dp),dimension(-5:5) :: func_array5
-        real(dp), intent(in) ::x
-    end function func_array5
-end interface
-  
 !!! This is parameter to which the integral is compared.
 !!! if absolute value of integral <zero. Its returned (otherwise, there could be infinite loop of precision)
 real(dp),parameter:: zero=10.d-8
@@ -66,7 +58,8 @@ contains
 !!! f::  function of 1 variable
 !!! xMin, and xMax boundaries of the integral. xMax>xMin !!
 function Integrate_S5(f,xMin,xMax)
-    real(dp)::f,Integrate_S5
+    real(dp)::Integrate_S5
+    procedure(func_1D)::f
     real(dp),intent(in)::xMin,xMax
     real(dp)::delta,x2,x3,x4,f1,f2,f3,f4,f5
 
@@ -92,7 +85,8 @@ end function Integrate_S5
 !!! xMin, and xMax boundaries of the integral. xMax>xMin !!
 !!! N is an even integer N>2
 function Integrate_SN(f,xMin,xMax,N)
-    real(dp)::f,Integrate_SN
+    real(dp)::Integrate_SN
+    procedure(func_1D)::f
     real(dp),intent(in)::xMin,xMax
     real(dp)::delta,inter,xCur
     integer::N,i
@@ -126,9 +120,10 @@ end function Integrate_SN
 !!! xMin, and xMax boundaries of the integral. xMax>xMin !!
 !!! tolerance is relative (it is weighted by approximate value of integral)
 function Integrate_SA(f,xMin,xMax,tolerance)
-    real(dp)::f,Integrate_SA,tolerance,eps
-    real(dp),intent(in)::xMin,xMax
-    real(dp)::delta,x2,x3,x4,f1,f2,f3,f4,f5
+    real(dp)::Integrate_SA
+    procedure(func_1D)::f
+    real(dp),intent(in)::xMin,xMax,tolerance
+    real(dp)::delta,x2,x3,x4,f1,f2,f3,f4,f5,eps
 
     
     delta=xMax-xMin
@@ -150,9 +145,9 @@ function Integrate_SA(f,xMin,xMax,tolerance)
 end function Integrate_SA
 
 recursive function SA_Rec(f,x1,x3,x5,f1,f3,f5,eps) result(res)
-    real(dp)::f,x1,x2,x3,x4,x5
-    real(dp)::f1,f2,f3,f4,f5,eps,res
-    real(dp)::value15,value135
+    procedure(func_1D)::f
+    real(dp),intent(in)::x1,x3,x5,f1,f3,f5,eps
+    real(dp)::x2,x4,f2,f4,res,value15,value135
     
     x2=(x1+x3)/2._dp
     f2=f(x2)
@@ -172,13 +167,14 @@ end function SA_Rec
 
 !------------------------------------------- SA 2D--------------------------------------------
 
-!!! Simpson adaptive
-!!! f::  function of 1 variable
-!!! xMin, and xMax boundaries of the integral. xMax>xMin !!
+!!! Simpson adaptive for 2D integral
+!!! f::  function of 2 variables
+!!! (xMin,xMax) and (yMin,yMax( are boundaries of the integral. xMax>xMin, yMax>yMin !!
 !!! tolerance is relative (it is weighted by approximate value of integral)
 function Integrate_SA_2D(f,xMin,xMax,yMin,yMax,tolerance)
-    real(dp)::f,Integrate_SA_2D,tolerance,eps
-    real(dp),intent(in)::xMin,xMax,yMin,yMax
+    procedure(func_2D)::f
+    real(dp)::Integrate_SA_2D,eps
+    real(dp),intent(in)::xMin,xMax,yMin,yMax,tolerance
     real(dp)::deltaX,deltaY,x2,x3,x4,y2,y3,y4,rInt
     real(dp),dimension(1:5,1:5)::ff
 
@@ -214,10 +210,10 @@ function Integrate_SA_2D(f,xMin,xMax,yMin,yMax,tolerance)
 end function Integrate_SA_2D
 
 recursive function SA2D_Rec(f,x1,x3,x5,y1,y3,y5,fIn,eps) result(res)
-    real(dp),dimension(1:3,1:3)::fIn
-    real(dp)::f,x1,x2,x3,x4,x5,y1,y2,y3,y4,y5
-    real(dp)::eps,res
-    real(dp)::value3,value5
+    procedure(func_2D)::f
+    real(dp),dimension(1:3,1:3),intent(in)::fIn
+    real(dp),intent(in)::x1,x3,x5,y1,y3,y5,eps
+    real(dp)::res,x2,x4,y2,y4,value3,value5
     real(dp),dimension(1:5,1:5)::ff
 
     x2=(x1+x3)/2._dp
@@ -252,7 +248,8 @@ end function SA2D_Rec
 !!! f::  function of 1 variable
 !!! xMin, and xMax boundaries of the integral. xMax>xMin !!
 function Integrate_G3(f,xMin,xMax)
-    real(dp)::f,Integrate_G3
+    procedure(func_1D)::f
+    real(dp)::Integrate_G3
     real(dp),intent(in)::xMin,xMax
     real(dp)::delta,av
 
@@ -271,7 +268,8 @@ end function Integrate_G3
 !!! f::  function of 1 variable
 !!! xMin, and xMax boundaries of the integral. xMax>xMin !!
 function Integrate_G7(f,xMin,xMax)
-    real(dp)::f,Integrate_G7
+    procedure(func_1D)::f
+    real(dp)::Integrate_G7
     real(dp),intent(in)::xMin,xMax
     real(dp)::delta,av,inter
     integer::i
@@ -294,7 +292,8 @@ end function Integrate_G7
 !!! f::  function of 1 variable
 !!! xMin, and xMax boundaries of the integral. xMax>xMin !!
 function Integrate_K15(f,xMin,xMax)
-    real(dp)::f,Integrate_K15
+    procedure(func_1D)::f
+    real(dp)::Integrate_K15
     real(dp),intent(in)::xMin,xMax
     real(dp)::delta,av,inter
     integer::i
@@ -317,7 +316,8 @@ end function Integrate_K15
 !!! f::  function of 1 variable
 !!! xMin, and xMax boundaries of the integral. xMax>xMin !!
 function Integrate_K41(f,xMin,xMax)
-    real(dp)::f,Integrate_K41
+    procedure(func_1D)::f
+    real(dp)::Integrate_K41
     real(dp),intent(in)::xMin,xMax
     real(dp)::delta,av,inter
     integer::i
@@ -341,9 +341,10 @@ end function Integrate_K41
 !!! xMin, and xMax boundaries of the integral. xMax>xMin !!
 !!! tolerance is relative (it is wieghted by approximate value of integral)
 function Integrate_GK(f,xMin,xMax,tolerance)
-    real(dp)::f,Integrate_GK
-    real(dp),intent(in)::xMin,xMax
-    real(dp)::delta,av,g7,k15,eps,tolerance,fI
+    procedure(func_1D)::f
+    real(dp)::Integrate_GK
+    real(dp),intent(in)::xMin,xMax,tolerance
+    real(dp)::delta,av,g7,k15,eps,fI
     integer::i
 
     delta=(xMax-xMin)/2._dp
@@ -369,9 +370,10 @@ function Integrate_GK(f,xMin,xMax,tolerance)
 end function Integrate_GK
 
 recursive function GK_Rec(f,xMin,xMax,eps) result(res)
-    real(dp)::f,res
-    real(dp),intent(in)::xMin,xMax
-    real(dp)::delta,av,g7,k15,eps,fI
+    procedure(func_1D)::f
+    real(dp)::res
+    real(dp),intent(in)::xMin,xMax,eps
+    real(dp)::delta,av,g7,k15,fI
     integer::i
 
     delta=(xMax-xMin)/2._dp
@@ -402,15 +404,13 @@ end function GK_Rec
 !!! the integral is considered convergent once all components are convergent
 function Integrate_GK_array5(f,xMin,xMax,tolerance)
     real(dp),dimension(-5:5)::Integrate_GK_array5
-    procedure(func_array5)::f
+    procedure(func_1D_array5)::f
     real(dp),intent(in)::xMin,xMax,tolerance
     real(dp)::delta,av
     real(dp), dimension(-5:5)::fI,g7,k15,eps
     integer::i
     logical::ISconvergent
-    
-    
-    
+
     delta=(xMax-xMin)/2._dp
     av=(xMax+xMin)/2._dp
     g7=0._dp
@@ -446,7 +446,7 @@ end function Integrate_GK_array5
 
 recursive function GK_array5_Rec(f,xMin,xMax,eps) result(res)
     real(dp),dimension(-5:5)::res
-    procedure(func_array5)::f
+    procedure(func_1D_array5)::f
     real(dp),intent(in)::xMin,xMax
     real(dp),dimension(-5:5),intent(in)::eps
     real(dp)::delta,av
@@ -490,7 +490,8 @@ end function GK_array5_Rec
 !!! xMin, and xMax boundaries of the integral. xMax>xMin !!
 !!! tolerance is relative (it is wieghted by approximate value of integral)
 function Integrate_GK2041(f,xMin,xMax,tolerance)
-    real(dp)::f,Integrate_GK2041
+    procedure(func_1D)::f
+    real(dp)::Integrate_GK2041
     real(dp),intent(in)::xMin,xMax,tolerance
     real(dp)::delta,av,g7,k15,eps,fI
     integer::i
@@ -525,7 +526,8 @@ function Integrate_GK2041(f,xMin,xMax,tolerance)
 end function Integrate_GK2041
 
 recursive function GK2041_Rec(f,xMin,xMax,eps) result(res)
-    real(dp)::f,res
+    procedure(func_1D)::f
+    real(dp)::res
     real(dp),intent(in)::xMin,xMax,eps
     real(dp)::delta,av,g7,k15,fI
     integer::i
@@ -557,4 +559,4 @@ recursive function GK2041_Rec(f,xMin,xMax,eps) result(res)
 end function GK2041_Rec
 !!!!-------------------------------------------------------------------------------------------------------------
 
-end module IntegrationRoutines
+end module aTMDe_Integration

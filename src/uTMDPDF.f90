@@ -6,6 +6,7 @@
 !	if you use this module please, quote 1706.01473
 !
 !	18.08.2023  Implementation in ver.3.0
+!	13.10.2025  Update of class system
 !
 !				A.Vladimirov (18.08.2023)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -20,7 +21,7 @@ end module gridInKT_uTMDPDF
 
 module uTMDPDF
 use aTMDe_Numerics
-use IO_functions
+use aTMDe_IO
 use QCDinput
 use Fourier_Levin_uTMDPDF
 use gridInKT_uTMDPDF
@@ -34,7 +35,7 @@ implicit none
 private 
 
 !Current version of module
-character (len=5),parameter :: version="v3.00"
+character (len=5),parameter :: version="v3.03"
 character (len=7),parameter :: moduleName="uTMDPDF"
 !Last appropriate version of constants-file
 integer,parameter::inputver=30
@@ -47,16 +48,14 @@ logical:: started=.false.
 !! 1=initialization details
 !! 2=WARNINGS
 integer::outputLevel=2
-!! variable that count number of WRNING mesagges. In order not to spam too much
-integer::messageTrigger=6
+
+type(Warning_OBJ)::Warning_Handler
 
 !!! the length and array of NP parameters
 integer::lambdaNPlength
 real(dp),dimension(:),allocatable::lambdaNP
 real(dp)::BMAX_ABS=100._dp !!! for large values of b returns 0
 real(dp)::toleranceGEN !!! tolerance general
-
-integer :: messageCounter
 
 !!!------------------------------ General parameters----------------------------------------------
 logical::includeGluon=.false.   !! gluons included/non-included
@@ -127,7 +126,7 @@ subroutine uTMDPDF_Initialize(file,prefix)
     character(len=*),optional::prefix
     character(len=300)::path
     logical::initRequired
-    integer::FILEver
+    integer::FILEver,messageTrigger
 
     if(started) return
 
@@ -171,7 +170,7 @@ subroutine uTMDPDF_Initialize(file,prefix)
         write(*,*) ErrorString('TMDR module MUST be included.',moduleName)
         write(*,*) ErrorString('Check initialization-file. Evaluation stop.',moduleName)
         CLOSE (51, STATUS='KEEP')
-        stop
+        ERROR STOP
     end if
 
     call MoveTO(51,'*4   ')
@@ -205,7 +204,7 @@ subroutine uTMDPDF_Initialize(file,prefix)
         write(*,*) ErrorString(&
         'Initialize: number of non-perturbative parameters should be >=1. Check the constants-file. Evaluation STOP',moduleName)
             CLOSE (51, STATUS='KEEP')
-        stop
+        ERROR STOP
     end if
 
     !!!!! ---- parameters of numerical evaluation
@@ -229,6 +228,7 @@ subroutine uTMDPDF_Initialize(file,prefix)
 
     CLOSE (51, STATUS='KEEP') 
 
+    Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
 
     if(outputLevel>2 .and. includeGluon) write(*,'(A)') ' ... gluons are included'
     if(outputLevel>2 .and. .not.includeGluon) write(*,'(A)') ' ... gluons are not included'
@@ -269,7 +269,6 @@ subroutine uTMDPDF_Initialize(file,prefix)
     end if
 
     started=.true.
-    messageCounter=0
 
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.uTMDPDF '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) ' '
@@ -300,7 +299,7 @@ end subroutine uTMDPDF_SetScaleVariation
 subroutine uTMDPDF_SetLambdaNP(lambdaIN)
     real(dp),intent(in)::lambdaIN(:)
     integer::ll
-    messageCounter=0
+    call Warning_Handler%Reset()
 
     ll=size(lambdaIN)
     if(ll/=lambdaNPlength) then
@@ -399,7 +398,7 @@ function uTMDPDF_lowScale5(x,bT,hadron)
 
   !!! test boundaries
     if(x>1d0) then
-        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
+        call Warning_Handler%WarningRaise('Called x>1 (return 0). x='//numToStr(x))
         uTMDPDF_lowScale5=0._dp
         return
      else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
@@ -409,11 +408,9 @@ function uTMDPDF_lowScale5(x,bT,hadron)
         uTMDPDF_lowScale5=0._dp
         return
     else if(x<1d-12) then
-        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
-        stop
+        ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     else if(bT<0d0) then
-        write(*,*) ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
-        stop
+        ERROR STOP ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
     end if
 
     uTMDPDF_lowScale5=uTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
@@ -434,7 +431,7 @@ function TMD_opt(x,bT,hadron)
 
   !!! test boundaries
     if(x>1d0) then
-        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
+        call Warning_Handler%WarningRaise('Called x>1 (return 0). x='//numToStr(x))
         TMD_opt=0._dp
         return
      else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
@@ -444,11 +441,9 @@ function TMD_opt(x,bT,hadron)
         TMD_opt=0._dp
         return
     else if(x<toleranceGEN) then
-        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
-        stop
+        ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     else if(bT<0d0) then
-        write(*,*) ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
-        stop
+        ERROR STOP ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
     end if
 
     TMD_opt=uTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
@@ -499,7 +494,7 @@ function TMD_opt_inKT(x,kT,hadron)
 
   !!! test boundaries
     if(x>1d0) then
-        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
+        call Warning_Handler%WarningRaise('Called x>1 (return 0). x='//numToStr(x))
         TMD_opt_inKT=0._dp
         return
      else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly

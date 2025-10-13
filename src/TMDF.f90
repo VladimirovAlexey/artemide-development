@@ -19,7 +19,7 @@ end module TMDF_ogata
 
 module TMDF
 use aTMDe_Numerics
-use IO_functions
+use aTMDe_IO
 use TMDF_ogata
 use TMDR
 use EWinput
@@ -42,8 +42,8 @@ integer,parameter::inputver=31
 
 !------------------------------------------Working variables------------------------------------------------------------
 integer::outputLevel=2
-!! variable that count number of WRNING mesagges. In order not to spam too much
-integer::messageTrigger=6
+type(Warning_OBJ)::Warning_Handler
+
 logical::started=.false.
 
 logical:: convergenceLost=.false.
@@ -59,7 +59,6 @@ real(dp):: global_mass_scale=0.938_dp
 real(dp):: qtMIN=0.0001d0
 real(dp):: HardScaleMIN=0.8d0
 
-integer::messageCounter
 !-----------------------------------------Public interface--------------------------------------------------------------
 public::TMDF_Initialize,TMDF_ResetCounters
 public:: TMDF_F
@@ -80,7 +79,7 @@ subroutine TMDF_Initialize(file,prefix)
     character(len=*),optional::prefix
     character(len=300)::path
     logical::initRequired
-    integer::FILEver
+    integer::FILEver,messageTrigger
     real(dp)::hOGATA,tolerance
 
     if(started) return
@@ -172,10 +171,11 @@ subroutine TMDF_Initialize(file,prefix)
 
     CLOSE (51, STATUS='KEEP')
 
+    Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
+
     call PrepareTables(tolerance,hOGATA)
 
     convergenceLost=.false.
-    messageCounter=0
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!! Initialization of submodules !!!!!!!!!!!!!!!!!!!!!!
     if(.not.EWinput_IsInitialized()) then
@@ -263,7 +263,7 @@ end subroutine TMDF_convergenceISlost
 !passes the NP parameters to TMDs
 subroutine TMDF_ResetCounters()
     convergenceLost=.false.
-    messageCounter=0
+    call Warning_Handler%Reset()
 end subroutine TMDF_ResetCounters
 
 !!!This is the defining module function
@@ -280,7 +280,7 @@ logical::ISconvergent
 if(x1>=1d0 .or. x2>=1d0) then
   integral_result=0d0
 else if(Q2<HardScaleMIN .or. mu<HardScaleMIN .or. zeta1<HardScaleMIN .or. zeta2<HardScaleMIN) then
-    write(*,*) ErrorString("Some hard scale is too low (< "//trim(real8ToStr(HardScaleMIN))//")",moduleName)
+    write(*,*) ErrorString("Some hard scale is too low (< "//trim(numToStr(HardScaleMIN))//")",moduleName)
     write(*,*) "(Q2 ,mu, zeta1,zeta2) = ",Q2 ,mu, zeta1,zeta2
     error stop ErrorString("Evaluation stop",moduleName)
 else if(TMDF_IsconvergenceLost()) then

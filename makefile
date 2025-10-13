@@ -21,7 +21,7 @@ FflagsHARPY= '-O3 -cpp -march=native  -fforce-addr -fstrength-reduce -fcaller-sa
 Fpath=/usr/bin/gfortran
 F77path=/usr/bin/gfortran
 
-#options for COMILATOR to compile QCDinput. e.g. link to LHA
+#options for COMPILATOR to compile QCDinput. e.g. link to LHA
 #FOPT=$(shell lhapdf-config --ldflags)
 FOPT=
 
@@ -41,9 +41,10 @@ HDIR		= $(aTMDeHOME)/harpy
 
 aTMDeFILES = \
 $(SOURCEDIR)/Code/aTMDe_Numerics.f90 \
-$(SOURCEDIR)/Code/IO_functions.f90 \
-$(SOURCEDIR)/Code/IntegrationRoutines.f90 \
-$(SOURCEDIR)/Code/InverseMatrix.f90 \
+$(SOURCEDIR)/Code/aTMDe_interfaces.f90 \
+$(SOURCEDIR)/Code/aTMDe_IO.f90 \
+$(SOURCEDIR)/Code/aTMDe_Integration.f90 \
+$(SOURCEDIR)/Code/aTMDe_invMatrix.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_alpha.f90 \
 $(SOURCEDIR)/LeptonCutsDY.f90 \
 $(SOURCEDIR)/aTMDe_setup.f90 \
@@ -170,9 +171,10 @@ $(SNOWDIR)/ExpressionsForD2.f90
 
 aTMDeOBJ = \
 $(OBJ)/aTMDe_Numerics.o \
-$(OBJ)/IO_functions.o \
-$(OBJ)/IntegrationRoutines.o \
-$(OBJ)/InverseMatrix.o \
+$(OBJ)/aTMDe_interfaces.o \
+$(OBJ)/aTMDe_IO.o \
+$(OBJ)/aTMDe_Integration.o \
+$(OBJ)/aTMDe_invMatrix.o \
 $(OBJ)/LeptonCutsDY.o \
 $(OBJ)/aTMDe_setup.o \
 $(OBJ)/LHA_alpha.o \
@@ -221,9 +223,10 @@ $(OBJ)/SnowFlake.o \
 #these are utility object needed to compale any artemide module
 aTMDeUTILITY = \
 $(OBJ)/aTMDe_Numerics.o \
-$(OBJ)/IO_functions.o \
-$(OBJ)/IntegrationRoutines.o\
-$(OBJ)/InverseMatrix.o
+$(OBJ)/aTMDe_interfaces.o \
+$(OBJ)/aTMDe_IO.o \
+$(OBJ)/aTMDe_Integration.o\
+$(OBJ)/aTMDe_invMatrix.o
 
 
 ################################################################### COMPILATION OF ARTEMIDE ####################################
@@ -292,18 +295,23 @@ $(OBJ)/aTMDe_Numerics.o: $(SOURCEDIR)/Code/aTMDe_Numerics.f90
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/IO_functions.o: $(SOURCEDIR)/Code/IO_functions.f90 $(OBJ)/aTMDe_Numerics.o
-	$(FC) -c $(SOURCEDIR)/Code/IO_functions.f90 -I$(MOD)
+$(OBJ)/aTMDe_interfaces.o: $(SOURCEDIR)/Code/aTMDe_interfaces.f90 $(OBJ)/aTMDe_Numerics.o
+	$(FC) -c $(SOURCEDIR)/Code/aTMDe_interfaces.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/IntegrationRoutines.o: $(SOURCEDIR)/Code/IntegrationRoutines.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/IO_functions.o
-	$(FC) -c $(SOURCEDIR)/Code/IntegrationRoutines.f90 -I$(MOD)
+$(OBJ)/aTMDe_IO.o: $(SOURCEDIR)/Code/aTMDe_IO.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o
+	$(FC) -c $(SOURCEDIR)/Code/aTMDe_IO.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/InverseMatrix.o: $(SOURCEDIR)/Code/InverseMatrix.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/IO_functions.o
-	$(FC) -c $(SOURCEDIR)/Code/InverseMatrix.f90 -I$(MOD)
+$(OBJ)/aTMDe_Integration.o: $(SOURCEDIR)/Code/aTMDe_Integration.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o
+	$(FC) -c $(SOURCEDIR)/Code/aTMDe_Integration.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/aTMDe_invMatrix.o: $(SOURCEDIR)/Code/aTMDe_invMatrix.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_IO.o
+	$(FC) -c $(SOURCEDIR)/Code/aTMDe_invMatrix.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
@@ -537,11 +545,11 @@ program:
 
 
 test-snow:
-	$(FC) $(aTMDeHOME)/Prog_snowflake/TEST.f90 $(aTMDeOBJ) $(FOPT) -I$(MOD)
+	$(FC) $(aTMDeHOME)/Prog_snowflake/TEST.f90 $(aTMDeOBJ) $(snowOBJ) $(FOPT) -I$(MOD)
 	./a.out
 	
 test: 
-	$(FC) $(aTMDeHOME)/Prog/test.f90 $(aTMDeOBJ) $(FOPT) -I$(MOD)
+	$(FC) $(aTMDeHOME)/Prog/test.f90 $(aTMDeOBJ) $(snowOBJ) $(FOPT) -I$(MOD)
 	./a.out
 	
 ################################################ update constants part ##############################

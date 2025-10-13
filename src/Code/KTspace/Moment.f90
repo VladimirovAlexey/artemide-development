@@ -141,18 +141,17 @@ function Moment_Gen(n,k,x,mu,hadron)
     end do
 
     if(r>=Nmax) then
-        if(outputlevel>0) call Warning_Raise('OGATA quadrature diverge for TMM. TMD decaing too slow?',&
-            messageCounter,messageTrigger,moduleName)
-            if(outputlevel>2) then
-            write(*,*) 'Information over the last call ----------'
-            write(*,*) partDone
-            write(*,*) 'bt/mu= ',bb_TMM(Nsegment,k,Nmax)/mu, 'qT=',mu, '| segmentation zone=',Nsegment,&
-                ' ogata h=',hOGATA_TMM*hSegmentationWeight(Nsegment)
-            write(*,*) 'W=',TMD_opt(x,bb_TMM(Nsegment,k,Nmax)/mu,hadron), 'eps/integral =', eps/integral
-            write(*,*) 'v1+v2+v3+v4=',v1+v2+v3+v4, '>',toleranceOGATA_TMM*(ABS(integral(1))+ABS(integral(2)))
-            write(*,*) 'x=',x,'n=',n,'type of J =',k
-            write(*,*) '------------------------------------------'
-            end if
+        if(outputlevel>0) call Warning_Handler%WarningRaise('OGATA quadrature diverge for TMM. TMD decaing too slow?')
+        if(outputlevel>2) then
+        write(*,*) 'Information over the last call ----------'
+        write(*,*) partDone
+        write(*,*) 'bt/mu= ',bb_TMM(Nsegment,k,Nmax)/mu, 'qT=',mu, '| segmentation zone=',Nsegment,&
+            ' ogata h=',hOGATA_TMM*hSegmentationWeight(Nsegment)
+        write(*,*) 'W=',TMD_opt(x,bb_TMM(Nsegment,k,Nmax)/mu,hadron), 'eps/integral =', eps/integral
+        write(*,*) 'v1+v2+v3+v4=',v1+v2+v3+v4, '>',toleranceOGATA_TMM*(ABS(integral(1))+ABS(integral(2)))
+        write(*,*) 'x=',x,'n=',n,'type of J =',k
+        write(*,*) '------------------------------------------'
+        end if
     end if
 
     !!! result is multiplied by (2pi) [because the weights are defined for db/2pi] and scaled by mu [by definition of the moment]

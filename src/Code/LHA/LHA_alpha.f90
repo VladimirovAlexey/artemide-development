@@ -9,7 +9,8 @@
 !           A.Vladimirov
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module LHA_alpha
-use IO_functions
+use aTMDe_numerics
+use aTMDe_IO
 implicit none
 
 private
@@ -284,7 +285,7 @@ subroutine ReadInfo(name,directory,outP)
     LambdaEFF=exp(-extrapolB2/extrapolB1)*AlphaS_Qs(0)
 
     if(LambdaEFF+0.1>Qmin) &
-    ERROR STOP ErrorString('Effective LambdaQCD computed as '//real8Tostr(LambdaEFF)//' It is too high...',moduleName)
+    ERROR STOP ErrorString('Effective LambdaQCD computed as '//numToStr(LambdaEFF)//' It is too high...',moduleName)
 
     if(outputLevel>1) write(*,'("AlphaS prepared with Effective LambdaQCD = ",F10.6)') LambdaEFF
     LambdaEFF=max(LambdaEFF+0.1d0,0.4d0)
@@ -304,7 +305,7 @@ real(dp):: AlphaS
 real(dp)::logQ,deltas(1:4)
 integer::i,j
 if(Q<Qmin) then !!! logarith log-extrapolation
-    if(Q<LambdaEFF) ERROR STOP ErrorString('Q ='//real8Tostr(Q)//' is smaller than Effective LambdaQCD',moduleName)
+    if(Q<LambdaEFF) ERROR STOP ErrorString('Q ='//numToStr(Q)//' is smaller than Effective LambdaQCD',moduleName)
 
     AlphaS=extrapolA/(extrapolB1*Log(Q/AlphaS_Qs(0))+extrapolB2)
 else if(Q>Qmax) then !!! constant

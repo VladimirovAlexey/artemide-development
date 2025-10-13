@@ -9,7 +9,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !     In the file that uses it add
 !module NAME
-!use IO_functions
+!use aTMDe_IO
 !implicit none
 !character (len=9),parameter :: moduleName="???"
 ! INCLUDE this_file
@@ -17,7 +17,7 @@
 !
 
 !module LHA_PDF
-!use IO_functions
+!use aTMDe_IO
 !implicit none
 
 !!!!!! DEBUGMODE 1 switches many messages
@@ -239,8 +239,8 @@ subroutine SetReplica(num)
     allocate(listOfF(0:size(FlavorArray)-1))
 
     if(num<0 .or. num>NumMembers) &
-        ERROR STOP ErrorString('Attempt to call for replica '//trim(intToStr(num))//&
-            '. The maximum number of replicas (according to info) is '//trim(intToStr(NumMembers)),moduleName)
+        ERROR STOP ErrorString('Attempt to call for replica '//trim(numToStr(num))//&
+            '. The maximum number of replicas (according to info) is '//trim(numToStr(NumMembers)),moduleName)
 
     !!!! create the name of replica-file MainPath_000n.dat
     write(path,'(A,"_",I4.4,".dat")') trim(MainPath),num
@@ -682,10 +682,10 @@ real(dp)::logQ,dd,deltaQ(1:4),subQ(1:4,-5:5),logX,deltaX(1:4),gg(-5:5)
 integer::iQ,iX,j
 logical::flag
 
-if(X<Xmin .or. X>Xmax) ERROR STOP ErrorString('X ='//real8Tostr(X)//' is outside of X-range',moduleName)
+if(X<Xmin .or. X>Xmax) ERROR STOP ErrorString('X ='//numTostr(X)//' is outside of X-range',moduleName)
 
-if(Q>Qmax) ERROR STOP ErrorString('Q ='//real8Tostr(Qmax)//' is outside of QMax-range',moduleName)
-if(Q<0.4d0) ERROR STOP ErrorString('Q ='//real8Tostr(Qmax)//' is smaller that 0.4 GeV of Q-range',moduleName)
+if(Q>Qmax) ERROR STOP ErrorString('Q ='//numTostr(Qmax)//' is outside of QMax-range',moduleName)
+if(Q<0.4d0) ERROR STOP ErrorString('Q ='//numTostr(Qmax)//' is smaller that 0.4 GeV of Q-range',moduleName)
 
 if(Q<Qmin) then !!!! extrapolate!
     logX=log(X)

@@ -9,8 +9,8 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module TMDF_KPC
 use aTMDe_Numerics
-use IntegrationRoutines
-use IO_functions
+use aTMDe_Integration
+use aTMDe_IO
 use EWinput
 use uTMDPDF
 use uTMDFF
@@ -29,9 +29,8 @@ character (len=5),parameter :: version="v3.01"
 integer,parameter::inputver=31
 
 integer::outputLevel=2
-!! variable that count number of WRNING mesagges. In order not to spam too much
-integer::messageTrigger=6
-integer::messageCounter=0
+type(Warning_OBJ)::Warning_Handler
+
 logical::started=.false.
 !! flag for loss of convergence
 logical:: convergenceLost=.false.
@@ -78,7 +77,7 @@ subroutine TMDF_KPC_Initialize(file,prefix)
     character(len=*),optional::prefix
     character(len=300)::path
     logical::initRequired
-    integer::FILEver
+    integer::FILEver,messageTrigger
     real(dp)::dummy
 
     if(started) return
@@ -171,11 +170,11 @@ subroutine TMDF_KPC_Initialize(file,prefix)
     read(51,*) include_BoerMuldersTMDPDF
 
     CLOSE (51, STATUS='KEEP')
+    Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
 
     convergenceLost=.false.
     GlobalCounter=0
     LocalCounter=0
-    messageCounter=0
 
     if(.not.EWinput_IsInitialized()) then
         if(outputLevel>1) write(*,*) '.. initializing EWinput (from ',moduleName,')'
@@ -259,7 +258,7 @@ end function TMDF_KPC_IsconvergenceLost
 
 subroutine TMDF_KPC_convergenceISlost()
     convergenceLost=.true.
-    if(outputLevel>1) call Warning_Raise('convergenceLOST trigger ON',messageCounter,messageTrigger,moduleName)
+    if(outputLevel>1) call Warning_Handler%WarningRaise('convergenceLOST trigger ON')
 end subroutine TMDF_KPC_convergenceISlost
 
 !!!--------------------------------------------------------------------------------------------------

@@ -19,7 +19,7 @@ end module gridInKT_uTMDFF
 
 module uTMDFF
 use aTMDe_Numerics
-use IO_functions
+use aTMDe_IO
 use QCDinput
 use Fourier_Levin_uTMDFF
 use gridInKT_uTMDFF
@@ -46,16 +46,13 @@ logical:: started=.false.
 !! 1=initialization details
 !! 2=WARNINGS
 integer::outputLevel=2
-!! variable that count number of WRNING mesagges. In order not to spam too much
-integer::messageTrigger=6
+type(Warning_OBJ)::Warning_Handler
 
 !!! the length and array of NP parameters
 integer::lambdaNPlength
 real(dp),dimension(:),allocatable::lambdaNP
 real(dp)::BMAX_ABS=100._dp !!! for large values of b returns 0
 real(dp)::toleranceGEN !!! tolerance general
-
-integer :: messageCounter
 
 !!!------------------------------ General parameters----------------------------------------------
 logical::includeGluon=.false.   !! gluons included/non-included
@@ -126,7 +123,7 @@ subroutine uTMDFF_Initialize(file,prefix)
     character(len=*),optional::prefix
     character(len=300)::path
     logical::initRequired
-    integer::FILEver
+    integer::FILEver,messageTrigger
 
     if(started) return
 
@@ -228,6 +225,7 @@ subroutine uTMDFF_Initialize(file,prefix)
     read(51,*) muTMM_min
 
     CLOSE (51, STATUS='KEEP') 
+    Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
 
     if(outputLevel>2 .and. includeGluon) write(*,'(A)') ' ... gluons are included'
     if(outputLevel>2 .and. .not.includeGluon) write(*,'(A)') ' ... gluons are not included'
@@ -267,7 +265,6 @@ subroutine uTMDFF_Initialize(file,prefix)
     end if
 
     started=.true.
-    messageCounter=0
 
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.uTMDFF '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) ' '
@@ -293,7 +290,7 @@ end subroutine uTMDFF_SetScaleVariation
 subroutine uTMDFF_SetLambdaNP(lambdaIN)
     real(dp),intent(in)::lambdaIN(:)
     integer::ll
-    messageCounter=0
+    call Warning_Handler%Reset()
 
     ll=size(lambdaIN)
     if(ll/=lambdaNPlength) then
@@ -393,7 +390,7 @@ function TMD_opt(x,bT,hadron)
 
   !!! test boundaries
     if(x>1d0) then
-        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
+        call Warning_Handler%WarningRaise('Called x>1 (return 0). x='//numToStr(x))
         TMD_opt=0._dp
         return
      else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
@@ -403,11 +400,9 @@ function TMD_opt(x,bT,hadron)
         TMD_opt=0._dp
         return
     else if(x<toleranceGEN) then
-        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
-        stop
+        Error STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     else if(bT<0d0) then
-        write(*,*) ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
-        stop
+        ERROR STOP ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
     end if
 
     !!!! all is computed at |h|, i.e. for hadron.
@@ -458,7 +453,7 @@ function TMD_opt_inKT(x,kT,hadron)
 
   !!! test boundaries
     if(x>1d0) then
-        call Warning_Raise('Called x>1 (return 0). x='//numToStr(x),messageCounter,messageTrigger,moduleName)
+        call Warning_Handler%WarningRaise('Called x>1 (return 0). x='//numToStr(x))
         TMD_opt_inKT=0._dp
         return
      else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly

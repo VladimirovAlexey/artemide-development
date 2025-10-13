@@ -3,9 +3,9 @@
 !!!! https://github.com/Beliavsky/Matrix_Inversion/blob/main/linear_solve.f90
 !!!! and modified to artemide
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-module InverseMatrix
+module aTMDe_invMatrix
 use aTMDe_Numerics
-use IO_functions
+use aTMDe_IO
 implicit none
 public :: krout,inverse,hat_matrix
 contains
@@ -267,4 +267,4 @@ real(dp), intent(in) :: x(:,:)                    ! matrix for which hat compute
 real(dp)             :: xhat(size(x,1),size(x,1)) ! hat matrix of x
 xhat = matmul(matmul(x,inverse(matmul(transpose(x),x))),transpose(x))
 end function hat_matrix
-end module InverseMatrix
+end module aTMDe_invMatrix
