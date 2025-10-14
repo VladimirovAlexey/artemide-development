@@ -626,8 +626,9 @@ Utility modules are used in practically every other module of \texttt{artemide}.
 \item \textbf{aTMDe\_numerics} which defines the numeric precisions (default is \texttt{dp}=\texttt{selected\_real\_kind(15, 307)}, and standard mathematical constants.
 \item \textbf{aTMDe\_interfaces} which defines standard procedure interfaces
 \item \textbf{aTMDe\_IO} which defines functions for text coloring, and printing in the terminal, as well as, count system for warning messages
-\item \textbf{aTMDe\_integration} which defines elementary integration routines. Specific integrations (such as the Hankel transform) are made specially in corresponding modules.
-\item \textbf{aTMDe\_invMatrix} which defines the operation of matrix inverse.
+\item \textbf{aTMDe\_integration} which defines elementary integration routines. Used for general purposes.
+\item \textbf{aTMDe\_Ogata} which defines Hankel transform of 1D function. The computation is by Ogata quadratures \cite{Ogata2005ANI}.
+\item \textbf{aTMDe\_invMatrix} which defines the operation of matrix inverse. The main part of this code has been taken from \href{https://github.com/Beliavsky/Matrix_Inversion/blob/main/linear_solve.f90}{https://github.com/Beliavsky/Matrix\_Inversion/blob/main/linear\_solve.f90}.
 \end{itemize}
 
 \newpage

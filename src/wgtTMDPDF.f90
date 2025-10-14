@@ -12,6 +12,7 @@
 module wgtTMDPDF
 use aTMDe_Numerics
 use aTMDe_IO
+use aTMDe_Ogata
 use QCDinput
 use TMDR
 use wgtTMDPDF_OPE
@@ -54,6 +55,8 @@ real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
 integer,parameter::TMDtypeN=1 !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD)
 real(dp)::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value
 
+type(OgataIntegrator)::Hankel
+
 !----Ogata Tables---
 integer,parameter::Nmax=1000
 INCLUDE 'Code/Tables/BesselZero1000.f90'
@@ -64,12 +67,6 @@ INCLUDE 'Code/Tables/BesselZero1000.f90'
 integer,parameter::hSegmentationNumber=7
 real(dp),dimension(1:hSegmentationNumber),parameter::hSegmentationWeight=(/0.0001d0,0.001d0,0.01d0,1d0,2d0,5d0,10d0/)
 real(dp),dimension(1:hSegmentationNumber),parameter::qTSegmentationBoundary=(/0.001d0,0.01d0,0.1d0,10d0,50d0,100d0,200d0/)
-
-real(dp)::hOGATA,toleranceOGATA
-!!!weights of ogata quadrature
-real(dp),dimension(1:hSegmentationNumber,1:Nmax)::ww
-!!!nodes of ogata quadrature
-real(dp),dimension(1:hSegmentationNumber,1:Nmax)::bb
 
 !!!------------------------------ Parameters of transform to TMM -------------------------------------------
 
@@ -102,7 +99,6 @@ end interface
 
 contains
 
-INCLUDE 'Code/KTspace/Fourier.f90'
 INCLUDE 'Code/KTspace/Moment.f90'
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Interface subroutines!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -114,153 +110,154 @@ end function wgtTMDPDF_IsInitialized
 
 !! Initialization of the package
 subroutine wgtTMDPDF_Initialize(file,prefix)
-    character(len=*)::file
-    character(len=*),optional::prefix
-    character(len=300)::path
-    logical::initRequired
-    integer::FILEver,messageTrigger
+character(len=*)::file
+character(len=*),optional::prefix
+character(len=300)::path
+logical::initRequired
+integer::FILEver,messageTrigger
+real(dp)::hOGATA,toleranceOGATA
 
-    if(started) return
+if(started) return
 
-    if(present(prefix)) then
-        path=trim(adjustl(prefix))//trim(adjustr(file))
-    else
-        path=trim(adjustr(file))
-    end if
+if(present(prefix)) then
+    path=trim(adjustl(prefix))//trim(adjustr(file))
+else
+    path=trim(adjustr(file))
+end if
 
-    OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
-    !!! Search for output level
-    call MoveTO(51,'*0   ')
-    call MoveTO(51,'*A   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) FILEver
-    if(FILEver<inputver) then
-        write(*,*) 'artemide.'//trim(moduleName)//': const-file version is too old.'
-        write(*,*) '		     Update the const-file with artemide.setup'
-        write(*,*) '  '
-        CLOSE (51, STATUS='KEEP')
-        ERROR STOP
-    end if
-
-    call MoveTO(51,'*p2  ')
-    read(51,*) outputLevel    
-    if(outputLevel>1) write(*,*) '--------------------------------------------- '
-    if(outputLevel>1) write(*,*) 'artemide.',moduleName,version,': initialization started ... '
-
-    call MoveTO(51,'*p3  ')
-    read(51,*) messageTrigger
-
-    call MoveTO(51,'*B   ')
-    call MoveTO(51,'*p2  ')
-    read(51,*) TMDmass
-
-        !! TMDR
-    call MoveTO(51,'*3   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) initRequired
-    if(.not.initRequired) then
-        write(*,*) ErrorString('TMDR module MUST be included.',moduleName)
-        write(*,*) ErrorString('Check initialization-file. Evaluation stop.',moduleName)
-        CLOSE (51, STATUS='KEEP')
-        ERROR STOP
-    end if
-
-    call MoveTO(51,'*13   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) initRequired
-    if(.not.initRequired) then
-        if(outputLevel>1) write(*,*)'artemide.',moduleName,': initialization is not required. '
-        started=.false.
-        CLOSE (51, STATUS='KEEP')
-        return
-    end if
-
-    !-------------general parameters
-    call MoveTO(51,'*A   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) includeGluon
-
-    call MoveTO(51,'*p2  ')
-    read(51,*) numOfHadrons
-
-    !-------------parameters of NP model
-    call MoveTO(51,'*C   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) lambdaNPlength
-
-    call MoveTO(51,'*p2  ')
-    read(51,*) BMAX_ABS
-
-
-    if(lambdaNPlength<=0) then
-    write(*,*) ErrorString(&
-    'Initialize: number of non-perturbative parameters should be >=1. Check the constants-file. Evaluation STOP',moduleName)
-            CLOSE (51, STATUS='KEEP')
+OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
+!!! Search for output level
+call MoveTO(51,'*0   ')
+call MoveTO(51,'*A   ')
+call MoveTO(51,'*p1  ')
+read(51,*) FILEver
+if(FILEver<inputver) then
+    write(*,*) 'artemide.'//trim(moduleName)//': const-file version is too old.'
+    write(*,*) '		     Update the const-file with artemide.setup'
+    write(*,*) '  '
+    CLOSE (51, STATUS='KEEP')
     ERROR STOP
+end if
+
+call MoveTO(51,'*p2  ')
+read(51,*) outputLevel
+if(outputLevel>1) write(*,*) '--------------------------------------------- '
+if(outputLevel>1) write(*,*) 'artemide.',moduleName,version,': initialization started ... '
+
+call MoveTO(51,'*p3  ')
+read(51,*) messageTrigger
+
+call MoveTO(51,'*B   ')
+call MoveTO(51,'*p2  ')
+read(51,*) TMDmass
+
+    !! TMDR
+call MoveTO(51,'*3   ')
+call MoveTO(51,'*p1  ')
+read(51,*) initRequired
+if(.not.initRequired) then
+    write(*,*) ErrorString('TMDR module MUST be included.',moduleName)
+    write(*,*) ErrorString('Check initialization-file. Evaluation stop.',moduleName)
+    CLOSE (51, STATUS='KEEP')
+    ERROR STOP
+end if
+
+call MoveTO(51,'*13   ')
+call MoveTO(51,'*p1  ')
+read(51,*) initRequired
+if(.not.initRequired) then
+    if(outputLevel>1) write(*,*)'artemide.',moduleName,': initialization is not required. '
+    started=.false.
+    CLOSE (51, STATUS='KEEP')
+    return
+end if
+
+!-------------general parameters
+call MoveTO(51,'*A   ')
+call MoveTO(51,'*p1  ')
+read(51,*) includeGluon
+
+call MoveTO(51,'*p2  ')
+read(51,*) numOfHadrons
+
+!-------------parameters of NP model
+call MoveTO(51,'*C   ')
+call MoveTO(51,'*p1  ')
+read(51,*) lambdaNPlength
+
+call MoveTO(51,'*p2  ')
+read(51,*) BMAX_ABS
+
+
+if(lambdaNPlength<=0) then
+write(*,*) ErrorString(&
+'Initialize: number of non-perturbative parameters should be >=1. Check the constants-file. Evaluation STOP',moduleName)
+        CLOSE (51, STATUS='KEEP')
+ERROR STOP
+end if
+
+!!!!! ---- parameters of numerical evaluation
+call MoveTO(51,'*D   ')
+call MoveTO(51,'*p2  ')
+read(51,*) toleranceGEN
+
+    !!!!! ---- parameters of KT-transformation
+call MoveTO(51,'*H   ')
+call MoveTO(51,'*p1  ')
+read(51,*) toleranceOGATA
+call MoveTO(51,'*p2  ')
+read(51,*) hOGATA
+call MoveTO(51,'*p3  ')
+read(51,*) kT_FREEZE
+
+!!!!! ---- parameters of TMM-transformation
+call MoveTO(51,'*I   ')
+call MoveTO(51,'*p1  ')
+read(51,*) toleranceOGATA_TMM
+call MoveTO(51,'*p2  ')
+read(51,*) hOGATA_TMM
+call MoveTO(51,'*p3  ')
+read(51,*) muTMM_min
+
+CLOSE (51, STATUS='KEEP')
+Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
+
+if(outputLevel>2 .and. includeGluon) write(*,'(A)') ' ... gluons are included'
+if(outputLevel>2 .and. .not.includeGluon) write(*,'(A)') ' ... gluons are not included'
+if(outputLevel>2) write(*,'(A,I3)') ' Number of hadrons to be considered =',numOfHadrons
+if(outputLevel>2) write(*,'(A,I3)') ' Number of NP parameters =',lambdaNPlength
+if(outputLevel>2) write(*,'(A,F12.2)') ' Absolute maximum b      =',BMAX_ABS
+
+allocate(lambdaNP(1:lambdaNPlength))
+
+Hankel=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA,hOGATA,TMDmass)
+call PrepareTablesTMM()
+
+if(.not.TMDR_IsInitialized()) then
+    if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
+    if(present(prefix)) then
+        call TMDR_Initialize(file,prefix)
+    else
+        call TMDR_Initialize(file)
     end if
+end if
 
-    !!!!! ---- parameters of numerical evaluation
-    call MoveTO(51,'*D   ')
-    call MoveTO(51,'*p2  ')
-    read(51,*) toleranceGEN
-
-        !!!!! ---- parameters of KT-transformation
-    call MoveTO(51,'*H   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) toleranceOGATA
-    call MoveTO(51,'*p2  ')
-    read(51,*) hOGATA
-    call MoveTO(51,'*p3  ')
-    read(51,*) kT_FREEZE
-
-    !!!!! ---- parameters of TMM-transformation
-    call MoveTO(51,'*I   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) toleranceOGATA_TMM
-    call MoveTO(51,'*p2  ')
-    read(51,*) hOGATA_TMM
-    call MoveTO(51,'*p3  ')
-    read(51,*) muTMM_min
-
-    CLOSE (51, STATUS='KEEP') 
-    Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
-
-    if(outputLevel>2 .and. includeGluon) write(*,'(A)') ' ... gluons are included'
-    if(outputLevel>2 .and. .not.includeGluon) write(*,'(A)') ' ... gluons are not included'
-    if(outputLevel>2) write(*,'(A,I3)') ' Number of hadrons to be considered =',numOfHadrons
-    if(outputLevel>2) write(*,'(A,I3)') ' Number of NP parameters =',lambdaNPlength
-    if(outputLevel>2) write(*,'(A,F12.2)') ' Absolute maximum b      =',BMAX_ABS
-
-    allocate(lambdaNP(1:lambdaNPlength))
-
-    call PrepareTables()
-    call PrepareTablesTMM()
-
-    if(.not.TMDR_IsInitialized()) then
-        if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
-        if(present(prefix)) then
-            call TMDR_Initialize(file,prefix)
-        else
-            call TMDR_Initialize(file)
-        end if
+if(.not.wgtTMDPDF_OPE_IsInitialized()) then
+    if(outputLevel>2) write(*,*) '.. initializing wgtTMDPDF_OPE (from ',moduleName,')'
+    if(present(prefix)) then
+        call wgtTMDPDF_OPE_Initialize(file,prefix)
+    else
+        call wgtTMDPDF_OPE_Initialize(file)
     end if
+end if
 
-    if(.not.wgtTMDPDF_OPE_IsInitialized()) then
-        if(outputLevel>2) write(*,*) '.. initializing wgtTMDPDF_OPE (from ',moduleName,')'
-        if(present(prefix)) then
-            call wgtTMDPDF_OPE_Initialize(file,prefix)
-        else
-            call wgtTMDPDF_OPE_Initialize(file)
-        end if
-    end if
+call ModelInitialization(lambdaNPlength)
+if(outputLevel>0) write(*,*) color('----- arTeMiDe.wgtTMDPDF_model : .... initialized',c_green)
 
-    call ModelInitialization(lambdaNPlength)
-    if(outputLevel>0) write(*,*) color('----- arTeMiDe.wgtTMDPDF_model : .... initialized',c_green)
+started=.true.
 
-    started=.true.
-
-    if(outputLevel>0) write(*,*) color('----- arTeMiDe.wgtTMDPDF '//trim(version)//': .... initialized',c_green)
-    if(outputLevel>1) write(*,*) ' '
+if(outputLevel>0) write(*,*) color('----- arTeMiDe.wgtTMDPDF '//trim(version)//': .... initialized',c_green)
+if(outputLevel>1) write(*,*) ' '
 end subroutine wgtTMDPDF_Initialize
 
 !!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
@@ -430,5 +427,60 @@ function wgtTMDPDF_TMM_X(x,mu,hadron)
     end if
 
 end function wgtTMDPDF_TMM_X
+
+!!!--------------------------------------------------------------------------------------
+!!!------------------------------------------FOURIER-------------------------------------
+!!!--------------------------------------------------------------------------------------
+!!! It evaluates the integral for the transformation to the kT-space
+!!! int_0^infty   b db/2pi  J_num(b qT) F1  (b/qT)^num M^{2num}/num!
+!!! the integration is made by the class aTMDe_Ogata
+function Fourier_ev(x,qT_in,mu,zeta,hadron)
+real(dp),intent(in)::x,mu,zeta,qT_in
+integer,intent(in)::hadron
+real(dp)::Fourier_ev(-5:5)
+
+real(dp)::qT
+if(qT_in<kT_FREEZE) then
+    qT=kT_FREEZE
+else
+    qT=qT_in
+end if
+
+Fourier_ev=Hankel%TransformTMD(F,qT)
+
+contains
+function F(b)
+real(dp),dimension(-5:5)::F
+real(dp),intent(in)::b
+F=TMD_ev(x,b,mu,zeta,hadron)
+end function F
+
+end function Fourier_ev
+
+!!! It evaluates the integral for the transformation to the kT-space
+!!! int_0^infty   b db/2pi  J_num(b qT) F1  (b/qT)^num M^{2num}/num!
+!!! the integration is made by the class aTMDe_Ogata
+function Fourier_opt(x,qT_in,hadron)
+real(dp),intent(in)::x,qT_in
+integer,intent(in)::hadron
+real(dp)::Fourier_opt(-5:5)
+
+real(dp)::qT
+if(qT_in<kT_FREEZE) then
+    qT=kT_FREEZE
+else
+    qT=qT_in
+end if
+
+Fourier_opt=Hankel%TransformTMD(F,qT)
+
+contains
+function F(b)
+real(dp),dimension(-5:5)::F
+real(dp),intent(in)::b
+F=TMD_opt(x,b,hadron)
+end function F
+
+end function Fourier_opt
 
 end module wgtTMDPDF

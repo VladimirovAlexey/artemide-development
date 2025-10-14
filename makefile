@@ -45,6 +45,7 @@ $(SOURCEDIR)/Code/aTMDe_interfaces.f90 \
 $(SOURCEDIR)/Code/aTMDe_IO.f90 \
 $(SOURCEDIR)/Code/aTMDe_Integration.f90 \
 $(SOURCEDIR)/Code/aTMDe_invMatrix.f90 \
+$(SOURCEDIR)/Code/aTMDe_Ogata.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_alpha.f90 \
 $(SOURCEDIR)/LeptonCutsDY.f90 \
 $(SOURCEDIR)/aTMDe_setup.f90 \
@@ -95,7 +96,6 @@ $(SOURCEDIR)/Code/Twist3/placeHolder.f90
 
 KTspaceFiles=\
 $(SOURCEDIR)/Code/KTspace/Fourier_Levin.f90\
-$(SOURCEDIR)/Code/KTspace/Fourier.f90\
 $(SOURCEDIR)/Code/KTspace/Moment.f90\
 $(SOURCEDIR)/Code/KTspace/grid_inKT.f90
 
@@ -130,7 +130,7 @@ $(SOURCEDIR)/Code/wglTMDPDF/coeffFunc.f90 \
 $(SOURCEDIR)/Code/wglTMDPDF/coeffFunc_largeX.f90
 
 TMDFFiles=\
-$(SOURCEDIR)/Code/TMDF/Fourier_byOgata.f90
+$(SOURCEDIR)/Code/TMDF/placeHolder.f90
 
 TMDKPCFiles=\
 $(SOURCEDIR)/Code/TMDF_KPC/TMDpairs.f90\
@@ -174,6 +174,7 @@ $(OBJ)/aTMDe_Numerics.o \
 $(OBJ)/aTMDe_interfaces.o \
 $(OBJ)/aTMDe_IO.o \
 $(OBJ)/aTMDe_Integration.o \
+$(OBJ)/aTMDe_Ogata.o \
 $(OBJ)/aTMDe_invMatrix.o \
 $(OBJ)/LeptonCutsDY.o \
 $(OBJ)/aTMDe_setup.o \
@@ -226,6 +227,7 @@ $(OBJ)/aTMDe_Numerics.o \
 $(OBJ)/aTMDe_interfaces.o \
 $(OBJ)/aTMDe_IO.o \
 $(OBJ)/aTMDe_Integration.o\
+$(OBJ)/aTMDe_Ogata.o\
 $(OBJ)/aTMDe_invMatrix.o
 
 
@@ -307,6 +309,11 @@ $(OBJ)/aTMDe_IO.o: $(SOURCEDIR)/Code/aTMDe_IO.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)
 
 $(OBJ)/aTMDe_Integration.o: $(SOURCEDIR)/Code/aTMDe_Integration.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o
 	$(FC) -c $(SOURCEDIR)/Code/aTMDe_Integration.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/aTMDe_Ogata.o: $(SOURCEDIR)/Code/aTMDe_Ogata.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o
+	$(FC) -c $(SOURCEDIR)/Code/aTMDe_Ogata.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 

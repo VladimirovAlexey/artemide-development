@@ -107,7 +107,6 @@ end interface
 
 contains
 
-!INCLUDE 'Code/KTspace/Fourier.f90'
 INCLUDE 'Code/KTspace/Moment.f90'
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Interface subroutines!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
