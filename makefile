@@ -96,7 +96,6 @@ $(SOURCEDIR)/Code/Twist3/placeHolder.f90
 
 KTspaceFiles=\
 $(SOURCEDIR)/Code/KTspace/Fourier_Levin.f90\
-$(SOURCEDIR)/Code/KTspace/Moment.f90\
 $(SOURCEDIR)/Code/KTspace/grid_inKT.f90
 
 TMD_ADFiles=\

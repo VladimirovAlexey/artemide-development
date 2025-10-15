@@ -56,7 +56,7 @@ real(dp):: qtMIN=0.0001d0
 real(dp):: HardScaleMIN=0.8d0
 
 !!!!! objects for Hankel tranforms of appropriate type
-type(OgataIntegrator)::Hankel0,Hankel1,Hankel2,Hankel3
+type(OgataIntegrator)::Hankel
 
 !-----------------------------------------Public interface--------------------------------------------------------------
 public::TMDF_Initialize,TMDF_ResetCounters
@@ -172,11 +172,8 @@ CLOSE (51, STATUS='KEEP')
 
 Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
 
-!!!!!!! prepare the objects for Ogata integration
-Hankel0=OgataIntegrator(moduleName,outputLevel,0, tolerance,hOGATA,global_mass_scale)
-Hankel1=OgataIntegrator(moduleName,outputLevel,1, tolerance,hOGATA,global_mass_scale)
-Hankel2=OgataIntegrator(moduleName,outputLevel,2, tolerance,hOGATA,global_mass_scale)
-Hankel3=OgataIntegrator(moduleName,outputLevel,3, tolerance,hOGATA,global_mass_scale)
+!!!!!!! prepare the object for Ogata integration
+Hankel=OgataIntegrator(moduleName,outputLevel,0, tolerance,hOGATA,global_mass_scale)
 
 convergenceLost=.false.
 
@@ -302,16 +299,16 @@ end if
 !!The integrator is selected by the order of the number of the process
 if(process(3)<10000) then
     !!!n=0
-    call Hankel0%Transform(F_toInt,qT,integral_result,ISconvergent)
+    call Hankel%Transform(F_toInt,qT,0,integral_result,ISconvergent)
 else if(process(3)<20000) then
     !n=1
-    call Hankel1%Transform(F_toInt,qT,integral_result,ISconvergent)
+    call Hankel%Transform(F_toInt,qT,1,integral_result,ISconvergent)
 else if(process(3)<30000) then
     !n=2
-    call Hankel2%Transform(F_toInt,qT,integral_result,ISconvergent)
+    call Hankel%Transform(F_toInt,qT,2,integral_result,ISconvergent)
 else
     !n=3
-    call Hankel3%Transform(F_toInt,qT,integral_result,ISconvergent)
+    call Hankel%Transform(F_toInt,qT,3,integral_result,ISconvergent)
 end if
 
 

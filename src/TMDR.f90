@@ -472,7 +472,7 @@ function TMDR_Rzeta(b,muf,zetaf,f)
     write(*,*) 'Dpert=',Dpert(muOPE(b,c1_global),bSTAR(bLocal),f),&
     '\int G =',RADEvolution(muOPE(b,c1_global),muf,f), 'DNP=',DNP(bLocal,f)
     write(*,*) 'Evaluation stop'
-    stop
+    error stop
   end if
 
 end function TMDR_Rzeta

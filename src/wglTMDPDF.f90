@@ -57,30 +57,9 @@ real(dp)::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value
 
 type(OgataIntegrator)::Hankel
 
-!----Ogata Tables---
-integer,parameter::Nmax=1000
-INCLUDE 'Code/Tables/BesselZero1000.f90'
-
-!!!!! I split the qT over runs qT<qTSegmentationBoundary
-!!!!! In each segment I have the ogata quadrature with h=hOGATA*hSegmentationWeight
-!!!!! It helps to convergen integrals, since h(optimal) ~ qT
-integer,parameter::hSegmentationNumber=7
-real(dp),dimension(1:hSegmentationNumber),parameter::hSegmentationWeight=(/0.0001d0,0.001d0,0.01d0,1d0,2d0,5d0,10d0/)
-real(dp),dimension(1:hSegmentationNumber),parameter::qTSegmentationBoundary=(/0.001d0,0.01d0,0.1d0,10d0,50d0,100d0,200d0/)
-
 !!!------------------------------ Parameters of transform to TMM -------------------------------------------
 
 real(dp)::muTMM_min=0.8_dp  !!!!! minimal mu
-
-!!!!! I split the qT over runs qT<qTSegmentationBoundary
-!!!!! For TMM this split is the same as for inKT
-
-real(dp)::hOGATA_TMM,toleranceOGATA_TMM
-!!!weights of ogata quadrature
-real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::ww_TMM
-!!!nodes of ogata quadrature
-real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::bb_TMM
-
 !!-----------------------------------------------Public interface---------------------------------------------------
 
 public::wglTMDPDF_Initialize,wglTMDPDF_IsInitialized
@@ -99,8 +78,6 @@ end interface
 
 contains
 
-INCLUDE 'Code/KTspace/Moment.f90'
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Interface subroutines!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 function wglTMDPDF_IsInitialized()
@@ -116,6 +93,7 @@ character(len=300)::path
 logical::initRequired
 integer::FILEver,messageTrigger
 real(dp)::hOGATA,toleranceOGATA
+real(dp)::hOGATA_TMM,toleranceOGATA_TMM
 
 if(started) return
 
@@ -231,7 +209,6 @@ if(outputLevel>2) write(*,'(A,F12.2)') ' Absolute maximum b      =',BMAX_ABS
 allocate(lambdaNP(1:lambdaNPlength))
 
 Hankel=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA,hOGATA,TMDmass)
-call PrepareTablesTMM()
 
 if(.not.TMDR_IsInitialized()) then
     if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
@@ -390,7 +367,12 @@ function wglTMDPDF_TMM_G(x,mu,hadron)
     real(dp),intent(in):: x,mu
     integer,intent(in)::hadron
 
-    wglTMDPDF_TMM_G=Moment_G(x,mu,hadron)
+    if(mu<muTMM_min) then
+        write(*,*) ErrorString("ERROR in KT-moment computation. mu<mu_min:",moduleName),muTMM_min
+        error stop
+    end if
+
+    wglTMDPDF_TMM_G=Hankel%Moment_G(F,mu)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
@@ -401,6 +383,12 @@ function wglTMDPDF_TMM_G(x,mu,hadron)
     wglTMDPDF_TMM_G(4)=0_dp
     wglTMDPDF_TMM_G(-4)=0_dp
     end if
+contains
+    function F(b)
+    real(dp),dimension(-5:5)::F
+    real(dp),intent(in)::b
+    F=TMD_opt(x,b,hadron)
+    end function F
 
 end function wglTMDPDF_TMM_G
 
@@ -410,7 +398,12 @@ function wglTMDPDF_TMM_X(x,mu,hadron)
     real(dp),intent(in):: x,mu
     integer,intent(in)::hadron
 
-    wglTMDPDF_TMM_X=Moment_X(x,mu,hadron)
+    if(mu<muTMM_min) then
+        write(*,*) ErrorString("ERROR in KT-moment computation. mu<mu_min:",moduleName),muTMM_min
+        error stop
+    end if
+
+    wglTMDPDF_TMM_X=Hankel%Moment_X(F,mu)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
@@ -421,6 +414,12 @@ function wglTMDPDF_TMM_X(x,mu,hadron)
     wglTMDPDF_TMM_X(4)=0_dp
     wglTMDPDF_TMM_X(-4)=0_dp
     end if
+contains
+    function F(b)
+    real(dp),dimension(-5:5)::F
+    real(dp),intent(in)::b
+    F=TMD_opt(x,b,hadron)
+    end function F
 
 end function wglTMDPDF_TMM_X
 

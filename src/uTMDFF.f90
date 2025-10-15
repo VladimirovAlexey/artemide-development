@@ -20,6 +20,7 @@ end module gridInKT_uTMDFF
 module uTMDFF
 use aTMDe_Numerics
 use aTMDe_IO
+use aTMDe_Ogata
 use QCDinput
 use Fourier_Levin_uTMDFF
 use gridInKT_uTMDFF
@@ -62,18 +63,10 @@ real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
 !!!------------------------------ Parameters of transform to KT-space -------------------------------------------
 
 integer,parameter::TMDtypeN=0 !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD)
+
+type(OgataIntegrator)::Hankel
+
 real(dp)::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value
-
-!----Ogata Tables---
-integer,parameter::Nmax=1000
-INCLUDE 'Code/Tables/BesselZero1000.f90'
-
-!!!!! I split the qT over runs qT<qTSegmentationBoundary
-!!!!! In each segment I have the ogata quadrature with h=hOGATA*hSegmentationWeight
-!!!!! It helps to convergen integrals, since h(optimal) ~ qT
-integer,parameter::hSegmentationNumber=7
-real(dp),dimension(1:hSegmentationNumber),parameter::hSegmentationWeight=(/0.0001d0,0.001d0,0.01d0,1d0,2d0,5d0,10d0/)
-real(dp),dimension(1:hSegmentationNumber),parameter::qTSegmentationBoundary=(/0.001d0,0.01d0,0.1d0,10d0,50d0,100d0,200d0/)
 
 !!!------------------------------ Parameters of transform in KT space and KT-grid ------------------------------
 logical::makeGrid_inKT,gridIsReady_inKT
@@ -81,16 +74,6 @@ logical::makeGrid_inKT,gridIsReady_inKT
 !!!------------------------------ Parameters of transform to TMM -------------------------------------------
 
 real(dp)::muTMM_min=0.8_dp  !!!!! minimal mu
-
-!!!!! I split the qT over runs qT<qTSegmentationBoundary
-!!!!! For TMM this split is the same as for inKT
-
-real(dp)::hOGATA_TMM,toleranceOGATA_TMM
-!!!weights of ogata quadrature
-real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::ww_TMM
-!!!nodes of ogata quadrature
-real(dp),dimension(1:hSegmentationNumber,0:3,1:Nmax)::bb_TMM
-
 !!-----------------------------------------------Public interface---------------------------------------------------
 
 public::uTMDFF_Initialize,uTMDFF_IsInitialized,uTMDFF_SetScaleVariation,uTMDFF_SetPDFreplica
@@ -107,8 +90,6 @@ end interface
 
 contains
 
-INCLUDE 'Code/KTspace/Moment.f90'
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Interface subroutines!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 function uTMDFF_IsInitialized()
@@ -123,6 +104,7 @@ subroutine uTMDFF_Initialize(file,prefix)
     character(len=300)::path
     logical::initRequired
     integer::FILEver,messageTrigger
+    real(dp)::hOGATA_TMM,toleranceOGATA_TMM
 
     if(started) return
 
@@ -243,7 +225,7 @@ subroutine uTMDFF_Initialize(file,prefix)
     call ModelInitialization(lambdaNPlength)
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.uTMDFF_model : .... initialized',c_green)
 
-    call PrepareTablesTMM()
+    Hankel=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass)
 
     if(.not.TMDR_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
@@ -551,7 +533,12 @@ function uTMDFF_TMM_G(x,mu,hadron)
     real(dp),intent(in):: x,mu
     integer,intent(in)::hadron
 
-    uTMDFF_TMM_G=Moment_G(x,mu,hadron)
+    if(mu<muTMM_min) then
+        write(*,*) ErrorString("ERROR in KT-moment computation. mu<mu_min:",moduleName),muTMM_min
+        error stop
+    end if
+
+    uTMDFF_TMM_G=Hankel%Moment_G(F,mu)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
@@ -562,6 +549,12 @@ function uTMDFF_TMM_G(x,mu,hadron)
     uTMDFF_TMM_G(4)=0_dp
     uTMDFF_TMM_G(-4)=0_dp
     end if
+contains
+    function F(b)
+    real(dp),dimension(-5:5)::F
+    real(dp),intent(in)::b
+    F=TMD_opt(x,b,hadron)
+    end function F
 
 end function uTMDFF_TMM_G
 
@@ -571,7 +564,12 @@ function uTMDFF_TMM_X(x,mu,hadron)
     real(dp),intent(in):: x,mu
     integer,intent(in)::hadron
 
-    uTMDFF_TMM_X=Moment_X(x,mu,hadron)
+    if(mu<muTMM_min) then
+        write(*,*) ErrorString("ERROR in KT-moment computation. mu<mu_min:",moduleName),muTMM_min
+        error stop
+    end if
+
+    uTMDFF_TMM_X=Hankel%Moment_X(F,mu)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
@@ -582,6 +580,12 @@ function uTMDFF_TMM_X(x,mu,hadron)
     uTMDFF_TMM_X(4)=0_dp
     uTMDFF_TMM_X(-4)=0_dp
     end if
+contains
+    function F(b)
+    real(dp),dimension(-5:5)::F
+    real(dp),intent(in)::b
+    F=TMD_opt(x,b,hadron)
+    end function F
 
 end function uTMDFF_TMM_X
 
