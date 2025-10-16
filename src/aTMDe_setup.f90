@@ -17,7 +17,7 @@ private
 character (len=5),parameter :: version="v3.02"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=35
+integer,parameter::inputVer=36
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -137,6 +137,9 @@ real(dp)::SiversTMDPDF_BMAX_ABS
 real(dp)::SiversTMDPDF_toleranceINT
 real(dp)::SiversTMDPDF_toleranceGEN
 integer::SiversTMDPDF_maxIteration
+integer::SiversTMDPDF_numSubGridsX,SiversTMDPDF_numSubGridsB
+real(dp),allocatable::SiversTMDPDF_subGridsX(:),SiversTMDPDF_subGridsB(:)
+integer::SiversTMDPDF_grid_SizeX,SiversTMDPDF_grid_SizeB
 real(dp)::SiversTMDPDF_hOGATA,SiversTMDPDF_toleranceOGATA,SiversTMDPDF_KT_FREEZE
 real(dp)::SiversTMDPDF_hOGATA_TMM,SiversTMDPDF_toleranceOGATA_TMM,SiversTMDPDF_muMIN_TMM
 
@@ -483,6 +486,14 @@ subroutine SetupDefault(order)
     SiversTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     SiversTMDPDF_toleranceGEN=1.d-6!general tolerance
     SiversTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
+    SiversTMDPDF_numSubGridsX=4
+    allocate(SiversTMDPDF_subGridsX(0:SiversTMDPDF_numSubGridsX))
+    SiversTMDPDF_subGridsX=(/0.01d0,0.5d0,1.d0/)
+    SiversTMDPDF_grid_SizeX=8
+    SiversTMDPDF_numSubGridsB=2
+    allocate(SiversTMDPDF_subGridsB(0:SiversTMDPDF_numSubGridsB))
+    SiversTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
+    SiversTMDPDF_grid_SizeB=8
     SiversTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
     SiversTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
     SiversTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
@@ -1282,6 +1293,18 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) SiversTMDPDF_maxIteration
     write(51,"(' ')")
     write(51,"('*E   : ---- (OPE) Parameters of grid ----')")
+    write(51,"('*p1  : Number of subgrids in X (required to read the next line)')")
+    write(51,*) SiversTMDPDF_numSubGridsX
+    write(51,"('*p2  : Intervals for subgrids in X (must include 1., as the last point)')")
+    write(51,*) SiversTMDPDF_subGridsX
+    write(51,"('*p3  : Number of nodes in the X-subgrid')")
+    write(51,*) SiversTMDPDF_grid_SizeX
+    write(51,"('*p4  : Number of subgrids in B (required to read the next line)')")
+    write(51,*) SiversTMDPDF_numSubGridsB
+    write(51,"('*p5  : Intervals for subgrids in B (below and above ultimate points the value is frozen)')")
+    write(51,*) SiversTMDPDF_subGridsB
+    write(51,"('*p6  : Number of nodes in the B-subgrid ')")
+    write(51,*) SiversTMDPDF_grid_SizeB
     write(51,"(' ')")
     write(51,"('*F   : ---- Transformation to KT-space ----')")
     write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
@@ -2213,6 +2236,24 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) SiversTMDPDF_toleranceGEN
     call MoveTO(51,'*p3  ')
     read(51,*) SiversTMDPDF_maxIteration
+    if(FILEversion>35) then
+        call MoveTO(51,'*p1  ')
+        read(51,*) SiversTMDPDF_numSubGridsX
+        deallocate(SiversTMDPDF_subGridsX)
+        allocate(SiversTMDPDF_subGridsX(0:SiversTMDPDF_numSubGridsX))
+        call MoveTO(51,'*p2  ')
+        read(51,*) SiversTMDPDF_subGridsX
+        call MoveTO(51,'*p3  ')
+        read(51,*) SiversTMDPDF_grid_SizeX
+        call MoveTO(51,'*p4  ')
+        read(51,*) SiversTMDPDF_numSubGridsB
+        deallocate(SiversTMDPDF_subGridsB)
+        allocate(SiversTMDPDF_subGridsB(0:SiversTMDPDF_numSubGridsB))
+        call MoveTO(51,'*p5  ')
+        read(51,*) SiversTMDPDF_subGridsB
+        call MoveTO(51,'*p6  ')
+        read(51,*) SiversTMDPDF_grid_SizeB
+    end if
     call MoveTO(51,'*G   ')
     call MoveTO(51,'*p1  ')
     read(51,*) SiversTMDPDF_toleranceOGATA_TMM
