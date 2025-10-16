@@ -51,7 +51,6 @@ real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
 !!!------------------------------ Parameters of transform to KT-space -------------------------------------------
 
 integer,parameter::TMDtypeN=1 !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD)
-real(dp)::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value
 
 type(OgataIntegrator)::Hankel
 
@@ -92,7 +91,7 @@ character(len=300)::path
 logical::initRequired
 integer::FILEver,messageTrigger
 real(dp)::hOGATA,toleranceOGATA
-real(dp)::hOGATA_TMM,toleranceOGATA_TMM
+real(dp)::hOGATA_TMM,toleranceOGATA_TMM,kT_FREEZE
 
 if(started) return
 
@@ -207,7 +206,7 @@ if(outputLevel>2) write(*,'(A,F12.2)') ' Absolute maximum b      =',BMAX_ABS
 
 allocate(lambdaNP(1:lambdaNPlength))
 
-Hankel=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA,hOGATA,TMDmass)
+Hankel=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA,hOGATA,TMDmass,kT_FREEZE)
 
 if(.not.TMDR_IsInitialized()) then
     if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
@@ -413,17 +412,10 @@ end function SiversTMDPDF_TMM_X
 !!! It evaluates the integral for the transformation to the kT-space
 !!! int_0^infty   b db/2pi  J_num(b qT) F1  (b/qT)^num M^{2num}/num!
 !!! the integration is made by the class aTMDe_Ogata
-function Fourier_ev(x,qT_in,mu,zeta,hadron)
-real(dp),intent(in)::x,mu,zeta,qT_in
+function Fourier_ev(x,qT,mu,zeta,hadron)
+real(dp),intent(in)::x,mu,zeta,qT
 integer,intent(in)::hadron
 real(dp)::Fourier_ev(-5:5)
-
-real(dp)::qT
-if(qT_in<kT_FREEZE) then
-    qT=kT_FREEZE
-else
-    qT=qT_in
-end if
 
 Fourier_ev=Hankel%TransformTMD(F,qT)
 
@@ -439,17 +431,10 @@ end function Fourier_ev
 !!! It evaluates the integral for the transformation to the kT-space
 !!! int_0^infty   b db/2pi  J_num(b qT) F1  (b/qT)^num M^{2num}/num!
 !!! the integration is made by the class aTMDe_Ogata
-function Fourier_opt(x,qT_in,hadron)
-real(dp),intent(in)::x,qT_in
+function Fourier_opt(x,qT,hadron)
+real(dp),intent(in)::x,qT
 integer,intent(in)::hadron
 real(dp)::Fourier_opt(-5:5)
-
-real(dp)::qT
-if(qT_in<kT_FREEZE) then
-    qT=kT_FREEZE
-else
-    qT=qT_in
-end if
 
 Fourier_opt=Hankel%TransformTMD(F,qT)
 

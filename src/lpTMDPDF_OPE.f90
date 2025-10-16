@@ -18,17 +18,13 @@
 ! * only global variables are kept here
 ! * the most part of the code is universal, and shared by many such modules
 
-module Grid_lpTMDPDF
-INCLUDE 'Code/Twist2/Twist2_ChGrid.f90'
-end module Grid_lpTMDPDF
-
 module lpTMDPDF_OPE
 use aTMDe_Numerics
 use aTMDe_Integration
 use aTMDe_IO
+use aTMDe_optGrid
 use QCDinput
 use lpTMDPDF_model
-use Grid_lpTMDPDF
 implicit none
 
 !------------------------LOCALs -----------------------------------------------
@@ -78,6 +74,8 @@ logical :: useGrid=.true.  !!!idicator that grid must be prepared
 logical :: withGluon=.false.   !!!indicator the gluon is needed in the grid
 logical :: runTest=.false.   !!!trigger to run the test
 
+type(optGrid)::mainGrid
+
 !!!------------------------- HARD-CODED PARAMETERS ----------------------
 !!! Coefficient lists
 integer,parameter::parametrizationLength=14
@@ -91,9 +89,6 @@ integer,parameter::parametrizationLength=14
 
 !!!------------------------- DYNAMICAL-GLOBAL PARAMETERS -------------------
 real(dp) :: c4_global=1_dp  !!! scale variation parameter
-logical :: gridReady!!!!indicator that grid is ready to use. If it is .true., the TMD calculated from the grid
-
-
 
 !!--------------------------------------Public interface-----------------------------------------
 public::lpTMDPDF_OPE_IsInitialized,lpTMDPDF_OPE_Initialize,lpTMDPDF_OPE_convolution
@@ -109,8 +104,6 @@ INCLUDE 'Code/lpTMDPDF/coeffFunc.f90'
 
 !! Mellin convolution routine
 INCLUDE 'Code/Twist2/Twist2Convolution.f90'
-
-
 
 function lpTMDPDF_OPE_IsInitialized()
     logical::lpTMDPDF_OPE_IsInitialized
@@ -270,8 +263,7 @@ subroutine lpTMDPDF_OPE_Initialize(file,prefix)
         stop
     end if
 
-    !call Twist2_ChGrid_Initialize(subGridsX,subGridsB,GridSizeX,GridSizeB,numberOfHadrons,withGluon,moduleName,outputLevel)
-    call Twist2_ChGrid_Initialize(path,'*11  ','*E   ',numberOfHadrons,withGluon,moduleName,outputLevel)
+    mainGrid=optGrid(path,'*11  ','*E   ',numberOfHadrons,withGluon,moduleName,outputLevel)
     
     !!! Model initialisation is called from the lpTMDPDF-module
     
@@ -283,13 +275,10 @@ subroutine lpTMDPDF_OPE_Initialize(file,prefix)
     else
         if(outputLevel>2) write(*,*) trim(moduleName)//': mu OPE is independent on x'
     end if
-    gridReady=.false.
-
 
     if(useGrid) then
-        call Twist2_ChGrid_MakeGrid(CxF_compute)
-        gridReady=.true.
-        if(runTest) call TestGrid(CxF_compute)
+        call mainGrid%MakeGrid(functionToGrid)
+        if(runTest) call mainGrid%Test(functionToGrid)
     end if
 
     started=.true.
@@ -298,6 +287,15 @@ subroutine lpTMDPDF_OPE_Initialize(file,prefix)
     if(outputLevel>1) write(*,*) ' '
 
 end subroutine lpTMDPDF_OPE_Initialize
+
+!!!!!! this is just interface of function CxF_compute and CxF_largeX_compute to optTMD
+function functionToGrid(x,bT,hadron)
+    real(dp),dimension(-5:5)::functionToGrid
+    integer, intent(in)::hadron
+    real(dp),intent(in)::x,bT
+
+    functionToGrid=CxF_compute(x,bT,hadron,withGluon)
+end function functionToGrid
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
@@ -341,13 +339,7 @@ function lpTMDPDF_OPE_convolution(x,b,h,addGluon)
 
     !!! computation
     if(useGrid) then
-        if(gridReady) then
-            lpTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)/x
-        else
-            call Warning_Handler%WarningRaise('Called OPE_convolution while grid is not ready.')
-            call lpTMDPDF_OPE_resetGrid()
-            lpTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)/x
-        end if
+        lpTMDPDF_OPE_convolution=mainGrid%Extract(x,b,h)/x
     else
         lpTMDPDF_OPE_convolution=CxF_compute(x,b,h,gluon)/x
     end if
@@ -358,12 +350,9 @@ end function lpTMDPDF_OPE_convolution
 !!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
 !!! This subroutine force reconstruction of the grid (if griding is ON)
 subroutine lpTMDPDF_OPE_resetGrid()
-    gridReady=.false.
     if(useGrid) then
         if(outputLevel>1) write(*,*) 'arTeMiDe ',moduleName,':  Grid Reset. with c4=',c4_global
-        call Twist2_ChGrid_MakeGrid(CxF_compute)
-
-        gridReady=.true.
+        call mainGrid%MakeGrid(functionToGrid)!
     end if
 end subroutine lpTMDPDF_OPE_resetGrid
 
@@ -375,7 +364,6 @@ subroutine lpTMDPDF_OPE_SetPDFreplica(rep,hadron)
 
     call QCDinput_SetlpPDFreplica(rep,hadron,newPDF)
     if(newPDF) then
-        gridReady=.false.
         call lpTMDPDF_OPE_resetGrid()
     else
         if(outputLevel>1) write(*,"('arTeMiDe ',A,':  replica of PDF (',I4,') is the same as the used one. Nothing is done!')") &

@@ -223,7 +223,8 @@ subroutine BoerMuldersTMDPDF_Initialize(file,prefix)
 
     gridIsReady_inKT=.false.
 
-    Hankel=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass)
+    !!!!!! TODO: fix the minimal value of KT
+    Hankel=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass,0.0001_dp)
 
     if(.not.TMDR_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'

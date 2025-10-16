@@ -225,7 +225,8 @@ subroutine uTMDFF_Initialize(file,prefix)
     call ModelInitialization(lambdaNPlength)
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.uTMDFF_model : .... initialized',c_green)
 
-    Hankel=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass)
+    !!!!!! TODO: fix the minimal value of KT
+    Hankel=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass, 0.0001_dp)
 
     if(.not.TMDR_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'

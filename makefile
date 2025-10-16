@@ -46,6 +46,7 @@ $(SOURCEDIR)/Code/aTMDe_IO.f90 \
 $(SOURCEDIR)/Code/aTMDe_Integration.f90 \
 $(SOURCEDIR)/Code/aTMDe_invMatrix.f90 \
 $(SOURCEDIR)/Code/aTMDe_Ogata.f90 \
+$(SOURCEDIR)/Code/aTMDe_optGrid.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_alpha.f90 \
 $(SOURCEDIR)/LeptonCutsDY.f90 \
 $(SOURCEDIR)/aTMDe_setup.f90 \
@@ -88,7 +89,6 @@ $(SOURCEDIR)/Code/Twist2/Twist2Convolution.f90 \
 $(SOURCEDIR)/Code/Twist2/largeX_ADs.f90 \
 $(SOURCEDIR)/Code/Twist2/Twist2_WW.f90 \
 $(SOURCEDIR)/Code/Twist2/Twist2LargeX.f90 \
-$(SOURCEDIR)/Code/Twist2/Twist2_ChGrid.f90 \
 $(SOURCEDIR)/Code/Twist2/Twist2-AS-term.f90
 
 Twist3Files=\
@@ -174,6 +174,7 @@ $(OBJ)/aTMDe_interfaces.o \
 $(OBJ)/aTMDe_IO.o \
 $(OBJ)/aTMDe_Integration.o \
 $(OBJ)/aTMDe_Ogata.o \
+$(OBJ)/aTMDe_optGrid.o \
 $(OBJ)/aTMDe_invMatrix.o \
 $(OBJ)/LeptonCutsDY.o \
 $(OBJ)/aTMDe_setup.o \
@@ -227,6 +228,7 @@ $(OBJ)/aTMDe_interfaces.o \
 $(OBJ)/aTMDe_IO.o \
 $(OBJ)/aTMDe_Integration.o\
 $(OBJ)/aTMDe_Ogata.o\
+$(OBJ)/aTMDe_optGrid.o\
 $(OBJ)/aTMDe_invMatrix.o
 
 
@@ -313,6 +315,11 @@ $(OBJ)/aTMDe_Integration.o: $(SOURCEDIR)/Code/aTMDe_Integration.f90 $(OBJ)/aTMDe
 
 $(OBJ)/aTMDe_Ogata.o: $(SOURCEDIR)/Code/aTMDe_Ogata.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o
 	$(FC) -c $(SOURCEDIR)/Code/aTMDe_Ogata.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/aTMDe_optGrid.o: $(SOURCEDIR)/Code/aTMDe_optGrid.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o
+	$(FC) -c $(SOURCEDIR)/Code/aTMDe_optGrid.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 

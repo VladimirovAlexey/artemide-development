@@ -441,7 +441,7 @@
 *p1  : Order of coefficient function
  NLO
 *p2  : Prepare grid
- F
+ T
 *p3  : run the test of the grid (takes some time)
  F
 

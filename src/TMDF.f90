@@ -173,7 +173,7 @@ CLOSE (51, STATUS='KEEP')
 Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
 
 !!!!!!! prepare the object for Ogata integration
-Hankel=OgataIntegrator(moduleName,outputLevel,0, tolerance,hOGATA,global_mass_scale)
+Hankel=OgataIntegrator(moduleName,outputLevel,0, tolerance,hOGATA,global_mass_scale,qtMIN)
 
 convergenceLost=.false.
 
@@ -277,7 +277,6 @@ integer,dimension(1:3),intent(in)::process
 
 integer::n
 logical::ISconvergent
-real(dp)::qT_limit
 
 if(x1>=1d0 .or. x2>=1d0) then
   integral_result=0d0
@@ -289,12 +288,6 @@ else if(TMDF_IsconvergenceLost()) then
   !!!in the case of lost convergence we return huge number (divergent xSec)
     integral_result=1d10
 else
-
-if(qT<=qtMIN) then
-    qT_limit=qtMIN
-else
-    qT_limit=qT
-end if
 
 !!The integrator is selected by the order of the number of the process
 if(process(3)<10000) then

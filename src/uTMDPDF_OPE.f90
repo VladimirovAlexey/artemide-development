@@ -18,18 +18,14 @@
 ! * only global variables are kept here
 ! * the most part of the code is universal, and shared by many such modules
 
-module Grid_uTMDPDF
-INCLUDE 'Code/Twist2/Twist2_ChGrid.f90'
-end module Grid_uTMDPDF
-
 module uTMDPDF_OPE
 use aTMDe_Numerics
 use aTMDe_Integration
 use aTMDe_IO
+use aTMDe_optGrid
 use QCDinput
 use TMD_AD, only : Dpert_atL
 use uTMDPDF_model
-use Grid_uTMDPDF
 implicit none
 
 !------------------------LOCALs -----------------------------------------------
@@ -79,6 +75,8 @@ logical :: useGrid=.true.  !!!idicator that grid must be prepared
 logical :: withGluon=.false.   !!!indicator the gluon is needed in the grid
 logical :: runTest=.false.   !!!trigger to run the test
 
+type(optGrid)::mainGrid
+
 !!!------------------------- HARD-CODED PARAMETERS ----------------------
 !!! Coefficient lists
 integer,parameter::parametrizationLength=37
@@ -91,17 +89,11 @@ integer,parameter::parametrizationLength=37
 
 !!!------------------------- DYNAMICAL-GLOBAL PARAMETERS -------------------
 real(dp) :: c4_global=1_dp  !!! scale variation parameter
-logical :: gridReady!!!!indicator that grid is ready to use. If it is .true., the TMD calculated from the grid
-
-
 
 !!--------------------------------------Public interface-----------------------------------------
 public::uTMDPDF_OPE_IsInitialized,uTMDPDF_OPE_Initialize,uTMDPDF_OPE_convolution
 public::uTMDPDF_OPE_resetGrid,uTMDPDF_OPE_SetPDFreplica,uTMDPDF_OPE_SetScaleVariation
 public::uTMDPDF_X0_AS,uTMDPDF_OPE_PDF
-
-!!!!!!----FOR TEST
-public::ExtractFromGrid,CxF_compute,CxF_largeX_compute,TestGrid
 
 contains
 
@@ -312,7 +304,7 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
         ERROR STOP ErrorString("The last subgrid in X must complete by x=1. Initialization terminated",moduleName)
     end if
 
-    call Twist2_ChGrid_Initialize(path,'*4   ','*E   ',numberOfHadrons,withGluon,moduleName,outputLevel)
+    mainGrid=optGrid(path,'*4   ','*E   ',numberOfHadrons,withGluon,moduleName,outputLevel)
     
     !!! Model initialisation is called from the uTMDPDF-module
     
@@ -324,18 +316,10 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     else
         if(outputLevel>2) write(*,*) trim(moduleName)//': mu OPE is independent on x'
     end if
-    gridReady=.false.
 
     if(useGrid) then
-        if(resumLargeX) then
-            call Twist2_ChGrid_MakeGrid(CxF_largeX_compute)
-            gridReady=.true.
-            if(runTest) call TestGrid(CxF_largeX_compute)
-        else
-            call Twist2_ChGrid_MakeGrid(CxF_compute)
-            gridReady=.true.
-            if(runTest) call TestGrid(CxF_compute)
-        end if
+        call mainGrid%MakeGrid(functionToGrid)
+        if(runTest) call mainGrid%Test(functionToGrid)
     end if
 
     started=.true.
@@ -344,6 +328,19 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     if(outputLevel>1) write(*,*) ' '
 
 end subroutine uTMDPDF_OPE_Initialize
+
+!!!!!! this is just interface of function CxF_compute and CxF_largeX_compute to optTMD
+function functionToGrid(x,bT,hadron)
+    real(dp),dimension(-5:5)::functionToGrid
+    integer, intent(in)::hadron
+    real(dp),intent(in)::x,bT
+
+    if(resumLargeX) then
+        functionToGrid=CxF_largeX_compute(x,bT,hadron,withGluon)
+    else
+        functionToGrid=CxF_compute(x,bT,hadron,withGluon)
+    end if
+end function functionToGrid
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
@@ -399,13 +396,7 @@ function uTMDPDF_OPE_convolution(x,b,h,addGluon)
 
     !!! computation
     if(useGrid) then
-        if(gridReady) then
-            uTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)/x
-        else
-            call Warning_Handler%WarningRaise('Called OPE_convolution while grid is not ready.')
-            call uTMDPDF_OPE_resetGrid()
-            uTMDPDF_OPE_convolution=ExtractFromGrid(x,b,h)/x
-        end if
+        uTMDPDF_OPE_convolution=mainGrid%Extract(x,b,h)/x
     else
         if(resumLargeX) then
             uTMDPDF_OPE_convolution=CxF_largeX_compute(x,b,h,gluon)/x
@@ -457,17 +448,9 @@ end function uTMDPDF_X0_AS
 !!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
 !!! This subroutine force reconstruction of the grid (if griding is ON)
 subroutine uTMDPDF_OPE_resetGrid()
-    gridReady=.false.
     if(useGrid) then
         if(outputLevel>1) write(*,*) 'arTeMiDe ',moduleName,':  Grid Reset. with c4=',c4_global
-
-        if(resumLargeX) then
-            call Twist2_ChGrid_MakeGrid(CxF_largeX_compute)
-        else
-            call Twist2_ChGrid_MakeGrid(CxF_compute)
-        end if
-
-        gridReady=.true.
+        call mainGrid%MakeGrid(functionToGrid)!
     end if
 end subroutine uTMDPDF_OPE_resetGrid
 
@@ -479,7 +462,6 @@ subroutine uTMDPDF_OPE_SetPDFreplica(rep,hadron)
 
     call QCDinput_SetPDFreplica(rep,hadron,newPDF)
     if(newPDF) then
-        gridReady=.false.
         call uTMDPDF_OPE_resetGrid()
     else
         if(outputLevel>1) write(*,"('arTeMiDe ',A,':  replica of PDF (',I4,') is the same as the used one. Nothing is done!')") &

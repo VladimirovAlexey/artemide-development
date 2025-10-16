@@ -29,7 +29,7 @@ real(dp),dimension(1:hSegmentationNumber),parameter::qTSegmentationBoundary=(/0.
 type, public :: OgataIntegrator
   !!!------ specified upon construction
   !!!!!! this parameters needed for generation of messages
-  character(:), allocatable::parentModuleName
+  character(:), allocatable::parentName
   integer::outputLevel
 
   !!!------ specified by Prepare tables
@@ -37,6 +37,8 @@ type, public :: OgataIntegrator
   integer::N
   !!!!!! general mass scale
   real(dp)::TMDmass,transformationFactor
+  !!!!!! minimal kT == the value of kT below which the transfomation is frozen
+  real(dp):: kTmin
   !!!!!! numerical parameters of the evaluation
   real(dp)::hOGATA,tolerance
   !!!weights of ogata quadrature
@@ -67,23 +69,24 @@ contains
 
 !!!!! constructor for the OgataIntegrator. It automatically prepare the tables with given h
 !!!!! IMPORTANT NOTE: the tables are generated for trnaformation with J_n/2 (this 1/2 is for historical reasons)
-function constructor(parentModuleName,outputLevel,order_in, tolerance_in,hOGATA_in,TMDmass_in) result(this)
+function constructor(parentName,outputLevel,order_in, tolerance_in,hOGATA_in,TMDmass_in,kTmin) result(this)
 type(OgataIntegrator)::this
-character(len=*),intent(in)::parentModuleName
+character(len=*),intent(in)::parentName
 integer,intent(in)::outputLevel,order_in
-real(dp),intent(in)::tolerance_in,hOGATA_in,TMDmass_in
+real(dp),intent(in)::tolerance_in,hOGATA_in,TMDmass_in,kTmin
 
 integer::i,j,k
 real(dp)::xi,hS!=h*hSegmentationWeight
 
-this%parentModuleName=parentModuleName
+this%parentName=parentName
 this%outputLevel=outputLevel
-if(this%outputLevel>2) write(*,*) this%parentModuleName,': preparing Ogata tables'
+if(this%outputLevel>2) write(*,*) this%parentName,': preparing Ogata tables'
 
 this%TMDmass=TMDmass_in
 this%N=order_in
 this%tolerance=tolerance_in
 this%hOGATA=hOGATA_in
+this%kTmin=kTmin
 
 SELECT CASE(this%N)
 CASE(0)
@@ -95,7 +98,7 @@ CASE(2)
 CASE(3)
     this%transformationFactor=this%TMDmass**6/6
 CASE DEFAULT
-    write(*,*) ErrorString('aTMDe_Ogata: Ogata transformation with N>3 is not defined. ',this%parentModuleName),this%N
+    write(*,*) ErrorString('aTMDe_Ogata: Ogata transformation with N>3 is not defined. ',this%parentName),this%N
     error stop
 END SELECT
 
@@ -124,7 +127,7 @@ end do
 end do
 
 if(this%outputLevel>2) write(*,'(A,I4)') ' | Maximum number of nodes    :',Nmax
-if(this%outputLevel>1) write(*,*) this%parentModuleName,': Ogata tables (transformation order ',int4ToStr(this%N),') are prepared'
+if(this%outputLevel>1) write(*,*) this%parentName,': Ogata tables (transformation order ',int4ToStr(this%N),') are prepared'
 if(outputLevel>2) write(*,*) color("If you use TMMs, please, cite [2402.01836]",c_cyan)
 end function constructor
 
@@ -134,20 +137,26 @@ end function constructor
 !!!
 !!! or order of hankel transform is defined by this%N,
 !!! the function to integrate is "func_1D"
-subroutine Transform_def(this,F,qT,n,res,ISconvergent)
+subroutine Transform_def(this,F,qT_in,n,res,ISconvergent)
 class(OgataIntegrator), intent(inout)::this
 procedure(func_1D)::F
-real(dp),intent(in)::qT
+real(dp),intent(in)::qT_in
 integer,intent(in)::n
 real(dp),intent(out)::res
 logical,intent(out)::ISconvergent
 
-real(dp)::integral,eps,delta
+real(dp)::integral,eps,delta,qT
 real(dp)::v1,v2,v3,v4
 integer::k,j,Nsegment
 
 integral=0.d0
 ISconvergent=.true.
+
+if(qT_in<this%kTmin) then
+    qT=this%kTmin
+else
+    qT=qT_in
+end if
 
 v1=1d0
 v2=1d0
@@ -184,7 +193,7 @@ end do
 
 !!!!! if we run out of maximum number of nodes.
 if(k>=Nmax) then
-  if(this%outputlevel>0) WRITE(*,*) WarningString('OGATA quadrature diverge. W decaing too slow? ',this%parentModuleName)
+  if(this%outputlevel>0) WRITE(*,*) WarningString('OGATA quadrature diverge. W decaing too slow? ',this%parentName)
   if(this%outputlevel>1) then
     write(*,*) 'Information over the last call ----------'
     write(*,*) 'bt/qT= ',this%bb(Nsegment,n,Nmax)/qT, 'qT=',qT, '| segmentation zone=',Nsegment,&
@@ -260,7 +269,7 @@ do r=1,Nmax!!! maximum of number of bessel roots preevaluated in the head
 end do
 
 if(r>=Nmax) then
-    if(this%outputlevel>0) write(*,*) WarningString('OGATA quadrature diverge. TMD decaing too slow? ',this%parentModuleName)
+    if(this%outputlevel>0) write(*,*) WarningString('OGATA quadrature diverge. TMD decaing too slow? ',this%parentName)
         if(this%outputlevel>2) then
         write(*,*) 'Information over the last call ----------'
         write(*,*) partDone
@@ -308,7 +317,7 @@ SELECT CASE(this%N)
     CASE(2)
         Moment_G_def=pix2*mu**3/8*G_def(this,F,mu,2,3)
     CASE DEFAULT
-        error stop ErrorString("MOMENT G is defined only for n=0,1,2",this%parentModuleName)
+        error stop ErrorString("MOMENT G is defined only for n=0,1,2",this%parentName)
 END SELECT
 
 end function Moment_G_def
@@ -332,7 +341,7 @@ SELECT CASE(this%N)
     CASE(1)
         Moment_X_def=pix2*mu**3/(4*this%TMDmass**2)*(mu*G_def(this,F,mu,1,2)-2*G_def(this,F,mu,0,3))
     CASE DEFAULT
-        error stop ErrorString("MOMENT X is defined only for n=0,1",this%parentModuleName)
+        error stop ErrorString("MOMENT X is defined only for n=0,1",this%parentName)
 END SELECT
 
 end function Moment_X_def

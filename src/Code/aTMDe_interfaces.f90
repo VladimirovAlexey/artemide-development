@@ -40,4 +40,14 @@ abstract interface
     end function func_1D_array5
 end interface
 
+!!! this is interface for optTMD-like function (-5:5)
+abstract interface
+    function optTMD(x,b,h)
+        import::dp
+        real(dp),dimension(-5:5) :: optTMD
+        real(dp), intent(in) ::x,b
+        integer,intent(in)::h
+    end function optTMD
+end interface
+
 end module aTMDe_interfaces
