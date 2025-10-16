@@ -446,7 +446,7 @@ function uTMDPDF_X0_AS(x,mu,mu0,h,addGluon)
 end function uTMDPDF_X0_AS
 
 !!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
-!!! This subroutine force reconstruction of the grid (if griding is ON)
+!!! This subroutine forces reconstruction of the grid (if griding is ON)
 subroutine uTMDPDF_OPE_resetGrid()
     if(useGrid) then
         if(outputLevel>1) write(*,*) 'arTeMiDe ',moduleName,':  Grid Reset. with c4=',c4_global

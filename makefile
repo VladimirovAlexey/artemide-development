@@ -48,6 +48,7 @@ $(SOURCEDIR)/Code/aTMDe_invMatrix.f90 \
 $(SOURCEDIR)/Code/aTMDe_Ogata.f90 \
 $(SOURCEDIR)/Code/aTMDe_optGrid.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_alpha.f90 \
+$(SOURCEDIR)/Code/LHA/LHA_PDF.f90 \
 $(SOURCEDIR)/LeptonCutsDY.f90 \
 $(SOURCEDIR)/aTMDe_setup.f90 \
 $(SOURCEDIR)/QCDinput.f90 \
@@ -179,6 +180,7 @@ $(OBJ)/aTMDe_invMatrix.o \
 $(OBJ)/LeptonCutsDY.o \
 $(OBJ)/aTMDe_setup.o \
 $(OBJ)/LHA_alpha.o \
+$(OBJ)/LHA_PDF.o \
 $(OBJ)/QCDinput.o \
 $(OBJ)/EWinput.o\
 $(OBJ)/TMD_AD.o\
@@ -339,7 +341,13 @@ $(OBJ)/LHA_alpha.o: $(SOURCEDIR)/Code/LHA/LHA_alpha.f90 $(aTMDeUTILITY)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/QCDinput.o: $(SOURCEDIR)/QCDinput.f90 $(OBJ)/LHA_alpha.o $(aTMDeUTILITY) $(SOURCEDIR)/Code/LHA/LHA_PDF.f90
+$(OBJ)/LHA_PDF.o: $(SOURCEDIR)/Code/LHA/LHA_PDF.f90 $(aTMDeUTILITY)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/Code/LHA/LHA_PDF.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/QCDinput.o: $(SOURCEDIR)/QCDinput.f90 $(OBJ)/LHA_alpha.o $(OBJ)/LHA_PDF.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/QCDinput.f90 -I$(MOD) $(FOPT)
 	mv *.o $(OBJ)

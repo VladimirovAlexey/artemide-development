@@ -82,7 +82,6 @@ character(*),intent(in)::name
 
 integer::i
 
-
 this%parentName=name
 this%outputLevel=outLevel
 this%gridReady=.false.
