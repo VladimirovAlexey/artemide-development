@@ -50,4 +50,17 @@ abstract interface
     end function optTMD
 end interface
 
+!!! this is interface for structure function
+!!! with process0 being last 3 numbers of the process-numeration
+abstract interface
+    function strFUNC(Q2,qT,x1,x2,process0)
+        import::dp
+        real(dp)::strFUNC
+        real(dp),intent(in)::Q2,qT,x1,x2
+        integer,dimension(1:3),intent(in)::process0
+    end function strFUNC
+end interface
+
+
+
 end module aTMDe_interfaces

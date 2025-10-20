@@ -47,6 +47,7 @@ $(SOURCEDIR)/Code/aTMDe_Integration.f90 \
 $(SOURCEDIR)/Code/aTMDe_invMatrix.f90 \
 $(SOURCEDIR)/Code/aTMDe_Ogata.f90 \
 $(SOURCEDIR)/Code/aTMDe_optGrid.f90 \
+$(SOURCEDIR)/Code/aTMDe_xGrid.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_alpha.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_PDF.f90 \
 $(SOURCEDIR)/LeptonCutsDY.f90 \
@@ -176,6 +177,7 @@ $(OBJ)/aTMDe_IO.o \
 $(OBJ)/aTMDe_Integration.o \
 $(OBJ)/aTMDe_Ogata.o \
 $(OBJ)/aTMDe_optGrid.o \
+$(OBJ)/aTMDe_xGrid.o \
 $(OBJ)/aTMDe_invMatrix.o \
 $(OBJ)/LeptonCutsDY.o \
 $(OBJ)/aTMDe_setup.o \
@@ -232,6 +234,8 @@ $(OBJ)/aTMDe_Integration.o\
 $(OBJ)/aTMDe_Ogata.o\
 $(OBJ)/aTMDe_optGrid.o\
 $(OBJ)/aTMDe_invMatrix.o
+#$(OBJ)/aTMDe_xGrid.o
+
 
 
 ################################################################### COMPILATION OF ARTEMIDE ####################################
@@ -322,6 +326,11 @@ $(OBJ)/aTMDe_Ogata.o: $(SOURCEDIR)/Code/aTMDe_Ogata.f90 $(OBJ)/aTMDe_Numerics.o 
 
 $(OBJ)/aTMDe_optGrid.o: $(SOURCEDIR)/Code/aTMDe_optGrid.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o
 	$(FC) -c $(SOURCEDIR)/Code/aTMDe_optGrid.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/aTMDe_xGrid.o: $(SOURCEDIR)/Code/aTMDe_xGrid.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o $(OBJ)/EWinput.o
+	$(FC) -c $(SOURCEDIR)/Code/aTMDe_xGrid.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 

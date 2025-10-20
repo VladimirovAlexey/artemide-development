@@ -618,6 +618,25 @@ end function NumPT_auto
 
 !---------------------------------UNINTEGRATED------------------------------------------------------------------
 
+!!!!! this is function which is placed to the F_toGrid
+!!!!! it is positioned here because it knowns about variables of TMDX module
+function F_toGrid(Q2,qT,x1,x2,process0)
+real(dp),intent(in)::Q2,qT,x1,x2
+integer,dimension(1:3),intent(in)::process0
+real(dp)::F_toGrid
+
+real(dp)::scaleMu,scaleZeta
+scaleZeta=Q2
+scaleMu=sqrt(scaleZeta)
+
+if(useKPC) then
+  F_toGrid=KPC_DYconv(Q2,qT,x1,x2,scaleMu*c2_global,process0)
+else
+  F_toGrid=TMDF_F(Q2,qT,x1,x2,scaleMu*c2_global,scaleZeta,scaleZeta,process0)
+end if
+
+end function
+
 !!! this is help function which evaluate xSec at single qt (without lists) with only prefactor 2
 !!!! this is extended (and default) version of xSec, which include all parameters
 function xSec(var,process,incCut,CutParam)

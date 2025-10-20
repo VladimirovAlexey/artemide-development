@@ -31,7 +31,7 @@ public:: QCDinput_SetPDFreplica, QCDinput_SetFFreplica, QCDinput_SetlpPDFreplica
 
 character (len=8),parameter :: moduleName="QCDinput"
 !Current version of module
-character (len=5),parameter :: version="v3.01"
+character (len=5),parameter :: version="v3.03"
 !Last appropriate verion of constants-file
 integer,parameter::inputver=35
 !--- general
