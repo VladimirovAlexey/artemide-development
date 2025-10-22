@@ -61,6 +61,4 @@ abstract interface
     end function strFUNC
 end interface
 
-
-
 end module aTMDe_interfaces

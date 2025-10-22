@@ -10,6 +10,7 @@
 module TMDX_DY
 use aTMDe_Numerics
 use aTMDe_IO
+!use aTMDe_xGrid
 use TMDF
 use TMDF_KPC
 use LeptonCutsDY
@@ -22,7 +23,7 @@ private
 
 !!!!!! 1=accurate but slow
 !!!!!! 2=fast but not accurate
-#define INTEGRATION_MODE 2
+#define INTEGRATION_MODE 1
 
 !Current version of module
 character (len=7),parameter :: moduleName="TMDX-DY"
@@ -35,6 +36,13 @@ real(dp) :: toleranceGEN=0.0000001d0
 
 integer::outputlevel=2
 type(Warning_OBJ)::Warning_Handler
+
+!!!!!!! option to use the precomputed grids for processes
+!!!!!!! AWARE!!! this decresases the precision of computation down to 0.5% (avarage) but could speedup very repeatative computations
+!!!logical::usePrecomputedGrids=.false.
+!!!!!!! the following two arrays are synhronized
+!!!integer,allocatable,dimension(:,:)::storedProcesses
+!!!type(Xgrid),allocatable,dimension(:)::grids_for_processes
 
 !!!!
 !!!! in the module the kinematic is stored in the varibles "kinematic" real(dp),dimension(1:6)
@@ -65,7 +73,7 @@ real(dp)::hc2
 logical::started=.false.
 
 public::TMDX_DY_Initialize,TMDX_DY_SetScaleVariation,&
-TMDX_DY_ShowStatistic,TMDX_DY_ResetCounters,TMDX_DY_IsInitialized
+TMDX_DY_ShowStatistic,TMDX_DY_ResetCounters,TMDX_DY_IsInitialized, F_toGrid
 public::  xSec_DY,xSec_DY_List,xSec_DY_List_BINLESS,xSec_DY_List_APPROXIMATE
 
 interface xSec_DY
@@ -271,6 +279,13 @@ subroutine TMDX_DY_Initialize(file,prefix)
   GlobalCounter=0
   CallCounter=0
 
+!   allocate(grids_for_processes(1:1))
+!   grids_for_processes(1)=xGrid(F_toGrid,(/1,1,3/),&
+!     (45._dp)**2,(260._dp)**2,10,&
+!     0._dp,55._dp,10,&
+!     0.001_dp,1._dp,3,0.001_dp,1._dp,3,&
+!     moduleName,outputLevel)
+
   started=.true.
 
 #if INTEGRATION_MODE==2
@@ -297,7 +312,7 @@ subroutine TMDX_DY_ShowStatistic()
 
     write(*,'(A,ES12.3)') 'TMDX DY statistics      total calls of point xSec  :  ',Real(GlobalCounter)
     write(*,'(A,ES12.3)') '                              total calls of xSecF :  ',Real(CallCounter)
-    write(*,'(A,F12.3)')  '                                         avarage M :  ',Real(GlobalCounter)/Real(CallCounter)
+    write(*,'(A,F12.3)')  '                                         average M :  ',Real(GlobalCounter)/Real(CallCounter)
 end subroutine TMDX_DY_ShowStatistic
   
   
@@ -685,6 +700,7 @@ function xSec(var,process,incCut,CutParam)
 
     !!!!! compute cross-section for each process
     FF=TMDF_F(var(4),var(1),x1,x2,scaleMu*c2_global,scaleZeta,scaleZeta,process(2:4))
+    !FF=grids_for_processes(1)%getValue(var(4),var(1),x1,x2)
     LC=LeptonCutFactorLP(var,process(4),incCut,CutParam)
 
     xSec=PreFactor2(var,process(1))*FF*LC

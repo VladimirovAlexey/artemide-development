@@ -13,7 +13,7 @@ FCompilator=gfortran
 Fflags= -O3 -cpp -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -fopenmp
 # This should be as string because it is how f2py eats it.
 FflagsHARPY= '-O3 -cpp -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -fopenmp'
-#### Fir debuging
+#### For debuging
 #Fflags=  -O3 -cpp -march=native  -fforce-addr -fstrength-reduce -fcaller-saves -funroll-loops -Wall -fopenmp
 #path to fortran compilator (needed for f2py)
 #Fpath=/usr/bin/f95
@@ -142,7 +142,8 @@ aTMDeSetupFiles=\
 $(SOURCEDIR)/Code/aTMDe_setup/placeHolder.f90
 
 TMDXFiles=\
-$(SOURCEDIR)/Code/TMDX/DYcoeff-func.f90
+$(SOURCEDIR)/Code/TMDX/DYcoeff-func.f90\
+$(SOURCEDIR)/Code/aTMDe_xGrid.f90
 
 aTMDeMODEL = \
 $(SOURCEDIR)/Model/TMDR_model.f90 \
