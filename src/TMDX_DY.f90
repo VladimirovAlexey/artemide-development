@@ -23,7 +23,7 @@ private
 
 !!!!!! 1=accurate but slow
 !!!!!! 2=fast but not accurate
-#define INTEGRATION_MODE 1
+#define INTEGRATION_MODE 2
 
 !Current version of module
 character (len=7),parameter :: moduleName="TMDX-DY"
