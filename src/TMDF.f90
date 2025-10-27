@@ -24,7 +24,9 @@ use uTMDFF
 use lpTMDPDF
 use SiversTMDPDF
 use wgtTMDPDF
+use wglTMDPDF
 use BoerMuldersTMDPDF
+use CollinsTMDFF
 
 implicit none
 
@@ -32,9 +34,9 @@ private
 !   public
 
 character (len=7),parameter :: moduleName="TMDF"
-character (len=5),parameter :: version="v3.01"
+character (len=5),parameter :: version="v3.03"
 !Last appropriate verion of constants-file
-integer,parameter::inputver=31
+integer,parameter::inputver=37
 
 !------------------------------------------Working variables------------------------------------------------------------
 integer::outputLevel=2
@@ -49,7 +51,9 @@ logical::include_uTMDFF
 logical::include_lpTMDPDF
 logical::include_SiversTMDPDF
 logical::include_wgtTMDPDF
+logical::include_wglTMDPDF
 logical::include_BoerMuldersTMDPDF
+logical::include_CollinsTMDFF
 
 real(dp):: global_mass_scale=0.938_dp
 real(dp):: qtMIN=0.0001d0
@@ -168,6 +172,16 @@ call MoveTO(51,'*14  ')
 call MoveTO(51,'*p1  ')
 read(51,*) include_BoerMuldersTMDPDF
 
+!! BoerMuldersTMDPDF
+call MoveTO(51,'*16  ')
+call MoveTO(51,'*p1  ')
+read(51,*) include_wglTMDPDF
+
+!! CollinsTMDFF
+call MoveTO(51,'*18  ')
+call MoveTO(51,'*p1  ')
+read(51,*) include_CollinsTMDFF
+
 CLOSE (51, STATUS='KEEP')
 
 Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
@@ -233,7 +247,7 @@ if(include_wgtTMDPDF .and. (.not.wgtTMDPDF_IsInitialized())) then
 end if
 
 if(include_BoerMuldersTMDPDF .and. (.not.BoerMuldersTMDPDF_IsInitialized())) then
-    if(outputLevel>1) write(*,*) '.. initializing SiversTMDPDF (from ',moduleName,')'
+    if(outputLevel>1) write(*,*) '.. initializing BoerMuldersTMDPDF (from ',moduleName,')'
     if(present(prefix)) then
         call BoerMuldersTMDPDF_Initialize(file,prefix)
     else
@@ -241,6 +255,23 @@ if(include_BoerMuldersTMDPDF .and. (.not.BoerMuldersTMDPDF_IsInitialized())) the
     end if
 end if
 
+if(include_wglTMDPDF .and. (.not.wglTMDPDF_IsInitialized())) then
+    if(outputLevel>1) write(*,*) '.. initializing wglTMDPDF (from ',moduleName,')'
+    if(present(prefix)) then
+        call wglTMDPDF_Initialize(file,prefix)
+    else
+        call wglTMDPDF_Initialize(file)
+    end if
+end if
+
+if(include_CollinsTMDFF .and. (.not.CollinsTMDFF_IsInitialized())) then
+    if(outputLevel>1) write(*,*) '.. initializing CollinsTMDFF (from ',moduleName,')'
+    if(present(prefix)) then
+        call CollinsTMDFF_Initialize(file,prefix)
+    else
+        call CollinsTMDFF_Initialize(file)
+    end if
+end if
 
 started=.true.
 if(outputLevel>0) write(*,*) color('----- arTeMiDe.TMDF '//trim(version)//': .... initialized',c_green)

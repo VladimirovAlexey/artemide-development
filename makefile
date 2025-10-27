@@ -78,6 +78,9 @@ $(SOURCEDIR)/wglTMDPDF.f90 \
 $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 \
 $(SOURCEDIR)/BoerMuldersTMDPDF_OPE.f90 \
 $(SOURCEDIR)/BoerMuldersTMDPDF.f90 \
+$(SOURCEDIR)/Model/CollinsTMDFF_model.f90 \
+$(SOURCEDIR)/CollinsTMDFF_OPE.f90 \
+$(SOURCEDIR)/CollinsTMDFF.f90 \
 $(SOURCEDIR)/eeTMDFF.f90 \
 $(SOURCEDIR)/Model/eeTMDFF_model.f90 \
 $(SOURCEDIR)/TMDF.f90 \
@@ -122,6 +125,12 @@ $(SOURCEDIR)/Code/lpTMDPDF/coeffFunc.f90
 SiversTMDPDFFiles=\
 $(SOURCEDIR)/Code/SiversTMDPDF/placeHolder.f90
 
+BoerMuldersTMDPDFFiles=\
+$(SOURCEDIR)/Code/BoerMuldersTMDPDF/placeHolder.f90
+
+CollinsTMDFFFiles=\
+$(SOURCEDIR)/Code/CollinsTMDFF/placeHolder.f90
+
 wgtTMDPDFFiles=\
 $(SOURCEDIR)/Code/wgtTMDPDF/coeffFunc.f90 \
 $(SOURCEDIR)/Code/wgtTMDPDF/coeffFunc_largeX.f90
@@ -152,6 +161,7 @@ $(SOURCEDIR)/Model/uTMDFF_model.f90 \
 $(SOURCEDIR)/Model/lpTMDPDF_model.f90 \
 $(SOURCEDIR)/Model/SiversTMDPDF_model.f90 \
 $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 \
+$(SOURCEDIR)/Model/CollinsTMDFF_model.f90 \
 $(SOURCEDIR)/Model/wgtTMDPDF_model.f90
 
 
@@ -210,6 +220,9 @@ $(OBJ)/wglTMDPDF.o \
 $(OBJ)/BoerMuldersTMDPDF_model.o \
 $(OBJ)/BoerMuldersTMDPDF_OPE.o \
 $(OBJ)/BoerMuldersTMDPDF.o \
+$(OBJ)/CollinsTMDFF_model.o \
+$(OBJ)/CollinsTMDFF_OPE.o \
+$(OBJ)/CollinsTMDFF.o \
 $(OBJ)/eeTMDFF_model.o \
 $(OBJ)/eeTMDFF.o \
 $(OBJ)/TMDF.o \
@@ -513,6 +526,24 @@ $(OBJ)/BoerMuldersTMDPDF.o: $(SOURCEDIR)/BoerMuldersTMDPDF.f90 $(OBJ)/QCDinput.o
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
+$(OBJ)/CollinsTMDFF_model.o: $(SOURCEDIR)/Model/CollinsTMDFF_model.f90 $(OBJ)/SnowFlake.o $(aTMDeUTILITY)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/Model/CollinsTMDFF_model.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/CollinsTMDFF_OPE.o: $(SOURCEDIR)/CollinsTMDFF_OPE.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/CollinsTMDFF_model.f90 $(Twist3Files) $(aTMDeUTILITY) $(CollinsTMDFFFiles)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/CollinsTMDFF_OPE.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/CollinsTMDFF.o: $(SOURCEDIR)/CollinsTMDFF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/CollinsTMDFF_model.f90 $(SOURCEDIR)/CollinsTMDFF_OPE.f90 $(KTspaceFiles) $(aTMDeUTILITY) $(CollinsTMDFFFiles)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/CollinsTMDFF.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
 $(OBJ)/eeTMDFF_model.o: $(SOURCEDIR)/Model/eeTMDFF_model.f90 $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/Model/eeTMDFF_model.f90 -I$(MOD)
@@ -525,13 +556,13 @@ $(OBJ)/eeTMDFF.o: $(SOURCEDIR)/eeTMDFF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOU
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/TMDF.o: $(SOURCEDIR)/TMDF.f90 $(TMDFFiles) $(OBJ)/EWinput.o $(OBJ)/uTMDPDF.o $(OBJ)/uTMDFF.o $(OBJ)/lpTMDPDF.o $(OBJ)/SiversTMDPDF.o $(OBJ)/wgtTMDPDF.o $(OBJ)/BoerMuldersTMDPDF.o $(OBJ)/wglTMDPDF.o $(OBJ)/eeTMDFF.o $(aTMDeUTILITY)
+$(OBJ)/TMDF.o: $(SOURCEDIR)/TMDF.f90 $(TMDFFiles) $(OBJ)/EWinput.o $(OBJ)/uTMDPDF.o $(OBJ)/uTMDFF.o $(OBJ)/lpTMDPDF.o $(OBJ)/SiversTMDPDF.o $(OBJ)/wgtTMDPDF.o $(OBJ)/BoerMuldersTMDPDF.o $(OBJ)/CollinsTMDFF.o $(OBJ)/wglTMDPDF.o $(OBJ)/eeTMDFF.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/TMDF.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/TMDF_KPC.o: $(SOURCEDIR)/TMDF_KPC.f90 $(OBJ)/EWinput.o $(OBJ)/uTMDPDF.o $(OBJ)/uTMDFF.o $(OBJ)/lpTMDPDF.o $(OBJ)/SiversTMDPDF.o $(OBJ)/wgtTMDPDF.o $(OBJ)/BoerMuldersTMDPDF.o $(OBJ)/wglTMDPDF.o $(OBJ)/eeTMDFF.o $(TMDKPCFiles) $(aTMDeUTILITY)
+$(OBJ)/TMDF_KPC.o: $(SOURCEDIR)/TMDF_KPC.f90 $(OBJ)/EWinput.o $(OBJ)/uTMDPDF.o $(OBJ)/uTMDFF.o $(OBJ)/lpTMDPDF.o $(OBJ)/SiversTMDPDF.o $(OBJ)/wgtTMDPDF.o $(OBJ)/BoerMuldersTMDPDF.o $(OBJ)/CollinsTMDFF.o $(OBJ)/wglTMDPDF.o $(OBJ)/eeTMDFF.o $(TMDKPCFiles) $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/TMDF_KPC.f90 -I$(MOD)
 	mv *.o $(OBJ)
