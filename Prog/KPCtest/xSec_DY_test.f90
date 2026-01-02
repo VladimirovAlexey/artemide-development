@@ -25,7 +25,7 @@ implicit none
  real*8, dimension(1:NUM,1:2) :: MM
 
 
- real*8 :: time1,time2
+ real*8 :: time1,time2, t1(1:NUM),t2(1:NUM),t1LP(1:NUM),t2LP(1:NUM)
 
 
  !!!!! SETUP ARTEMIDE and NP-parameters
@@ -83,8 +83,12 @@ call cpu_time(time1)
 
  do i=1,NUM
 
+  call cpu_time(t1(i))
   xxKPC(i)=KPC_DYconv(Q(i)**2,qT(i),x1(i),x2(i),Q(i),(/1,1,1/))
+  call cpu_time(t2(i))
+  call cpu_time(t1LP(i))
   xxLP(i)=TMDF_F(Q(i)**2,qT(i),x1(i),x2(i),Q(i),Q(i)**2,Q(i)**2,(/1,1,1/))
+  call cpu_time(t2LP(i))
 
 end do
 
@@ -96,7 +100,9 @@ end do
 write(*,*) " "
 write(*,*) " "
 write(*,*) " COMPUTATION TIME:", time2-time1
-
+do i=1,NUM
+write(*,'("{",F12.6,",",F12.6,",",F12.6,"},")') Q(i),t2(i)-t1(i),(t2(i)-t1(i))/(t2LP(i)-t1LP(i))
+end do
 write(*,*) "---------------------------------------------------------"
 
 

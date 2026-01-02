@@ -336,6 +336,7 @@ function KPC_DYconv(Q2,qT_in,x1,x2,mu,proc1)
 
     KPC_DYconv=Integrate_GK(Integrand_forTheta,0._dp,pi,toleranceINT)
     !KPC_DYconv=Integrate_GK(Integrand_forAlpha,0._dp,piHalf,toleranceINT)
+    !KPC_DYconv=Integrate2D_Stroud53_56(Integrand_forThetaAlpha,0._dp,pi,0._dp,piHalf,toleranceINT)
 
      !close(10)
 
@@ -365,6 +366,35 @@ function Integrand_forAlpha(alpha)
     !write(*,"('{',F16.12,',',F16.8,'},')") alpha,Integrand_forAlpha
 
 end function Integrand_forAlpha
+
+!!!! This is integral over Theta and Alpha
+function Integrand_forThetaAlpha(theta,alpha)
+    real(dp)::Integrand_forThetaAlpha
+    real(dp),intent(in)::theta,alpha
+    real(dp)::cT,sA
+    real(dp)::S,Lam,xi1,xi2,K1,K2
+
+    cT=cos(theta)
+    sA=sin(alpha)
+
+    S=Sqrt(deltaT)*sA*cT
+    Lam=(1-deltaT)*(1-sA*sA)
+
+    xi1=x1/2*(1+S+sqrt(Lam))
+    xi2=x2/2*(1-S+sqrt(Lam))
+    K1=tau2/4*((1+S)**2-Lam)
+    K2=tau2/4*((1-S)**2-Lam)
+
+    !!!! Some times K1 and K2 became too close to zero... and turns negative
+    if(K1<toleranceGEN) K1=toleranceGEN
+    if(K2<toleranceGEN) K2=toleranceGEN
+
+    LocalCounter=LocalCounter+1
+
+    !!! it is devided by 2 (instead of 4), because the integral over cos(theta) is over (0,pi).
+    Integrand_forThetaAlpha=TMD_pair(Q2,xi1,xi2,K1,K2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,sA,cT,proc1(3))*sA
+
+end function Integrand_forThetaAlpha
 
 end function KPC_DYconv
 
@@ -400,6 +430,8 @@ function Integrand_forALPHA(alpha)
     !!!! Some times K1 and K2 became too close to zero... and turns negative
     if(K1<toleranceGEN) K1=toleranceGEN
     if(K2<toleranceGEN) K2=toleranceGEN
+
+    LocalCounter=LocalCounter+1
 
     !!! it is devided by 2 (instead of 4), because the integral over cos(theta) is over (0,pi).
     Integrand_forALPHA=TMD_pair(Q2,xi1,xi2,K1,K2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,sinA,cT,proc1(3))*sinA

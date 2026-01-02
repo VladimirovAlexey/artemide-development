@@ -3,9 +3,9 @@
 !
 !	Evaluation of the Collins TMD FF at low normalization point in zeta-prescription.
 !
-!	29.01.2024  Implementation in ver.3.0
+!    ver 3.03: release (SP & AV, 27.10.2025)
 !
-!				A.Vladimirov (29.01.2024)
+!                S.Piloneta (27.10.2025)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module Fourier_Levin_CollinsTMDFF
 INCLUDE 'Code/KTspace/Fourier_Levin.f90'

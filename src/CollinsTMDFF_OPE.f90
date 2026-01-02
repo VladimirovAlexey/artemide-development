@@ -1,13 +1,13 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!            arTeMiDe 3.00
+!            arTeMiDe 3.03
 !
 !    Evaluation of the small-b OPE for CollinsTMDFF
 !
 !    if you use this module please, quote     2209.00962
 !
-!    ver 3.00: release (AV, 29.01.2024)
+!    ver 3.03: release (SP & AV, 27.10.2025)
 !
-!                A.Vladimirov (29.07.2024)
+!                S.Piloneta (27.10.2025)
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

@@ -717,10 +717,11 @@ function Xsec_Yint(var,process,incCut,CutParam,ymin_in,ymax_in)
   real(dp),dimension(1:7) :: var
   logical,intent(in)::incCut
   real(dp),dimension(1:4),intent(in)::CutParam
-  integer,dimension(1:4)::process
-  real(dp) :: Xsec_Yint
+  integer,dimension(1:4),intent(in)::process
+  real(dp),intent(in)::ymin_in,ymax_in
 
-  real(dp) :: ymin, ymax,ymin_in,ymax_in
+  real(dp) :: Xsec_Yint
+  real(dp) :: ymin, ymax
   real(dp) :: ymin_Check,ymax_Check
 
 
@@ -735,7 +736,8 @@ function Xsec_Yint(var,process,incCut,CutParam,ymin_in,ymax_in)
     ymin=yFromXF(ymin_in,var)
     ymax=yFromXF(ymax_in,var)
 
-    process(1)=1 !!!! this is important because the actual integration is over y, and process=2 contains Jacobian.
+    !!
+    !!process(1)=1 !!!! this is important because the actual integration is over y, and process=2 contains Jacobian.
   else
     ymin=ymin_in
     ymax=ymax_in
@@ -785,7 +787,10 @@ function integrandOverY(y)
 real(dp),intent(in)::y
 real(dp)::integrandOverY
 call SetY(y,var)
-integrandOverY=xSec(var,process,incCut,CutParam)
+
+!!!!! BUG CORRECTED: 2.01.2026l Very many thanks to Valentin Moos!
+!!!!! importantly, the process is always dy thus process(1)->1, strictly
+integrandOverY=xSec(var,(/1,process(2),process(3),process(4)/),incCut,CutParam)
 end function integrandOverY
 
 end function Xsec_Yint

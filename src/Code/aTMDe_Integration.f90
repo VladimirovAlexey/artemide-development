@@ -28,6 +28,7 @@ INCLUDE 'Tables/G20K41.f90'
 public::Integrate_S5,Integrate_SN,Integrate_SA,Integrate_SA_2D
 public::Integrate_G3,Integrate_G7,Integrate_K15,Integrate_K41,Integrate_GK,Integrate_GK2041
 public::Integrate_GK_array5
+public::Integrate2D_Stroud35_55,Integrate2D_Stroud35_56
 
 
 real(dp),dimension(1:3,1:3),parameter::SA3_2D_w=reshape((/1._dp,4._dp,1._dp,&
@@ -558,5 +559,238 @@ recursive function GK2041_Rec(f,xMin,xMax,eps) result(res)
 
 end function GK2041_Rec
 !!!!-------------------------------------------------------------------------------------------------------------
+
+!------------------------------------------- Stroud3-5/5-5 adaptive --------------------------------------------
+!!! The 2D integration using Stroud 3-5 (5pt) and Stroud 5-5 (+4pt); adaptive by split into sub-regions (each time +6pt)
+!!! f::  function of 2 variable
+!!! (x1,x2) (y1,y2) are boundaries of the integral. x2>x1 and y2>y1 !!
+!!! tolerance is relative (it is wieghted by approximate value of integral)
+!!!
+!!! The points are set as following (x-horizontal, y-vertical)
+!!! f2 --- f11 --- f3
+!!! |       |       |
+!!! |       f7      |
+!!! f10--f6 f0 f5 -f12
+!!! |       f8      |
+!!! |       |       |
+!!! f1 --- f13 --- f4
+!!!  Here point in the coners and in center are common for both cubatures, points f6--f8 are for cubature c55
+function Integrate2D_Stroud35_55(f,x1,x2,y1,y2,tolerance)
+    procedure(func_2D)::f
+    real(dp)::Integrate2D_Stroud35_55
+    real(dp),intent(in)::x1,x2,y1,y2,tolerance
+
+    real(dp)::x0,y0,dx,dy
+    real(dp)::f0,f1,f2,f3,f4,ff,f10,f11,f12,f13
+    real(dp),parameter::r=Sqrt(0.1_dp)
+
+    real(dp)::c35,c55,eps
+
+    x0=(x1+x2)*0.5_dp
+    y0=(y1+y2)*0.5_dp
+    dx=(x2-x1)
+    dy=(y2-y1)
+
+    !!!! check of the proper ordering of limits
+    if(dx<zero .or. dy<zero) then
+        Integrate2D_Stroud35_55=0._dp
+        return
+    end if
+
+    !!!!! corners and center
+    f1=f(x1,y1)
+    f2=f(x1,y2)
+    f3=f(x2,y2)
+    f4=f(x2,y1)
+    f0=f(x0,y0)
+
+    !!!!! additional contribution from C55 (+4pt)
+    ff=f(x0+r*dx,y0)+f(x0-r*dx,y0)+f(x0,y0+r*dy)+f(x0,y0-r*dy)
+
+    !!!! integrals by
+    c35=(8*f0+f1+f2+f3+f4)*dx*dy/12
+    c55=(-8*f0+f1+f2+f3+f4+10*ff)*dx*dy/36
+
+    eps=abs(c35)*tolerance
+
+    if(abs(c55)<zero) then
+        Integrate2D_Stroud35_55=c55
+    else if(abs(c55-c35)>eps) then
+        !!!! these are extra point twhich are common for following integrals
+        f10=f(x1,y0)
+        f11=f(x0,y2)
+        f12=f(x2,y0)
+        f13=f(x0,y1)
+
+        Integrate2D_Stroud35_55= Integrate2D_Stroud35_55_Rec(f,x1,x0,y1,y0,f1 ,f10,f0 ,f13,eps) &
+                                +Integrate2D_Stroud35_55_Rec(f,x1,x0,y0,y2,f10,f2 ,f11,f0 ,eps) &
+                                +Integrate2D_Stroud35_55_Rec(f,x0,x2,y0,y2,f0 ,f11,f3 ,f12,eps) &
+                                +Integrate2D_Stroud35_55_Rec(f,x0,x2,y1,y0,f13,f0 ,f12,f4 ,eps)
+    else
+        Integrate2D_Stroud35_55=c55
+    end if
+
+end function Integrate2D_Stroud35_55
+
+recursive function Integrate2D_Stroud35_55_Rec(f,x1,x2,y1,y2,f1,f2,f3,f4,eps) result(res)
+    procedure(func_2D)::f
+    real(dp)::res
+    real(dp),intent(in)::x1,x2,y1,y2,eps,f1,f2,f3,f4
+
+    real(dp)::x0,y0,dx,dy,f0,ff,f10,f11,f12,f13
+    real(dp),parameter::r=Sqrt(0.1_dp)
+    real(dp)::c35,c55
+
+    x0=(x1+x2)*0.5_dp
+    y0=(y1+y2)*0.5_dp
+    dx=(x2-x1)
+    dy=(y2-y1)
+
+    !!!!! center
+    f0=f(x0,y0)
+
+    !!!!! additional contribution from C55 (+4pt)
+    ff=f(x0+r*dx,y0)+f(x0-r*dx,y0)+f(x0,y0+r*dy)+f(x0,y0-r*dy)
+
+    !!!! integrals by
+    c35=(8*f0+f1+f2+f3+f4)*dx*dy/12
+    c55=(-8*f0+f1+f2+f3+f4+10*ff)*dx*dy/36
+
+    if(abs(c55)<zero) then
+        res=c55
+    else if(abs(c55-c35)>eps) then
+        !!!! these are extra point twhich are common for following integrals
+        f10=f(x1,y0)
+        f11=f(x0,y2)
+        f12=f(x2,y0)
+        f13=f(x0,y1)
+
+        res= Integrate2D_Stroud35_55_Rec(f,x1,x0,y1,y0,f1 ,f10,f0 ,f13,eps) &
+                                +Integrate2D_Stroud35_55_Rec(f,x1,x0,y0,y2,f10,f2 ,f11,f0 ,eps) &
+                                +Integrate2D_Stroud35_55_Rec(f,x0,x2,y0,y2,f0 ,f11,f3 ,f12,eps) &
+                                +Integrate2D_Stroud35_55_Rec(f,x0,x2,y1,y0,f13,f0 ,f12,f4,eps)
+    else
+        res=c55
+    end if
+
+end function Integrate2D_Stroud35_55_Rec
+
+!------------------------------------------- Stroud5-6 adaptive --------------------------------------------
+!!! The 2D integration using Stroud 5-6 (13 pt) vs. Stroud 3-5; adaptive by split into sub-regions (each time +8pt)
+!!! f::  function of 2 variable
+!!! (x1,x2) (y1,y2) are boundaries of the integral. x2>x1 and y2>y1 !!
+!!! tolerance is relative (it is wieghted by approximate value of integral)
+!!!
+!!! The points are set as following (x-horizontal, y-vertical)
+!!! f2 --- g2 --- f3
+!!! |   h2  |   h3 |
+!!! g1 --- f0 --- g3
+!!! |   h1  |   h4 |
+!!! f1 --- g4 --- f4
+!!!  All points are re-utilized in the next cubature
+function Integrate2D_Stroud35_56(f,x1,x2,y1,y2,tolerance)
+    procedure(func_2D)::f
+    real(dp)::Integrate2D_Stroud35_56
+    real(dp),intent(in)::x1,x2,y1,y2,tolerance
+
+    real(dp)::x0,y0,dx,dy,dx4,dy4
+    real(dp)::f0,f1,f2,f3,f4,g1,g2,g3,g4,h1,h2,h3,h4
+    real(dp)::c56,c35,eps
+
+    x0=(x1+x2)*0.5_dp
+    y0=(y1+y2)*0.5_dp
+    dx=(x2-x1)
+    dy=(y2-y1)
+    dx4=dx/4
+    dy4=dy/4
+
+    !!!! check of the proper ordering of limits
+    if(dx<zero .or. dy<zero) then
+        Integrate2D_Stroud35_56=0._dp
+        return
+    end if
+
+    !!!!! corners and center
+    f1=f(x1,y1)
+    f2=f(x1,y2)
+    f3=f(x2,y2)
+    f4=f(x2,y1)
+    f0=f(x0,y0)
+
+    !!!!! middlesides
+    g1=f(x1,y0)
+    g2=f(x0,y2)
+    g3=f(x2,y0)
+    g4=f(x0,y1)
+
+    !!!!! middleboxes
+    h1=f(x0-dx4,y0-dy4)
+    h2=f(x0-dx4,y0+dy4)
+    h3=f(x0+dx4,y0+dy4)
+    h4=f(x0+dx4,y0-dy4)
+
+    !!!! integral central
+    c56=(2*(f0+f1+f2+f3+f4)+0.75_dp*(g1+g2+g3+g4)+8*(h1+h2+h3+h4))*dx*dy/45
+    c35=(8*f0+f1+f2+f3+f4)*dx*dy/12
+
+    eps=abs(c56)*tolerance
+
+    if(abs(c56)<zero) then
+        Integrate2D_Stroud35_56=c56
+    else if(abs(c56-c35)>eps) then
+
+        Integrate2D_Stroud35_56=    Integrate2D_Stroud35_56_Rec(f,x1,x0,y1,y0,f1,g1,f0,g4,h1,eps) &
+                                +Integrate2D_Stroud35_56_Rec(f,x1,x0,y0,y2,g1,f2,g2,f0,h2,eps) &
+                                +Integrate2D_Stroud35_56_Rec(f,x0,x2,y0,y2,f0,g2,f3,g3,h3,eps) &
+                                +Integrate2D_Stroud35_56_Rec(f,x0,x2,y1,y0,g4,f0,g3,f4,h4,eps)
+    else
+        Integrate2D_Stroud35_56=c56
+    end if
+
+end function Integrate2D_Stroud35_56
+
+recursive function Integrate2D_Stroud35_56_Rec(f,x1,x2,y1,y2,f1,f2,f3,f4,f0,eps) result(res)
+    procedure(func_2D)::f
+    real(dp)::res
+    real(dp),intent(in)::x1,x2,y1,y2,eps,f1,f2,f3,f4,f0
+
+    real(dp)::x0,y0,dx,dy,dx4,dy4,g1,g2,g3,g4,h1,h2,h3,h4
+    real(dp)::c56,c35
+
+    x0=(x1+x2)*0.5_dp
+    y0=(y1+y2)*0.5_dp
+    dx=(x2-x1)
+    dy=(y2-y1)
+    dx4=dx/4
+    dy4=dy/4
+
+     !!!!! middlesides
+    g1=f(x1,y0)
+    g2=f(x0,y2)
+    g3=f(x2,y0)
+    g4=f(x0,y1)
+
+    !!!!! middleboxes
+    h1=f(x0-dx4,y0-dy4)
+    h2=f(x0-dx4,y0+dy4)
+    h3=f(x0+dx4,y0+dy4)
+    h4=f(x0+dx4,y0-dy4)
+
+    !!!! integral central
+    c56=(2*(f0+f1+f2+f3+f4)+0.75_dp*(g1+g2+g3+g4)+8*(h1+h2+h3+h4))*dx*dy/45
+    c35=(8*f0+f1+f2+f3+f4)*dx*dy/12
+
+    if(abs(c56)<zero) then
+        res=c56
+    else if(abs(c56-c35)>eps) then
+        res=    Integrate2D_Stroud35_56_Rec(f,x1,x0,y1,y0,f1,g1,f0,g4,h1,eps) &
+                +Integrate2D_Stroud35_56_Rec(f,x1,x0,y0,y2,g1,f2,g2,f0,h2,eps) &
+                +Integrate2D_Stroud35_56_Rec(f,x0,x2,y0,y2,f0,g2,f3,g3,h3,eps) &
+                +Integrate2D_Stroud35_56_Rec(f,x0,x2,y1,y0,g4,f0,g3,f4,h4,eps)
+    else
+        res=c56
+    end if
+
+end function Integrate2D_Stroud35_56_Rec
 
 end module aTMDe_Integration
