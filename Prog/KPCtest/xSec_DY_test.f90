@@ -12,7 +12,7 @@ use TMDF_KPC
 implicit none
 
 
- integer, parameter :: NUM = 10  ! defines the number of points to compute
+ integer, parameter :: NUM = 40  ! defines the number of points to compute
 
  integer :: i ! to do the loop
 
@@ -52,7 +52,7 @@ implicit none
 
  do i=1,NUM
 
-   Q(i) = 50.d0+8*(i-1)*2
+   Q(i) = 50.d0+2*(i-1)*2
 
    s(i) = 1500.d0 !! TeV
 

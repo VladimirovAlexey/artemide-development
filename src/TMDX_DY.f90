@@ -432,7 +432,8 @@ function PreFactor2(kin,process)
         hc2*1d9!from GeV to pb
   CASE(2)
     !4 pi aEm^2/3 /Nc/Q^2/s
-    ! the process=2 is for the xF-integration. It has extra weigth 2sqrt[(Q^2+q_T^2)/s] Cosh[y]
+    !! the process=2 is for the xF-integration. It has extra weigth 2sqrt[(Q^2+q_T^2)/s] Cosh[y]
+    !! NOTE: it is used only if there is no integration
     uniPart=pix4/9d0*(alphaEM(scaleMu)**2)/(kin(2)*kin(4))*&
         HardCoefficientDY(scaleMu)*&
         hc2*1d9*&!from GeV to pb
