@@ -43,6 +43,7 @@ aTMDeFILES = \
 $(SOURCEDIR)/Code/aTMDe_Numerics.f90 \
 $(SOURCEDIR)/Code/aTMDe_interfaces.f90 \
 $(SOURCEDIR)/Code/aTMDe_IO.f90 \
+$(SOURCEDIR)/Code/aTMDe_math.f90 \
 $(SOURCEDIR)/Code/aTMDe_Integration.f90 \
 $(SOURCEDIR)/Code/aTMDe_invMatrix.f90 \
 $(SOURCEDIR)/Code/aTMDe_Ogata.f90 \
@@ -185,6 +186,7 @@ aTMDeOBJ = \
 $(OBJ)/aTMDe_Numerics.o \
 $(OBJ)/aTMDe_interfaces.o \
 $(OBJ)/aTMDe_IO.o \
+$(OBJ)/aTMDe_math.o \
 $(OBJ)/aTMDe_Integration.o \
 $(OBJ)/aTMDe_Ogata.o \
 $(OBJ)/aTMDe_optGrid.o \
@@ -244,6 +246,7 @@ aTMDeUTILITY = \
 $(OBJ)/aTMDe_Numerics.o \
 $(OBJ)/aTMDe_interfaces.o \
 $(OBJ)/aTMDe_IO.o \
+$(OBJ)/aTMDe_math.o\
 $(OBJ)/aTMDe_Integration.o\
 $(OBJ)/aTMDe_Ogata.o\
 $(OBJ)/aTMDe_optGrid.o\
@@ -325,6 +328,11 @@ $(OBJ)/aTMDe_interfaces.o: $(SOURCEDIR)/Code/aTMDe_interfaces.f90 $(OBJ)/aTMDe_N
 
 $(OBJ)/aTMDe_IO.o: $(SOURCEDIR)/Code/aTMDe_IO.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o
 	$(FC) -c $(SOURCEDIR)/Code/aTMDe_IO.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/aTMDe_math.o: $(SOURCEDIR)/Code/aTMDe_math.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o
+	$(FC) -c $(SOURCEDIR)/Code/aTMDe_math.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 

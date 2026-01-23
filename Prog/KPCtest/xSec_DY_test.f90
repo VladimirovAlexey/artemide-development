@@ -3,6 +3,7 @@ program example
 ! Invocation of required modules
 use aTMDe_control
 use aTMDe_numerics
+use aTMDe_math
 use uTMDPDF
 use TMDX_DY
 use TMDF
@@ -12,7 +13,7 @@ use TMDF_KPC
 implicit none
 
 
- integer, parameter :: NUM = 40  ! defines the number of points to compute
+ integer, parameter :: NUM = 241  ! defines the number of points to compute
 
  integer :: i ! to do the loop
 
@@ -27,7 +28,8 @@ implicit none
 
  real*8 :: time1,time2, t1(1:NUM),t2(1:NUM),t1LP(1:NUM),t2LP(1:NUM)
 
-
+ !write(*,*) 100*ChebyshevT_int_array(10,1/pi)
+ !stop
  !!!!! SETUP ARTEMIDE and NP-parameters
  !
  !   Initialization of arTeMiDe using the constants-file xSec_SIDIS.atmde
@@ -52,14 +54,16 @@ implicit none
 
  do i=1,NUM
 
-   Q(i) = 50.d0+2*(i-1)*2
+   !Q(i) = 50.d0+2*(i-1)*2
+   !qT(i) = 10.d0
 
-   s(i) = 1500.d0 !! TeV
+   Q(i) = 150.d0
+   qT(i) = 0.d0+0.1d0*(i-1)
+
+   s(i) = (1500.d0)**2 !! TeV
 
    x1(i) = 0.01d0
    x2(i) = 0.001d0
-
-   qT(i) = 10.d0
 
    proc(i,1:4)=(/1,1,1,2001/) !KPCs
 
@@ -95,7 +99,8 @@ end do
 call cpu_time(time2)
 
 do i=1,NUM
-write(*,'("{",F12.6,",",F12.6,",",F12.6,"},")') Q(i),Q(i)**2*pi/2*xxKPC(i),xxLP(i)
+!write(*,'("{",F12.6,",",F12.6,",",F12.6,"},")') Q(i),Q(i)**2*pi/2*xxKPC(i),xxLP(i)
+write(*,'("{",F12.6,",",F12.6,",",F12.6,"},")') qT(i),Q(i)**2*pi/2*xxKPC(i),xxLP(i)
 end do
 write(*,*) " "
 write(*,*) " "

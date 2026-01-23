@@ -2536,6 +2536,34 @@ The calculation of cut prefactor is made in \texttt{LeptonCutsDY.f90}. It has tw
 
 TO BE WRITTEN
 
+\subsection{Fast-$p_T$ integration}
+
+There is a variant of the command for the speed-up of multiple computation of bin-integrations vs. $q_T$. It is based on the facts that (1) the $q_T$-shape is very smooth, (2) often one needs to evaluate many small $q_T$ bins.
+
+Given the sequence of bins in $q_T$ $\{\{a_1,b_1\},\{a_2,b_2\},...,\{a_k,b_k\}\}$ with $a_i<b_i$ (all other parameters for cross-section are the same), one can make the interpolation function in the complete range of$(\min(a),\max(b))$, and then integrate the interpolation function. The tests with Chebyshev polynomial interpolation have shown that precision of such procedure is 5-6 digits for N=10 interpolation. The procedure is following:
+\begin{enumerate}
+\item Fix $N$ (degree-1 of interpolation), and matrix $M$ and nodes $t$,
+\begin{eqnarray}
+M_{ij}=\frac{2\beta_i\beta_j}{N}\cos\(\frac{ij \pi}{N}\),\qquad t_i=\cos\(\frac{i\pi}{N}\),
+\end{eqnarray}
+where $\beta_i=1/2$ for $i=1$ or $N$, and $\beta_i=1$ for other $i$.
+\item Compute a vector of cross-section at nodes
+\begin{eqnarray}
+\vec S=\sigma\(\frac{b-a}{2}t_i+\frac{b+a}{2}\),\qquad a=\min(a),\qquad b=\max(b).
+\end{eqnarray}
+\item Then for each bin the integral over bin reads
+\begin{eqnarray}
+\int_{a_i}^{b_i} \sigma dq_T= \frac{b-a}{2}\(\vec R\(\frac{2b_i-a-b}{b-a}\)-\vec R\(\frac{2a_i-a-b}{b-a}\)\)\cdot M \cdot \vec S,
+\end{eqnarray}
+where 
+\begin{eqnarray}
+\vec R(x)=\{x,\frac{x^2}{2},...,\frac{1}{2}\(\frac{T_{k+1}(x)}{k+1}-\frac{T_{k-1}(x)}{k-1}\),...\}.
+\end{eqnarray}
+With $T$ being the Chebyshev polynomial.
+\end{enumerate}
+So, this algorithm requires only $N+1$ evaluations of cross-section.
+
+
 \subsection{Options for evaluation of DY-like cross-section}
 
 \subsubsection{$\pi^2$-resummation}
@@ -3135,6 +3163,7 @@ polarized DY
 \begin{itemize}
 	\item \textbf{CollinsTMDFF}: implemented (at all levels)
 	\item \textbf{SiversTMDPDF\_OPE} Added griding option for OPE part.
+	\item \textbf{aTMDe\_math}: added
 	\item Many external codes are re-integrated in the form of classes.  These are 
 	\begin{itemize}
 		\item \textbf{Fourier, Moment, Fourier\_byOgata}  (unified in the new module \textbf{aTMDe\_Ogata}), 

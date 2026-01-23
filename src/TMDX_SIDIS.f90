@@ -1205,7 +1205,7 @@ if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check IN
     ERROR STOP ErrorString('xSec_SIDIS_List: mass list must be (:,1:2).',moduleName)
   end if
 
-  !$OMP PARALLEL DO DEFAULT(SHARED)
+  !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED)
   do i=1,length
   xx(i)=xSecFULL(process(i,1:4),s(i),pt(i,1),pt(i,2),z(i,1),z(i,2),x(i,1),x(i,2),Q(i,1),Q(i,2),doCut(i),Cuts(i,1:4),&
           masses(i,1)**2,masses(i,2)**2)
@@ -1214,7 +1214,7 @@ if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check IN
 
   else
 
-  !$OMP PARALLEL DO DEFAULT(SHARED)
+  !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED)
   do i=1,length
   xx(i)=xSecFULL(process(i,1:4),s(i),pt(i,1),pt(i,2),z(i,1),z(i,2),x(i,1),x(i,2),Q(i,1),Q(i,2),doCut(i),Cuts(i,1:4),&
           0._dp,0._dp)
@@ -1298,7 +1298,7 @@ if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check IN
     ERROR STOP ErrorString('xSec_SIDIS_List: mass list must be (:,1:2).',moduleName)
   end if
 
-  !$OMP PARALLEL DO DEFAULT(SHARED)
+  !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED)
   do i=1,length
 
   xx(i)=xSecFULL(process(i,1:4),s(i),pt(i,1),pt(i,2),z(i,1),z(i,2),x(i,1),x(i,2),Q(i,1),Q(i,2),doCut(i),Cuts(i,1:4),&
@@ -1380,7 +1380,7 @@ subroutine xSec_SIDIS_BINLESS_List_forharpy(xx,process,s,pT,z,x,Q,masses)
     ERROR STOP ErrorString('xSec_SIDIS_BINLESS_List: mass list must be (:,1:2).',moduleName)
   end if
 
-  !$OMP PARALLEL DO DEFAULT(SHARED)
+  !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED)
   do i=1,length
   xx(i)=xSec_SIDIS_BINLESS(process(i,1:4),s(i),pt(i),z(i),x(i),Q(i),masses(i,1)**2,masses(i,2)**2)
   end do

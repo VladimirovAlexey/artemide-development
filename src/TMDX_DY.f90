@@ -9,6 +9,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module TMDX_DY
 use aTMDe_Numerics
+use aTMDe_math
 use aTMDe_IO
 !use aTMDe_xGrid
 use TMDF
@@ -63,6 +64,15 @@ real::maxQbinSize=30.
 !!! Minimal qT, below this number the value is frozen
 real(dp)::qTMin_ABS=0.0001d0
 
+!!!--------- approximate evaluation of qT-bin integration
+!!! Idea is based on the fact, that cross-section curve is very smooth vs. qT,
+!!! so few-point Chebyshev approximation gives very good result and can be split into bins and integrated exactly
+!!! Min Number of Chebyschev nodes in a range (for ranges bigges than 20 GeV, number increases automatically)
+integer::NumChNodes=10
+!!! the matrix of interpolation, and Chebyschev nodes
+real(dp),allocatable,dimension(:,:)::ChInterpolationMatrix
+real(dp),allocatable,dimension(:)::ChNodes
+
 real(dp)::c2_global!,muHard_global
 
 integer::GlobalCounter
@@ -74,7 +84,7 @@ logical::started=.false.
 
 public::TMDX_DY_Initialize,TMDX_DY_SetScaleVariation,&
 TMDX_DY_ShowStatistic,TMDX_DY_ResetCounters,TMDX_DY_IsInitialized, F_toGrid
-public::  xSec_DY,xSec_DY_List,xSec_DY_List_BINLESS,xSec_DY_List_APPROXIMATE
+public::  xSec_DY,xSec_DY_List,xSec_DY_List_BINLESS,xSec_DY_List_APPROXIMATE,Xsec_PTspectrum_Qint_Yint
 
 interface xSec_DY
   module procedure MainInterface_AsAAAloo
@@ -94,7 +104,7 @@ subroutine TMDX_DY_Initialize(file,prefix)
   character(len=300)::path
   logical::initRequired,dummyLogical
   character(len=8)::orderMain
-  integer::i,FILEver,messageTrigger
+  integer::i,j,FILEver,messageTrigger
   !$ integer:: omp_get_thread_num
 
   if(started) return
@@ -273,6 +283,19 @@ subroutine TMDX_DY_Initialize(file,prefix)
 
   !!!!! initializing Lepton Cut module
   call InitializeLeptonCutDY(toleranceINT,toleranceGEN)
+
+
+  !!!! the defintiion of CHebyshev interpolation matrix, which interpolates the
+  NumChNodes=10
+  allocate(ChInterpolationMatrix(0:NumChNodes,0:NumChNodes),ChNodes(0:NumChNodes))
+  do i=0,NumChNodes
+  ChNodes(i)=cos(i*pi/NumChNodes)
+  do j=0,NumChNodes
+    ChInterpolationMatrix(i,j)=Cos(i*j*pi/NumChNodes)*2/NumChNodes
+    if(i==0 .or. i==NumChNodes) ChInterpolationMatrix(i,j)=ChInterpolationMatrix(i,j)/2
+    if(j==0 .or. j==NumChNodes) ChInterpolationMatrix(i,j)=ChInterpolationMatrix(i,j)/2
+  end do
+  end do
 
   c2_global=1d0
 
@@ -908,7 +931,7 @@ end if
 if(qT_min_in<0.0d0) then
   call Warning_Handler%WarningRaise('Attempt to compute xSec with qT<0.')
   write(*,*) "qTmin =",qT_min_in," (qTmin set to 0.GeV)"
-  qT_min=1._dp
+  qT_min=qTMin_ABS
 else
   qT_min=qT_min_in
 end if
@@ -947,6 +970,120 @@ integrandOverQT=2*qT*Xsec_Qint_Yint(var,process,incCut,CutParam,Q_min,Q_max,ymin
 end function integrandOverQT
 
 end function Xsec_PTint_Qint_Yint
+
+!---------------------------------INTEGRATED over Y over Q over pT-------------------------------------------------------------
+!!!!! This is analog of Xsec_PTint_Qint_Yint but with PT-bins
+!!! integration over PT is made by interpolation of the whole range and integrating exactly the Chebishev interpolation
+!!! the bins are presented as list of minimal, and maximal values. All other parameters are same for all bins
+function Xsec_PTspectrum_Qint_Yint(process,incCut,CutParam,s_in,qt_min_in,qt_max_in,Q_min_in,Q_max_in,ymin_in,ymax_in)
+logical,intent(in)::incCut
+real(dp),dimension(1:4),intent(in)::CutParam
+integer,dimension(1:4),intent(in)::process
+real(dp),intent(in):: ymin_in,ymax_in,Q_min_in,Q_max_in,s_in
+real(dp),dimension(1:),intent(in):: qt_min_in,qt_max_in
+real(dp),dimension(1:size(qt_min_in)):: Xsec_PTspectrum_Qint_Yint
+
+integer::nBINS,i,j
+real(dp),dimension(1:7)::var
+real(dp):: Q_min,Q_max,qt_min(1:size(qt_min_in)),qt_max(1:size(qt_min_in)),s
+real(dp)::qT_bin_MAX,qT_bin_MIN,diffAB,sumAB,qTInter
+real(dp),dimension(0:NumChNodes)::fAtNodes,vectorR
+
+if(TMDF_IsconvergenceLost()) then
+  Xsec_PTspectrum_Qint_Yint=1d9
+  return
+end if
+
+nBINS=size(qt_min_in)
+if(size(qt_max_in)/=nBINS) then
+  ERROR STOP ErrorString('Sizes of qT-min and qT-max lists do not coincide',moduleName)
+end if
+
+!!!------------------------- checking Q----------
+if(Q_min_in<0.9d0) then
+  call Warning_Handler%WarningRaise('Attempt to compute xSec with Q<0.9.')
+  write(*,*) "Qmin =",Q_min_in," (Qmin set to 1.GeV)"
+  Q_min=1._dp
+else
+  Q_min=Q_min_in
+end if
+
+if(Q_max_in<Q_min) then
+  call Warning_Handler%WarningRaise('Attempt to compute xSec with Qmax<Qmin. RESULT 0')
+  Xsec_PTspectrum_Qint_Yint=0._dp
+  return
+end if
+Q_max=Q_max_in
+
+!!!------------------------- checking S----------
+if(s_in<0.9d0) then
+  call Warning_Handler%WarningRaise('Attempt to compute xSec with s<0.9.')
+  write(*,*) "s =",s_in," (s set to Qmin)"
+  s=Q_min
+else
+  s=s_in
+end if
+
+!!!------------------------- checking PT----------
+do i=1,nBINS
+  if(qT_min_in(i)<0.0d0) then
+    call Warning_Handler%WarningRaise('Attempt to compute xSec with qT<0.')
+    write(*,*) "qTmin =",qT_min_in(i)," (qTmin set to 0.GeV)"
+    qT_min(i)=qTMin_ABS
+  else
+    qT_min(i)=qT_min_in(i)
+  end if
+  if(qT_max_in(i)<qT_min(i)) then
+    call Warning_Handler%WarningRaise('Attempt to compute xSec with qTmax<qTmin. RESULT 0')
+    Xsec_PTspectrum_Qint_Yint=0._dp
+    return
+  end if
+  qT_max(i)=qT_max_in(i)
+end do
+
+!!!------------------------- checking Y----------
+
+if(ymax_in<ymin_in) then
+  call Warning_Handler%WarningRaise('Attempt to compute xSec with Ymax<Ymin. RESULT 0')
+  Xsec_PTspectrum_Qint_Yint=0._dp
+  return
+end if
+
+!TODO: write sub-splitting if the range is too large.
+
+!!!!!------------------------ here we start the actual computation
+!!!! determining the size of total qT-range
+qT_bin_MIN=minval(qT_min)
+qT_bin_MAX=maxval(qT_max)
+!!!! makein intermidaite variables.
+diffAB=(qT_bin_MAX-qT_bin_MIN)/2
+sumAB=(qT_bin_MAX+qT_bin_MIN)/2
+
+
+!!!!!! Computation of the function at nodes
+do i=0,NumChNodes
+  qTInter=diffAB*ChNodes(i)+sumAB
+  var=kinematicArray(qTInter,s_in,(Q_min+Q_max)/2,(ymin_in+ymax_in)/2)
+  !!!! longest part computation of the cross-section
+  fAtNodes(i)=2*qTInter*Xsec_Qint_Yint(var,process,incCut,CutParam,Q_min,Q_max,ymin_in,ymax_in)
+end do
+
+
+
+
+!!!! multiply by the interpolation matrix
+fAtNodes=matmul(ChInterpolationMatrix,fAtNodes)
+!!!! compute the integral
+do i=1,nBINS
+  vectorR=ChebyshevT_int_array(NumChNodes,(qT_max(i)-sumAB)/diffAB)-ChebyshevT_int_array(NumChNodes,(qT_min(i)-sumAB)/diffAB)
+  Xsec_PTspectrum_Qint_Yint(i)=sumAB*dot_product(vectorR,fAtNodes)
+  !write(*,*) "---->",vectorR
+end do
+
+contains
+
+
+end function Xsec_PTspectrum_Qint_Yint
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!APROXIMATE VERSION OF THE SAME ROUTINES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1292,7 +1429,7 @@ end if
           nn=NumPT_auto(qT(i,2)-qT(i,1),(Q(i,2)+Q(i,1))/2d0)
       end do
   end if
-  !$OMP PARALLEL DO DEFAULT(SHARED)
+  !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED)
 
     do i=1,length
       X(i)=Xsec_PTint_Qint_Yint(process(i,1:4),includeCuts(i),CutParameters(i,1:4),&
@@ -1365,7 +1502,7 @@ end if
 
   allocate(vv(1:length,1:7))
 
-  !$OMP PARALLEL DO DEFAULT(SHARED)
+  !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED)
 
     do i=1,length
       vv(i,1:7)=kinematicArray(qt(i),s(i),Q(i),y(i))
@@ -1453,7 +1590,7 @@ end if
 
   CallCounter=CallCounter+length
 
-  !$OMP PARALLEL DO DEFAULT(SHARED)
+  !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED)
 
     do i=1,length
       X(i)=Xsec_PTint_Qint_Yint_APROX(process(i,1:4),includeCuts(i),CutParameters(i,1:4),&
