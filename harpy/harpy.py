@@ -1729,7 +1729,7 @@ class DY:
                     
             
         @staticmethod
-        def xSecList(process,s,qT,Q,y,includeCuts,CutParameters):
+        def xSecList(process,s,qT,Q,y,includeCuts,CutParameters,doParts):
             return artemide.harpy.dy_xsec_list(numpy.asfortranarray(process),\
                                                numpy.asfortranarray(s),\
                                                numpy.asfortranarray(qT),\
@@ -1737,7 +1737,7 @@ class DY:
                                                numpy.asfortranarray(y),\
                                                numpy.asfortranarray(includeCuts),\
                                                numpy.asfortranarray(CutParameters),\
-                                               len(s))
+                                               len(s),doParts)
         
         @staticmethod
         def xSecListAPROX(process,s,qT,Q,y,includeCuts,CutParameters):

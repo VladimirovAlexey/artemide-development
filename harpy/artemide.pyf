@@ -475,7 +475,7 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
         real*8 dimension(4),intent(in) :: cutparameters
         real*8 :: dy_xsec_single
     end function dy_xsec_single
-    function dy_xsec_list(process,s,qt,q,y,includecuts,cutparameters,listlength) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+    function dy_xsec_list(process,s,qt,q,y,includecuts,cutparameters,listlength,dopartitioning) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         integer dimension(:,:),intent(in) :: process
         real*8 dimension(:),intent(in) :: s
         real*8 dimension(:,:),intent(in) :: qt
@@ -484,6 +484,7 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
         logical dimension(:),intent(in) :: includecuts
         real*8 dimension(:,:),intent(in) :: cutparameters
         integer intent(in) :: listlength
+        logical intent(in) :: dopartitioning
         real*8 dimension(listlength) :: dy_xsec_list
     end function dy_xsec_list
     function dy_xsec_list_approximate(process,s,qt,q,y,includecuts,cutparameters,listlength) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy

@@ -791,7 +791,7 @@ end function GetTw3PDF_C
   
   end function DY_xSec_Single
   
-  function DY_xSec_List(process,s,qT,Q,y,includeCuts,CutParameters,ListLength)
+  function DY_xSec_List(process,s,qT,Q,y,includeCuts,CutParameters,ListLength,doPartitioning)
     integer,intent(in)::ListLength
     integer,intent(in),dimension(:,:)::process			!the number of process
     real*8,intent(in),dimension(:)::s				!Mandelshtam s
@@ -800,10 +800,11 @@ end function GetTw3PDF_C
     real*8,intent(in),dimension(:,:)::y				!(ymin,ymax)
     logical,intent(in),dimension(:)::includeCuts		!include cuts
     real*8,intent(in),dimension(:,:)::CutParameters	!(p1,p2,eta1,eta2)
+    logical,intent(in)::doPartitioning   !!! specification to make the partitioning in pT-integrations
     real*8,dimension(1:ListLength)::DY_xSec_List
     
     call TMDF_ResetCounters()
-    call xSec_DY_List(DY_xSec_List,process,s,qT,Q,y,includeCuts,CutParameters)
+    call xSec_DY_List(DY_xSec_List,process,s,qT,Q,y,includeCuts,CutParameters,doPartitioning=doPartitioning)
   
   end function DY_xSec_List
 

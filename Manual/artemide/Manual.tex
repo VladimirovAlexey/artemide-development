@@ -2417,9 +2417,9 @@ Command & ~~Type~~& ~~Sec.~~ & Short description
 \\\hline
 \texttt{xSec\_DY(X,proc,s,qT,Q,y,iC,CutP,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section completely integrated over the bin. 
 \\\hline
-\texttt{xSec\_DY\_List(X,proc,s,qT,Q,y,iC,CutP,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section completely integrated over the bin over the list. 
+\texttt{xSec\_DY\_List(X,proc,s,qT,Q,y,iC,CutP,Num,doP)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section completely integrated over the bin over the list. 
 \\\hline
-\texttt{xSec\_DY\_List(X,proc,s,qT,Q,y,iC,CutP,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section completely integrated over the bin over the list. 
+\texttt{xSec\_DY\_List\_APPROXIMATE(X,proc,s,qT,Q,y,iC,CutP,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section completely integrated over the bin over the list (using several points). 
 \\\hline
 \texttt{xSec\_DY\_List\_BINLESS(X,proc,s,qT,Q,y,iC,CutP,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section at the point over the list. 
 \\\hline\hline
@@ -2493,9 +2493,9 @@ Note, that optional variables could be omit during the call.
 \begin{tcolorbox}
 \textbf{\blue{There is also an analogous subroutine that evaluate cross-section by list.}} It is called \texttt{xSec\_DY\_List} and it have the following interface:
 \begin{center}
-\texttt{xSec\_DY\_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)}
+\texttt{xSec\_DY\_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num,doP)}
 \end{center}
-All variables are analogues to those of \texttt{xSec\_DY}, but should come in lists, i.e. \texttt{X} is (1:n), \texttt{process} is (1:n,1:4), \texttt{s} is (1:n), \texttt{qT},\texttt{Q},\texttt{y} are (1:n,1:2), \texttt{includeCuts} is (1:n), \texttt{CutParameters} is (1:n,1:4), and \texttt{Num} is (1:n). \textbf{Only the \texttt{Num} argument is OPTIONAL arguments. The argument \texttt{CutParameters} must be presented}. This command compiled by OPENMP, so runs in parallel on multi-core computers.
+All variables are analogues to those of \texttt{xSec\_DY}, but should come in lists, i.e. \texttt{X} is (1:n), \texttt{process} is (1:n,1:4), \texttt{s} is (1:n), \texttt{qT},\texttt{Q},\texttt{y} are (1:n,1:2), \texttt{includeCuts} is (1:n), \texttt{CutParameters} is (1:n,1:4), \texttt{Num} is (1:n), \texttt{doP} is logic-single. \textbf{The arguments \texttt{Num} and \texttt{doP} are OPTIONAL arguments. The argument \texttt{CutParameters} must be presented}. This command compiled by OPENMP, so runs in parallel on multi-core computers. If \texttt{doP} is \texttt{.true.} than the list is split to runs of identical (except $q_T$) bins and integrated by a faster routine (default=False).
 
 In addition there is a subroutine \texttt{xSec\_DY\_List\_APPROXIMATE} with the same interface:
 \begin{center}
@@ -2536,7 +2536,7 @@ The calculation of cut prefactor is made in \texttt{LeptonCutsDY.f90}. It has tw
 
 TO BE WRITTEN
 
-\subsection{Fast-$p_T$ integration}
+\subsection{Partitioning of continuous $p_T$ bins integration}
 
 There is a variant of the command for the speed-up of multiple computation of bin-integrations vs. $q_T$. It is based on the facts that (1) the $q_T$-shape is very smooth, (2) often one needs to evaluate many small $q_T$ bins.
 

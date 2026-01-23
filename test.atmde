@@ -12,7 +12,7 @@
  
 *A   : ---- Global I/O ----
 *p1  : Input file Version (used to check version compatibility)
-          36
+          38
 *p2  : Output level (0 = no output except critical, 1 = + WARNINGS, 2 = + info,  3 = + details)
            2
 *p3  : Message trigger (the number of continuous non-critical warning before stop showing them)
@@ -377,6 +377,10 @@
    30.0000000
 *p5  : Minimal value of qT (lower values are fixed to this number)
    0.0001
+*p6  : Partitioning of qT-bins by default
+   F
+*p7  : Order of qT-interpolation in the partitioning
+   10
 
 *C   : ---- Definition of LP TMD factorization ----
 *p1  : Use the exact LP values of x1 and x2 (include qT/Q correction)

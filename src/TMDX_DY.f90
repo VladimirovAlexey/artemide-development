@@ -28,9 +28,9 @@ private
 
 !Current version of module
 character (len=7),parameter :: moduleName="TMDX-DY"
-character (len=5),parameter :: version="v3.00"
+character (len=5),parameter :: version="v3.03"
 !Last appropriate verion of constants-file
-integer,parameter::inputver=30
+integer,parameter::inputver=38
 
 real(dp) :: toleranceINT=0.0001d0
 real(dp) :: toleranceGEN=0.0000001d0
@@ -68,6 +68,7 @@ real(dp)::qTMin_ABS=0.0001d0
 !!! Idea is based on the fact, that cross-section curve is very smooth vs. qT,
 !!! so few-point Chebyshev approximation gives very good result and can be split into bins and integrated exactly
 !!! Min Number of Chebyschev nodes in a range (for ranges bigges than 20 GeV, number increases automatically)
+logical::doPartitioning_byDefault=.false.
 integer::NumChNodes=10
 !!! the matrix of interpolation, and Chebyschev nodes
 real(dp),allocatable,dimension(:,:)::ChInterpolationMatrix
@@ -210,6 +211,10 @@ subroutine TMDX_DY_Initialize(file,prefix)
   read(51,*) maxQbinSize
   call MoveTO(51,'*p5  ')
   read(51,*) qTMin_ABS
+  call MoveTO(51,'*p6  ')
+  read(51,*) doPartitioning_byDefault
+  call MoveTO(51,'*p7  ')
+  read(51,*) NumChNodes
 
    if(.not.(useKPC)) then
     !!!------ parameters of LP factorization
@@ -283,7 +288,6 @@ subroutine TMDX_DY_Initialize(file,prefix)
 
   !!!!! initializing Lepton Cut module
   call InitializeLeptonCutDY(toleranceINT,toleranceGEN)
-
 
   !!!! the defintiion of CHebyshev interpolation matrix, which interpolates the
   NumChNodes=10
@@ -439,8 +443,6 @@ function PreFactor2(kin,process)
   real(dp)::PreFactor2
 
   real(dp)::uniPart,scaleMu
-
-
 
   !!!! universal part
   scaleMu=sqrt(kin(4)+exactScales*kin(1)**2)
@@ -1059,7 +1061,6 @@ qT_bin_MAX=maxval(qT_max)
 diffAB=(qT_bin_MAX-qT_bin_MIN)/2
 sumAB=(qT_bin_MAX+qT_bin_MIN)/2
 
-
 !!!!!! Computation of the function at nodes
 do i=0,NumChNodes
   qTInter=diffAB*ChNodes(i)+sumAB
@@ -1068,15 +1069,12 @@ do i=0,NumChNodes
   fAtNodes(i)=2*qTInter*Xsec_Qint_Yint(var,process,incCut,CutParam,Q_min,Q_max,ymin_in,ymax_in)
 end do
 
-
-
-
 !!!! multiply by the interpolation matrix
 fAtNodes=matmul(ChInterpolationMatrix,fAtNodes)
 !!!! compute the integral
 do i=1,nBINS
   vectorR=ChebyshevT_int_array(NumChNodes,(qT_max(i)-sumAB)/diffAB)-ChebyshevT_int_array(NumChNodes,(qT_min(i)-sumAB)/diffAB)
-  Xsec_PTspectrum_Qint_Yint(i)=sumAB*dot_product(vectorR,fAtNodes)
+  Xsec_PTspectrum_Qint_Yint(i)=diffAB*dot_product(vectorR,fAtNodes)
   !write(*,*) "---->",vectorR
 end do
 
@@ -1339,7 +1337,7 @@ if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check IN
 
 end subroutine MainInterface_AsAAAloo
   
-subroutine xSec_DY_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)
+subroutine xSec_DY_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num,doPartitioning)
   integer,intent(in),dimension(:,:)::process            !the number of process
   real(dp),intent(in),dimension(:)::s                !Mandelshtam s
   real(dp),intent(in),dimension(:,:)::qT            !(qtMin,qtMax)
@@ -1348,9 +1346,15 @@ subroutine xSec_DY_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)
   logical,intent(in),dimension(:)::includeCuts        !include cuts
   real(dp),intent(in),dimension(:,:)::CutParameters            !(p1,p2,eta1,eta2)
   integer,intent(in),dimension(:),optional::Num        !number of sections
+  logical,intent(in),optional::doPartitioning        !if .true. intents to split the pt-integrate to sebsections
   real(dp),dimension(:),intent(out)::X
   integer :: i,length
   integer,allocatable::nn(:)
+
+  logical::doP
+  integer::k,j,sizeOfP,listOfParts(1:size(s)),n_private
+  integer,allocatable:: partitions(:),partitionSizes(:)
+  real(dp),allocatable,dimension(:)::a_private,b_private,X_private
 
 if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
@@ -1416,27 +1420,114 @@ end if
 
   CallCounter=CallCounter+length
 
-  allocate(nn(1:length))
-  if(present(Num)) then
-      if(size(Num,1)/=length) then
-    write(*,*) 'ERROR: arTeMiDe_DY: xSec_DY_List: sizes of Num and s lists are not equal.'
-    write(*,*) 'Evaluation stop'
-    stop
-  end if
-  nn=Num
+  if(present(doPartitioning)) then
+    doP=doPartitioning
   else
-      do i=1,length
-          nn=NumPT_auto(qT(i,2)-qT(i,1),(Q(i,2)+Q(i,1))/2d0)
-      end do
+    doP=doPartitioning_byDefault
   end if
-  !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED)
 
-    do i=1,length
-      X(i)=Xsec_PTint_Qint_Yint(process(i,1:4),includeCuts(i),CutParameters(i,1:4),&
-              s(i),qT(i,1),qT(i,2),Q(i,1),Q(i,2),y(i,1),y(i,2),nn(i))
+  if(doP) then
+  !!!! attempt to make partitionning in to pt-sectors
+  !!!! basically, I run though the whole list and compare the terms if all (except qT) is the same, they are marks by the same number
+  !!!! Only consequetive ranges are marked
+    k=1
+    listOfParts(1)=k
+    do i=2,length
+      if((process(i,1)/=process(i-1,1)) .or. (process(i,2)/=process(i-1,2)) .or. (process(i,3)/=process(i-1,3)) .or. &
+      (process(i,4)/=process(i-1,4)) .or. (abs(s(i-1)-s(i))>toleranceGEN) .or. (includeCuts(i-1).neqv.includeCuts(i)) .or. &
+      (abs(CutParameters(i,1)-CutParameters(i-1,1))>toleranceGEN) .or. &
+      (abs(CutParameters(i,2)-CutParameters(i-1,2))>toleranceGEN) .or. &
+      (abs(CutParameters(i,3)-CutParameters(i-1,3))>toleranceGEN) .or. &
+      (abs(CutParameters(i,4)-CutParameters(i-1,4))>toleranceGEN) .or. &
+      (abs(Q(i,1)-Q(i-1,1))>toleranceGEN) .or. (abs(Q(i,2)-Q(i-1,2))>toleranceGEN) .or. &
+      (abs(y(i,1)-y(i-1,1))>toleranceGEN) .or. (abs(y(i,2)-y(i-1,2))>toleranceGEN) &
+      ) k=k+1
+
+      listOfParts(i)=k
     end do
-  !$OMP END PARALLEL DO
-  deallocate(nn)
+    sizeOfP=k
+    !!!! partitions is a list that contain initial numbers of each partition
+    allocate(partitions(1:sizeOfP))
+    partitions(1)=1
+    k=2
+    do i=2,length
+      if(listOfParts(i)/=listOfParts(i-1)) then
+        partitions(k)=i
+        k=k+1
+      end if
+    end do
+
+    !!!! partitionSizes is a list that contain sizes of partitions
+    allocate(partitionSizes(1:sizeOfP))
+
+    do i=1,sizeOfP-1
+      partitionSizes(i)=partitions(i+1)-partitions(i)
+    end do
+    partitionSizes(sizeOfP)=length-partitions(sizeOfP)+1
+
+
+    !write(*,*) "--->",sizeOfP,length
+    !write(*,*) "partitions->",partitions
+    !write(*,*) "--->",partitionSizes
+
+
+    !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED) PRIVATE(n_private,a_private,b_private,X_private,j)
+    do i=1,sizeOfP
+      !!!write(*,*) "i--->",partitionSizes(i),partitions(i)
+      !!!!! if bin is not partitioned, it is computed usually
+      if(partitionSizes(i)==1) then
+        n_private=NumPT_auto(qT(partitions(i),2)-qT(partitions(i),1),(Q(partitions(i),2)+Q(partitions(i),1))/2d0)
+        X(partitions(i))=Xsec_PTint_Qint_Yint(&
+              process(partitions(i),1:4),includeCuts(partitions(i)),CutParameters(partitions(i),1:4),&
+              s(partitions(i)),qT(partitions(i),1),qT(partitions(i),2),&
+              Q(partitions(i),1),Q(partitions(i),2),y(partitions(i),1),y(partitions(i),2),n_private)
+      else
+        !!!!! if bin is partitioned, compte the bins, and insert into X.
+        allocate(a_private(1:partitionSizes(i)),b_private(1:partitionSizes(i)),X_private(1:partitionSizes(i)))
+        do j=1,partitionSizes(i)
+          a_private(j)=qT(partitions(i)+j-1,1)
+          b_private(j)=qT(partitions(i)+j-1,2)
+        end do
+
+        !!! actual computation
+        X_private=Xsec_PTspectrum_Qint_Yint(&
+            process(partitions(i),1:4),includeCuts(partitions(i)),CutParameters(partitions(i),1:4),&
+            s(partitions(i)),a_private,b_private,&
+            Q(partitions(i),1),Q(partitions(i),2),y(partitions(i),1),y(partitions(i),2))
+        !!! insertion into the list
+        do j=0,partitionSizes(i)-1
+          X(partitions(i)+j)=X_private(j+1)
+        end do
+
+        deallocate(a_private,b_private,X_private)
+      end if
+    end do
+    !$OMP END PARALLEL DO
+
+  else
+  !!!!!--------------- compute in the usual way
+    allocate(nn(1:length))
+    if(present(Num)) then
+        if(size(Num,1)/=length) then
+      write(*,*) 'ERROR: arTeMiDe_DY: xSec_DY_List: sizes of Num and s lists are not equal.'
+      write(*,*) 'Evaluation stop'
+      stop
+    end if
+    nn=Num
+    else
+        do i=1,length
+            nn=NumPT_auto(qT(i,2)-qT(i,1),(Q(i,2)+Q(i,1))/2d0)
+        end do
+    end if
+    !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED)
+
+      do i=1,length
+        X(i)=Xsec_PTint_Qint_Yint(process(i,1:4),includeCuts(i),CutParameters(i,1:4),&
+                s(i),qT(i,1),qT(i,2),Q(i,1),Q(i,2),y(i,1),y(i,2),nn(i))
+      end do
+    !$OMP END PARALLEL DO
+    deallocate(nn)
+  end if
 end subroutine xSec_DY_List
   
 subroutine xSec_DY_List_BINLESS(X,process,s,qT,Q,y,includeCuts,CutParameters)

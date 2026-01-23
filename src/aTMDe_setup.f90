@@ -17,7 +17,7 @@ private
 character (len=5),parameter :: version="v3.03"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=37
+integer,parameter::inputVer=38
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -242,7 +242,8 @@ real(dp)::TMDX_DY_toleranceINT, TMDX_DY_toleranceGEN
 integer::TMDX_DY_ptSECTION
 logical::TMDX_DY_exactX1X2,TMDX_DY_piResum,TMDX_DY_exactScale
 real::TMDX_DY_maxQbinSize,TMDX_DY_minqTabs
-logical::TMDX_DY_useKPC
+logical::TMDX_DY_useKPC,TMDX_DY_doPartition
+integer::TMDX_DY_ChNodes
 
 !-------------------- TMDX-SIDIS parameters
 logical::include_TMDX_SIDIS
@@ -678,6 +679,8 @@ subroutine SetupDefault(order)
     TMDX_DY_ptSECTION=4        !default number of sections for pt-bin integration
     TMDX_DY_maxQbinSize=30. !default maximum size of the Q-bin integration
     TMDX_DY_minqTabs=0.0001 !default minimum value of qT
+    TMDX_DY_doPartition=.false. !default partitioning of qT-ranges
+    TMDX_DY_ChNodes=10   !!!! order of qT interpolation
     TMDX_DY_order=trim(order)
     TMDX_DY_exactX1X2=.true.
     TMDX_DY_piResum=.false.
@@ -1188,6 +1191,10 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDX_DY_maxQbinSize
     write(51,"('*p5  : Minimal value of qT (lower values are fixed to this number)')")
     write(51,*) TMDX_DY_minqTabs
+    write(51,"('*p6  : Attempt to evaluate sequences of qT-bins in a single run by default')")
+    write(51,*) TMDX_DY_doPartition
+    write(51,"('*p7  : Order of qT-interpolation in the partitioning')")
+    write(51,*) TMDX_DY_ChNodes
     write(51,"(' ')")
     write(51,"('*C   : ---- Definition of LP TMD factorization ----')")
     write(51,"('*p1  : Use the exact values of x1 and x2 (include qT/Q correction)')")
@@ -2236,6 +2243,12 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) TMDX_DY_maxQbinSize
     call MoveTO(51,'*p5  ')
     read(51,*) TMDX_DY_minqTabs
+    if(FILEversion>37) then
+        call MoveTO(51,'*p6  ')
+        read(51,*) TMDX_DY_doPartition
+        call MoveTO(51,'*p7  ')
+        read(51,*) TMDX_DY_ChNodes
+    end if
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')
     read(51,*) TMDX_DY_exactX1X2
