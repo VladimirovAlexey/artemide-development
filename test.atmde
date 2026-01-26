@@ -377,10 +377,12 @@
    30.0000000
 *p5  : Minimal value of qT (lower values are fixed to this number)
    0.0001
-*p6  : Partitioning of qT-bins by default
+*p6  : Attempt to evaluate sequences of qT-bins in a single run by default
    F
 *p7  : Order of qT-interpolation in the partitioning
    10
+*p8  : Maximum range of qT to evaluate in a single sequence (in GeV)
+   15.0
 
 *C   : ---- Definition of LP TMD factorization ----
 *p1  : Use the exact LP values of x1 and x2 (include qT/Q correction)

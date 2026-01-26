@@ -70,6 +70,7 @@ real(dp)::qTMin_ABS=0.0001d0
 !!! Min Number of Chebyschev nodes in a range (for ranges bigges than 20 GeV, number increases automatically)
 logical::doPartitioning_byDefault=.false.
 integer::NumChNodes=10
+real(dp)::MaxQT_range_toPartite=15._dp  !!!!! if the range is bigger than this, it is cut
 !!! the matrix of interpolation, and Chebyschev nodes
 real(dp),allocatable,dimension(:,:)::ChInterpolationMatrix
 real(dp),allocatable,dimension(:)::ChNodes
@@ -215,6 +216,8 @@ subroutine TMDX_DY_Initialize(file,prefix)
   read(51,*) doPartitioning_byDefault
   call MoveTO(51,'*p7  ')
   read(51,*) NumChNodes
+  call MoveTO(51,'*p8  ')
+  read(51,*) MaxQT_range_toPartite
 
    if(.not.(useKPC)) then
     !!!------ parameters of LP factorization
@@ -990,6 +993,8 @@ real(dp),dimension(1:7)::var
 real(dp):: Q_min,Q_max,qt_min(1:size(qt_min_in)),qt_max(1:size(qt_min_in)),s
 real(dp)::qT_bin_MAX,qT_bin_MIN,diffAB,sumAB,qTInter
 real(dp),dimension(0:NumChNodes)::fAtNodes,vectorR
+!!!!! scale for the rescaling of large integrals
+real(dp),parameter::scaleL=2.5_dp
 
 if(TMDF_IsconvergenceLost()) then
   Xsec_PTspectrum_Qint_Yint=1d9
@@ -1054,26 +1059,42 @@ end if
 !TODO: write sub-splitting if the range is too large.
 
 !!!!!------------------------ here we start the actual computation
+!!!!! I have made 2 implimentations (1) linear (2) logarithmic
 !!!! determining the size of total qT-range
 qT_bin_MIN=minval(qT_min)
 qT_bin_MAX=maxval(qT_max)
-!!!! makein intermidaite variables.
+!!!! makein intermidiate variables.
+!!!---(1) linear
 diffAB=(qT_bin_MAX-qT_bin_MIN)/2
 sumAB=(qT_bin_MAX+qT_bin_MIN)/2
+!!!---(2) logarithmic
+!diffAB=(Log(qT_bin_MAX/scaleL+1)-Log(qT_bin_MIN/scaleL+1))/2
+!sumAB=(Log(qT_bin_MAX/scaleL+1)+Log(qT_bin_MIN/scaleL+1))/2
 
 !!!!!! Computation of the function at nodes
+!!!! longest part computation of the cross-section
 do i=0,NumChNodes
+  !!!!! ----(1) linear
   qTInter=diffAB*ChNodes(i)+sumAB
   var=kinematicArray(qTInter,s_in,(Q_min+Q_max)/2,(ymin_in+ymax_in)/2)
-  !!!! longest part computation of the cross-section
   fAtNodes(i)=2*qTInter*Xsec_Qint_Yint(var,process,incCut,CutParam,Q_min,Q_max,ymin_in,ymax_in)
+
+  !!!!! ----(2) logarithm
+  !qTInter=scaleL*(exp(diffAB*ChNodes(i)+sumAB)-1)
+  !var=kinematicArray(qTInter,s_in,(Q_min+Q_max)/2,(ymin_in+ymax_in)/2)
+  !fAtNodes(i)=2*qTInter*(qTInter+scaleL)*Xsec_Qint_Yint(var,process,incCut,CutParam,Q_min,Q_max,ymin_in,ymax_in)
 end do
 
 !!!! multiply by the interpolation matrix
 fAtNodes=matmul(ChInterpolationMatrix,fAtNodes)
 !!!! compute the integral
 do i=1,nBINS
-  vectorR=ChebyshevT_int_array(NumChNodes,(qT_max(i)-sumAB)/diffAB)-ChebyshevT_int_array(NumChNodes,(qT_min(i)-sumAB)/diffAB)
+   !!!!! ----(1) linear
+   vectorR=ChebyshevT_int_array(NumChNodes,(qT_max(i)-sumAB)/diffAB)-ChebyshevT_int_array(NumChNodes,(qT_min(i)-sumAB)/diffAB)
+   !!!!! ----(2) logarithm
+   !vectorR=ChebyshevT_int_array(NumChNodes,(log(qT_max(i)/scaleL+1)-sumAB)/diffAB) &
+   ! -ChebyshevT_int_array(NumChNodes,(log(qT_min(i)/scaleL+1)-sumAB)/diffAB)
+
   Xsec_PTspectrum_Qint_Yint(i)=diffAB*dot_product(vectorR,fAtNodes)
   !write(*,*) "---->",vectorR
 end do
@@ -1355,6 +1376,7 @@ subroutine xSec_DY_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num,doParti
   integer::k,j,sizeOfP,listOfParts(1:size(s)),n_private
   integer,allocatable:: partitions(:),partitionSizes(:)
   real(dp),allocatable,dimension(:)::a_private,b_private,X_private
+  real(dp)::dummyQT
 
 if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
@@ -1432,6 +1454,7 @@ end if
   !!!! Only consequetive ranges are marked
     k=1
     listOfParts(1)=k
+    !dummyQT=qT(1,1)
     do i=2,length
       if((process(i,1)/=process(i-1,1)) .or. (process(i,2)/=process(i-1,2)) .or. (process(i,3)/=process(i-1,3)) .or. &
       (process(i,4)/=process(i-1,4)) .or. (abs(s(i-1)-s(i))>toleranceGEN) .or. (includeCuts(i-1).neqv.includeCuts(i)) .or. &
@@ -1440,9 +1463,14 @@ end if
       (abs(CutParameters(i,3)-CutParameters(i-1,3))>toleranceGEN) .or. &
       (abs(CutParameters(i,4)-CutParameters(i-1,4))>toleranceGEN) .or. &
       (abs(Q(i,1)-Q(i-1,1))>toleranceGEN) .or. (abs(Q(i,2)-Q(i-1,2))>toleranceGEN) .or. &
-      (abs(y(i,1)-y(i-1,1))>toleranceGEN) .or. (abs(y(i,2)-y(i-1,2))>toleranceGEN) &
-      ) k=k+1
-
+      (abs(y(i,1)-y(i-1,1))>toleranceGEN) .or. (abs(y(i,2)-y(i-1,2))>toleranceGEN) .or. &
+      qT(i-1,2)>qT(i,1)+toleranceGEN .or. & !!!!! the bins are succesive
+      qT(i,2)>MaxQT_range_toPartite&
+      !qT(i,2)-dummyQT>MaxQT_range_toPartite .or. qT(i,2)<dummyQT & !!!!! if the range is too large or inverse..
+      ) then
+        k=k+1
+        !dummyQT=qT(i,1)
+      end if
       listOfParts(i)=k
     end do
     sizeOfP=k
@@ -1498,12 +1526,10 @@ end if
         do j=0,partitionSizes(i)-1
           X(partitions(i)+j)=X_private(j+1)
         end do
-
         deallocate(a_private,b_private,X_private)
       end if
     end do
     !$OMP END PARALLEL DO
-
   else
   !!!!!--------------- compute in the usual way
     allocate(nn(1:length))

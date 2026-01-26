@@ -7,7 +7,7 @@ use aTMDe_control
 use TMDX_DY
 implicit none
 
-integer,parameter::NUM=20
+integer,parameter::NUM=200
 
 real*8::Q(0:NUM,1:2),x1(0:NUM,1:2),x2(0:NUM,1:2),qT(0:NUM,1:2),XX(0:NUM),XX2(0:NUM),s(0:NUM),y(0:NUM,1:2),a(0:NUM),b(0:NUM)
 !real*8::Q(0:NUM),x1(0:NUM),x2(0:NUM),qT(0:NUM),XX(0:NUM),s(0:NUM),y(0:NUM)
@@ -32,7 +32,8 @@ call artemide_SetNPparameters_uTMDPDF(&
    !qT(i,1:2) = (/0.d0+i/2.5d0,0.d0+(i+1)/2.5d0/)
    !a(i)=0.d0+i/2.5d0
    !b(i)=0.d0+(i+1)/2.5d0
-   qT(i,1:2) = (/0.d0+i*1.d0,0.d0+(i+1)*1.d0/)
+   !Q(i,1:2) =(/7.d0,8.d0/)
+   qT(i,1:2) = (/0.d0+i*0.2d0,0.d0+(i+1)*.2d0/)
    a(i)=0.d0+i*1.d0
    b(i)=0.d0+(i+1)*1.d0
    y(i,1:2)=(/-1.d0,1.d0/)
@@ -67,9 +68,10 @@ call cpu_time(time1)
 ! end do
 
 !call xSec_DY_List_BINLESS(XX,proc,s,qT,Q,y,includeCuts,CutParameters)
-call xSec_DY_List(XX,proc,s,qT,Q,y,includeCuts,CutParameters)
+call xSec_DY_List(XX,proc,s,qT,Q,y,includeCuts,CutParameters,doPartitioning=.false.)
 
-XX2=Xsec_PTspectrum_Qint_Yint(proc(1,:),includeCuts(1),CutParameters(1,:),s(1),a,b,Q(1,1),Q(1,2),y(1,1),y(1,2))
+!XX2=Xsec_PTspectrum_Qint_Yint(proc(1,:),includeCuts(1),CutParameters(1,:),s(1),a,b,Q(1,1),Q(1,2),y(1,1),y(1,2))
+call xSec_DY_List(XX2,proc,s,qT,Q,y,includeCuts,CutParameters,doPartitioning=.true.)
 
 call cpu_time(time2)
 !$ time2=omp_get_wtime()

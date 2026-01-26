@@ -238,7 +238,7 @@ real(dp)::TMDF_KPC_toleranceGEN,TMDF_KPC_toleranceINT,TMDF_KPC_qTMIN
 !-------------------- TMDX-DY parameters
 logical::include_TMDX_DY
 character*8::TMDX_DY_order
-real(dp)::TMDX_DY_toleranceINT, TMDX_DY_toleranceGEN
+real(dp)::TMDX_DY_toleranceINT, TMDX_DY_toleranceGEN,TMDX_DY_maxQTrange
 integer::TMDX_DY_ptSECTION
 logical::TMDX_DY_exactX1X2,TMDX_DY_piResum,TMDX_DY_exactScale
 real::TMDX_DY_maxQbinSize,TMDX_DY_minqTabs
@@ -681,6 +681,7 @@ subroutine SetupDefault(order)
     TMDX_DY_minqTabs=0.0001 !default minimum value of qT
     TMDX_DY_doPartition=.false. !default partitioning of qT-ranges
     TMDX_DY_ChNodes=10   !!!! order of qT interpolation
+    TMDX_DY_maxQTrange=18.d0 !!!! maximum range for qT-integral simplification
     TMDX_DY_order=trim(order)
     TMDX_DY_exactX1X2=.true.
     TMDX_DY_piResum=.false.
@@ -1195,6 +1196,8 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDX_DY_doPartition
     write(51,"('*p7  : Order of qT-interpolation in the partitioning')")
     write(51,*) TMDX_DY_ChNodes
+    write(51,"('*p8  : Maximum range of qT to evaluate in a single sequence (in GeV)')")
+    write(51,*) TMDX_DY_maxQTrange
     write(51,"(' ')")
     write(51,"('*C   : ---- Definition of LP TMD factorization ----')")
     write(51,"('*p1  : Use the exact values of x1 and x2 (include qT/Q correction)')")
@@ -2248,6 +2251,8 @@ subroutine ReadConstantsFile(file,prefix)
         read(51,*) TMDX_DY_doPartition
         call MoveTO(51,'*p7  ')
         read(51,*) TMDX_DY_ChNodes
+        call MoveTO(51,'*p8  ')
+        read(51,*) TMDX_DY_maxQTrange
     end if
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')
