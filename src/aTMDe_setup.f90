@@ -2677,7 +2677,7 @@ subroutine ReadConstantsFile(file,prefix)
 
     !# ----                           PARAMETERS OF CollinsTMDFF                  -----
     if(FILEversion>36) then !!!!! CollinsTMDFF was introduced in the 37.
-    call MoveTO(51,'*14   ')
+    call MoveTO(51,'*18  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_CollinsTMDFF
     call MoveTO(51,'*A   ')

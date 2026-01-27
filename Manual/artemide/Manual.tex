@@ -2563,6 +2563,8 @@ With $T$ being the Chebyshev polynomial.
 \end{enumerate}
 So, this algorithm requires only $N+1$ evaluations of cross-section.
 
+However, this algorithms works well only in the vicinity of $q_T$-peak, so it is limited to the $q_T$-bins in the range $q_T<q_{T,MAX}$, where $q_{T,MAX}$ is specified in the constants file.
+
 
 \subsection{Options for evaluation of DY-like cross-section}
 
@@ -3463,7 +3465,7 @@ polarized DY
 \item +\texttt{hPDF}-section (section 1.F).
 \item +parameters of grids for Sivers function-section (section 12.E).
 \item +\texttt{CollinsTMDFF}-section (section 18).
-\item +options regarding the $q_T$-integration in TMDX\_DY section (section 9.B.p6-p7)
+\item +options regarding the $q_T$-integration in TMDX\_DY section (section 9.B.p6-p8)
 \end{enumerate}
 
 \begin{center}

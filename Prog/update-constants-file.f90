@@ -6,7 +6,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 program example
 use aTMDe_setup
-use IO_functions
+use aTMDe_IO
 implicit none
   real*8::Q
   CHARACTER(len=516)::path,path_backup
