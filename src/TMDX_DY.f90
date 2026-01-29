@@ -1373,8 +1373,8 @@ subroutine xSec_DY_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num,doParti
   integer,allocatable::nn(:)
 
   logical::doP
-  integer::k,j,sizeOfP,listOfParts(1:size(s)),n_private
-  integer,allocatable:: partitions(:),partitionSizes(:)
+  integer::k,j,numberOfP,listOfParts(1:size(s)),n_private
+  integer,allocatable:: partI1(:),partSize(:)
   real(dp),allocatable,dimension(:)::a_private,b_private,X_private
   real(dp)::dummyQT
 
@@ -1449,84 +1449,71 @@ end if
   end if
 
   if(doP) then
-  !!!! attempt to make partitionning in to pt-sectors
-  !!!! basically, I run though the whole list and compare the terms if all (except qT) is the same, they are marks by the same number
-  !!!! Only consequetive ranges are marked
+  !!!! attempt to make partitioning in to pt-sectors
+  !!!! basically, I run though the whole list and compare the terms if all (except qT) are the same, they are marked by the same number
+  !!!! Only consequetive ranges are marked, and there is also upper cut
     k=1
     listOfParts(1)=k
     !dummyQT=qT(1,1)
     do i=2,length
-      if((process(i,1)/=process(i-1,1)) .or. (process(i,2)/=process(i-1,2)) .or. (process(i,3)/=process(i-1,3)) .or. &
-      (process(i,4)/=process(i-1,4)) .or. (abs(s(i-1)-s(i))>toleranceGEN) .or. (includeCuts(i-1).neqv.includeCuts(i)) .or. &
-      (abs(CutParameters(i,1)-CutParameters(i-1,1))>toleranceGEN) .or. &
-      (abs(CutParameters(i,2)-CutParameters(i-1,2))>toleranceGEN) .or. &
-      (abs(CutParameters(i,3)-CutParameters(i-1,3))>toleranceGEN) .or. &
-      (abs(CutParameters(i,4)-CutParameters(i-1,4))>toleranceGEN) .or. &
-      (abs(Q(i,1)-Q(i-1,1))>toleranceGEN) .or. (abs(Q(i,2)-Q(i-1,2))>toleranceGEN) .or. &
-      (abs(y(i,1)-y(i-1,1))>toleranceGEN) .or. (abs(y(i,2)-y(i-1,2))>toleranceGEN) .or. &
-      qT(i-1,2)>qT(i,1)+toleranceGEN .or. & !!!!! the bins are succesive
-      qT(i,2)>MaxQT_range_toPartite&
-      !qT(i,2)-dummyQT>MaxQT_range_toPartite .or. qT(i,2)<dummyQT & !!!!! if the range is too large or inverse..
-      ) then
-        k=k+1
-        !dummyQT=qT(i,1)
-      end if
+      if(&
+      qT(i,2)>MaxQT_range_toPartite &  !!! check the max size
+      .or.(abs(y(i,1)-y(i-1,1))>toleranceGEN) .or. (abs(y(i,2)-y(i-1,2))>toleranceGEN) &
+      .or.(abs(Q(i,1)-Q(i-1,1))>toleranceGEN) .or. (abs(Q(i,2)-Q(i-1,2))>toleranceGEN) &
+      .or.(process(i,1)/=process(i-1,1)) .or. (process(i,2)/=process(i-1,2)) .or. (process(i,3)/=process(i-1,3)) &
+      .or.(process(i,4)/=process(i-1,4)) .or. (abs(s(i-1)-s(i))>toleranceGEN) .or. (includeCuts(i-1).neqv.includeCuts(i)) &
+      .or.(abs(CutParameters(i,1)-CutParameters(i-1,1))>toleranceGEN) &
+      .or.(abs(CutParameters(i,2)-CutParameters(i-1,2))>toleranceGEN) &
+      .or.(abs(CutParameters(i,3)-CutParameters(i-1,3))>toleranceGEN) &
+      .or.(abs(CutParameters(i,4)-CutParameters(i-1,4))>toleranceGEN) &
+      .or.(qT(i-1,2)>qT(i,1)+toleranceGEN) & !!!!! the bins are succesive
+      ) k=k+1
+
       listOfParts(i)=k
     end do
-    sizeOfP=k
+    numberOfP=k
     !!!! partitions is a list that contain initial numbers of each partition
-    allocate(partitions(1:sizeOfP))
-    partitions(1)=1
+    allocate(partI1(1:numberOfP))
+    partI1(1)=1
     k=2
     do i=2,length
       if(listOfParts(i)/=listOfParts(i-1)) then
-        partitions(k)=i
+        partI1(k)=i
         k=k+1
       end if
     end do
 
-    !!!! partitionSizes is a list that contain sizes of partitions
-    allocate(partitionSizes(1:sizeOfP))
+    !!!! partSize is a list that contain sizes of partI1
+    allocate(partSize(1:numberOfP))
 
-    do i=1,sizeOfP-1
-      partitionSizes(i)=partitions(i+1)-partitions(i)
+    do i=1,numberOfP-1
+      partSize(i)=partI1(i+1)-partI1(i)
     end do
-    partitionSizes(sizeOfP)=length-partitions(sizeOfP)+1
+    partSize(numberOfP)=length-partI1(numberOfP)+1
 
 
-    !write(*,*) "--->",sizeOfP,length
-    !write(*,*) "partitions->",partitions
-    !write(*,*) "--->",partitionSizes
+    !write(*,*) "--->",numberOfP,length
+    !write(*,*) "partI1->",partI1
+    !write(*,*) "--->",partSize
 
 
-    !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED) PRIVATE(n_private,a_private,b_private,X_private,j)
-    do i=1,sizeOfP
-      !!!write(*,*) "i--->",partitionSizes(i),partitions(i)
+    !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED) PRIVATE(n_private)
+    do i=1,numberOfP
       !!!!! if bin is not partitioned, it is computed usually
-      if(partitionSizes(i)==1) then
-        n_private=NumPT_auto(qT(partitions(i),2)-qT(partitions(i),1),(Q(partitions(i),2)+Q(partitions(i),1))/2d0)
-        X(partitions(i))=Xsec_PTint_Qint_Yint(&
-              process(partitions(i),1:4),includeCuts(partitions(i)),CutParameters(partitions(i),1:4),&
-              s(partitions(i)),qT(partitions(i),1),qT(partitions(i),2),&
-              Q(partitions(i),1),Q(partitions(i),2),y(partitions(i),1),y(partitions(i),2),n_private)
+      if(partSize(i)==1) then
+        n_private=NumPT_auto(qT(partI1(i),2)-qT(partI1(i),1),(Q(partI1(i),2)+Q(partI1(i),1))/2d0)
+        X(partI1(i))=Xsec_PTint_Qint_Yint(&
+              process(partI1(i),1:4),includeCuts(partI1(i)),CutParameters(partI1(i),1:4),&
+              s(partI1(i)),qT(partI1(i),1),qT(partI1(i),2),&
+              Q(partI1(i),1),Q(partI1(i),2),y(partI1(i),1),y(partI1(i),2),n_private)
       else
-        !!!!! if bin is partitioned, compte the bins, and insert into X.
-        allocate(a_private(1:partitionSizes(i)),b_private(1:partitionSizes(i)),X_private(1:partitionSizes(i)))
-        do j=1,partitionSizes(i)
-          a_private(j)=qT(partitions(i)+j-1,1)
-          b_private(j)=qT(partitions(i)+j-1,2)
-        end do
-
         !!! actual computation
-        X_private=Xsec_PTspectrum_Qint_Yint(&
-            process(partitions(i),1:4),includeCuts(partitions(i)),CutParameters(partitions(i),1:4),&
-            s(partitions(i)),a_private,b_private,&
-            Q(partitions(i),1),Q(partitions(i),2),y(partitions(i),1),y(partitions(i),2))
-        !!! insertion into the list
-        do j=0,partitionSizes(i)-1
-          X(partitions(i)+j)=X_private(j+1)
-        end do
-        deallocate(a_private,b_private,X_private)
+        X(partI1(i):partI1(i)+partSize(i)-1)=Xsec_PTspectrum_Qint_Yint(&
+            process(partI1(i),1:4),includeCuts(partI1(i)),CutParameters(partI1(i),1:4),&
+            s(partI1(i)),&
+            qT(partI1(i):partI1(i)+partSize(i)-1,1),qT(partI1(i):partI1(i)+partSize(i)-1,2),&
+            Q(partI1(i),1),Q(partI1(i),2),y(partI1(i),1),y(partI1(i),2))
+
       end if
     end do
     !$OMP END PARALLEL DO
