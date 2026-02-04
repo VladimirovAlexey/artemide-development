@@ -580,7 +580,7 @@ function LeptonCutFactorKPC(kin,proc1, includeCuts_in,CutParam)
       !!! here include cuts onf lepton tensor
   !!!!!!!!!!!!!!!
   SELECT CASE(proc1)
-  CASE(1,2,101,102,103) !!! UU
+  CASE(1,2,4,5,6,101,102,103) !!! UU
       LeptonCutFactorKPC=CutFactor(qT_in=kin(1),Q_in=kin(3),y_in=kin(6),CutParameters=CutParam,Cut_Type=-1)
 
   CASE(20,30) !!! Angular coefficients A0

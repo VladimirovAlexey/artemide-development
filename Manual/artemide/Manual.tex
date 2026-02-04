@@ -2129,11 +2129,11 @@ List of enumeration of structures functions
 \\\hline
 3 & $\Ds\delta_{\bar f f'}\frac{z_{ll'}z_{ff'}}{\alpha_{\text{em}}^2}$ given in (2.8) of \cite{Scimemi:2017etj} & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to Z+\gamma$ & no & \checkmark & \checkmark
 \\\hline
-4 & \scalebox{0.7}{$\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$} & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^+$ & no & \checkmark & 
+4 & \scalebox{0.7}{$\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$} & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^+$ & no & \checkmark & \checkmark
 \\\hline
-5 & \scalebox{0.7}{$\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$} & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^-$ & no & \checkmark & 
+5 & \scalebox{0.7}{$\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$} & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^-$ & no & \checkmark & \checkmark
 \\\hline
-6 & \scalebox{0.7}{$\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$} & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^\pm$ & no & \checkmark & 
+6 & \scalebox{0.7}{$\Ds \frac{1}{4s_w^2}\frac{|V_{f f'}|^2}{4s_w^2}\frac{Q^4}{(Q^2-M_W^2)^2+\Gamma_W^2M_W^2}$} & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^\pm$ & no & \checkmark & \checkmark
 \\\hline
 7 & $\Ds \frac{|V_{f f'}|^2}{4s_w^2}$  & $f_1$ & $f_1$ & (unpol.)$h_1+h_2\to W^+$ (for narrow-width approx.) & no & \checkmark & 
 \\\hline
@@ -3163,7 +3163,8 @@ polarized DY
 \begin{itemize}
 \item[\textbf{Ver.3.03}]
 \begin{itemize}
-    \item \textbf{grid_inKT} fixed bug with incorrect evaluation of the last point of the $Q-$grid.
+	\item \textbf{TMDF\_KPC} optimized the DY-cross-section computation. Added processes with $W$-boson.
+    \item \textbf{grid\_inKT} fixed bug with incorrect extraction from the last segment of the $Q-$grid.
 	\item \textbf{TMDX\_DY} introduced option for evaluation of sequences of $q_T$-bins by a faster method.
 	\item \textbf{TMDX\_DY} fixed bug with incorrect evaluation of integral over $x_F$.
 	\item \textbf{CollinsTMDFF}: implemented (at all levels)

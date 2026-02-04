@@ -64,6 +64,45 @@ SELECT CASE(process(3))
      FAB=FA*FB
 
      TMD_pair=XTMD_pairZpZp(FAB,Q2)
+  !--------------------------------------------------------------------------------
+  CASE (4) !h1+h2-> W+
+    FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
+    FB=uTMDPDF_inKT(x2,sqrt(k2),mu,h2)
+
+    TMD_pair=paramW_L*(&
+    paramW_UD*(FA(2)*FB(-1)+FA(-1)*FB(2))&        !u*dbar+dbar*u
+    +paramW_US*(FA(2)*FB(-3)+FA(-3)*FB(2))&        !u*sbar+sbar*u
+    +paramW_UB*(FA(2)*FB(-5)+FA(-5)*FB(2))&        !u*bbar+bbar*u
+    +paramW_CD*(FA(4)*FB(-1)+FA(-1)*FB(4))&        !c*dbar+dbar*c
+    +paramW_CS*(FA(4)*FB(-3)+FA(-3)*FB(4))&        !c*sbar+sbar*c
+    +paramW_CB*(FA(4)*FB(-5)+FA(-5)*FB(4))&        !c*bbar+bbar*c
+    )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
+!--------------------------------------------------------------------------------
+  CASE (5) !h1+h2-> W-
+    FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
+    FB=uTMDPDF_inKT(x2,sqrt(k2),mu,h2)
+
+    TMD_pair=paramW_L*(&
+    paramW_UD*(FA(1)*FB(-2)+FA(-2)*FB(1))&        !d*ubar+ubar*d
+    +paramW_US*(FA(3)*FB(-2)+FA(-2)*FB(3))&        !s*ubar+ubar*s
+    +paramW_UB*(FA(5)*FB(-2)+FA(-2)*FB(5))&        !b*ubar+ubar*b
+    +paramW_CD*(FA(1)*FB(-4)+FA(-4)*FB(1))&        !d*cbar+cbar*d
+    +paramW_CS*(FA(3)*FB(-4)+FA(-4)*FB(3))&        !s*cbar+cbar*s
+    +paramW_CB*(FA(5)*FB(-4)+FA(-4)*FB(5))&        !b*cbar+cbar*b
+    )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
+!--------------------------------------------------------------------------------
+  CASE (6) !h1+h2-> W+ + W-
+    FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
+    FB=uTMDPDF_inKT(x2,sqrt(k2),mu,h2)
+
+    TMD_pair=paramW_L*(&
+    paramW_UD*(FA(2)*FB(-1)+FA(1)*FB(-2)+FA(-2)*FB(1)+FA(-1)*FB(2))&    !u*dbar+d*ubar+ubar*d+dbar*u
+    +paramW_US*(FA(2)*FB(-3)+FA(3)*FB(-2)+FA(-2)*FB(3)+FA(-3)*FB(2))&    !u*sbar+s*ubar+ubar*s+sbar*u
+    +paramW_UB*(FA(2)*FB(-5)+FA(5)*FB(-2)+FA(-2)*FB(5)+FA(-5)*FB(2))&    !u*bbar+b*ubar+ubar*b+bbar*u
+    +paramW_CD*(FA(4)*FB(-1)+FA(1)*FB(-4)+FA(-4)*FB(1)+FA(-1)*FB(4))&    !c*dbar+d*cbar+cbar*d+dbar*c
+    +paramW_CS*(FA(4)*FB(-3)+FA(3)*FB(-4)+FA(-4)*FB(3)+FA(-3)*FB(4))&    !c*sbar+s*cbar+cbar*s+sbar*c
+    +paramW_CB*(FA(4)*FB(-5)+FA(5)*FB(-4)+FA(-4)*FB(5)+FA(-5)*FB(4))&    !c*bbar+b*cbar+cbar*b+bbar*c
+    )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
 
   !--------------------------------------------------------------------------------
   CASE (23,24) !Delta^{GG'}z_{-l}z_{-f}{f1f1}_A
