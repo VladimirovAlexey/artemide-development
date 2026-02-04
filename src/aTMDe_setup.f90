@@ -737,7 +737,7 @@ function CheckConstantsFile(file,prefix)
     if(FILEversion<31) then
         write(*,*) color('aTMDe_setup: present version of setup-file is for artemide v2.'&
         , c_red_bold)
-        write(*,*) color('..           It is incompatible with the preent version.'&
+        write(*,*) color('..           It is incompatible with the present version.'&
         , c_red)
         write(*,*) color('..           Please, use actual file or update it manually.'&
         ,c_red)
@@ -826,7 +826,7 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) mTOP
     write(51,"(' ')")
     write(51,"('*B   : ---- uPDF sets----')")
-    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped; maximum 3)')")
+    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped)')")
     write(51,*) number_of_uPDFs
     write(51,"('*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
     do i=1,number_of_uPDFs
@@ -835,7 +835,7 @@ subroutine CreateConstantsFile(file,prefix)
 
     write(51,"(' ')")
     write(51,"('*C   : ---- uFF sets----')")
-    write(51,"('*p1  : total number of FFs to initialize (0= initialization is skipped; maximum 3)')")
+    write(51,"('*p1  : total number of FFs to initialize (0= initialization is skipped)')")
     write(51,*) number_of_uFFs
     write(51,"('*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
     do i=1,number_of_uFFs
@@ -844,7 +844,7 @@ subroutine CreateConstantsFile(file,prefix)
 
     write(51,"(' ')")
     write(51,"('*D   : ----lpPDF sets----')")
-    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped; maximum 1)')")
+    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped)')")
     write(51,*) number_of_lpPDFs
     write(51,"('*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
     do i=1,number_of_lpPDFs
@@ -853,7 +853,7 @@ subroutine CreateConstantsFile(file,prefix)
     
     write(51,"(' ')")
     write(51,"('*E   : ----gPDF (helicity) sets----')")
-    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped; maximum 2)')")
+    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped)')")
     write(51,*) number_of_gPDFs
     write(51,"('*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
     do i=1,number_of_gPDFs
@@ -862,7 +862,7 @@ subroutine CreateConstantsFile(file,prefix)
 
     write(51,"(' ')")
     write(51,"('*F   : ----hPDF (transversity) sets----')")
-    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped; maximum 2)')")
+    write(51,"('*p1  : total number of PDFs to initialize (0= initialization is skipped)')")
     write(51,*) number_of_hPDFs
     write(51,"('*p2  : LHAPDF set names for hadrons (line-by-line corresponding to reference number')")
     do i=1,number_of_hPDFs
@@ -1809,7 +1809,7 @@ subroutine ReadConstantsFile(file,prefix)
         CLOSE (51, STATUS='KEEP')
         write(*,*) color('aTMDe_setup: suggested setup-file is for artemide v2.'&
         , c_red_bold)
-        write(*,*) color('..           It is incompatible with the preent version.'&
+        write(*,*) color('..           It is incompatible with the present version.'&
         , c_red)
         write(*,*) color('..           Please, use actual file or update it manually.'&
         ,c_red)

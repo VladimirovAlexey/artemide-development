@@ -76,10 +76,10 @@ implicit none
    write(*,*) '-----------------------------------------------------------------------------------------------'
   call cpu_time(time2)
   !$ t2=OMP_get_wtime()
-  write(*,*) 'The programm evaluation took', time2-time1, 'sec. (CPU time)'
-  !$  write(*,*) 'The programm evaluation took', t2-t1, 'sec. (wallclock time)'
+  write(*,*) 'The program evaluation took', time2-time1, 'sec. (CPU time)'
+  !$  write(*,*) 'The program evaluation took', t2-t1, 'sec. (wallclock time)'
   write(*,*) '  '
-  write(*,*) 'If you do not like so many terminal messages check the parameter outputlevel in constants file.'
+  write(*,*) 'If you do not like so many terminal messages - decrease the parameter outputlevel in constants file.'
   write(*,*) 'Not forget to cite artemide [1706.01473]' 
   write(*,*) '-----------------------------------------------------------------------------------------------'
 
