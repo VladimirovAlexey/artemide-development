@@ -1375,8 +1375,6 @@ subroutine xSec_DY_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num,doParti
   logical::doP
   integer::k,j,numberOfP,listOfParts(1:size(s)),n_private
   integer,allocatable:: partI1(:),partSize(:)
-  real(dp),allocatable,dimension(:)::a_private,b_private,X_private
-  real(dp)::dummyQT
 
 if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
@@ -1454,7 +1452,6 @@ end if
   !!!! Only consequetive ranges are marked, and there is also upper cut
     k=1
     listOfParts(1)=k
-    !dummyQT=qT(1,1)
     do i=2,length
       if(&
       qT(i,2)>MaxQT_range_toPartite &  !!! check the max size

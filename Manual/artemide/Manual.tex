@@ -3165,8 +3165,10 @@ polarized DY
 \begin{itemize}
 	\item \textbf{TMDF\_KPC} optimized the DY-cross-section computation. Added processes with $W$-boson.
     \item \textbf{grid\_inKT} fixed bug with incorrect extraction from the last segment of the $Q-$grid.
-	\item \textbf{TMDX\_DY} introduced option for evaluation of sequences of $q_T$-bins by a faster method.
+	\item \textbf{TMDX\_DY} \& \textbf{TMDX\_SIDIS} introduced option for evaluation of sequences of $q_T$-bins by a faster method.
+	\item \textbf{TMDX\_SIDIS} fixed bug did not set properly the number of processor for parallel computing.
 	\item \textbf{TMDX\_DY} fixed bug with incorrect evaluation of integral over $x_F$.
+	\item \textbf{TMDX\_DY} \& \textbf{TMDX\_SIDIS} updated the flow of parallel computing, now the computation is ~20-30\% faster for long lists.
 	\item \textbf{CollinsTMDFF}: implemented (at all levels)
 	\item \textbf{SiversTMDPDF\_OPE} Added griding option for OPE part.
 	\item \textbf{aTMDe\_math}: added
@@ -3469,6 +3471,7 @@ polarized DY
 \item +parameters of grids for Sivers function-section (section 12.E).
 \item +\texttt{CollinsTMDFF}-section (section 18).
 \item +options regarding the $q_T$-integration in TMDX\_DY section (section 9.B.p6-p8)
+\item +options regarding the $q_T$-integration in TMDX\_SIDIS section (section 10.B.p6-p8)
 \end{enumerate}
 
 \begin{center}

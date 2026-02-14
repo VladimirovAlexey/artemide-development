@@ -17,7 +17,7 @@ private
 character (len=5),parameter :: version="v3.03"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=38
+integer,parameter::inputVer=39
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -248,11 +248,12 @@ integer::TMDX_DY_ChNodes
 !-------------------- TMDX-SIDIS parameters
 logical::include_TMDX_SIDIS
 character*8::TMDX_SIDIS_order
-real(dp)::TMDX_SIDIS_toleranceINT, TMDX_SIDIS_toleranceGEN
+real(dp)::TMDX_SIDIS_toleranceINT, TMDX_SIDIS_toleranceGEN, TMDX_SIDIS_maxQTrange
 real(dp)::TMDX_SIDIS_minPT
 integer::TMDX_SIDIS_ptSECTION
 logical::TMDX_SIDIS_qTcorr,TMDX_SIDIS_M1corr,TMDX_SIDIS_M2corr,TMDX_SIDIS_exactX1Z1,TMDX_SIDIS_exactScale
-logical::TMDX_SIDIS_useKPC
+logical::TMDX_SIDIS_useKPC,TMDX_SIDIS_doPartition
+integer::TMDX_SIDIS_ChNodes
 
 !---------------------------------------------------
 public::artemide_Setup_fromFile,CreateConstantsFile,ReadConstantsFile,CheckConstantsFile
@@ -694,6 +695,9 @@ subroutine SetupDefault(order)
     TMDX_SIDIS_toleranceGEN=0.000001d0
     TMDX_SIDIS_minPT=0.0001d0
     TMDX_SIDIS_ptSECTION=4        !default number of sections for pt-bin integration
+    TMDX_SIDIS_doPartition=.false. !default partitioning of pT-ranges
+    TMDX_SIDIS_ChNodes=10  !!!! order of pT interpolation
+    TMDX_SIDIS_maxQTrange = 18.d0 !!!! maximum range for qT-integral simplification
     TMDX_SIDIS_order=trim(order)
     TMDX_SIDIS_qTcorr=.true.
     TMDX_SIDIS_M1corr=.false.
@@ -1234,6 +1238,13 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDX_SIDIS_ptSECTION
     write(51,"('*p4  : Minimal value of pT (lower values are fixed to this number)')")
     write(51,*) TMDX_SIDIS_minPT
+    write(51,"('*p5  : Attempt to evaluate sequences of pT-bins in a single run by default')")
+    write(51,*) TMDX_SIDIS_doPartition
+    write(51,"('*p6  : Order of pT-interpolation in the partitioning')")
+    write(51,*) TMDX_SIDIS_ChNodes
+    write(51,"('*p7  : Maximum range of QT=(pT/z) to evaluate in a single sequence (in GeV)')")
+    write(51,*) TMDX_SIDIS_maxQTrange
+    write(51,"(' ')")
     write(51,"(' ')")
     write(51,"('*C   : ---- Definition of LP TMD factorization ----')")
     write(51,"('*p1  : Account induced transverse momentum corrections')")
@@ -2278,6 +2289,16 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) TMDX_SIDIS_toleranceINT
     call MoveTO(51,'*p3  ')
     read(51,*) TMDX_SIDIS_ptSECTION
+    call MoveTO(51,'*p4  ')
+    read(51,*) TMDX_SIDIS_minPT
+    if(FILEversion>38) then
+        call MoveTO(51,'*p5  ')
+        read(51,*) TMDX_SIDIS_doPartition
+        call MoveTO(51,'*p6  ')
+        read(51,*) TMDX_SIDIS_ChNodes
+        call MoveTO(51,'*p7  ')
+        read(51,*) TMDX_SIDIS_maxQTrange
+    end if
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')
     read(51,*) TMDX_SIDIS_qTcorr

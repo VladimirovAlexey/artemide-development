@@ -12,10 +12,10 @@
  
 *A   : ---- Global I/O ----
 *p1  : Input file Version (used to check version compatibility)
-          38
+          39
 *p2  : Output level (0 = no output except critical, 1 = + WARNINGS, 2 = + info,  3 = + details)
            2
-*p3  : Message trigger (the number of continuous non-critical warning before stop showing them)
+*p3  : Message trigger (the number of continious non-critical warning before stop showing them)
            6
  
 *B   : ---- Universal physic parameters ----
@@ -415,6 +415,12 @@
            6
 *p4  : Minimal value of pT (lower values are fixed to this number)
    0.0001
+*p5  : Attempt to evaluate sequences of pT-bins in a single run by default
+   F
+*p6  : Order of pT-interpolation in the partitioning
+   10
+*p7  : Maximum range of QT=(pT/z) to evaluate in a single sequence (in GeV)')")
+   18.0
 
 *C   : ---- Definition of LP TMD factorization ----
 *p1  : Account induced transverse momentum corrections

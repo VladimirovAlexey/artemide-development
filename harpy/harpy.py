@@ -1804,7 +1804,7 @@ class SIDIS:
                     
             
         @staticmethod
-        def xSecList(process,s,pT,z,x,Q,includeCuts,CutParameters,masses):  
+        def xSecList(process,s,pT,z,x,Q,includeCuts,CutParameters,masses,doParts):  
             return artemide.harpy.sidis_xsec_list(numpy.asfortranarray(process),\
                                                numpy.asfortranarray(s),\
                                                numpy.asfortranarray(pT),\
@@ -1814,7 +1814,7 @@ class SIDIS:
                                                numpy.asfortranarray(includeCuts),\
                                                numpy.asfortranarray(CutParameters),\
                                                numpy.asfortranarray(masses),\
-                                               len(s))
+                                               len(s),doParts)
             
         @staticmethod
         def xSecListBINLESS(process,s,pT,z,x,Q,masses):  
