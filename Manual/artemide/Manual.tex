@@ -2537,6 +2537,7 @@ The calculation of cut prefactor is made in \texttt{LeptonCutsDY.f90}. It has tw
 TO BE WRITTEN
 
 \subsection{Partitioning of continuous $p_T$ bins integration}
+\label{TMDX_DY:pT-partitioning}
 
 There is a variant of the command for the speed-up of multiple computation of bin-integrations vs. $q_T$. It is based on the facts that (1) the $q_T$-shape is very smooth, (2) often one needs to evaluate many small $q_T$ bins.
 
@@ -2563,7 +2564,7 @@ With $T$ being the Chebyshev polynomial.
 \end{enumerate}
 So, this algorithm requires only $N+1$ evaluations of cross-section.
 
-However, this algorithms works well only in the vicinity of $q_T$-peak, so it is limited to the $q_T$-bins in the range $q_T<q_{T,MAX}$, where $q_{T,MAX}$ is specified in the constants file.
+However, this algorithms works well only in the vicinity of $q_T$-peak, so it is limited to the $q_T$-bins in the range $q_T<q_{T,MAX}$, where $q_{T,MAX}$ is specified in the constants file. In the case of SIDIS, this inequality is $p_T/\langle z\rangle<q_{T\text{MAX}}$.
 
 
 \subsection{Options for evaluation of DY-like cross-section}
@@ -2681,9 +2682,9 @@ Command & ~~Type~~& ~~Sec.~~ & Short description
 \\\hline
 \texttt{TMDX{\_}SIDIS{\_}SetScaleVariation(c2)} & subrout. & -- & \blue{*}~~ Set new values for the scale-variation constants.
 \\\hline
-\texttt{xSec\_SIDIS(X,process,s,pT,z,x,Q)} &subrout. &\ref{TMDXs:xsec} & Evaluates cross-section completely integrated over the bin. 
+\texttt{xSec\_SIDIS} &subrout. &\ref{TMDXs:xsec} & Evaluates cross-section completely integrated over the bin. 
 \\\hline
-\texttt{xSec\_SIDIS\_List(X,process,s,pT,z,x,Q)} &subrout. &\ref{TMDXs:xsec} & Evaluates cross-section completely integrated over the bin over the list. 
+\texttt{xSec\_SIDIS\_List} &subrout. &\ref{TMDXs:xsec} & Evaluates cross-section completely integrated over the bin over the list. 
 \\\hline\hline
 \end{tabular}
 \end{center}
@@ -2720,9 +2721,13 @@ where
 \textbf{\blue{There is also analogous subroutine that evaluate cross-section by list.}} It is called \texttt{xSec\_SIDIS\_List} and it have the following interface:
 
 \begin{center}
-\texttt{xSec\_SIDIS\_List(X,process,s,pT,z,x,Q,incC,cuts,masses)}
+\texttt{xSec\_SIDIS\_List(X,process,s,pT,z,x,Q,incC,cuts,masses,doP)}
 \end{center}
 All variables are analogues to those of \texttt{xSec\_SIDIS}, but should come in lists, i.e. \texttt{X} is (1:n), \texttt{process} is (1:n,1:4), \texttt{s} is (1:n), \texttt{pT},\texttt{x},\texttt{Q},\texttt{z} are (1:n,1:2). This command compiled by OPENMP, so runs in parallel on multi-core computers.
+\begin{itemize}
+\item \texttt{masses} is optional. If absent replaced by zeros.
+\item \texttt{doP} is a single logical value \textit{optional} (default value is specified by INI-file). If \texttt{.true.} the function intents to determine sequences of $p_T$ bins and evaluate integration over them by a single interpolation routine (see sec.\ref{TMDX_DY:pT-partitioning}). The maximum upper limit of a sequence is defined by $p_T/\langle z\rangle<q_{T\text{MAX}}$.
+\end{itemize}
 \end{tcolorbox}
 
 In addition to these main subroutines the following sub-routines are defined
