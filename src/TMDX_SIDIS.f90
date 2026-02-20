@@ -30,7 +30,7 @@ private
 !Current version of module
 character (len=10),parameter :: moduleName="TMDX-SIDIS"
 character (len=5),parameter :: version="v3.03"
-!Last appropriate verion of constants-file
+!Last appropriate version of constants-file
 integer,parameter::inputver=39
 
 real(dp) :: toleranceINT=0.0001d0
