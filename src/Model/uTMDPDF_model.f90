@@ -94,10 +94,10 @@ function FNP(x,bT,hadron,lambdaNP)
 !       wubar=lambdaNP(1)*(1-x)+x*lambdaNP(8)+lambdaNP(10)*x*log(x)**2
 !       wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(8)+lambdaNP(10)*x*log(x)**2
 !       wr=lambdaNP(7)*(1-x)+x*lambdaNP(8)+lambdaNP(9)*x*log(x)**2
-      wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)+lambdaNP(9)*x*log(x)
-      wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)+lambdaNP(10)*x*log(x)
-      wubar=lambdaNP(1)*(1-x)+x*lambdaNP(5)
-      wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(6)
+      wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)
+      wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)
+      wubar=lambdaNP(1)*(1-x)+x*lambdaNP(5)!-lambdaNP(9)*Log(1-x)
+      wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(6)!-lambdaNP(9)*Log(1-x)
       wr=lambdaNP(7)*(1-x)+x*lambdaNP(8)
 
     if(wu<0d0 .or. wd<0d0 .or. wubar<0d0 .or. wdbar<0d0 .or. wr<0d0) then
