@@ -506,11 +506,11 @@ subroutine SetupDefault(order)
     SiversTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     SiversTMDPDF_toleranceGEN=1.d-6!general tolerance
     SiversTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
-    SiversTMDPDF_numSubGridsX=4
+    SiversTMDPDF_numSubGridsX=2
     allocate(SiversTMDPDF_subGridsX(0:SiversTMDPDF_numSubGridsX))
     SiversTMDPDF_subGridsX=(/0.01d0,0.5d0,1.d0/)
     SiversTMDPDF_grid_SizeX=8
-    SiversTMDPDF_numSubGridsB=2
+    SiversTMDPDF_numSubGridsB=5
     allocate(SiversTMDPDF_subGridsB(0:SiversTMDPDF_numSubGridsB))
     SiversTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
     SiversTMDPDF_grid_SizeB=8
