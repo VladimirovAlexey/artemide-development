@@ -625,7 +625,7 @@ test:
 ################################################ update constants part ##############################
 
 $(BIN)/update-const: $(aTMDeHOME)/Prog/update-constants-file.f90 $(OBJ)/aTMDe_setup.o $(aTMDeUTILITY)
-	$(FC) $(aTMDeHOME)/Prog/update-constants-file.f90 $(aTMDeOBJ) $(FOPT) -I$(MOD) -o update-const
+	$(FC) $(aTMDeHOME)/Prog/update-constants-file.f90 $(aTMDeOBJ) $(snowOBJ) $(FOPT) -I$(MOD) -o update-const
 	mv update-const $(BIN)/update-const
 	
 ################################################  HARPY PART  #######################################

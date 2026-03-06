@@ -82,24 +82,19 @@ function FNP(x,bT,hadron,lambdaNP)
 !
 
 !    ART25
-!      wu=lambdaNP(1)*(1-x)**lambdaNP(5)+x*lambdaNP(2)
-!      wd=lambdaNP(3)*(1-x)**lambdaNP(7)+x*lambdaNP(4)
-!      wubar=lambdaNP(1)*(1-x)+x*lambdaNP(6)
-!      wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(8)
-!      wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)
+     wu=lambdaNP(1)*(1-x)**lambdaNP(5)+x*lambdaNP(2)
+     wd=lambdaNP(3)*(1-x)**lambdaNP(7)+x*lambdaNP(4)
+     wubar=lambdaNP(1)*(1-x)+x*lambdaNP(6)
+     wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(8)
+     wr=lambdaNP(9)*(1-x)+x*lambdaNP(10)
 
 !   KPC26
-!       wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)+lambdaNP(5)*x*log(x)**2
-!       wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)+lambdaNP(6)*x*log(x)**2
-!       wubar=lambdaNP(1)*(1-x)+x*lambdaNP(8)+lambdaNP(10)*x*log(x)**2
-!       wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(8)+lambdaNP(10)*x*log(x)**2
-!       wr=lambdaNP(7)*(1-x)+x*lambdaNP(8)+lambdaNP(9)*x*log(x)**2
-      wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)
-      wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)
-      wubar=lambdaNP(1)*(1-x)+x*lambdaNP(5)!-lambdaNP(9)*Log(1-x)
-      wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(6)!-lambdaNP(9)*Log(1-x)
-      wr=lambdaNP(7)*(1-x)+x*lambdaNP(8)
-
+!       wu=lambdaNP(1)*(1-x)+x*lambdaNP(2)
+!       wd=lambdaNP(3)*(1-x)+x*lambdaNP(4)
+!       wubar=lambdaNP(1)*(1-x)+x*lambdaNP(5)!-lambdaNP(9)*Log(1-x)
+!       wdbar=lambdaNP(3)*(1-x)+x*lambdaNP(6)!-lambdaNP(9)*Log(1-x)
+!       wr=lambdaNP(7)*(1-x)+x*lambdaNP(8)
+!
     if(wu<0d0 .or. wd<0d0 .or. wubar<0d0 .or. wdbar<0d0 .or. wr<0d0) then
         FNPu=Exp(-10d0*bb)
         FNPd=Exp(-10d0*bb)
@@ -154,9 +149,11 @@ pure function bSTAR(bT,x,y)
     real(dp),intent(in)::bT,x,y
     real(dp)::ee
 
-    ee=exp(-0.04d0*bT**2)
+    !
+    !bSTAR=bT/sqrt(1+bT**2/(1._dp)**2)
 
     !!!! ART25
+    ee=exp(-0.04d0*bT**2)
     bSTAR=bT*ee+(1-ee)*C0_const/muOPE(bT,x,y,1.d0)
 
     !!!! ART23
@@ -172,6 +169,8 @@ end function bSTAR
 pure function muOPE(bt,x,y,c4)
     real(dp),intent(in)::bt,x,y,c4
 
+    !muOPE=C0_const*c4/bSTAR(bT,x,y)
+    !muOPE=C0_const*c4/bT*sqrt(1+bT**2/(0.2_dp)**2)
     muOPE=C0_const*c4/bT+5d0
     !muOPE=C0_const*c4/bT+2d0
 
