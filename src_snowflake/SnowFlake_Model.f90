@@ -54,92 +54,92 @@ end subroutine PrintParameters
 !!!! This is a ``cut function'' which supposed to be
 !!!! 1 at x1=x2=x3=0,
 !!!! 0 at at border
-!!!! to be consitent with the rest it must be symmetric in x1<->x3
-function H(x,y,a,b,c)
+!!!! to be consitent with the rest it must be symmetric in x1<->x3 [no it should not be]
+function H(x,y,a,b,c,d)
     real*8,intent(in)::x,y
-    real*8,intent(in)::a,b,c
+    real*8,intent(in)::a,b,c,d
     real*8::H
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        H=((1-x**2)*(1-(x+y)**2))**a*(1-y**2)**b/(x**2+y**2+(x+y)**2)**c
+        H=(1-x**2)**a*(1-y**2)**b*(1-(x+y)**2)**c/(x**2+y**2+(x+y)**2)**d
     else
         H=0.d0
     end if
 end function H
 
-!!!! function S^+_u
+!!!! function \mathfrak{S}^+_u
 function SplusU(x,y)
     real*8,intent(in)::x,y
     real*8::SplusU
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SplusU=H(x,y,NPparam(0),NPparam(1),NPparam(2))*(NPparam(3)+NPparam(4)*x*(-x-y))
+        SplusU=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(4)+NPparam(5)*x*(-x-y))
     else
         SplusU=0.d0
     end if
 end function SplusU
 
-!!!! function S^-_u
+!!!! function \mathfrak{S}^-_u
 function SminusU(x,y)
     real*8,intent(in)::x,y
     real*8::SminusU
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SminusU=H(x,y,NPparam(0),NPparam(1),NPparam(2))*(NPparam(5)*x+NPparam(6)*(-x-y))
+        SminusU=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(6)*x+NPparam(7)*(-x-y))
     else
         SminusU=0.d0
     end if
 end function SminusU
 
-!!!! function S^+_d
+!!!! function \mathfrak{S}^+_d
 function SplusD(x,y)
     real*8,intent(in)::x,y
     real*8::SplusD
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SplusD=H(x,y,NPparam(0),NPparam(1),NPparam(2))*(NPparam(7)+NPparam(8)*x*(-x-y))
+        SplusD=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(8)+NPparam(9)*x*(-x-y))
     else
         SplusD=0.d0
     end if
 end function SplusD
 
-!!!! function S^-_d
+!!!! function \mathfrak{S}^-_d
 function SminusD(x,y)
     real*8,intent(in)::x,y
     real*8::SminusD
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SminusD=H(x,y,NPparam(0),NPparam(1),NPparam(2))*(NPparam(9)*x+NPparam(10)*(-x-y))
+        SminusD=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(10)*x+NPparam(11)*(-x-y))
     else
         SminusD=0.d0
     end if
 end function SminusD
 
-!!!! function S^+_d
+!!!! function \mathfrak{S}^+_d
 function SplusS(x,y)
     real*8,intent(in)::x,y
     real*8::SplusS
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SplusS=H(x,y,NPparam(0),NPparam(1),NPparam(2))*(NPparam(11)+NPparam(12)*x*(-x-y))
+        SplusS=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(12)+NPparam(13)*x*(-x-y))
     else
         SplusS=0.d0
     end if
 end function SplusS
 
-!!!! function S^-_d
+!!!! function \mathfrak{S}^-_d
 function SminusS(x,y)
     real*8,intent(in)::x,y
     real*8::SminusS
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SminusS=H(x,y,NPparam(0),NPparam(1),NPparam(2))*(NPparam(13)*x+NPparam(14)*(-x-y))
+        SminusS=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(14)*x+NPparam(15)*(-x-y))
     else
         SminusS=0.d0
     end if
@@ -219,7 +219,7 @@ function Tp(x,y)
     real*8::Tp
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        Tp=NPparam(15)*H(x,y,NPparam(0),NPparam(1),NPparam(2))*(2*x+y)
+        Tp=NPparam(16)*H(x,y,(NPparam(2)+NPparam(0))/2,NPparam(1),(NPparam(2)+NPparam(0))/2,NPparam(3))*(2*x+y)
     else
         Tp=0.d0
     end if
@@ -231,7 +231,7 @@ function Tm(x,y)
     real*8::Tm
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        Tm=NPparam(16)*H(x,y,NPparam(0),NPparam(1),NPparam(2))
+        Tm=NPparam(17)*H(x,y,(NPparam(2)+NPparam(0))/2,NPparam(1),(NPparam(2)+NPparam(0))/2,NPparam(3))
     else
         Tm=0.d0
     end if
