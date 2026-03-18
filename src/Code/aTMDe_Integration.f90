@@ -24,9 +24,10 @@ implicit none
 private
 INCLUDE 'Tables/G7K15.f90'
 INCLUDE 'Tables/G20K41.f90'
+INCLUDE 'Tables/K21.f90'
 
 public::Integrate_S5,Integrate_SN,Integrate_SA,Integrate_SA_2D
-public::Integrate_G3,Integrate_G7,Integrate_K15,Integrate_K41,Integrate_GK,Integrate_GK2041
+public::Integrate_G3,Integrate_G7,Integrate_K15,Integrate_K21,Integrate_K41,Integrate_GK,Integrate_GK2041
 public::Integrate_GK_array5
 public::Integrate2D_Stroud35_55,Integrate2D_Stroud35_56
 
@@ -310,6 +311,31 @@ function Integrate_K15(f,xMin,xMax)
     Integrate_K15=delta*inter
     
 end function Integrate_K15
+
+!------------------------------------------- K21 --------------------------------------------
+
+!!! Kronrod 21-points
+!!! f::  function of 1 variable
+!!! xMin, and xMax boundaries of the integral. xMax>xMin !!
+function Integrate_K21(f,xMin,xMax)
+    procedure(func_1D)::f
+    real(dp)::Integrate_K21
+    real(dp),intent(in)::xMin,xMax
+    real(dp)::delta,av,inter
+    integer::i
+
+    delta=(xMax-xMin)/2._dp
+    av=(xMax+xMin)/2._dp
+
+    inter=0._dp
+    do i=1,21
+        inter=inter+Wi_k21(i)*f(Xi_k21(i)*delta+av)
+    end do
+
+    Integrate_K21=delta*inter
+
+end function Integrate_K21
+
 
 !------------------------------------------- K41 --------------------------------------------
 

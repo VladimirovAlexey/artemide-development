@@ -462,7 +462,7 @@ $(OBJ)/lpTMDPDF.o: $(SOURCEDIR)/lpTMDPDF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Mode
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/SiversTMDPDF_model.o: $(SOURCEDIR)/Model/SiversTMDPDF_model.f90 $(OBJ)/SnowFlake.o $(aTMDeUTILITY)
+$(OBJ)/SiversTMDPDF_model.o: $(SOURCEDIR)/Model/SiversTMDPDF_model.f90 $(OBJ)/SnowFlake.o $(OBJ)/SnowFlake_Model.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/Model/SiversTMDPDF_model.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -480,7 +480,7 @@ $(OBJ)/SiversTMDPDF.o: $(SOURCEDIR)/SiversTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TM
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/wgtTMDPDF_model.o: $(SOURCEDIR)/Model/wgtTMDPDF_model.f90 $(OBJ)/SnowFlake.o $(aTMDeUTILITY)
+$(OBJ)/wgtTMDPDF_model.o: $(SOURCEDIR)/Model/wgtTMDPDF_model.f90 $(OBJ)/SnowFlake.o $(OBJ)/SnowFlake_Model.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/Model/wgtTMDPDF_model.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -516,7 +516,7 @@ $(OBJ)/wglTMDPDF.o: $(SOURCEDIR)/wglTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/BoerMuldersTMDPDF_model.o: $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 $(OBJ)/SnowFlake.o $(aTMDeUTILITY)
+$(OBJ)/BoerMuldersTMDPDF_model.o: $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 $(OBJ)/SnowFlake.o $(OBJ)/SnowFlake_Model.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -534,7 +534,7 @@ $(OBJ)/BoerMuldersTMDPDF.o: $(SOURCEDIR)/BoerMuldersTMDPDF.f90 $(OBJ)/QCDinput.o
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/CollinsTMDFF_model.o: $(SOURCEDIR)/Model/CollinsTMDFF_model.f90 $(OBJ)/SnowFlake.o $(aTMDeUTILITY)
+$(OBJ)/CollinsTMDFF_model.o: $(SOURCEDIR)/Model/CollinsTMDFF_model.f90 $(OBJ)/SnowFlake.o $(OBJ)/SnowFlake_Model.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/Model/CollinsTMDFF_model.f90 -I$(MOD)
 	mv *.o $(OBJ)

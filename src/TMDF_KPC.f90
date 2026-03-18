@@ -364,6 +364,7 @@ function KPC_DYconv(Q2,qT_in,x1,x2,mu,proc1)
 
     ! Second version, integral over theta (0,pi), then over omega (-1,1)
     KPC_DYconv=Integrate_SA(Integrand_forOmega,-1._dp,1._dp,toleranceINT)
+
 #elif INTEGRATION_MODE==2
 !!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !!!   Fixed-number of points implementations of the integral for fitting KPCs
@@ -401,7 +402,8 @@ end function Integrand_forAlpha
 
 !!! Integral over omega with a special change of variables that resolves the peak observed in alpha.
 !!! NOTE: The implemented change of variables is the following:
-!!! omega = arctan[rho*pi*(alpha-delta)/(alpha*(pi-4*delta)+pi*delta)]/arctan[rho], where delta is the position of the peak and rho is its width
+!!! omega = arctan[rho*pi*(alpha-delta)/(alpha*(pi-4*delta)+pi*delta)]/arctan[rho], where delta is the
+!!! position of the peak and rho is its width.
 !!! In addition, omega lies in [-1,1], and satisfies that omega = 0 <--> alpha = delta, meaning that,
 !!! after the change of variables the peak ends up roughly centered.
 !!! ATTENTION: The position and the width of the peak are, respectively and approximately, delta = qT/Q and rho = qT/Q,
@@ -489,9 +491,9 @@ function INT_overTHETA(Q2,tau2,deltaT,x1,x2,mu,proc1,sA)
 
 
 #if INTEGRATION_MODE==1
-    !!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    !!!   Adaptive/Recommended for computing observables
-    !!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!!   Adaptive/Recommended for computing observables
+!!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     INT_overTHETA=Integrate_SA(Integrand_forTHETA,0._dp,pi,toleranceINT)
     !INT_overTHETA=Integrate_GK(Integrand_forTHETA,0._dp,pi,toleranceINT)
 
@@ -533,10 +535,7 @@ end function INT_overTHETA
 
 
 !!!--------------------------------------------------------------------------------------------------
-!!!----------------------------------- SIDIS PART -------------------------------------------------------
-!!!--------------------------------------------------------------------------------------------------
-!!!--------------------------------------------------------------------------------------------------
-!!!----------------------------------- SIDIS PART -------------------------------------------------------
+!!!----------------------------------- SIDIS PART ---------------------------------------------------
 !!!--------------------------------------------------------------------------------------------------
 
 !!!--------------------------------------------------------------------------------------------------
@@ -546,11 +545,27 @@ end function INT_overTHETA
 !!! Q2, qT, x1, z1 and mu are the usual SIDIS variables
 !!! NOTE: that Q2 is SIDIS kinematic variable, and mu is the factorization scale
 
+!!! The integral is 2D, over theta and delta (which are complicated combinations)
+!!! First evaluate over theta (0,pi), then over delta (0,1)
+
+!!! ATTENTION: The integral has been updated in order to fit the KPCs.
+!!! We realized that the integration over delta was very slow because the integrand
+!!! was not particularly smooth and featured a peak that, depending on the values of Q and qT,
+!!! could become quite narrow. To address this, we implemented a change of
+!!! variables (described below) and began working with a new variable, omega, which ranges from –1 to 1.
+!!! In its final form, the integral is evaluated first over theta (0,pi) and then over omega (–1,1),
+!!! using the K21 integration method for both integrations.
+!!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! NOTE: For computing observables that require this convolution integral, we recommend using
+!!! the previous version with the integration over delta, or alternatively the new version but with an
+!!! adaptive method such as GK, since using K21 together with the new change of variables
+!!! sacrifices a bit of precision (though not too much) in order to prioritize speed.
+
 function KPC_SIDISconv(Q2, qT_in, x1, z1 ,mu, proc1)
     real(dp) :: KPC_SIDISconv
     real(dp), intent(in) :: Q2, x1, z1, mu, qT_in
     integer, intent(in), dimension(1:3) :: proc1
-    real(dp) :: tau2, dT, qT
+    real(dp) :: tau2, dT, qT, x
 
     if(qT_in < qTMIN) then
         qT = qTMIN
@@ -558,16 +573,30 @@ function KPC_SIDISconv(Q2, qT_in, x1, z1 ,mu, proc1)
         qT = qT_in
     end if
 
-    !write(*,*) "---->",Q2,qT,x1,z1
-
     LocalCounter = 0
 
     tau2 = Q2 - qT**2
     dT = qT**2/tau2
+    x = x1*Q2/tau2
 
-    !KPC_SIDISconv = Integrate_GK(Integrand_forDeltat2, 0._dp, 1._dp, toleranceINT)
+#if INTEGRATION_MODE==1
+!!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!!   Adaptive implementations of the integral for computing observables
+!!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ! First version, integral over theta (0,pi), then over delta (0,1)
+    KPC_SIDISconv = Integrate_GK(Integrand_forDeltat2, 0._dp, 1._dp, toleranceINT)
 
-    KPC_SIDISconv = Integrate_GK(Integrand_forDelta_th, -1._dp, 1._dp, toleranceINT)
+    ! Second version, integral over theta (0,pi), then over omega (-1,1)
+!     KPC_SIDISconv=Integrate_GK(Integrand_forDelta_th,-1._dp,1._dp,toleranceINT)
+
+#elif INTEGRATION_MODE==2
+!!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!!   Fixed-number of points implementations of the integral for fitting KPCs
+!!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    KPC_SIDISconv=Integrate_K21(Integrand_forDelta_th,-1._dp,1._dp)
+
+#endif
+
 
 contains
 
@@ -577,22 +606,38 @@ function Integrand_forDeltat2(Deltat)
     real(dp), intent(in) :: Deltat
 
     Integrand_forDeltat2 = INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, mu, proc1, Deltat)
-    !write(*,"('{',F16.12,',',F16.8,'},')") Deltat,Integrand_forDeltat2
 
 end function Integrand_forDeltat2
 
-!!! Integral over Delta with a special change of variable that resolves the peak.
-!!! ATTENTION!! It is assumed that the peak is at delta=qT/Q. Ig it moves away the integrand resolve another region.
-!!! The change of variables is
-!!! omega= arctan[a (delta-d)/(delta(1-2d)+d)]/arctan[a] where d is the position of the peak and a is assumed width of the peak
-!!! omega in [-1,1] with omega=0 <--> delta=d
+
+!!! Integral over omega with a special change of variables that resolves the peak observed in delta.
+!!! NOTE: The implemented change of variables is the following:
+!!! omega = arctan[a (delta-d)/(delta(1-2d)+d)]/arctan[a], where d is the position of the peak and a is its width.
+!!! In addition, omega lies in [-1,1], and satisfies that omega = 0 <--> delta = d, meaning that,
+!!! after the change of variables the peak ends up roughly centered.
+!!! ATTENTION: The position and the width of the peak are, respectively and approximately, d = qT/Q and a = qT/Q,
+!!! but depending on the vaue of x, one of them needs to be slightly corrected.
+!!! After running many tests, we identified two different cases (see below in the code).
+
 function Integrand_forDelta_th(omega)
     real(dp) :: Integrand_forDelta_th
     real(dp), intent(in) :: omega
     real(dp) :: d,a,delta,atan_a,tan_o,jacobian
 
-    d=qT/Sqrt(Q2)
-    a=1._dp/d
+    ! First case: "high" x -> the position of the peak needs to be corrected
+    if (x > 0.2d0) then
+
+        d=qT/Sqrt(Q2)+x*0.02d0*(Sqrt(Q2)/qT)**(0.3d0)
+        a=Sqrt(Q2)/qT
+!
+    ! Second case: "low" x -> the width of the peak needs to be corrected
+    else
+
+        d=qT/Sqrt(Q2)
+        a=qT/Sqrt(Q2)+5.1d0/(Sqrt(Q2)/qT)**(0.65d0)/x
+
+    end if
+
     atan_a=atan(a)
     tan_o=tan(omega*atan_a)
 
@@ -602,7 +647,7 @@ function Integrand_forDelta_th(omega)
     jacobian=2*a*(1-d)*d*atan_a*(1+tan_o**2)/(a+(2*d-1)*tan_o)**2
 
     if(ISNAN(delta)) then
-    write(*,*) "---->",d,a,atan_a,tan_o,delta,jacobian
+!     write(*,*) "---->",d,a,atan_a,tan_o,delta,jacobian
 
     end if
 
@@ -620,7 +665,19 @@ function INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, mu, proc1, Deltat)
     integer, intent(in), dimension(1:3) :: proc1
     real(dp) :: INT_overTHETA_SIDIS
 
+
+#if INTEGRATION_MODE==1
+!!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!!   Adaptive/Recommended for computing observables
+!!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     INT_overTHETA_SIDIS=2*Integrate_GK(Integrand_forTHETA_SIDIS, 0.d0, pi, toleranceINT)
+
+#elif INTEGRATION_MODE==2
+!!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!!   Recommended implementations of the integral for fitting KPCs
+!!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    INT_overTHETA_SIDIS=2*Integrate_K21(Integrand_forTHETA_SIDIS, 0.d0, pi)
+#endif
 
 contains
 
@@ -662,8 +719,7 @@ function Integrand_forTHETA_SIDIS(theta)
 !     write(*,*) TMD_pair(Q2,xi,zeta,K,kh,mu,proc1)
 !     stop
 
-    !write(44,*) Deltat,theta,Integrand_forTHETA_SIDIS
-    !write(44,*) Deltat,theta,TMD_pair(Q2,xi,zeta,K,kh,mu,proc1)
+!     write(10,*) Deltat,theta,Integrand_forTHETA_SIDIS
 
 
 end function Integrand_forTHETA_SIDIS
