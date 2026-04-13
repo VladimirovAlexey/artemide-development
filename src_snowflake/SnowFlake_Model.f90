@@ -23,7 +23,8 @@ subroutine SnowFlake_Model_Initialize()
 
 !!!!!! spacify the source of the alphaS-table
 call ReadInfo("MSHT20nnlo_as118","/data/LHAPDF/share/LHAPDF/")
-allocate(NPparam(0:17))
+!call ReadInfo("MSHT20nnlo_as118","/home/alexey/WorkingFiles/LHAPDF/share/LHAPDF/")
+allocate(NPparam(0:23))
 
 NPparam=0._dp
 
@@ -74,7 +75,8 @@ function SplusU(x,y)
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SplusU=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(4)+NPparam(5)*x*(-x-y))
+        SplusU=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(&
+                NPparam(4)+NPparam(5)*x*x+NPparam(6)*x*(-x-y)+NPparam(7)*(x+y)**2)
     else
         SplusU=0.d0
     end if
@@ -87,7 +89,7 @@ function SminusU(x,y)
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SminusU=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(6)*x+NPparam(7)*(-x-y))
+        SminusU=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(8)*x+NPparam(9)*(-x-y))
     else
         SminusU=0.d0
     end if
@@ -100,7 +102,8 @@ function SplusD(x,y)
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SplusD=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(8)+NPparam(9)*x*(-x-y))
+    SplusD=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(&
+            NPparam(10)+NPparam(11)*x*x+NPparam(12)*x*(-x-y)+NPparam(13)*(x+y)**2)
     else
         SplusD=0.d0
     end if
@@ -113,7 +116,7 @@ function SminusD(x,y)
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SminusD=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(10)*x+NPparam(11)*(-x-y))
+        SminusD=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(14)*x+NPparam(15)*(-x-y))
     else
         SminusD=0.d0
     end if
@@ -126,7 +129,8 @@ function SplusS(x,y)
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SplusS=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(12)+NPparam(13)*x*(-x-y))
+        SplusS=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(&
+            NPparam(16)+NPparam(17)*x*x+NPparam(18)*x*(-x-y)+NPparam(19)*(x+y)**2)
     else
         SplusS=0.d0
     end if
@@ -139,7 +143,7 @@ function SminusS(x,y)
     real*8,parameter::pi=3.141592653589793d0
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        SminusS=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(14)*x+NPparam(15)*(-x-y))
+        SminusS=H(x,y,NPparam(0),NPparam(1),NPparam(2),NPparam(3))*(NPparam(20)*x+NPparam(21)*(-x-y))
     else
         SminusS=0.d0
     end if
@@ -219,7 +223,7 @@ function Tp(x,y)
     real*8::Tp
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        Tp=NPparam(16)*H(x,y,(NPparam(2)+NPparam(0))/2,NPparam(1),(NPparam(2)+NPparam(0))/2,NPparam(3))*(2*x+y)
+        Tp=NPparam(22)*H(x,y,(NPparam(2)+NPparam(0))/2,NPparam(1),(NPparam(2)+NPparam(0))/2,NPparam(3))*(2*x+y)
     else
         Tp=0.d0
     end if
@@ -231,7 +235,7 @@ function Tm(x,y)
     real*8::Tm
 
     if(abs(x)<1 .and. abs(y)<1 .and. abs(x+y)<1) then
-        Tm=NPparam(17)*H(x,y,(NPparam(2)+NPparam(0))/2,NPparam(1),(NPparam(2)+NPparam(0))/2,NPparam(3))
+        Tm=NPparam(23)*H(x,y,(NPparam(2)+NPparam(0))/2,NPparam(1),(NPparam(2)+NPparam(0))/2,NPparam(3))
     else
         Tm=0.d0
     end if

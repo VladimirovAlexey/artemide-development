@@ -30,7 +30,7 @@ type, public :: optGrid
   integer::outputLevel
   !!!! xRanges & bRanges are the list of values of subgrids for x and b
   real(dp),allocatable::xRanges(:),bRanges(:)
-  !!!! number of Subgrids
+  !!!! number of Subgrids : numbering 1->numXsubgrids
   integer::numXsubgrids,numBsubgrids
   !!!! xNodes & bNodes are the list of values of nodes in the terms of T=[-1,1]
   real(dp),allocatable::xNodes(:),bNodes(:)
@@ -38,6 +38,7 @@ type, public :: optGrid
   real(dp),allocatable::xNodeFactors(:),bNodeFactors(:)
   !!!! xGridSize & bGridSize are the number of nodes in the subgrids
   !!!! number of nodes is made same for all subgrids, in order to simplify memory operation (store all nodes in single multi-array)
+  !!!! : numbering 0->xGridSize
   integer::xGridSize,bGridSize
   !!!! utmost values of the grids
   real(dp)::xMIN,bMIN,bMAX
@@ -45,6 +46,7 @@ type, public :: optGrid
   integer::numH
   !!!! include Gluon
   logical::withGluon
+
 
   !!! parameter of tolerance
   real(dp)::zero=10.d-8
@@ -488,7 +490,6 @@ class(optGrid),intent(in)::this
       ExtractFromGrid=interpolateInX(this,tX,interGrid)
     end if
   end if
-
 !   do i=-5,5
 !     if(ISNAN(ExtractFromGrid(i))) then
 !      write(*,'(" Extracted value (x,b,f,h) =(",F6.5,", ",F6.2,", ",I2,", ",I2,") is computed to NaN")') &
