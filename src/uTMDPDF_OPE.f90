@@ -347,8 +347,8 @@ end function functionToGrid
 !!!!array of x times PDF(x,Q) for hadron 'hadron'
 !!!! array is (-5:5) (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
 function xf(x,Q,hadron)
-    real(dp) :: x,Q
-    integer:: hadron
+    real(dp),intent(in) :: x,Q
+    integer,intent(in):: hadron
     real(dp), dimension(-5:5):: xf
     
     xf=xPDF(x,Q,hadron)
@@ -359,8 +359,8 @@ end function xf
 !!!! needed solely for analysis of TMDs, to not to run LHAPDF again
 !!!! NOTE: it is not mutiplied by x
 function uTMDPDF_OPE_PDF(x,mu,hadron)
-    real(dp) :: x,mu
-    integer:: hadron
+    real(dp),intent(in) :: x,mu
+    integer,intent(in):: hadron
     real(dp), dimension(-5:5):: uTMDPDF_OPE_PDF
 
     uTMDPDF_OPE_PDF=xPDF(x,mu,hadron)/x

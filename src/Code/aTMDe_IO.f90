@@ -80,7 +80,7 @@ end subroutine WarningRaise_def
 
 !!!the function that makes string-ansi-colored
 !!!initial code copied from http://fortranwiki.org/fortran/show/ansi_colors
-function color(str, code) result(out)
+pure function color(str, code) result(out)
   character(len=*), intent(in) :: str
   character(len=*), intent(in) :: code
   character(len=:), allocatable :: out
@@ -146,35 +146,35 @@ end subroutine writeFloatList
 
 !--------------------convertation
 !!! convert a real(dp) number to a string
-function real8ToStr(num)
+pure  function real8ToStr(num)
 real(dp),intent(in)::num
 character(len=16)::real8ToStr
 write(real8ToStr,"(F16.10)") num
 end function real8ToStr
 
 !!! convert a real number to a string
-function realToStr(num)
+pure function realToStr(num)
 real,intent(in)::num
 character(len=12)::realToStr
 write(realToStr,*) num
 end function realToStr
 
 !!! convert an integer number to a string
-function intToStr(num)
+pure function intToStr(num)
 integer,intent(in)::num
 character(len=8)::intToStr
 write(intToStr,"(I8)") num
 end function intToStr
  
 !! convert an short integer number to a string
-function int4ToStr(num)
+pure function int4ToStr(num)
  integer,intent(in)::num
  character(len=4)::int4ToStr
  write(int4ToStr,"(I4)") num 
 end function int4ToStr
  
 !!!Common format of Warning line in artemide
-function WarningString(str, moduleName) result(out)
+pure function WarningString(str, moduleName) result(out)
   character(len=*), intent(in) :: str
   character(len=*), intent(in) :: moduleName
   character(len=:), allocatable :: out
@@ -182,7 +182,7 @@ function WarningString(str, moduleName) result(out)
 end function WarningString
 
 !!!Common format of error line in artemide
-function ErrorString(str, moduleName) result(out)
+pure function ErrorString(str, moduleName) result(out)
   character(len=*), intent(in) :: str
   character(len=*), intent(in) :: moduleName
   character(len=:), allocatable :: out

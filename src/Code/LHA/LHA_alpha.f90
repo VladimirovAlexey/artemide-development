@@ -15,7 +15,7 @@ implicit none
 
 private
 !Current version of module
-character (len=5),parameter :: version="v3.01"
+character (len=5),parameter :: version="v3.04"
 character (len=9),parameter :: moduleName="LHA_alpha"
 integer::outputLevel=2
 
@@ -319,7 +319,7 @@ end subroutine ReadInfo
 
 !!! returns the value of AlphaS interpolated from the table.
 !!! the interpolation is log-linear.
-function AlphaS(Q)
+pure function AlphaS(Q)
 real(dp),intent(in)::Q
 real(dp):: AlphaS
 

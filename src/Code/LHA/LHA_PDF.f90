@@ -18,7 +18,7 @@ implicit none
 
 private
 !Current version of module
-character (len=5),parameter :: version="v3.03"
+character (len=5),parameter :: version="v3.04"
 
 type, public :: LHAPDFgridReader
     private
@@ -685,7 +685,11 @@ subroutine SetReplica_this(this,num)
 end subroutine SetReplica_this
 
 !!! returns the value of xPDF extrapolated from the grid
+#if DEBUGMODE==1
 function xPDF_this(this,x,Q)
+#else
+pure function xPDF_this(this,x,Q)
+#endif
 class(LHAPDFgridReader),intent(in)::this
 real(dp),intent(in)::x,Q
 real(dp),dimension(-5:5):: xPDF_this

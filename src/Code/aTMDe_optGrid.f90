@@ -276,7 +276,7 @@ end subroutine ChGrid_MakeGrid
 !!!!! this function interpolates the the grid to the element t
 !!!!! it is the baricentric formula
 !!!!! f(x)=sum b(i)f(i))/(t-t(i))/sum b(i)/(t-t(i))
-function interpolateInX(this,t,grid)
+pure function interpolateInX(this,t,grid)
 class(optGrid), intent(in)::this
 real(dp),intent(in),dimension(0:this%xGridSize,-5:5)::grid
 real(dp),intent(in)::t
@@ -302,7 +302,7 @@ end function interpolateInX
 !!!!! this function interpolates the the grid to the element t
 !!!!! just as the previous formula but it operates over list (size of b-nodes) of grids (speed up by factor n)
 !!!!! returns the list of interpolation values
-function interpolateInX_array(this,t,grid)
+pure function interpolateInX_array(this,t,grid)
 class(optGrid), intent(in)::this
 real(dp),intent(in),dimension(0:this%xGridSize,0:this%bGridSize,-5:5)::grid
 real(dp),intent(in)::t
@@ -332,7 +332,7 @@ end function interpolateInX_array
 !!!!! this function interpolates the the grid to the element t
 !!!!! it is the baricentric formula
 !!!!! f(x)=sum b(i)f(i))/(t-t(i))/sum b(i)/(t-t(i))
-function interpolateInB(this,t,grid)
+pure function interpolateInB(this,t,grid)
 class(optGrid), intent(in)::this
 real(dp),intent(in),dimension(0:this%bGridSize,-5:5)::grid
 real(dp),intent(in)::t
@@ -357,7 +357,7 @@ end function interpolateInB
 !!!!! this function interpolates the the grid to the element t
 !!!!! just as the previous formula but it operates over list (size of x-nodes) of grids (speed up by factor n)
 !!!!! returns the list of interpolation values
-function interpolateInB_array(this,t,grid)
+pure function interpolateInB_array(this,t,grid)
 class(optGrid),intent(in)::this
 real(dp),intent(in),dimension(0:this%xGridSize,0:this%bGridSize,-5:5)::grid
 real(dp),intent(in)::t
@@ -421,28 +421,23 @@ class(optGrid),intent(in)::this
   real(dp),dimension(0:this%xGridSize,-5:5)::interGrid
 
   if(.not.this%gridReady) then
-    write(*,*) ErrorString('attempt to extract from grid while it is not ready',this%parentName//".optGrid")
-    error stop
+    error stop ErrorString('attempt to extract from grid while it is not ready',this%parentName//".optGrid")
   end if
 
   !!! checking exeptions
   if(h==0 .or. h>this%numH) then
-    write(*,*) ErrorString('the hadron '//numToStr(h)//' is not found in the grid',this%parentName//".optGrid")
-    error stop
+    error stop ErrorString('the hadron '//numToStr(h)//' is not found in the grid',this%parentName//".optGrid")
   end if
 
   if(x+this%zero<this%XMin) then
-   write(*,*) ErrorString('The TMD with x ='//numToStr(x)//' is called. Current grid size is up to '//&
-   numToStr(this%XMin)//'. Enlarge boundaries.',this%parentName//".optGrid")
-   error stop
+   error stop ErrorString('The TMD with x ='//numToStr(x)//' is called. Current grid size is up to '//&
+              numToStr(this%XMin)//'. Enlarge boundaries.',this%parentName//".optGrid")
   end if
   if(x>1.d0) then
-   write(*,*) ErrorString('The TMD with x >1 ('//numToStr(x)//') is called.',this%parentName//".optGrid")
-   error stop
+   error stop ErrorString('The TMD with x >1 ('//numToStr(x)//') is called.',this%parentName//".optGrid")
   end if
   if(bT<0d0) then
-   write(*,*) ErrorString('The TMD with bT <0 ('//numToStr(bT)//') is called.',this%parentName//".optGrid")
-   error stop
+   error stop ErrorString('The TMD with bT <0 ('//numToStr(bT)//') is called.',this%parentName//".optGrid")
   end if
 
   if(x==1.d0) then
