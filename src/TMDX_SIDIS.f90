@@ -807,7 +807,7 @@ if(useKPC) then
     scaleZeta=var(3)
 
     !!!!! (Q^2,qT,x1,z1,mu,procc)
-    FF=KPC_SIDISconv(var(3),qT,x1,z1,scaleMu*c2_global,process(2:4))
+    FF=KPC_SIDISconv(var(3),qT,x1,z1,var(7),scaleMu*c2_global,process(2:4))
     xSec=PreFactorKPC(var,process,x1,z1,qT)*FF
 
 else !!!! LP formula

@@ -160,7 +160,7 @@ SELECT CASE(process(3))
   !----------------------------------------------------------------------------------
   !-------------------------SIDIS----------------------------------------------------
   !----------------------------------------------------------------------------------
-  CASE (2001,2011,2021,2031) !h1->h2 where !!!! unpolarized SIDIS
+  CASE (2001,2011,2021,2031,2041) !h1->h2 where !!!! unpolarized SIDIS
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     FB=uTMDFF_inKT(x2,sqrt(k2),mu,h2)
@@ -175,7 +175,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 
-  CASE (2002,2012,2022,2032) !d->h2 where d is deutron prepared from hadron 1 [i.e u->(u+d)/2, d->(u+d)/2]
+  CASE (2002,2012,2022,2032,2042) !d->h2 where d is deutron prepared from hadron 1 [i.e u->(u+d)/2, d->(u+d)/2]
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     FB=uTMDFF_inKT(x2,sqrt(k2),mu,h2)
@@ -188,7 +188,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 
-  CASE (2003,2013,2023,2033) !n->h2 where n=last number (n=neutron=p(u<->d))
+  CASE (2003,2013,2023,2033,2043) !n->h2 where n=last number (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     FB=uTMDFF_inKT(x2,sqrt(k2),mu,h2)
@@ -204,7 +204,7 @@ SELECT CASE(process(3))
       +FA(-5)*FB(-5)/9d0
 
   !--------------------------------------------------------------------------------
-   CASE (2101,2111,2121,2131) !p->h? where h?=h1+h2
+   CASE (2101,2111,2121,2131,2141) !p->h? where h?=h1+h2
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -223,7 +223,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-    CASE (2102,2112,2122,2132) !p->h? where h?=h1+h2+h3
+    CASE (2102,2112,2122,2132,2142) !p->h? where h?=h1+h2+h3
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -242,7 +242,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-    CASE (2103,2113,2123,2133) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2)
+    CASE (2103,2113,2123,2133,2143) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -259,7 +259,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-    CASE (2104,2114,2124,2134) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
+    CASE (2104,2114,2124,2134,2144) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -276,7 +276,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-   CASE (2105,2115,2125,2135) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))
+   CASE (2105,2115,2125,2135,2145) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -295,7 +295,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-    CASE (2106,2116,2126,2136) !n->h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
+    CASE (2106,2116,2126,2136,2146) !n->h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -314,7 +314,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-   CASE (2107,2117,2127,2137) !p->h? where h?=h1+h2 [from 3+4]
+   CASE (2107,2117,2127,2137,2147) !p->h? where h?=h1+h2 [from 3+4]
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -333,7 +333,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-    CASE (2108,2118,2128,2138) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2) [from 3+4]
+    CASE (2108,2118,2128,2138,2148) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2) [from 3+4]
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -350,7 +350,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-   CASE (2109,2119,2129,2139) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))[from 3+4]
+   CASE (2109,2119,2129,2139,2149) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))[from 3+4]
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -370,7 +370,7 @@ SELECT CASE(process(3))
       +FA(-5)*FB(-5)/9d0
 
 !--------------------------------------------------------------------------------
-   CASE (3001,3011,3021,3031)  !h1->h2 where !!!! unpolarized SIDIS (BM x COLLINS)-part
+   CASE (3001,3011,3021,3031,3041)  !h1->h2 where !!!! unpolarized SIDIS (BM x COLLINS)-part
     ! e_q^2 *F_q(A)*F_q(B)
     FA=BoerMuldersTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     FB=CollinsTMDFF_inKT(x2,sqrt(k2),mu,h2)
@@ -385,7 +385,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 
-  CASE (3002,3012,3022,3032) !h1->h2 where !!!! unpolarized SIDIS (BM x COLLINS)-part
+  CASE (3002,3012,3022,3032,3042) !h1->h2 where !!!! unpolarized SIDIS (BM x COLLINS)-part
     !d->h2 where d is deutron prepared from hadron 1 [i.e u->(u+d)/2, d->(u+d)/2]
     ! e_q^2 *F_q(A)*F_q(B)
     FA=BoerMuldersTMDPDF_inKT(x1,sqrt(k1),mu,h1)
@@ -399,7 +399,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 
-  CASE (3003,3013,3023,3033) !!!! unpolarized SIDIS (BM x COLLINS)-part
+  CASE (3003,3013,3023,3033,3043) !!!! unpolarized SIDIS (BM x COLLINS)-part
     !n->h2 where n=last number (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
     ! e_q^2 *F_q(A)*F_q(B)
@@ -416,7 +416,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
   !--------------------------------------------------------------------------------
-   CASE (3101,3111,3121,3131) !p->h? where h?=h1+h2 !!!! unpolarized SIDIS (BM x COLLINS)-part
+   CASE (3101,3111,3121,3131,3141) !p->h? where h?=h1+h2 !!!! unpolarized SIDIS (BM x COLLINS)-part
     ! e_q^2 *F_q(A)*F_q(B)
     FA=BoerMuldersTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -435,7 +435,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-    CASE (3102,3112,3122,3132) !p->h? where h?=h1+h2+h3 !!!! unpolarized SIDIS (BM x COLLINS)-part
+    CASE (3102,3112,3122,3132,3142) !p->h? where h?=h1+h2+h3 !!!! unpolarized SIDIS (BM x COLLINS)-part
     ! e_q^2 *F_q(A)*F_q(B)
     FA=BoerMuldersTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -454,7 +454,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-    CASE (3103,3113,3123,3133) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2) !!!! unpolarized SIDIS (BM x COLLINS)-part
+    CASE (3103,3113,3123,3133,3143) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2) !!!! unpolarized SIDIS (BM x COLLINS)-part
     ! e_q^2 *F_q(A)*F_q(B)
     FA=BoerMuldersTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -471,7 +471,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-    CASE (3104,3114,3124,3134) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2) !!!! unpolarized SIDIS (BM x COLLINS)-part
+    CASE (3104,3114,3124,3134,3144) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2) !!!! unpolarized SIDIS (BM x COLLINS)-part
     ! e_q^2 *F_q(A)*F_q(B)
     FA=BoerMuldersTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -488,7 +488,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-   CASE (3105,3115,3125,3135) !n->h? where h?=h1+h2 (n=neutron=p(u<->d)) !!!! unpolarized SIDIS (BM x COLLINS)-part
+   CASE (3105,3115,3125,3135,3145) !n->h? where h?=h1+h2 (n=neutron=p(u<->d)) !!!! unpolarized SIDIS (BM x COLLINS)-part
     ! e_q^2 *F_q(A)*F_q(B)
     FA=BoerMuldersTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -507,7 +507,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-    CASE (3106,3116,3126,3136) !n->h? where h?=h1+h2+h3 (n=neutron=p(u<->d)) !!!! unpolarized SIDIS (BM x COLLINS)-part
+    CASE (3106,3116,3126,3136,3146) !n->h? where h?=h1+h2+h3 (n=neutron=p(u<->d)) !!!! unpolarized SIDIS (BM x COLLINS)-part
     ! e_q^2 *F_q(A)*F_q(B)
     FA=BoerMuldersTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -526,7 +526,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-   CASE (3107,3117,3127,3137) !p->h? where h?=h1+h2 [from 3+4] !!!! unpolarized SIDIS (BM x COLLINS)-part
+   CASE (3107,3117,3127,3137,3147) !p->h? where h?=h1+h2 [from 3+4] !!!! unpolarized SIDIS (BM x COLLINS)-part
     ! e_q^2 *F_q(A)*F_q(B)
     FA=BoerMuldersTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -545,7 +545,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-    CASE (3108,3118,3128,3138) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2) [from 3+4] !!!! unpolarized SIDIS (BM x COLLINS)-part
+    CASE (3108,3118,3128,3138,3148) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2) [from 3+4] !!!! unpolarized SIDIS (BM x COLLINS)-part
     ! e_q^2 *F_q(A)*F_q(B)
     FA=BoerMuldersTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then
@@ -562,7 +562,7 @@ SELECT CASE(process(3))
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-   CASE (3109,3119,3129,3139) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))[from 3+4] !!!! unpolarized SIDIS (BM x COLLINS)-part
+   CASE (3109,3119,3129,3139,3149) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))[from 3+4] !!!! unpolarized SIDIS (BM x COLLINS)-part
     ! e_q^2 *F_q(A)*F_q(B)
     FA=BoerMuldersTMDPDF_inKT(x1,sqrt(k1),mu,h1)
     if(h2>0) then

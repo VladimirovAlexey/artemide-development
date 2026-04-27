@@ -542,7 +542,7 @@ end function INT_overTHETA
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!! Function that computes the integral for KPC convolution in SIDIS
 !!! proc1 = (int,int,int) is the process def for TMD*TMD, and for the integral kernel
-!!! Q2, qT, x1, z1 and mu are the usual SIDIS variables
+!!! Q2, qT, x1, z1, vareps and mu are the usual SIDIS variables
 !!! NOTE: that Q2 is SIDIS kinematic variable, and mu is the factorization scale
 
 !!! The integral is 2D, over theta and delta (which are complicated combinations)
@@ -561,9 +561,9 @@ end function INT_overTHETA
 !!! adaptive method such as GK, since using K21 together with the new change of variables
 !!! sacrifices a bit of precision (though not too much) in order to prioritize speed.
 
-function KPC_SIDISconv(Q2, qT_in, x1, z1 ,mu, proc1)
+function KPC_SIDISconv(Q2, qT_in, x1, z1, vareps, mu, proc1)
     real(dp) :: KPC_SIDISconv
-    real(dp), intent(in) :: Q2, x1, z1, mu, qT_in
+    real(dp), intent(in) :: Q2, x1, z1, mu, qT_in, vareps
     integer, intent(in), dimension(1:3) :: proc1
     real(dp) :: tau2, dT, qT, x
 
@@ -605,7 +605,7 @@ function Integrand_forDeltat2(Deltat)
     real(dp) :: Integrand_forDeltat2
     real(dp), intent(in) :: Deltat
 
-    Integrand_forDeltat2 = INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, mu, proc1, Deltat)
+    Integrand_forDeltat2 = INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, vareps, mu, proc1, Deltat)
 
 end function Integrand_forDeltat2
 
@@ -652,7 +652,7 @@ function Integrand_forDelta_th(omega)
     end if
 
     !Deltat = sqrt(Deltat2)
-    Integrand_forDelta_th = jacobian*INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, mu, proc1, delta)
+    Integrand_forDelta_th = jacobian*INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, vareps, mu, proc1, delta)
     !write(*,"('{',F16.12,',',F16.8,'},')") Deltat,Integrand_forDeltat2
 
 end function Integrand_forDelta_th
@@ -660,8 +660,8 @@ end function Integrand_forDelta_th
 end function KPC_SIDISconv
 
 ! Integral over theta at given Deltat
-function INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, mu, proc1, Deltat)
-    real(dp), intent(in) :: Q2, tau2, dT, x1, z1, mu, Deltat
+function INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, vareps, mu, proc1, Deltat)
+    real(dp), intent(in) :: Q2, tau2, dT, x1, z1, vareps, mu, Deltat
     integer, intent(in), dimension(1:3) :: proc1
     real(dp) :: INT_overTHETA_SIDIS
 
@@ -707,7 +707,7 @@ function Integrand_forTHETA_SIDIS(theta)
     LocalCounter = LocalCounter + 1
     RRR=TMD_pair(Q2,xi,zeta,K,kh,mu,proc1)
     Integrand_forTHETA_SIDIS = 2*(1-x1)*zeta*(1+dT)/(x1**2*sqrt(Lam))*Deltat&
-    *SIDIS_KERNEL(Q2,tau2,dT*tau2,S,Lam,proc1(3))*RRR
+    *SIDIS_KERNEL(Q2,tau2,dT*tau2, vareps, S,Lam,proc1(3))*RRR
 
 !     write(*,*) "--------->>>", Q2, tau2, dT, x1, z1
 !     write(*,*) "Deltat,cosT -->>>", Deltat,cosT
