@@ -545,7 +545,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
 
      FAB=FA*FB
     end if
-    Integrand=-2*XTMD_pairZmZm_A(FAB,Q2)
+    Integrand=2*XTMD_pairZmZm_A(FAB,Q2)
 
 !--------------------------------------------------------------------------------  
   CASE (101) !h1+Cu->gamma* !!this is for E288
