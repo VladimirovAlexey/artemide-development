@@ -113,6 +113,16 @@ GetTw3PDF_C=GetPDF(x1,x2,Q,f,outputT='C')
 
 end function GetTw3PDF_C
 
+!!!!!! Returns the convolution that is WGT function
+function GetTw3_WGT(x,Q)
+real*8,intent(in)::x                      !x-variables
+real*8,intent(in)::Q                          !Q
+real*8,dimension(-5:5)::GetTw3_WGT
+
+GetTw3_WGT=WGT_fList(x,Q)
+
+end function GetTw3_WGT
+
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
