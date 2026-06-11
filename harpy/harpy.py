@@ -90,6 +90,9 @@ def D2List(Q,f):
     return artemide.harpy.snowflake_d2_list(numpy.asfortranarray(Q),\
                                        numpy.asfortranarray(f),
                                        len(Q))
+        
+def get_WGT(x,Q):
+    return artemide.harpy.gettw3_wgt(x,Q)
 
 def get_PDF_tw3(x1,x2,Q,f,output="T"):
     """

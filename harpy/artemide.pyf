@@ -67,6 +67,11 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
         integer intent(in) :: f
         real :: gettw3pdf_c
     end function gettw3pdf_c
+    function gettw3_wgt(x,q) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+        real*8 intent(in) :: x
+        real*8 intent(in) :: q
+        real*8 dimension(11) :: gettw3_wgt
+    end function gettw3_wgt
     subroutine initialize(file) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         character*(*) :: file
     end subroutine initialize
