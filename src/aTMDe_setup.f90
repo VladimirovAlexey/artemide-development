@@ -2313,7 +2313,7 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*D   ')
 
     !# ----                           PARAMETERS OF lpTMDPDF                  -----
-    call MoveTO(51,'*11   ')
+    call MoveTO(51,'*11  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_lpTMDPDF
     call MoveTO(51,'*A   ')
@@ -2376,7 +2376,7 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) lpTMDPDF_muMIN_TMM
     
     !# ----                           PARAMETERS OF SiversTMDPDF                  -----
-    call MoveTO(51,'*12   ')
+    call MoveTO(51,'*12  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_SiversTMDPDF
     call MoveTO(51,'*A   ')
@@ -2430,7 +2430,7 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) SiversTMDPDF_muMIN_TMM
     
     !# ----                           PARAMETERS OF wgtTMDPDF                  -----
-    call MoveTO(51,'*13   ')
+    call MoveTO(51,'*13  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_wgtTMDPDF
     call MoveTO(51,'*A   ')
@@ -2504,7 +2504,7 @@ subroutine ReadConstantsFile(file,prefix)
 
 
     !# ----                           PARAMETERS OF BoerMuldersTMDPDF                  -----
-    call MoveTO(51,'*14   ')
+    call MoveTO(51,'*14  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_BoerMuldersTMDPDF
     call MoveTO(51,'*A   ')
@@ -2575,7 +2575,7 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) BoerMuldersTMDPDF_muMIN_TMM
 
     !# ----                            PARAMETERS OF TMDF-KPC              -----
-    call MoveTO(51,'*15   ')
+    call MoveTO(51,'*15  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_TMDF_KPC
     call MoveTO(51,'*A   ')
@@ -2591,7 +2591,7 @@ subroutine ReadConstantsFile(file,prefix)
 
     !# ----                           PARAMETERS OF wglTMDPDF                  -----
     if(FILEversion>33) then !!!!! wglTMDPDF was introduced in the 34.
-    call MoveTO(51,'*16   ')
+    call MoveTO(51,'*16  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_wglTMDPDF
     call MoveTO(51,'*A   ')

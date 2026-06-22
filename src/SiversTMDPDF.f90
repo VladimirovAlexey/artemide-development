@@ -138,7 +138,7 @@ if(.not.initRequired) then
     ERROR STOP
 end if
 
-call MoveTO(51,'*12   ')
+call MoveTO(51,'*12  ')
 call MoveTO(51,'*p1  ')
 read(51,*) initRequired
 if(.not.initRequired) then

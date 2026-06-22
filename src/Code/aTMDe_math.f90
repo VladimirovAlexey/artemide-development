@@ -18,7 +18,7 @@ public::ChebyshevT,ChebyshevT_array,ChebyshevT_int_array
 contains
 
 !!!!!! Return Chebyshev polynomial of order |n| at value x
-function ChebyshevT(n,x)
+pure function ChebyshevT(n,x)
 integer,intent(in)::n
 real(dp),intent(in)::x
 real(dp)::ChebyshevT
@@ -40,7 +40,7 @@ real(dp),dimension(0:abs(n))::ChebyshevT_array
 integer::i
 
 ChebyshevT_array(0)=1._dp
-if(n>0) ChebyshevT_array(1)=x
+if(abs(n)>0) ChebyshevT_array(1)=x
 
 do i=2,abs(n)
     ChebyshevT_array(i)=2*x*ChebyshevT_array(i-1)-ChebyshevT_array(i-2)
@@ -59,11 +59,11 @@ integer::i
 
 T(0)=1._dp
 ChebyshevT_int_array(0)=x
-if(n>0) then
+if(abs(n)>0) then
     T(1)=x
     ChebyshevT_int_array(1)=x**2/2
 end if
-if(n>1) T(2)=2*x**2-1
+if(abs(n)>1) T(2)=2*x**2-1
 
 do i=2,abs(n)
     T(i+1)=2*x*T(i)-T(i-1)

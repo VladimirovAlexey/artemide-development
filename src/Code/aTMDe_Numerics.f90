@@ -18,6 +18,9 @@ public
 integer, parameter :: sp = selected_real_kind(6, 37)
 integer, parameter :: dp = selected_real_kind(15, 307)
 integer, parameter :: qp = selected_real_kind(33, 4931)
+! Note: qp may be -1 on platforms without 128-bit float support.
+! Any declaration using qp will then produce a compile-time error.
+
 !!! for the complex numbers I use COMPLEX(dp)
 
 !!------------------------Constants
@@ -45,6 +48,8 @@ real(dp),parameter::pi4=97.40909103400243723644033268870511124972758567268542169
 real(dp),parameter::pi4x2=194.8181820680048744728806653774102224994551713453708433829357188_dp      !!2*pi^4
 real(dp),parameter::pi4x4=389.6363641360097489457613307548204449989103426907416867658714376_dp      !!4*pi^4
 
+!!! EulerGamma
+real(dp), parameter :: euler_gamma = 0.57721566490153286060651209008240243104215933593992359880576723488_dp
 !!! C0 -constant (typical TMD constant)
 real(dp), parameter :: C0_const=1.122918967133770339648286429581761573531420773850306336308318152_dp        !!=2Exp[-gamma_E]
 real(dp), parameter :: C0_inv_const=0.8905362089950989926182520515535897745848226071517151026788329383_dp    !!=Exp[gamma_E]/2

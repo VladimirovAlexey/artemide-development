@@ -141,7 +141,7 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
     !$    call OMP_set_num_threads(i)
     !$    if(outputLevel>1) write(*,*) '    artemide.TMDX_SIDIS: number of threads for parallel evaluation is set to ', i
 
-    call MoveTO(51,'*10   ')
+    call MoveTO(51,'*10  ')
     call MoveTO(51,'*p1  ')
     read(51,*) initRequired
     if(.not.initRequired) then
@@ -174,7 +174,7 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
     END SELECT
     if(outputLevel>1) write(*,*) '    artemide.TMDX_SIDIS: the used order is ',trim(orderMain)
 
-    call MoveTO(51,'*p2   ')
+    call MoveTO(51,'*p2  ')
     read(51,*) useKPC
     if(outputLevel>1 .and. useKPC) write(*,*) color('    artemide.TMDX_SIDIS: using TMD factorization with KPC',c_cyan)
     if(outputLevel>1 .and. useKPC) write(*,*) color('                      Please, cite [2307.13054]',c_cyan)
@@ -201,25 +201,25 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
 
     call MoveTO(51,'*C   ')
     !! qT correction in kinematics
-    call MoveTO(51,'*p1   ')
+    call MoveTO(51,'*p1  ')
     read(51,*) corrQT
     if(outputLevel>2 .and. corrQT .and. (.not.useKPC)) &
             write(*,*) '    artemide.TMDX_SIDIS: qT/Q corrections in kinematics are included.'
     !! Target mass corrections
-    call MoveTO(51,'*p2   ')
+    call MoveTO(51,'*p2  ')
     read(51,*) corrM1
     if(outputLevel>2 .and. corrM1) write(*,*) '    artemide.TMDX_SIDIS: target mass corrections in kinematics are included.'
     !! produced mass corrections
-    call MoveTO(51,'*p3   ')
+    call MoveTO(51,'*p3  ')
     read(51,*) corrM2
     if(outputLevel>2 .and. corrM2) write(*,*) '    artemide.TMDX_SIDIS: product mass corrections in kinematics are included.'
     !! qT correction in x1 z1
-    call MoveTO(51,'*p4   ')
+    call MoveTO(51,'*p4  ')
     read(51,*) exactX1Z1
     if(outputLevel>2 .and. exactX1Z1 .and. (.not.useKPC)) &
             write(*,*) '    artemide.TMDX_SIDIS: Exact LP values for x1,z1 are included.'
     !!exact values for scales
-    call MoveTO(51,'*p5   ')
+    call MoveTO(51,'*p5  ')
     read(51,*) exactScales
     if(outputLevel>2 .and. exactScales .and. (.not.useKPC)) &
           write(*,*) '    artemide.TMDX_SIDIS: Exact LP values of factorization scales variables are included.'

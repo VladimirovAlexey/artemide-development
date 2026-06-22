@@ -22,7 +22,7 @@ abstract interface
     end function func_1D
 end interface
 
-!!! this is interface for function of 1 variables used in integrations
+!!! this is interface for function of 2 variables used in integrations
 abstract interface
     function func_2D(x,y)
         import::dp

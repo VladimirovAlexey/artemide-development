@@ -71,7 +71,7 @@ if(this%messageCounter<this%messageTrigger) then
   this%messageCounter=this%messageCounter+1
 
   if(this%messageCounter==this%messageTrigger) then
-    write(*,*) WarningString('number of warning massages hits the limit. Further warnings are suppressed',this%moduleName)
+    write(*,*) WarningString('number of warning messages hits the limit. Further warnings are suppressed',this%moduleName)
   end if
 end if
 
@@ -96,8 +96,8 @@ subroutine MoveTO(stream,pos)
   character(len=5),intent(in)::pos
   character(len=300)::line
   integer::IOstatus
-  integer::i
-  !!!!!adding upper limit in the case of currupted file
+  integer:: i
+
   do i=1,10000000
       read(stream,'(A)',IOSTAT=IOstatus) line
       if(IOstatus>0) then
@@ -110,6 +110,12 @@ subroutine MoveTO(stream,pos)
           if(line(1:5)==pos) exit
       end if
   end do
+
+  if(i>10000000) then
+    write(*,*) ErrorString("Line ("//pos//") not found within iteration limit","aTMDe_IO_system")
+    stop
+  end if
+
 end subroutine MoveTO
 
 !--------------------convertation

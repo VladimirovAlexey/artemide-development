@@ -117,11 +117,11 @@ contains
     read(51,*) alphaZinv
     alphaZ=1d0/alphaZinv
     
-    call MoveTO(51,'*p2   ')
+    call MoveTO(51,'*p2  ')
     read(51,*) sW2    !!!!!!!!!!sin^2 theta_W
     cw2=1d0-sw2        !!!!!!!!!!cos^2 theta_W
     
-    call MoveTO(51,'*p3   ')!!!!CKM matrix
+    call MoveTO(51,'*p3  ')!!!!CKM matrix
     read(51,*) Vckm_UD,Vckm_US,Vckm_UB
     read(51,*) Vckm_CD,Vckm_CS,Vckm_CB
     

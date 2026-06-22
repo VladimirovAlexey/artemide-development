@@ -97,12 +97,12 @@ function Integrate_SN(f,xMin,xMax,N)
     delta=(xMax-xMin)/N
     inter=f(xMin)   !!!! first term
     
-    !!!! even terms
+    !!!! odd terms
     do i=1,N-1,2
         xCur=xMin+i*delta
         inter=inter+4._dp*f(xCur)    
     end do
-    !!!! odd term
+    !!!! even term
     do i=2,N-2,2
         xCur=xMin+i*delta
         inter=inter+2._dp*f(xCur)    
@@ -180,8 +180,6 @@ function Integrate_SA_2D(f,xMin,xMax,yMin,yMax,tolerance)
     real(dp)::deltaX,deltaY,x2,x3,x4,y2,y3,y4,rInt
     real(dp),dimension(1:5,1:5)::ff
 
-    !write(*,*) "INTEGRATE_SA_2D: this routine is not tested"
-
     deltaX=(xMax-xMin)/4._dp
     x2=xMin+deltaX
     x3=xMin+deltaX*2._dp
@@ -202,7 +200,7 @@ function Integrate_SA_2D(f,xMin,xMax,yMin,yMax,tolerance)
     rInt=sum(ff*SA5_2D_w)
 
     !!! the error parameter is weighted with the approximate integral size
-    eps=tolerance*abs(deltaX*deltaY*rInt)
+    eps=tolerance*abs(16*deltaX*deltaY*rInt)
 
     Integrate_SA_2D=SA2D_Rec(f,xMin,x2,x3,yMin,y2,y3,ff(1:3,1:3),eps)&
                     +SA2D_Rec(f,x3,x4,xMax,yMin,y2,y3,ff(3:5,1:3),eps)&
@@ -520,7 +518,7 @@ function Integrate_GK2041(f,xMin,xMax,tolerance)
     procedure(func_1D)::f
     real(dp)::Integrate_GK2041
     real(dp),intent(in)::xMin,xMax,tolerance
-    real(dp)::delta,av,g7,k15,eps,fI
+    real(dp)::delta,av,g20,k41,eps,fI
     integer::i
 
     delta=(xMax-xMin)/2._dp
@@ -531,23 +529,23 @@ function Integrate_GK2041(f,xMin,xMax,tolerance)
         return
     end if
 
-    g7=0._dp
-    k15=0._dp
+    g20=0._dp
+    k41=0._dp
     do i=1,41
         fI=f(Xi_k41(i)*delta+av)
-        g7=g7+Wi_g20(i)*fI
-        k15=k15+Wi_k41(i)*fI
+        g20=g20+Wi_g20(i)*fI
+        k41=k41+Wi_k41(i)*fI
     end do
 
-    eps=delta*abs(k15)*tolerance
+    eps=delta*abs(k41)*tolerance
+    if(abs(eps)<zero) eps=zero
 
-!    write(*,*) "-->",delta*abs(k15-g7),eps,delta*k15
-    if(abs(delta*k15)<zero) then
-        Integrate_GK2041=delta*k15
-    else if(delta*abs(k15-g7)>eps) then
+    if(abs(delta*k41)<zero) then
+        Integrate_GK2041=delta*k41
+    else if(delta*abs(k41-g20)>eps) then
         Integrate_GK2041=GK2041_Rec(f,xMin,av,eps)+GK2041_Rec(f,av,xMax,eps)
     else
-        Integrate_GK2041=delta*k15
+        Integrate_GK2041=delta*k41
     end if
 
 end function Integrate_GK2041
@@ -556,7 +554,7 @@ recursive function GK2041_Rec(f,xMin,xMax,eps) result(res)
     procedure(func_1D)::f
     real(dp)::res
     real(dp),intent(in)::xMin,xMax,eps
-    real(dp)::delta,av,g7,k15,fI
+    real(dp)::delta,av,g20,k41,fI
     integer::i
 
     delta=(xMax-xMin)/2._dp
@@ -567,20 +565,20 @@ recursive function GK2041_Rec(f,xMin,xMax,eps) result(res)
         return
     end if
 
-    g7=0._dp
-    k15=0._dp
+    g20=0._dp
+    k41=0._dp
     do i=1,41
         fI=f(Xi_k41(i)*delta+av)
-        g7=g7+Wi_g20(i)*fI
-        k15=k15+Wi_k41(i)*fI
+        g20=g20+Wi_g20(i)*fI
+        k41=k41+Wi_k41(i)*fI
     end do
 
-    if(abs(delta*k15)<zero) then
-        res=delta*k15
-    else if(delta*abs(k15-g7)>eps) then
-        res=GK_Rec(f,xMin,av,eps)+GK_Rec(f,av,xMax,eps)
+    if(abs(delta*k41)<zero) then
+        res=delta*k41
+    else if(delta*abs(k41-g20)>eps) then
+        res=GK2041_Rec(f,xMin,av,eps)+GK2041_Rec(f,av,xMax,eps)
     else
-        res=delta*k15
+        res=delta*k41
     end if
 
 end function GK2041_Rec
@@ -637,7 +635,7 @@ function Integrate2D_Stroud35_55(f,x1,x2,y1,y2,tolerance)
     c35=(8*f0+f1+f2+f3+f4)*dx*dy/12
     c55=(-8*f0+f1+f2+f3+f4+10*ff)*dx*dy/36
 
-    eps=abs(c35)*tolerance
+    eps=abs(c55)*tolerance
 
     if(abs(c55)<zero) then
         Integrate2D_Stroud35_55=c55
@@ -756,7 +754,7 @@ function Integrate2D_Stroud35_56(f,x1,x2,y1,y2,tolerance)
     h4=f(x0+dx4,y0-dy4)
 
     !!!! integral central
-    c56=(2*(f0+f1+f2+f3+f4)+0.75_dp*(g1+g2+g3+g4)+8*(h1+h2+h3+h4))*dx*dy/45
+    c56=(2*(f0+g1+g2+g3+g4)+0.75_dp*(f1+f2+f3+f4)+8*(h1+h2+h3+h4))*dx*dy/45
     c35=(8*f0+f1+f2+f3+f4)*dx*dy/12
 
     eps=abs(c56)*tolerance
@@ -803,7 +801,7 @@ recursive function Integrate2D_Stroud35_56_Rec(f,x1,x2,y1,y2,f1,f2,f3,f4,f0,eps)
     h4=f(x0+dx4,y0-dy4)
 
     !!!! integral central
-    c56=(2*(f0+f1+f2+f3+f4)+0.75_dp*(g1+g2+g3+g4)+8*(h1+h2+h3+h4))*dx*dy/45
+    c56=(2*(f0+g1+g2+g3+g4)+0.75_dp*(f1+f2+f3+f4)+8*(h1+h2+h3+h4))*dx*dy/45
     c35=(8*f0+f1+f2+f3+f4)*dx*dy/12
 
     if(abs(c56)<zero) then

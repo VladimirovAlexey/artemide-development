@@ -123,7 +123,7 @@ subroutine TMDF_KPC_Initialize(file,prefix)
     read(51,*) dummy
     M2=dummy**2
 
-    call MoveTO(51,'*15   ')
+    call MoveTO(51,'*15  ')
     call MoveTO(51,'*p1  ')
     read(51,*) initRequired
     if(.not.initRequired) then

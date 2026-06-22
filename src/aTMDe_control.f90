@@ -173,11 +173,11 @@ subroutine artemide_Initialize(file,prefix,order)
     call MoveTO(51,'*p1  ')
     read(51,*) include_TMDX_DY
 
-    call MoveTO(51,'*10   ')
+    call MoveTO(51,'*10  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_TMDX_SIDIS
 
-    call MoveTO(51,'*11   ')
+    call MoveTO(51,'*11  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_lpTMDPDF
     if(include_lpTMDPDF) then
@@ -189,7 +189,7 @@ subroutine artemide_Initialize(file,prefix,order)
         NPlength_lpTMDPDF=0
     end if
     
-    call MoveTO(51,'*12   ')
+    call MoveTO(51,'*12  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_SiversTMDPDF
         if(include_SiversTMDPDF) then
@@ -201,7 +201,7 @@ subroutine artemide_Initialize(file,prefix,order)
         NPlength_SiversTMDPDF=0
     end if
     
-    call MoveTO(51,'*13   ')
+    call MoveTO(51,'*13  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_wgtTMDPDF
     if(include_wgtTMDPDF) then
@@ -213,7 +213,7 @@ subroutine artemide_Initialize(file,prefix,order)
         NPlength_wgtTMDPDF=0
     end if
 
-    call MoveTO(51,'*14   ')
+    call MoveTO(51,'*14  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_BoerMuldersTMDPDF
         if(include_BoerMuldersTMDPDF) then
@@ -225,11 +225,11 @@ subroutine artemide_Initialize(file,prefix,order)
         NPlength_BoerMuldersTMDPDF=0
     end if
 
-    call MoveTO(51,'*15   ')
+    call MoveTO(51,'*15  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_TMDF_KPC
 
-    call MoveTO(51,'*16   ')
+    call MoveTO(51,'*16  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_wglTMDPDF
     if(include_wglTMDPDF) then
@@ -241,7 +241,7 @@ subroutine artemide_Initialize(file,prefix,order)
         NPlength_wglTMDPDF=0
     end if
 
-    call MoveTO(51,'*17   ')
+    call MoveTO(51,'*17  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_eeTMDFF
         if(include_eeTMDFF) then
@@ -253,7 +253,7 @@ subroutine artemide_Initialize(file,prefix,order)
         NPlength_eeTMDFF=0
     end if
 
-    call MoveTO(51,'*18   ')
+    call MoveTO(51,'*18  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_CollinsTMDFF
         if(include_CollinsTMDFF) then
@@ -1206,7 +1206,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
         end if 
         
         if(ver>=3 .and. include_lpTMDPDF) then
-            call MoveTO(51,'*11   ')
+            call MoveTO(51,'*11  ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_lpTMDPDF) then
                 write(*,*) ERRORstring('number of NP parameters in replica-file does not match the lpTMDPDF model',moduleName)
@@ -1215,7 +1215,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
         end if
         
         if(ver>=15 .and. include_SiversTMDPDF) then
-            call MoveTO(51,'*12   ')
+            call MoveTO(51,'*12  ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_SiversTMDPDF) then
                 write(*,*) ERRORstring('number of NP parameters in replica-file does not match the SiversTMDPDF model',moduleName)
@@ -1224,7 +1224,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
         end if
         
         if(ver>=19 .and. include_wgtTMDPDF) then
-            call MoveTO(51,'*13   ')
+            call MoveTO(51,'*13  ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_wgtTMDPDF) then
                 write(*,*) ERRORstring('number of NP parameters in replica-file does not match the wgtTMDPDF model',moduleName)
@@ -1233,7 +1233,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
         end if
 
         if(ver>=34 .and. include_wglTMDPDF) then
-            call MoveTO(51,'*16   ')
+            call MoveTO(51,'*16  ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_wglTMDPDF) then
                 write(*,*) ERRORstring('number of NP parameters in replica-file does not match the wglTMDPDF model',moduleName)
@@ -1242,7 +1242,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
         end if
 
         if(ver>=30 .and. include_BoerMuldersTMDPDF) then
-            call MoveTO(51,'*14   ')
+            call MoveTO(51,'*14  ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_BoerMuldersTMDPDF) then
                 write(*,*) ERRORstring('number of NP parameters in replica-file does not match the BoerMuldersTMDPDF model',&
@@ -1251,7 +1251,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
             end if
         end if
         if(ver>=31 .and. include_eeTMDFF) then
-            call MoveTO(51,'*16   ')
+            call MoveTO(51,'*16  ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_eeTMDFF) then
                 write(*,*) ERRORstring('number of NP parameters in replica-file does not match the eeTMDFF model',&

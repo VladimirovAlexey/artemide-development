@@ -189,14 +189,14 @@ subroutine TMDX_DY_Initialize(file,prefix)
   END SELECT
   if(outputLevel>1) write(*,*) '    artemide.TMDX_DY: the used order is ',trim(orderMain)
 
-  call MoveTO(51,'*p2   ')
+  call MoveTO(51,'*p2  ')
   read(51,*) useKPC
   if(outputLevel>1 .and. useKPC) write(*,*) color('    artemide.TMDX_DY: using TMD factorization with KPC',c_cyan)
   if(outputLevel>1 .and. useKPC) write(*,*) color('                      Please, cite [2307.13054]',c_cyan)
   if(outputLevel>1 .and. .not.(useKPC)) write(*,*) color('    artemide.TMDX_DY: using TMD factorization at LP',c_cyan)
 
   !! pi2 resummation
-  call MoveTO(51,'*p3   ')
+  call MoveTO(51,'*p3  ')
   read(51,*) usePIresum
   if(outputLevel>2 .and. usePIresum) write(*,*) '    artemide.TMDX_DY: pi-resummation in coef.function included.'
 
@@ -223,7 +223,7 @@ subroutine TMDX_DY_Initialize(file,prefix)
     !!!------ parameters of LP factorization
     call MoveTO(51,'*C   ')
     !!exact values of x1x2
-    call MoveTO(51,'*p1   ')
+    call MoveTO(51,'*p1  ')
     read(51,*) dummyLogical
     if(dummyLogical) then
       exactX1X2=1
@@ -232,7 +232,7 @@ subroutine TMDX_DY_Initialize(file,prefix)
     end if
     if(outputLevel>2 .and. dummyLogical) write(*,*) '    artemide.TMDX_DY: qT/Q corrections for x1 and x2 variables are included.'
     !!exact values for scales
-    call MoveTO(51,'*p2   ')
+    call MoveTO(51,'*p2  ')
     read(51,*) dummyLogical
     if(dummyLogical) then
       exactScales=1
