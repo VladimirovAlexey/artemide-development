@@ -1,14 +1,15 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 2.02
+!			arTeMiDe 3.04
 !
 !	The module that contains support functions for input-output used within artemide
+!   low-level infrastructure module; changes should be rare and compatibility-preserving
 !
-!				A.Vladimirov (08.09.2019)
+!   -- Remove of older and unusing functions
+!				A.Vladimirov (19.06.2026)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 module aTMDe_IO
 use aTMDe_numerics
-use aTMDe_interfaces
 implicit none
 
 private
@@ -33,12 +34,12 @@ character(len=*), public, parameter :: c_clear = c_start // '0' // c_end
 
 
 public::color, MoveTO, numToStr, int4ToStr
-public::writeShortIntegerList, writeFloatList, WarningString, ErrorString
+public::WarningString, ErrorString
 
 type, public :: Warning_OBJ
   character(:), allocatable::moduleName
-  integer::messageCounter
-  integer::messageTrigger
+  integer::messageCounter = 0
+  integer::messageTrigger = 3
 contains
   procedure:: Reset =>Reset_def
   procedure:: WarningRaise => WarningRaise_def
@@ -46,7 +47,7 @@ end type
 
 
 interface numToStr
-  module procedure intToStr,realToStr,real8ToStr
+  module procedure intToStr,spToStr,dpToStr
 end interface numToStr
   
 contains
@@ -65,12 +66,13 @@ subroutine WarningRaise_def(this,str)
 class(Warning_OBJ), intent(inout)::this
 character(len=*), intent(in) :: str
 
-if(this%messageCounter<=this%messageTrigger) then
+if(this%messageCounter<this%messageTrigger) then
   write(*,*) WarningString(str,this%moduleName)
+  this%messageCounter=this%messageCounter+1
+
   if(this%messageCounter==this%messageTrigger) then
     write(*,*) WarningString('number of warning massages hits the limit. Further warnings are suppressed',this%moduleName)
   end if
-  this%messageCounter=this%messageCounter+1
 end if
 
 end subroutine WarningRaise_def
@@ -87,15 +89,17 @@ pure function color(str, code) result(out)
   out = c_start // code // c_end // str // c_clear
 end function color
 
-!!! move the CURRET in streem to the next line that starts from pos (5 char)
+!!! move the CURRET in stream to the next line that starts from pos (5 char)
 !!! this function is universally used in all reading of constants-files
-subroutine MoveTO(streem,pos)
-  integer,intent(in)::streem
-  character(len=5)::pos
+subroutine MoveTO(stream,pos)
+  integer,intent(in)::stream
+  character(len=5),intent(in)::pos
   character(len=300)::line
   integer::IOstatus
-  do
-      read(streem,'(A)',IOSTAT=IOstatus) line
+  integer::i
+  !!!!!adding upper limit in the case of currupted file
+  do i=1,10000000
+      read(stream,'(A)',IOSTAT=IOstatus) line
       if(IOstatus>0) then
           write(*,*) ErrorString("Error in attemt to read the line ("//pos//")", "aTMDe_IO_system")
           stop
@@ -108,56 +112,20 @@ subroutine MoveTO(streem,pos)
   end do
 end subroutine MoveTO
 
-!!! write list of short integers (I5) to streem spliting by commas
-!!! used to fill constants-file
-subroutine writeShortIntegerList(streem, list)
-integer::streem,i
-integer,intent(in)::list(:)
-
-if(size(list)==0) then
-  write(*,*) ErrorString("Core-error: Passed 0-size array","IO")
-  stop
-end if
-if(size(list)>1) then
-  do i=1,size(list)-1
-    write(streem,"(I5,', ')",advance='no') list(i)
-  end do
-end if
-write(streem,"(I5)") list(size(list))
-end subroutine writeShortIntegerList
-
-!!! write list of Floats (F12.8) to streem spliting by commas
-!!! used to fill constants-file
-subroutine writeFloatList(streem, list)
-integer::streem,i
-real,intent(in)::list(:)
-
-if(size(list)==0) then
-  write(*,*) ErrorString("Core-error: Passed 0-size array","IO")
-  stop
-end if
-if(size(list)>1) then
-  do i=1,size(list)-1
-    write(streem,"(F12.8,', ')",advance='no') list(i)
-  end do
-end if
-write(streem,"(F12.8)") list(size(list))
-end subroutine writeFloatList
-
 !--------------------convertation
 !!! convert a real(dp) number to a string
-pure  function real8ToStr(num)
+pure  function dpToStr(num)
 real(dp),intent(in)::num
-character(len=16)::real8ToStr
-write(real8ToStr,"(F16.10)") num
-end function real8ToStr
+character(len=16)::dpToStr
+write(dpToStr,"(G16.10)") num
+end function dpToStr
 
 !!! convert a real number to a string
-pure function realToStr(num)
-real,intent(in)::num
-character(len=12)::realToStr
-write(realToStr,*) num
-end function realToStr
+pure function spToStr(num)
+real(sp),intent(in)::num
+character(len=12)::spToStr
+write(spToStr,"(G12.6)") num
+end function spToStr
 
 !!! convert an integer number to a string
 pure function intToStr(num)
@@ -188,25 +156,5 @@ pure function ErrorString(str, moduleName) result(out)
   character(len=:), allocatable :: out
   out = color('ERROR: artemide.'//trim(moduleName)//': '//trim(str),c_red_bold)
 end function ErrorString
-
-! !--------------------------- massage trigger counter functions
-! !!!! the routine shows a line of warning. and increase the counter
-! !!!! Use this one for WARNINGS
-! subroutine Warning_Raise(str,messageCounter,messageTrigger,moduleName)
-!   integer::messageCounter
-!   integer,intent(in)::messageTrigger
-!   character(len=*), intent(in) :: moduleName
-!   character(len=*), intent(in) :: str
-!
-!   if(messageCounter<=messageTrigger) then
-!   write(*,*) WarningString(str,moduleName)
-!   messageCounter=messageCounter+1
-!   if(messageCounter>messageTrigger) then
-!     write(*,*) color('artemide.'//trim(moduleName)//&
-!           ': number of warning massages hits the limit. Further warnings are suppressed',c_red)
-!   end if
-!   end if
-!
-! end subroutine Warning_Raise
   
 end module aTMDe_IO

@@ -39,7 +39,7 @@ type, public::Xgrid !!!!! name of abstract class
     integer::outputLevel
     type(Warning_OBJ)::Warning_Handler
     !!!!!! this is function to grid
-    procedure(strFUNC), pointer, nopass :: FtoGrid
+    procedure(strFUNC_proc), pointer, nopass :: FtoGrid
     !!!!!! the process number
     integer,dimension(1:3)::process0
     !!!!!! parameters of the grid
@@ -231,7 +231,7 @@ end function weigthFunction
 !!!!! one should specify process0, min,max,N for each variable
 function constructor(F,proc_in,v1min,v1max,v1N,v2min,v2max,v2N,v3min,v3max,v3N,v4min,v4max,v4N,name,outLevel) result(this)
 type(Xgrid)::this
-procedure(strFUNC)::F
+procedure(strFUNC_proc)::F
 integer,dimension(1:3),intent(in)::proc_in
 integer,intent(in)::v1N,v2N,v3N,v4N
 real(dp),intent(in)::v1Min,v1Max,v2Min,v2Max,v3Min,v3Max,v4Min,v4Max

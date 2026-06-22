@@ -197,7 +197,7 @@ end function BfromNode
 !!! F is the function of CxF_compute(x_local,b_local,h,withGluon)
 subroutine ChGrid_MakeGrid(this,F)
 class(optGrid), intent(inout)::this
-  procedure(optTMD)::F
+  procedure(optTMD_proc)::F
   real(dp):: x_local,b_local
   integer:: iX,iB,h,jX,jB,n
   real(dp)::time1,time2
@@ -520,7 +520,7 @@ end function ExtractFromGrid
 
 subroutine TestGrid(this,F)
 class(optGrid),intent(in)::this
-procedure(optTMD)::F
+procedure(optTMD_proc)::F
 real(dp),dimension(1:this%xGridSize)::xTestNodes,xTestValues
 real(dp),dimension(1:this%bGridSize)::bTestNodes,bTestValues
 real(dp),dimension(1:this%xGridSize,1:this%bGridSize,-5:5)::fromGrid,fromExact
