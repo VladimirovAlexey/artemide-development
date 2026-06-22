@@ -7,7 +7,8 @@ module aTMDe_invMatrix
 use aTMDe_Numerics
 use aTMDe_IO
 implicit none
-public :: krout,inverse,hat_matrix
+private
+public :: krout,inverse
 contains
 subroutine KROUT(MO, N, M, A, KA, B, KB, IERR)
 !-----------------------------------------------------------------------
@@ -36,7 +37,7 @@ subroutine KROUT(MO, N, M, A, KA, B, KB, IERR)
 ! Adapted from the routine KROUT in the NSWC Math. Library by Alan Miller
 ! Latest revision - 3 August 1998
 
-integer, intent(in)                            :: MO ! if M0 = 0 then the inverse of A is computed and stored in A. Otherwise the inverse is not computed.
+integer, intent(in)                            :: MO ! if MO = 0 then the inverse of A is computed and stored in A. Otherwise the inverse is not computed.
 integer, intent(in)                            :: N  ! # of columns of A
 integer, intent(in)                            :: M
 real(dp), intent(in out), dimension(:,:) :: A     ! a(ka,n)
@@ -250,21 +251,13 @@ integer                   :: ierr,n
 real(dp)             :: b(0)
 n = size(a,1)
 if (size(a,2) /= n) then
-   ainv = 0.0_dp
-   return
+   error stop ErrorString("Input matrix is not a square-matrix", "inverseMatrix")
 end if
 ainv = a
 call krout(mo=0,n=n,m=0,a=ainv,ka=n,b=b,kb=0,ierr=ierr)
 if (ierr /= 0) then
-   write(*,*) ErrorString("Error in crout procedure with ierr =", "inverseMatrix"),ierr
-   error stop
+   error stop ErrorString("Error in crout procedure with ierr ="//int4Tostr(ierr), "inverseMatrix")
 end if
 end function inverse
-!
-function hat_matrix(x) result(xhat)
-! return the hat matrix of x, defined as x*(x'*x)^(-1)*x'
-real(dp), intent(in) :: x(:,:)                    ! matrix for which hat computed
-real(dp)             :: xhat(size(x,1),size(x,1)) ! hat matrix of x
-xhat = matmul(matmul(x,inverse(matmul(transpose(x),x))),transpose(x))
-end function hat_matrix
+
 end module aTMDe_invMatrix
