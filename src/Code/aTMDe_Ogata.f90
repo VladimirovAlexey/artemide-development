@@ -128,7 +128,7 @@ end do
 
 if(this%outputLevel>2) write(*,'(A,I4)') ' | Maximum number of nodes    :',Nmax
 if(this%outputLevel>1) write(*,*) this%parentName,': Ogata tables (transformation order ',int4ToStr(this%N),') are prepared'
-if(outputLevel>2) write(*,*) color("If you use TMMs, please, cite [2402.01836]",c_cyan)
+if(this%outputLevel>2) write(*,*) color("If you use TMMs, please, cite [2402.01836]",c_cyan)
 end function constructor
 
 !!!This is the defining module function
@@ -263,22 +263,22 @@ do r=1,Nmax!!! maximum of number of bessel roots preevaluated in the head
     do j=-5,5
         if((delta(j)<this%tolerance*ABS(integral(j)) .or. ABS(integral(j))<1d-32) .and. r>=10) partDone(j)=.true.
     end do
-    if(partDone(-5).and.partDone(-4).and.partDone(-3).and.partDone(-2).and.partDone(-1)&
-        .and.partDone(0).and.partDone(1).and.partDone(2).and.partDone(3).and.partDone(4).and.partDone(5)) exit
-
+    !if(partDone(-5).and.partDone(-4).and.partDone(-3).and.partDone(-2).and.partDone(-1)&
+    !    .and.partDone(0).and.partDone(1).and.partDone(2).and.partDone(3).and.partDone(4).and.partDone(5)) exit
+    if(all(partDone)) exit
 end do
 
 if(r>=Nmax) then
     if(this%outputlevel>0) write(*,*) WarningString('OGATA quadrature diverge. TMD decaing too slow? ',this%parentName)
-        if(this%outputlevel>2) then
+    if(this%outputlevel>2) then
         write(*,*) 'Information over the last call ----------'
         write(*,*) partDone
         write(*,*) 'bt/qT= ',this%bb(Nsegment,k,Nmax)/qT, 'qT=',qT, '| segmentation zone=',Nsegment,&
             ' ogata h=',this%hOGATA*hSegmentationWeight(Nsegment)
-        write(*,*) 'W=',F(this%bb(Nsegment,k,r)/qT), 'eps/integral =', eps/integral
+        write(*,*) 'W=',F(this%bb(Nsegment,k,Nmax)/qT), 'eps/integral =', eps/integral
         write(*,*) 'v1+v2+v3+v4=',v1+v2+v3+v4, '>',this%tolerance*(ABS(integral(1))+ABS(integral(2)))
         write(*,*) '------------------------------------------'
-        end if
+    end if
 end if
 !!! result is scaled by qT [because the argument of Bessel was scaled bqT-> B]
 G_def=integral/(qT**(n+1)*pi)
@@ -307,7 +307,7 @@ function Moment_G_def(this,F,mu)
 class(OgataIntegrator), intent(inout)::this
 procedure(func_1D_array5)::F
 real(dp),intent(in)::mu
-real(dp),dimension(-5:5)::Moment_G_def(-5:5)
+real(dp),dimension(-5:5)::Moment_G_def
 
 SELECT CASE(this%N)
     CASE(0)
@@ -332,7 +332,7 @@ function Moment_X_def(this,F,mu)
 class(OgataIntegrator), intent(inout)::this
 procedure(func_1D_array5)::F
 real(dp),intent(in)::mu
-real(dp),dimension(-5:5)::Moment_X_def(-5:5)
+real(dp),dimension(-5:5)::Moment_X_def
 
 SELECT CASE(this%N)
     CASE(0)

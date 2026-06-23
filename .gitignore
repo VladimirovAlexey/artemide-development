@@ -21,5 +21,8 @@ fort.*
 #Large Kernel-Files
 *.ker
 
+#Potentially large csv files
+*.csv
+
 #artemide-files
 aTMDe-temporary

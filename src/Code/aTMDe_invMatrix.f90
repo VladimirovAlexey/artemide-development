@@ -10,7 +10,7 @@ implicit none
 private
 public :: krout,inverse
 contains
-subroutine KROUT(MO, N, M, A, KA, B, KB, IERR)
+pure subroutine KROUT(MO, N, M, A, KA, B, KB, IERR)
 !-----------------------------------------------------------------------
 !  CROUT PROCEDURE FOR INVERTING MATRICES AND SOLVING EQUATIONS
 !-----------------------------------------------------------------------
@@ -243,7 +243,7 @@ do NMJ = 1,NM1
 end do
 end subroutine KROUT
 !
-function inverse(a) result(ainv)
+pure function inverse(a) result(ainv)
 ! return inverse of square matrix a
 real(dp), intent(in) :: a(:,:)                    ! matrix to inverted
 real(dp)             :: ainv(size(a,1),size(a,2)) ! inverse of a

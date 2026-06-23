@@ -213,7 +213,6 @@ subroutine SiversTMDPDF_OPE_Initialize(file,prefix)
 
     if(useGridTW3) then
         call mainGrid%MakeGrid(tw3_convolution)
-        if(runTestTW3) call mainGrid%Test(tw3_convolution)
     end if
 
     started=.true.

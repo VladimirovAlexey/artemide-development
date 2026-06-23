@@ -316,7 +316,6 @@ subroutine uTMDFF_OPE_Initialize(file,prefix)
 
     if(useGrid) then
         call mainGrid%MakeGrid(functionToGrid)
-        if(runTest) call mainGrid%Test(functionToGrid)
     end if
 
     started=.true.

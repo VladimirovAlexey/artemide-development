@@ -4,7 +4,7 @@
 !    This module contains the object for working with grids of optimalTMDs
 !       i.e. it stores a function of (real,real,-5:5,1:hadron)
 !       The logarithmic scaling in applied for both directtons
-!       In principal eny such function can be used, but main application is to store (optimal) TMD_OPE results.
+!       In principal any such function can be used, but main application is to store (optimal) TMD_OPE results.
 !       The grid is Chebishev in directions, with subgrids
 !
 !                A.Vladimirov (16.10.2025)
@@ -20,7 +20,7 @@ private
 
 character(len=7),parameter :: moduleName="optGrid"
 
-!!!!!! The object of Ogata integration --------
+!!!!!! The object of optimal-TMD grid --------
 type, public :: optGrid
   private
   !!!!indicator that grid is ready to use.
@@ -49,7 +49,7 @@ type, public :: optGrid
 
 
   !!! parameter of tolerance
-  real(dp)::zero=10.d-8
+  real(dp)::zero=1.d-16
 
   !!!! xIntervals & bIntervals are the list of (u_{k+1}-u_k)/2 for subgrids
   !!!! xMeans & bMeanss are the list of (u_{k+1}+u_k)/2 for subgrids
@@ -62,7 +62,6 @@ type, public :: optGrid
 contains
   procedure,public::MakeGrid =>ChGrid_MakeGrid
   procedure,public::Extract  =>ExtractFromGrid
-  procedure,public::Test     =>TestGrid
 end type
 
 interface optGrid
@@ -76,7 +75,7 @@ contains
 !!!!! One should specify the path (path), section (moduleLine) and subsection (gridLine) of the constant file where to read
 function constructor(path,moduleLine,gridLine,numH_in,withGluon_in,name,outLevel) result(this)
 type(optGrid)::this
-character(len=300)::path
+character(*),intent(in)::path
 character(len=5),intent(in)::moduleLine,gridLine
 integer,intent(in)::outLevel,numH_in
 logical,intent(in)::withGluon_in
@@ -119,6 +118,11 @@ this%numH=numH_in
 
 this%withGluon=withGluon_in
 
+!!!! check that the upper limit is zero
+if(abs(this%xRanges(this%numXsubgrids)-1._dp)>this%zero) then
+  error stop ErrorString('Upper x-range must be 1. Got '//numToStr(this%xRanges(this%numXsubgrids)),this%parentName)
+end if
+
 !!!!allocation of lists
 
 allocate(this%xNodes(0:this%xGridSize))
@@ -134,10 +138,12 @@ allocate(this%bIntervals(1:this%numBsubgrids),this%bMeans(1:this%numBsubgrids))
 !!!!filing the working variables
 
 this%xIntervals=(log(this%xRanges(1:this%numXsubgrids))-log(this%xRanges(0:this%numXsubgrids-1)))/2._dp
-this%bIntervals=(log(this%bRanges(1:this%numBsubgrids))-log(this%bRanges(0:this%numBsubgrids-1)))/2._dp
 this%xMeans=(log(this%xRanges(1:this%numXsubgrids))+log(this%xRanges(0:this%numXsubgrids-1)))/2._dp
+
+this%bIntervals=(log(this%bRanges(1:this%numBsubgrids))-log(this%bRanges(0:this%numBsubgrids-1)))/2._dp
 this%bMeans=(log(this%bRanges(1:this%numBsubgrids))+log(this%bRanges(0:this%numBsubgrids-1)))/2._dp
 
+!!!! node factor is (-1)^i beta_i
 this%xNodeFactors=1._dp
 
 do i=0,this%xGridSize
@@ -225,7 +231,7 @@ class(optGrid), intent(inout)::this
 !   stop
 
   do h=1,this%numH
-   !$OMP DO
+   !!! !$OMP PARALLEL DO PRIVATE(iB, jX, jB, n, x_local, b_local,h)
    do iX=1,this%numXsubgrids
     do iB=1,this%numBsubgrids
       do jX=0,this%xGridSize
@@ -252,7 +258,7 @@ class(optGrid), intent(inout)::this
         end do
       end do
     end do
-    !$OMP END DO
+    !!! !$OMP END PARALLEL DO
     if(this%outputLevel>1 .and. this%numH>1) write(*,'(" ",A,": optGrid for hadron ",I3," is done")') this%parentName,h
    end do
 
@@ -287,9 +293,9 @@ integer::i
 deltaT=t-this%xNodes
 !!! pass though each term, if it is close to 0, then the value of fucntion is given by this node
 do i=0,this%xGridSize
-    if(abs(deltaT(i))<this%zero) then
+  if(abs(deltaT(i))<this%zero) then
       interpolateInX(-5:5)=grid(i,-5:5)
-    return
+      return
   end if
 end do
 
@@ -313,8 +319,8 @@ integer::i,j
 deltaT=t-this%xNodes
 !!! pass though each term, if it is close to 0, then the value of fucntion is given by this node
 do i=0,this%xGridSize
-    if(abs(deltaT(i))<this%zero) then
-      interpolateInX_array(0:this%bGridSize,-5:5)=grid(i,0:this%bGridSize,-5:5)
+  if(abs(deltaT(i))<this%zero) then
+    interpolateInX_array(0:this%bGridSize,-5:5)=grid(i,0:this%bGridSize,-5:5)
     return
   end if
 end do
@@ -343,15 +349,14 @@ integer::i
 deltaT=t-this%bNodes
 !!! pass though each term, if it is close to 0, then the value of fucntion is given by this node
 do i=0,this%bGridSize
-    if(abs(deltaT(i))<this%zero) then
-      interpolateInB(-5:5)=grid(i,-5:5)
+  if(abs(deltaT(i))<this%zero) then
+    interpolateInB(-5:5)=grid(i,-5:5)
     return
   end if
 end do
 
 deltaT=this%bNodeFactors/deltaT
 interpolateInB=matmul(deltaT,grid)/sum(deltaT)
-
 end function interpolateInB
 
 !!!!! this function interpolates the the grid to the element t
@@ -368,8 +373,8 @@ integer::i,j
 deltaT=t-this%bNodes
 !!! pass though each term, if it is close to 0, then the value of fucntion is given by this node
 do i=0,this%bGridSize
-    if(abs(deltaT(i))<this%zero) then
-      interpolateInB_array(0:this%xGridSize,-5:5)=grid(0:this%xGridSize,i,-5:5)
+  if(abs(deltaT(i))<this%zero) then
+    interpolateInB_array(0:this%xGridSize,-5:5)=grid(0:this%xGridSize,i,-5:5)
     return
   end if
 end do
@@ -409,7 +414,7 @@ end function TfromB
 !!!! for values below xMin, above x=1 terminates
 !!!! for values below bMin freeze value
 !!!! for values above bMax =0
-function ExtractFromGrid(this,x,bT,h)
+pure function ExtractFromGrid(this,x,bT,h)
 class(optGrid),intent(in)::this
   real(dp),intent(in)::x,bT
   integer,intent(in)::h
@@ -417,8 +422,8 @@ class(optGrid),intent(in)::this
 
   integer::i,nX,nB
   real(dp)::tX,tB
-  !real(dp),dimension(0:bGridSize,-5:5)::interGrid
   real(dp),dimension(0:this%xGridSize,-5:5)::interGrid
+  !real(dp),dimension(0:this%bGridSize,-5:5)::interGrid
 
   if(.not.this%gridReady) then
     error stop ErrorString('attempt to extract from grid while it is not ready',this%parentName//".optGrid")
@@ -483,6 +488,9 @@ class(optGrid),intent(in)::this
       !!! first in b then in x
       interGrid=interpolateInB_array(this,tB,this%gridMain(nX,nB,0:this%xGridSize,0:this%bGridSize,-5:5,h))
       ExtractFromGrid=interpolateInX(this,tX,interGrid)
+      !!! first in x then in b
+      !interGrid=interpolateInX_array(this,tX,this%gridMain(nX,nB,0:this%xGridSize,0:this%bGridSize,-5:5,h))
+      !ExtractFromGrid=interpolateInB(this,tB,interGrid)
     end if
   end if
 !   do i=-5,5
@@ -517,118 +525,5 @@ class(optGrid),intent(in)::this
 !   end do
 
 end function ExtractFromGrid
-
-subroutine TestGrid(this,F)
-class(optGrid),intent(in)::this
-procedure(optTMD_proc)::F
-real(dp),dimension(1:this%xGridSize)::xTestNodes,xTestValues
-real(dp),dimension(1:this%bGridSize)::bTestNodes,bTestValues
-real(dp),dimension(1:this%xGridSize,1:this%bGridSize,-5:5)::fromGrid,fromExact
-integer::i,j,iX,jB,h,fv
-real(dp)::res
-
-write(*,*) "---------------------------------INITIATE THE GRID TEST------------------------------------------"
-write(*,*) "                                 ",this%parentName
-write(*,*) "-------------------------------------------------------------------------------------------------"
-write(*,*) " The comparison is done by formula R=|X-Y|/(|Y|+0.0001),"
-write(*,*) " where X is values from the grid, Y is computed value."
-write(*,*) " The computation is done for central points in-between nodes."
-write(*,*) " For values R<0.01 the log10(R) is shown in []."
-write(*,*) "-------------------------------------------------------------------------------------------------"
-
-!!!! locate the test nodes in the middle of the grid.
-do i=1,this%xGridSize
-xTestNodes(i)=cos((i-0.5d0)*pi/this%xGridSize)
-end do
-do i=1,this%bGridSize
-bTestNodes(i)=cos((i-0.5d0)*pi/this%bGridSize)
-end do
-
-do h=1,this%numH
-
-
-write(*,*) "-------------------------------------------------------------------------------------------------"
-write(*,*) color("                         HADRON =  ",c_yellow),h
-write(*,*) "-------------------------------------------------------------------------------------------------"
-do i=1,this%numXsubgrids
-do j=1,this%numBsubgrids
-  write(*,'(A,I3,", ",I3)') "----- Subgrid :",i,j
-  write(*,'(A,F10.6," <x< ",F10.6)') "----- ",this%xRanges(i-1),this%xRanges(i)
-  write(*,'(A,F10.6," <b< ",F10.6)') "----- ",this%bRanges(j-1),this%bRanges(j)
-
-  xTestValues=exp(this%xIntervals(i)*xTestNodes+this%xMeans(i))
-  bTestValues=exp(this%bIntervals(j)*bTestNodes+this%bMeans(j))
-
-  do iX=1,this%xGridSize
-  do jB=1,this%bGridSize
-    fromGrid(iX,jB,-5:5)=ExtractFromGrid(this,xTestValues(iX),bTestValues(jB),h)
-    fromExact(iX,jB,-5:5)=F(xTestValues(iX),bTestValues(jB),h)
-  end do
-  end do
-
-  do fv=-3,3
-  if(fv==0 .and. (.not.this%withGluon)) cycle !!!! skip gluons if they are not included
-
-  write(*,*) color("                         FLAVOR =  ",c_yellow),fv
-
-  write(*,'(A)',advance='no') "  b \ x  |"
-  do iX=this%xGridSize,2,-1
-    write(*,'(F8.4,"  ")',advance='no') xTestValues(iX)
-  end do
-  write(*,'(F8.4,"  ")') xTestValues(1)
-  write(*,'(A)',advance='no') "  -------|"
-  do iX=1,this%xGridSize-1
-    write(*,'(A)',advance='no') "----------"
-  end do
-  write(*,'(A)') "----------"
-
-  do jB=this%bGridSize,2,-1
-    write(*,'(F8.4," |")',advance='no')  bTestValues(jB)
-    do iX=this%xGridSize,2,-1
-      res=abs(fromGrid(iX,jB,fv)-fromExact(iX,jB,fv))/(abs(fromExact(iX,jB,fv))+0.0001d0)
-      if(res>0.01) then
-        write(*,'(F8.4)',advance='no') res
-      else
-        write(*,'("[",F6.2,"]")',advance='no') log10(res)
-      end if
-
-      if(res>1.) then
-        write(*,'(A)',advance='no') color("!!",c_red_bold)
-      else if(res>0.1) then
-        write(*,'(A)',advance='no') color("!!",c_red)
-      else if(res>0.01) then
-        write(*,'(A)',advance='no') color("! ",c_yellow)
-      else
-        write(*,'(A)',advance='no') "  "
-      end if
-    end do
-
-    res=abs(fromGrid(1,jB,fv)-fromExact(1,jB,fv))/(abs(fromExact(1,jB,fv))+0.0001d0)
-    if(res>0.01) then
-      write(*,'(F8.4)') res
-    else
-      write(*,'("[",F6.2,"]")') log10(res)
-    end if
-
-    if(res>1.) then
-      write(*,'(A)') color("!!",c_red_bold)
-    else if(res>0.1) then
-      write(*,'(A)') color("!!",c_red)
-    else if(res>0.01) then
-      write(*,'(A)') color("! ",c_yellow)
-    else
-      write(*,'(A)') "  "
-    end if
-
-  end do
-
-  end do
-
-end do
-end do
-
-end do
-
-end subroutine TestGrid
 
 end module aTMDe_optGrid

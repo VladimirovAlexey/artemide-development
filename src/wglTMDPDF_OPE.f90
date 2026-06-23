@@ -335,7 +335,6 @@ subroutine wglTMDPDF_OPE_Initialize(file,prefix)
 
     if(useGrid) then
         call mainGridTw2%MakeGrid(functionToGrid)
-        if(runTest) call mainGridTw2%Test(functionToGrid)
     end if
 
     started=.true.
