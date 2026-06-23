@@ -46,10 +46,11 @@ $(SOURCEDIR)/Code/aTMDe_IO.f90 \
 $(SOURCEDIR)/Code/aTMDe_math.f90 \
 $(SOURCEDIR)/Code/aTMDe_Integration.f90 \
 $(SOURCEDIR)/Code/aTMDe_invMatrix.f90 \
-$(SOURCEDIR)/Code/aTMDe_Ogata.f90 \
 $(SOURCEDIR)/Code/aTMDe_optGrid.f90 \
 $(SOURCEDIR)/Code/aTMDe_ktGrid.f90 \
 $(SOURCEDIR)/Code/aTMDe_xGrid.f90 \
+$(SOURCEDIR)/Code/aTMDe_Ogata.f90 \
+$(SOURCEDIR)/Code/aTMDe_Levin.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_alpha.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_PDF.f90 \
 $(SOURCEDIR)/LeptonCutsDY.f90 \
@@ -100,9 +101,6 @@ $(SOURCEDIR)/Code/Twist2/Twist2-AS-term.f90
 
 Twist3Files=\
 $(SOURCEDIR)/Code/Twist3/placeHolder.f90
-
-KTspaceFiles=\
-$(SOURCEDIR)/Code/KTspace/Fourier_Levin.f90
 
 TMD_ADFiles=\
 $(SOURCEDIR)/Code/TMD_AD/AD_primary.f90 \
@@ -188,10 +186,11 @@ $(OBJ)/aTMDe_interfaces.o \
 $(OBJ)/aTMDe_IO.o \
 $(OBJ)/aTMDe_math.o \
 $(OBJ)/aTMDe_Integration.o \
-$(OBJ)/aTMDe_Ogata.o \
 $(OBJ)/aTMDe_optGrid.o \
 $(OBJ)/aTMDe_ktGrid.o \
 $(OBJ)/aTMDe_xGrid.o \
+$(OBJ)/aTMDe_Ogata.o \
+$(OBJ)/aTMDe_Levin.o \
 $(OBJ)/aTMDe_invMatrix.o \
 $(OBJ)/LeptonCutsDY.o \
 $(OBJ)/aTMDe_setup.o \
@@ -249,10 +248,11 @@ $(OBJ)/aTMDe_interfaces.o \
 $(OBJ)/aTMDe_IO.o \
 $(OBJ)/aTMDe_math.o\
 $(OBJ)/aTMDe_Integration.o\
-$(OBJ)/aTMDe_Ogata.o\
 $(OBJ)/aTMDe_optGrid.o\
 $(OBJ)/aTMDe_ktGrid.o\
-$(OBJ)/aTMDe_invMatrix.o
+$(OBJ)/aTMDe_invMatrix.o \
+$(OBJ)/aTMDe_Ogata.o\
+$(OBJ)/aTMDe_Levin.o
 #$(OBJ)/aTMDe_xGrid.o
 
 
@@ -343,11 +343,6 @@ $(OBJ)/aTMDe_Integration.o: $(SOURCEDIR)/Code/aTMDe_Integration.f90 $(OBJ)/aTMDe
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/aTMDe_Ogata.o: $(SOURCEDIR)/Code/aTMDe_Ogata.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o
-	$(FC) -c $(SOURCEDIR)/Code/aTMDe_Ogata.f90 -I$(MOD)
-	mv *.o $(OBJ)
-	mv *.mod $(MOD)
-
 $(OBJ)/aTMDe_optGrid.o: $(SOURCEDIR)/Code/aTMDe_optGrid.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o
 	$(FC) -c $(SOURCEDIR)/Code/aTMDe_optGrid.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -365,6 +360,16 @@ $(OBJ)/aTMDe_xGrid.o: $(SOURCEDIR)/Code/aTMDe_xGrid.f90 $(OBJ)/aTMDe_Numerics.o 
 
 $(OBJ)/aTMDe_invMatrix.o: $(SOURCEDIR)/Code/aTMDe_invMatrix.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_IO.o
 	$(FC) -c $(SOURCEDIR)/Code/aTMDe_invMatrix.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/aTMDe_Ogata.o: $(SOURCEDIR)/Code/aTMDe_Ogata.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o
+	$(FC) -c $(SOURCEDIR)/Code/aTMDe_Ogata.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/aTMDe_Levin.o: $(SOURCEDIR)/Code/aTMDe_Levin.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o
+	$(FC) -c $(SOURCEDIR)/Code/aTMDe_Levin.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
@@ -427,7 +432,7 @@ $(OBJ)/uTMDPDF_OPE.o: $(SOURCEDIR)/uTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $(SOURCEDIR
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 	
-$(OBJ)/uTMDPDF.o: $(SOURCEDIR)/uTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/uTMDPDF_model.f90 $(SOURCEDIR)/uTMDPDF_OPE.f90 $(KTspaceFiles) $(aTMDeUTILITY) $(uTMDPDFFiles)
+$(OBJ)/uTMDPDF.o: $(SOURCEDIR)/uTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/uTMDPDF_model.f90 $(SOURCEDIR)/uTMDPDF_OPE.f90 $(aTMDeUTILITY) $(uTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/uTMDPDF.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -445,7 +450,7 @@ $(OBJ)/uTMDFF_OPE.o: $(SOURCEDIR)/uTMDFF_OPE.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 	
-$(OBJ)/uTMDFF.o: $(SOURCEDIR)/uTMDFF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/uTMDFF_model.f90 $(SOURCEDIR)/uTMDFF_OPE.f90 $(KTspaceFiles) $(aTMDeUTILITY) $(uTMDFFFiles)
+$(OBJ)/uTMDFF.o: $(SOURCEDIR)/uTMDFF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/uTMDFF_model.f90 $(SOURCEDIR)/uTMDFF_OPE.f90 $(aTMDeUTILITY) $(uTMDFFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/uTMDFF.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -463,7 +468,7 @@ $(OBJ)/lpTMDPDF_OPE.o: $(SOURCEDIR)/lpTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $(OBJ)/TM
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/lpTMDPDF.o: $(SOURCEDIR)/lpTMDPDF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/lpTMDPDF_model.f90 $(SOURCEDIR)/lpTMDPDF_OPE.f90 $(KTspaceFiles) $(aTMDeUTILITY) $(lpTMDPDFFiles)
+$(OBJ)/lpTMDPDF.o: $(SOURCEDIR)/lpTMDPDF.f90 $(OBJ)/QCDinput.o $(SOURCEDIR)/Model/lpTMDPDF_model.f90 $(SOURCEDIR)/lpTMDPDF_OPE.f90 $(aTMDeUTILITY) $(lpTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/lpTMDPDF.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -481,7 +486,7 @@ $(OBJ)/SiversTMDPDF_OPE.o: $(SOURCEDIR)/SiversTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/SiversTMDPDF.o: $(SOURCEDIR)/SiversTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(OBJ)/SiversTMDPDF_model.o $(OBJ)/SiversTMDPDF_OPE.o $(KTspaceFiles) $(aTMDeUTILITY) $(SiversTMDPDFFiles)
+$(OBJ)/SiversTMDPDF.o: $(SOURCEDIR)/SiversTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(OBJ)/SiversTMDPDF_model.o $(OBJ)/SiversTMDPDF_OPE.o $(aTMDeUTILITY) $(SiversTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/SiversTMDPDF.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -499,7 +504,7 @@ $(OBJ)/wgtTMDPDF_OPE.o: $(SOURCEDIR)/wgtTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $(OBJ)/
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/wgtTMDPDF.o: $(SOURCEDIR)/wgtTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(OBJ)/wgtTMDPDF_model.o $(OBJ)/wgtTMDPDF_OPE.o $(KTspaceFiles) $(aTMDeUTILITY) $(wgtTMDPDFFiles)
+$(OBJ)/wgtTMDPDF.o: $(SOURCEDIR)/wgtTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(OBJ)/wgtTMDPDF_model.o $(OBJ)/wgtTMDPDF_OPE.o $(aTMDeUTILITY) $(wgtTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/wgtTMDPDF.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -517,7 +522,7 @@ $(OBJ)/wglTMDPDF_OPE.o: $(SOURCEDIR)/wglTMDPDF_OPE.f90 $(OBJ)/QCDinput.o $(OBJ)/
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/wglTMDPDF.o: $(SOURCEDIR)/wglTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/wglTMDPDF_model.f90 $(SOURCEDIR)/wglTMDPDF_OPE.f90 $(KTspaceFiles) $(aTMDeUTILITY) $(wglTMDPDFFiles)
+$(OBJ)/wglTMDPDF.o: $(SOURCEDIR)/wglTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/wglTMDPDF_model.f90 $(SOURCEDIR)/wglTMDPDF_OPE.f90 $(aTMDeUTILITY) $(wglTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/wglTMDPDF.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -535,7 +540,7 @@ $(OBJ)/BoerMuldersTMDPDF_OPE.o: $(SOURCEDIR)/BoerMuldersTMDPDF_OPE.f90 $(OBJ)/QC
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/BoerMuldersTMDPDF.o: $(SOURCEDIR)/BoerMuldersTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 $(SOURCEDIR)/BoerMuldersTMDPDF_OPE.f90 $(KTspaceFiles) $(aTMDeUTILITY) $(BoerMuldersTMDPDFFiles)
+$(OBJ)/BoerMuldersTMDPDF.o: $(SOURCEDIR)/BoerMuldersTMDPDF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/BoerMuldersTMDPDF_model.f90 $(SOURCEDIR)/BoerMuldersTMDPDF_OPE.f90 $(aTMDeUTILITY) $(BoerMuldersTMDPDFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/BoerMuldersTMDPDF.f90 -I$(MOD)
 	mv *.o $(OBJ)
@@ -553,7 +558,7 @@ $(OBJ)/CollinsTMDFF_OPE.o: $(SOURCEDIR)/CollinsTMDFF_OPE.f90 $(OBJ)/QCDinput.o $
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/CollinsTMDFF.o: $(SOURCEDIR)/CollinsTMDFF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/CollinsTMDFF_model.f90 $(SOURCEDIR)/CollinsTMDFF_OPE.f90 $(KTspaceFiles) $(aTMDeUTILITY) $(CollinsTMDFFFiles)
+$(OBJ)/CollinsTMDFF.o: $(SOURCEDIR)/CollinsTMDFF.f90 $(OBJ)/QCDinput.o $(OBJ)/TMDR.o $(SOURCEDIR)/Model/CollinsTMDFF_model.f90 $(SOURCEDIR)/CollinsTMDFF_OPE.f90 $(aTMDeUTILITY) $(CollinsTMDFFFiles)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/CollinsTMDFF.f90 -I$(MOD)
 	mv *.o $(OBJ)

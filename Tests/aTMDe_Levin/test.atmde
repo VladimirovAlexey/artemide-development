@@ -1,0 +1,48 @@
+# Setup file for aTMDe_Levin test
+# FORMAT: Lines started from * determine input parameter (*????), following line determine parameter value
+
+# ---------------------------------------------------------------------------
+# ----                           GLOBAL PARAMETERS                      -----
+# ---------------------------------------------------------------------------
+*0   :
+
+*B   : ---- Universal physics parameters ----
+*p2  : Global mass for normalization of TMDs [GeV]
+   1.0
+
+# ---------------------------------------------------------------------------
+# ----            LEVIN TEST PARAMETERS                                 -----
+# ---------------------------------------------------------------------------
+*T   :
+
+*G   : ---- type=0 (J_0 transform: (1/2pi) int b J_0(bq) F(b) db ) ----
+*p1  : Prepare kT grid (F = Fourier_atPoint only; T = also builds TranformationArray)
+   F
+*p6  : Number of kT subgrids
+   3
+*p7  : kT subgrid boundaries [GeV]
+0.05  10.  50.  200.
+*p8  : Number of nodes per kT subgrid
+   16
+*p12 : Number of b subgrids
+   6
+*p13 : b subgrid boundaries
+0.00001  0.01  0.2  1.  5.  10. 25.
+*p14 : Number of nodes per b subgrid
+   16
+
+*H   : ---- type=1 (J_1 transform: (M^2/q)/2pi int b^2 J_1(bq) F(b) db,  M=1) ----
+*p1  : Prepare kT grid
+   F
+*p6  : Number of kT subgrids
+   3
+*p7  : kT subgrid boundaries [GeV]
+0.05  10.  50.  200.
+*p8  : Number of nodes per kT subgrid
+   16
+*p12 : Number of b subgrids
+   6
+*p13 : b subgrid boundaries
+0.00001  0.01  0.2  1.  5.  10. 25.
+*p14 : Number of nodes per b subgrid
+   16

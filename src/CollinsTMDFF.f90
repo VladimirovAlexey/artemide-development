@@ -9,20 +9,16 @@
 !                S.Piloneta (27.10.2025)
 !                A.Vladimirov (23.06.2026)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-module Fourier_Levin_CollinsTMDFF
-INCLUDE 'Code/KTspace/Fourier_Levin.f90'
-end module Fourier_Levin_CollinsTMDFF
-
 module CollinsTMDFF
 use aTMDe_Numerics
 use aTMDe_IO
 use aTMDe_Ogata
+use aTMDe_Levin
 use aTMDe_ktGrid
 use QCDinput
 use TMDR
 use CollinsTMDFF_OPE
 use CollinsTMDFF_model
-use Fourier_Levin_CollinsTMDFF
 
 implicit none
 !------------------------LOCALs -----------------------------------------------
@@ -60,11 +56,12 @@ real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
 
 integer,parameter::TMDtypeN=1 !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD)
 
-type(OgataIntegrator)::Hankel
+type(OgataIntegrator)::HankelbyOGATA
 
 !!!------------------------------ Parameters of transform in KT space and KT-grid ------------------------------
 logical::makeGrid_inKT
 type(ktGrid)::mainKTGrid
+type(LevinIntegrator)::HankelbyLevin
 
 !!!------------------------------ Parameters of transform to TMM -------------------------------------------
 
@@ -212,13 +209,13 @@ subroutine CollinsTMDFF_Initialize(file,prefix)
 
     allocate(lambdaNP(1:lambdaNPlength))
 
-    call Initialize_Fourier_Levin(path,'*18  ','*F   ',moduleName,outputLevel,TMDtypeN)
+    HankelbyLEVIN=LevinIntegrator(path,'*18  ','*F   ',moduleName,outputLevel,TMDtypeN)
     if(makeGrid_inKT) then
         mainKTGrid=ktGrid(path,'*18   ','*F   ',numOfHadrons,includeGluon,moduleName,outputLevel)
     end if
 
     !!!!!! TODO: fix the minimal value of KT
-    Hankel=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass,0.0001_dp)
+    HankelbyOGATA=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass,0.0001_dp)
 
     if(.not.TMDR_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
@@ -333,7 +330,7 @@ function toGrid(x_in,Q_in,h_in,arraySize1,arraySize2)
     Q=Q_in
     h=h_in
 
-    toGrid=Fourier_Levin_array(toFourier)
+    toGrid=HankelbyLEVIN%Fourier_array(toFourier)
 end function toGrid
 
 end subroutine updateGrid_inKT
@@ -425,7 +422,7 @@ function TMD_opt_inKT(x,kT,hadron)
         ERROR STOP ErrorString('Called kT<0. kT='//numToStr(kT)//' . Evaluation STOP',moduleName)
     end if
 
-    TMD_opt_inKT=Fourier_Levin(toFourier,kT)
+    TMD_opt_inKT=HankelbyLEVIN%Fourier_atPoint(toFourier,kT)
 
     if(hadron<0) TMD_opt_inKT=TMD_opt_inKT(5:-5:-1)
 
@@ -446,7 +443,7 @@ function TMD_ev_inKT(x,kT,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: Rkernel,RkernelG
 
-    TMD_ev_inKT=Fourier_Levin(toFourier,kT)
+    TMD_ev_inKT=HankelbyLEVIN%Fourier_atPoint(toFourier,kT)
 
     if(hadron<0) TMD_ev_inKT=TMD_ev_inKT(5:-5:-1)
 
@@ -509,7 +506,7 @@ function CollinsTMDFF_TMM_G(x,mu,hadron)
         error stop
     end if
 
-    CollinsTMDFF_TMM_G=Hankel%Moment_G(F,mu)
+    CollinsTMDFF_TMM_G=HankelbyOGATA%Moment_G(F,mu)
 
 
     !!! forcefully set =0 below threshold
@@ -541,7 +538,7 @@ function CollinsTMDFF_TMM_X(x,mu,hadron)
         error stop
     end if
 
-    CollinsTMDFF_TMM_X=Hankel%Moment_X(F,mu)
+    CollinsTMDFF_TMM_X=HankelbyOGATA%Moment_X(F,mu)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then

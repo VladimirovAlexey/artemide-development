@@ -234,7 +234,7 @@ KfromNode=exp(this%KIntervals(n)*this%KNodes(k)+this%KMeans(n))
 end function KfromNode
 
 !!!!! compute and store grid for any TMDgrid_inKT-compatible function
-!!!!! In most ocasions this is provided by Fourier_Levin_array in Fourier_Levin module
+!!!!! In most occasions this is provided by Fourier_Levin_array in Fourier_Levin module
 !!!!! the Grid is TMD*x*kT^2 (factor kT^2 is in the Fourier_Levin_array)
 subroutine ktGrid_MakeGrid(this,F)
 class(ktGrid), intent(inout)::this
