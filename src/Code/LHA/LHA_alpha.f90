@@ -1,10 +1,10 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!           arTeMiDe 3.01
+!           arTeMiDe 3.04
 !
 ! The module that reads the LHAPDF-info-file and extract the table for values of alpha_s
 !  Interpolates and returns its value.
-! This module is unique, because all artemide-submodules use the same alpha_s for consitency
-! For a moment only "ipol" version of the alpha_s is possible.
+! This module is unique, because all artemide-submodules use the same alpha_s for consistency
+! Currently, only "ipol" version of the alpha_s is possible.
 !
 !           A.Vladimirov
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -19,14 +19,15 @@ character (len=5),parameter :: version="v3.04"
 character (len=9),parameter :: moduleName="LHA_alpha"
 integer::outputLevel=2
 
-!!!!! global variables to 
+!!!!! global variables to store on the read of the info-file
 character(len=:), allocatable::ReferenceString !!! contains description of reference
 real(dp):: QMin,QMax
 real(dp):: MZ, MUp, MDown, MStrange, MCharm, MBottom, MTop
 real(dp):: AlphaS_MZ
 real(dp),allocatable,dimension(:):: AlphaS_Qs,AlphaS_Vals,AlphaS_LogQs
-real(dp),allocatable,dimension(:,:):: AlphaS_W!! barycentric wieghts
+real(dp),allocatable,dimension(:,:):: AlphaS_W!! barycentric weights
 integer,allocatable,dimension(:,:):: AlphaS_indices!! indices
+integer::AlphaS_N   ! = size(AlphaS_Qs)-1, set in ReadInfo
 
 real(dp)::extrapolA,extrapolB1,extrapolB2,LambdaEFF !!! precomputed parameters of extrapolation
 
@@ -48,7 +49,7 @@ subroutine ParseInfoLine(line)
     integer::i,j
     
     position_i=SCAN(line,":")
-    !!! First part of the line contrain the name
+    !!! First part of the line contains the name
     linePart1=trim(line(:position_i-1))
     !!! second part of the line contains the value
     linePart2=trim(line(position_i+1:))
@@ -143,13 +144,14 @@ subroutine ParseInfoLine(line)
         position_i=SCAN(linePart2,"[")
         position_j=SCAN(linePart2,"]")
         linePart3=linePart2(position_i+1:position_j-1)
-        !!! determine lengh of array by counting ","
+        !!! determine length of array by counting ","
         j=0
-        do i=0,len(linePart3)
+        do i=1,len(linePart3)
             !write(*,*)linePart3(i:i)
             if(trim(linePart3(i:i)) .eq. ",") j=j+1
         end do
         allocate(AlphaS_Qs(0:j))
+
         read(linePart3,*) AlphaS_Qs
         if(outputLevel>1) write(*,*) "AlphaS_Qs values parsed succesfully"
         
@@ -160,7 +162,7 @@ subroutine ParseInfoLine(line)
         linePart3=linePart2(position_i+1:position_j-1)
         !!! determine lengh of array by counting ","
         j=0
-        do i=0,len(linePart3)
+        do i=1,len(linePart3)
             !write(*,*)linePart3(i:i)
             if(trim(linePart3(i:i)) .eq. ",") j=j+1
         end do
@@ -182,7 +184,7 @@ subroutine ReadInfo(name,directory,outP)
     character(len=*),intent(in)::name
     character(len=*),intent(in)::directory
     integer,intent(in)::outP
-    character(len=300)::path
+    character(len=:),allocatable::path
     character(len=4096)::line,lineDUMMY !!!! Long line to guaranty the input
     logical::lineNotFinished
     integer::ios,i,j
@@ -193,7 +195,7 @@ subroutine ReadInfo(name,directory,outP)
     lineNotFinished=.false.
     lineDUMMY=''
     
-    path=trim(adjustl(directory))//trim(adjustr(name))//"/"//trim(adjustr(name))//".info"
+    path=trim(adjustl(directory))//trim(name)//"/"//trim(name)//".info"
 
     if(outputLevel>1) write(*,'(A)') color("----- Loading Alpha_s from "//trim(name),c_yellow)
 
@@ -208,12 +210,12 @@ subroutine ReadInfo(name,directory,outP)
         !!!! there could be empty lines.
         j=len_trim(line)
         if(j>0) then
-            !!!! some ugly guys split lines by /n[NNPDF!]. In this case the line ends by ",". Try to detect it and collect lines
+            !!!! some ugly guys split lines by \n[NNPDF!]. In this case the line ends by ",". Try to detect it and collect lines
             if(line(j:j)==',') then !!!! the line continues
                 lineNotFinished=.true.
                 lineDUMMY=trim(lineDUMMY)//trim(line)
             else
-                if(lineNotFinished) then !!!!! case then the line is last line after a siquence of ... ,/n
+                if(lineNotFinished) then !!!!! case when the line is last line after a sequence of ... ,\n
                     lineNotFinished=.false.
                     lineDUMMY=trim(lineDUMMY)//trim(line)
                     call ParseInfoLine(lineDUMMY)
@@ -238,28 +240,29 @@ subroutine ReadInfo(name,directory,outP)
         ERROR STOP ErrorString('AlphaS_Vals variables are missed in '//trim(path),moduleName)
 
     !!!!!------------ prepare the table of alphaS-interpolation
-    allocate(AlphaS_LogQs(0:size(AlphaS_Qs)-1))
-    allocate(AlphaS_indices(1:4,0:size(AlphaS_Qs)-2))
-    allocate(AlphaS_W(1:4,0:size(AlphaS_Qs)-2))
+    AlphaS_N=size(AlphaS_Qs)-1
+    allocate(AlphaS_LogQs(0:AlphaS_N))
+    allocate(AlphaS_indices(1:4,0:AlphaS_N-1))
+    allocate(AlphaS_W(1:4,0:AlphaS_N-1))
 
     AlphaS_LogQs=log(AlphaS_Qs)
 
     !!! compute the index table for cubic-interpolation
     !!! if the x belongs to (x_{j-1}<x<x_j) the interpolation is done by indices{j}
-    do i=0,size(AlphaS_Qs)-2
+    do i=0,AlphaS_N-1
         if(i==0) then
             AlphaS_indices(1:4,i)=(/0,1,2,3/)
-        else if(i==size(AlphaS_Qs)-2) then
+        else if(i==AlphaS_N-1) then
             AlphaS_indices(1:4,i)=i-1-(/1,0,-1,-2/)
         else
             AlphaS_indices(1:4,i)=i-(/1,0,-1,-2/)
-            !!! if the value of alpha is repeated these are ends of subgrids.
-            !!! I shift the indicing
+            !!! if the value of Q is repeated, it indicates the end of a subgrid.
+            !!! I shift the indexing
             if(abs(AlphaS_Qs(i+1)-AlphaS_Qs(i+2))<10d-4) then
                 AlphaS_indices(1:4,i)=AlphaS_indices(1:4,i)-1
             else if(abs(AlphaS_Qs(i)-AlphaS_Qs(i+1))<10d-4) then
                 !!! zero-size bin
-                !!! this should be never reached. but I assign it to previous one
+                !!! this should never be reached. but I assign it to previous one
                 AlphaS_indices(1:4,i)=AlphaS_indices(1:4,i)-2
             else if(abs(AlphaS_Qs(i-1)-AlphaS_Qs(i))<10d-4) then
                 AlphaS_indices(1:4,i)=AlphaS_indices(1:4,i)+1
@@ -275,7 +278,7 @@ subroutine ReadInfo(name,directory,outP)
 !         end do
 
         !!! now compute the barycentric weights
-    do i=0,size(AlphaS_Qs)-2
+    do i=0,AlphaS_N-1
         AlphaS_W(1,i)=1.d0/(&
         (AlphaS_LogQs(AlphaS_indices(1,i))-AlphaS_LogQs(AlphaS_indices(2,i)))*&
         (AlphaS_LogQs(AlphaS_indices(1,i))-AlphaS_LogQs(AlphaS_indices(3,i)))*&
@@ -297,11 +300,14 @@ subroutine ReadInfo(name,directory,outP)
         (AlphaS_LogQs(AlphaS_indices(4,i))-AlphaS_LogQs(AlphaS_indices(3,i))))
     end do
 
-    !!!! linear extrapolation in the inverse alpha and log-scale
+    !!!! linear extrapolation in the 1/alpha as a function of Log(Q)
     !!!! alpha=A/(B1 log(Q/Q0)+B2)
     extrapolA=AlphaS_Vals(0)*AlphaS_Vals(1)*Log(AlphaS_Qs(1)/AlphaS_Qs(0))
     extrapolB1=(AlphaS_Vals(0)-AlphaS_Vals(1))
     extrapolB2=AlphaS_Vals(1)*Log(AlphaS_Qs(1)/AlphaS_Qs(0))
+
+    if(AlphaS_Vals(0)==AlphaS_Vals(1)) &
+    ERROR STOP ErrorString('Two first entries for alpha are the same. It couses the problem with extrapolation.',moduleName)
 
     LambdaEFF=exp(-extrapolB2/extrapolB1)*AlphaS_Qs(0)
 
@@ -318,27 +324,42 @@ end subroutine ReadInfo
 
 
 !!! returns the value of AlphaS interpolated from the table.
-!!! the interpolation is log-linear.
+!!! the interpolation is 4-point barycentric Lagrange (cubic) in log(Q).
 pure function AlphaS(Q)
 real(dp),intent(in)::Q
 real(dp):: AlphaS
 
 real(dp)::logQ,deltas(1:4)
 integer::i,j
-if(Q<Qmin) then !!! logarith log-extrapolation
+integer::lo,hi,mid
+
+if(Q<Qmin) then !!! logarithmic log-extrapolation
     if(Q<LambdaEFF) ERROR STOP ErrorString('Q ='//numToStr(Q)//' is smaller than Effective LambdaQCD',moduleName)
 
     AlphaS=extrapolA/(extrapolB1*Log(Q/AlphaS_Qs(0))+extrapolB2)
-else if(Q>Qmax) then !!! constant
-    AlphaS=AlphaS_Vals(size(AlphaS_Qs)-1)
+else if(Q>=Qmax) then !!! constant
+    AlphaS=AlphaS_Vals(AlphaS_N)
 else
     logQ=log(Q)
 
-    do i=0,size(AlphaS_Qs)-2
-        if(logQ<AlphaS_LogQs(i+1)) exit
-    end do
+    !!!!!! linear search of logQ-bin
+    !do i=0,AlphaS_N-1
+    !    if(logQ<AlphaS_LogQs(i+1)) exit
+    !end do
 
-    ! !!! this is index of the Q-box
+    !!!!!! binary search of logQ-bin (it should be faster, since typical LHA table has ~50 nodes)
+    lo=1
+    hi=AlphaS_N
+    do while(lo<hi)
+      mid=(lo+hi)/2
+      if(AlphaS_LogQs(mid)<=logQ) then
+          lo=mid+1
+      else
+          hi=mid
+      end if
+    end do
+    i=lo-1
+
     do j=1,4
         deltas(j)=logQ-AlphaS_LogQs(AlphaS_indices(j,i))
         !!! I check if the point is close to the node
