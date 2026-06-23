@@ -1,9 +1,9 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!           arTeMiDe 3.01
+!           arTeMiDe 3.04
 !
 ! The module that handle the PDF from the LHAPDF-file. 1412.7420
 ! Reads info-file, interpolate, etc.
-! This module is contains the definition of class
+! This module contains the definition of class
 !
 !           A.Vladimirov (16.10.2025)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -24,15 +24,17 @@ type, public :: LHAPDFgridReader
     private
     character(:),allocatable :: moduleName
     integer::outputLevel=2
-    !!!!! global variables to
+    !!!!! global variables to be set during reading of info file
     character(len=:), allocatable::ReferenceString !!! contains description of reference
     character(len=:), allocatable::PDFname          !!! name of PDF for messages
-    character(len=:), allocatable::MainPath         !!! the path to the PDF-set without ".000?"
+    character(len=:), allocatable::MainPath         !!! the path to the PDF-set without member suffix"_NNNN.dat"
     integer:: NumMembers
     integer,allocatable,dimension(:):: FlavorArray
     real(dp)::XMin,XMax,QMin,QMax
     !!!!! from [1412.7420]
-    !0, 1, or 2 to, respectively, indicate no forcing, forcing negative values to 0, or forcing negative-or-zero values to a very small positive constan
+    !!!! 0 = no forcing
+    !!!! 1 = forcing negative values to 0
+    !!!! 2 = forcing negative-or-zero values to a very small positive constant
     integer::ForcePositive_Global=0
 
     real(dp)::tolerance=10.d-8
@@ -41,12 +43,10 @@ type, public :: LHAPDFgridReader
     !!!!!! Main grid (x,Q,f)
     real(dp),dimension(:,:,:),allocatable::MainGrid
     real(dp),dimension(:),allocatable::Xnodes,Qnodes,PDF_logQs,PDF_logXs
-    real(dp),allocatable,dimension(:,:):: PDF_WX,PDF_WQ!! barycentric wieghts
+    real(dp),allocatable,dimension(:,:):: PDF_WX,PDF_WQ!! barycentric weights
     integer,allocatable,dimension(:,:):: PDF_indices!! indices
 
     real(dp),dimension(:,:),allocatable::extrapolationGAMMA !!! parameter of extrapolation
-
-    logical::TablesAreReady=.false. !!! flag that shows that module is ready
 
 contains
     procedure,public::xPDF=>xPDF_this
@@ -70,17 +70,14 @@ character(len=:), allocatable::linePart1, linePart2, linePart3
 integer::position_i,position_j
 integer::i,j
 
-this%ForcePositive_Global=0
-
 position_i=SCAN(line,":")
-!!! First part of the line contrain the name
+!!! First part of the line contains the name
 linePart1=trim(line(:position_i-1))
 !!! second part of the line contains the value
 linePart2=trim(line(position_i+1:))
 
-!!!! some times there are leading space-terms remove them
-if(linePart1(1:1)==" ") linePart1=linePart1(2:)
-
+!!!! sometimes there are leading space-terms remove them
+linePart1=trim(adjustl(linePart1))
 
 SELECT CASE(linePart1)
 
@@ -117,9 +114,9 @@ CASE("Flavors")
     position_i=SCAN(linePart2,"[")
     position_j=SCAN(linePart2,"]")
     linePart3=linePart2(position_i+1:position_j-1)
-    !!! determine lengh of array by counting ","
+    !!! determine length of array by counting ","
     j=0
-    do i=0,len(linePart3)
+    do i=1,len(linePart3)
         !write(*,*)linePart3(i:i)
         if(trim(linePart3(i:i)) .eq. ",") j=j+1
     end do
@@ -158,7 +155,7 @@ CASE("QMax")
 CASE("ForcePositive")
     read(linePart2,*) this%ForcePositive_Global
     if(this%outputLevel>2) then
-        write(*,'(A,F10.2)') " ForcePositive :", this%ForcePositive_Global
+        write(*,'(A,I3)') " ForcePositive :", this%ForcePositive_Global
     end if
 
 CASE DEFAULT
@@ -180,7 +177,6 @@ function ReadInfo(name,directory,outL) result(this)
     character(len=1024)::line !!!! 1024 line size!
     integer::ios,i,j
     
-    this%TablesAreReady=.false.
     this%outputLevel=outL
 
     this%PDFname=trim(name)
@@ -190,7 +186,7 @@ function ReadInfo(name,directory,outL) result(this)
         this%moduleName=trim(this%PDFname)//".reader"
     end if
 
-    this%MainPath=trim(adjustl(directory))//trim(adjustr(name))//"/"//trim(adjustr(name))
+    this%MainPath=trim(adjustl(directory))//trim(name)//"/"//trim(name)
     path=trim(this%MainPath)//".info"
 
     if(this%outputLevel>1) write(*,'(A)') color("----- Loading PDF from "//trim(name),c_yellow)
@@ -224,16 +220,14 @@ subroutine SetReplica_this(this,num)
     class(LHAPDFgridReader),intent(inout)::this
     integer,intent(in)::num !!! the number of replica to set
     character(len=500)::path
-    character(len=4096)::line !!!! 1024 line size!
+    character(len=4096)::line !!!! 4096 line size!
     character(len=:),allocatable:: lineToParse
     real(dp),dimension(:),allocatable::listToCheck,PDFentry,Qentry
     integer,dimension(:),allocatable::listOfF
     integer,dimension(-5:5)::FlavorPermutationIndex !!! list that contain the enumeration change variable
     logical::XisSet
     integer::Xsize,Qsize,QsizeSUBGRID
-    integer::ios,i,j,k,iX,iQ,iF,indexQ,dummyI
-
-    this%TablesAreReady=.false.
+    integer::ios,i,j,k,iX,iQ,indexQ,dummyI
 
     if(allocated(this%Xnodes)) deallocate(this%Xnodes)
     if(allocated(this%Qnodes)) deallocate(this%Qnodes)
@@ -245,7 +239,7 @@ subroutine SetReplica_this(this,num)
     if(allocated(this%PDF_indices)) deallocate(this%PDF_indices)
     if(allocated(this%extrapolationGAMMA)) deallocate(this%extrapolationGAMMA)
 
-    XisSet=.false.!!!! trigger fro the first set of X's
+    XisSet=.false.!!!! trigger for the first set of X's
     Qsize=0
     allocate(listOfF(0:size(this%FlavorArray)-1))
 
@@ -265,7 +259,7 @@ subroutine SetReplica_this(this,num)
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old", IOSTAT=ios)
     if(ios /= 0) ERROR STOP ErrorString('The file is not found at '//trim(path),this%moduleName)
 
-    !!!! the file should be structure as follows [1412.7420]
+    !!!! the file should be structured as follows [1412.7420]
     !!!PdfType: centra
     !!!Format: lhagrid1
     !!!---
@@ -319,7 +313,7 @@ subroutine SetReplica_this(this,num)
             !!!!!!!! parse and check the correctness
             lineToParse=trim(line)
 
-            !!! the list is unformated (!!!) so I count the number of ".", assuming that each number has some decimals.
+            !!! the list is unformatted (!!!) so I count the number of ".", assuming that each number has some decimals.
             j=0 !! (starts from 0 because its number of ".")
             do i=1,len(lineToParse)
                 if(lineToParse(i:i) .eq. ".") j=j+1
@@ -353,7 +347,7 @@ subroutine SetReplica_this(this,num)
             !!!!!!!! count number of entries
             read(51,'(A)', iostat=ios) line
             lineToParse=trim(line)
-            !!! the list is space separated (count the number of spaces)
+            !!! the list is space separated (count the number of . (dots))
             j=0 !! (starts from 0 because its number of ".")
             do i=1,len(lineToParse)
                 if(lineToParse(i:i) .eq. ".") j=j+1
@@ -407,12 +401,12 @@ subroutine SetReplica_this(this,num)
 
     !!!!! now the Qsize, Xsize, and Xnodes are set up
 
-    !!! Allocate varriables
+    !!! Allocate variables
     allocate(this%Qnodes(0:Qsize-1))
     allocate(this%MainGrid(0:Xsize-1,0:Qsize-1,-5:5))
     allocate(PDFentry(1:size(this%FlavorArray)))
 
-    !!!! the list of parcing the flavor to (-5:5)
+    !!!! the list of parsing the flavor to (-5:5)
     k=0
     do i=-5,5
         do j=1,size(this%FlavorArray)
@@ -477,7 +471,7 @@ subroutine SetReplica_this(this,num)
             !!!!!!!! count number of entries
             read(51,'(A)', iostat=ios) line
             lineToParse=trim(line)
-            !!! the list is space separated (count the number of spaces)
+            !!! the list is space separated (count the number of . (dots))
             j=0 !! (starts from 0 because its number of ".")
             do i=1,len(lineToParse)
                 if(lineToParse(i:i) .eq. ".") j=j+1
@@ -569,13 +563,13 @@ subroutine SetReplica_this(this,num)
             this%PDF_indices(1:4,i)=i-1-(/1,0,-1,-2/)
         else
             this%PDF_indices(1:4,i)=i-(/1,0,-1,-2/)
-            !!! if the value of alpha is repeated these are ends of subgrids.
-            !!! I shift the indicing
+            !!! if the value of Q is repeated these are ends of subgrids.
+            !!! I shift the indexing
             if(abs(this%PDF_LogQs(i+1)-this%PDF_LogQs(i+2))<10d-4) then
                 this%PDF_indices(1:4,i)=this%PDF_indices(1:4,i)-1
             else if(abs(this%PDF_LogQs(i)-this%PDF_LogQs(i+1))<10d-4) then
                 !!! zero-size bin
-                !!! this should be never reached. but I assign it to previous one
+                !!! this should never be reached. but I assign it to previous one
                 this%PDF_indices(1:4,i)=this%PDF_indices(1:4,i)-2
             else if(abs(this%PDF_LogQs(i-1)-this%PDF_LogQs(i))<10d-4) then
                 this%PDF_indices(1:4,i)=this%PDF_indices(1:4,i)+1
@@ -593,7 +587,7 @@ subroutine SetReplica_this(this,num)
 #endif
 
     !!!! table for X is very simple,  there is no repeating entries.
-    !!!! so index is i+(-1,0,1,2), except for i=0 -> (0,1,2,3), and i=S-1 (S-3,S-2,S-1,S)
+    !!!! so index is i+(-1,0,1,2), except for i=0 -> (0,1,2,3), and i=S-2 -> (S-4,S-3,S-2,S-1)
 
     !!! precompute barycentric weights for Q
     do i=0,size(this%PDF_LogQs)-2
@@ -641,8 +635,8 @@ subroutine SetReplica_this(this,num)
         (this%PDF_LogXs(k+2)-this%PDF_LogXs(k-1))*(this%PDF_LogXs(k+2)-this%PDF_LogXs(k))*(this%PDF_LogXs(k+2)-this%PDF_LogXs(k+1)))
     end do
 
-    !!! extrapolation is done by formula F(x)*(Q/Q0)^[gamma(x) Q +2]
-    !!! where gamma(x)=(gg-2)/Q0, where gg=D[logF]/dlogQ
+    !!! extrapolation is done by formula F(x)*(Q/Q0)^[gamma(x)sqrt(Q) +2]
+    !!! where gamma(x)=(gg-2)/sqrt(Q0), where gg=D[logF]/dlogQ
     !!! see (4,5) in 1412.7420
     allocate(this%extrapolationGAMMA(0:Xsize-1,-5:5))
     !!!!! it is possible that the F(x)=0, in this case there is nothing to extrapolate, set gamma=0
@@ -651,7 +645,7 @@ subroutine SetReplica_this(this,num)
     do j=-5,5
 
         if(this%MainGrid(i,0,j)*this%MainGrid(i,1,j)>this%tolerancePDF) then
-        !!! this is derivative (the ratio is important to handle the both negative signs (YES, it happen sometimes)
+        !!! this is derivative (the ratio is important to handle both negative signs (YES!, it happens sometimes))
             this%extrapolationGAMMA(i,j)=(log(this%MainGrid(i,1,j)/this%MainGrid(i,0,j)))/(this%PDF_LogQs(1)-this%PDF_LogQs(0))
             this%extrapolationGAMMA(i,j)=(this%extrapolationGAMMA(i,j)-2)/sqrt(this%Qnodes(0))
         else if(this%MainGrid(i,0,j)*this%MainGrid(i,1,j)<-this%tolerancePDF) then
@@ -684,7 +678,7 @@ subroutine SetReplica_this(this,num)
 
 end subroutine SetReplica_this
 
-!!! returns the value of xPDF extrapolated from the grid
+!!! returns the value of xPDF from the grid
 #if DEBUGMODE==1
 function xPDF_this(this,x,Q)
 #else
@@ -696,12 +690,11 @@ real(dp),dimension(-5:5):: xPDF_this
 
 real(dp)::logQ,dd,deltaQ(1:4),subQ(1:4,-5:5),logX,deltaX(1:4),gg(-5:5)
 integer::iQ,iX,j
-logical::flag
 
 if(X<this%Xmin .or. X>this%Xmax) ERROR STOP ErrorString('X ='//numTostr(X)//' is outside of X-range',this%moduleName)
 
-if(Q>this%Qmax) ERROR STOP ErrorString('Q ='//numTostr(this%Qmax)//' is outside of QMax-range',this%moduleName)
-if(Q<0.4d0) ERROR STOP ErrorString('Q ='//numTostr(this%Qmax)//' is smaller that 0.4 GeV of Q-range',this%moduleName)
+if(Q>this%Qmax) ERROR STOP ErrorString('Q ='//numTostr(Q)//' is outside of QMax-range',this%moduleName)
+if(Q<0.4d0) ERROR STOP ErrorString('Q ='//numTostr(Q)//' is smaller than 0.4 GeV of Q-range',this%moduleName)
 
 if(Q<this%Qmin) then !!!! extrapolate!
     logX=log(X)
@@ -755,7 +748,7 @@ logX=log(X)
 
 !!! search for the index of Q
 do iQ=0,size(this%PDF_LogQs)-2
-     if(logQ<this%PDF_LogQs(iQ+1)) exit
+     if(logQ<=this%PDF_LogQs(iQ+1)) exit
 end do
 !!! search for the index of X
 if(logX<this%PDF_LogXs(1)) then
