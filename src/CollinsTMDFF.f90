@@ -1,30 +1,28 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 3.0
+!			arTeMiDe 3.04
 !
 !	Evaluation of the Collins TMD FF at low normalization point in zeta-prescription.
 !
 !    ver 3.03: release (SP & AV, 27.10.2025)
+!	23.06.2026  Removed old INCLUDE-dependances
 !
 !                S.Piloneta (27.10.2025)
+!                A.Vladimirov (23.06.2026)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module Fourier_Levin_CollinsTMDFF
 INCLUDE 'Code/KTspace/Fourier_Levin.f90'
 end module Fourier_Levin_CollinsTMDFF
 
-module gridInKT_CollinsTMDFF
-INCLUDE 'Code/KTspace/grid_inKT.f90'
-end module gridInKT_CollinsTMDFF
-
 module CollinsTMDFF
 use aTMDe_Numerics
 use aTMDe_IO
 use aTMDe_Ogata
+use aTMDe_ktGrid
 use QCDinput
 use TMDR
 use CollinsTMDFF_OPE
 use CollinsTMDFF_model
 use Fourier_Levin_CollinsTMDFF
-use gridInKT_CollinsTMDFF
 
 implicit none
 !------------------------LOCALs -----------------------------------------------
@@ -32,7 +30,7 @@ implicit none
 private 
 
 !Current version of module
-character (len=5),parameter :: version="v3.03"
+character (len=5),parameter :: version="v3.04"
 character (len=12),parameter :: moduleName="CollinsTMDFF"
 !Last appropriate version of constants-file
 integer,parameter::inputver=37
@@ -63,9 +61,11 @@ real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
 integer,parameter::TMDtypeN=1 !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD)
 
 type(OgataIntegrator)::Hankel
+
 !!!------------------------------ Parameters of transform in KT space and KT-grid ------------------------------
-logical::makeGrid_inKT,gridIsReady_inKT
-integer::numKsubgrids,kGridSize
+logical::makeGrid_inKT
+type(ktGrid)::mainKTGrid
+
 !!!------------------------------ Parameters of transform to TMM -------------------------------------------
 
 real(dp)::muTMM_min=0.8_dp  !!!!! minimal mu
@@ -191,10 +191,6 @@ subroutine CollinsTMDFF_Initialize(file,prefix)
     call MoveTO(51,'*F   ')
     call MoveTO(51,'*p1  ')
     read(51,*) makeGrid_inKT
-    call MoveTO(51,'*p6  ')
-    read(51,*) numKsubgrids
-    call MoveTO(51,'*p8  ')
-    read(51,*) kGridSize
 
     !!!!! ---- parameters of TMM-transformation
     call MoveTO(51,'*G   ')
@@ -218,10 +214,8 @@ subroutine CollinsTMDFF_Initialize(file,prefix)
 
     call Initialize_Fourier_Levin(path,'*18  ','*F   ',moduleName,outputLevel,TMDtypeN)
     if(makeGrid_inKT) then
-        call Initialize_GridInKT(path,'*18  ','*F   ',numOfHadrons,includeGluon,moduleName,outputLevel)
+        mainKTGrid=ktGrid(path,'*18   ','*F   ',numOfHadrons,includeGluon,moduleName,outputLevel)
     end if
-
-    gridIsReady_inKT=.false.
 
     !!!!!! TODO: fix the minimal value of KT
     Hankel=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass,0.0001_dp)
@@ -287,13 +281,11 @@ subroutine CollinsTMDFF_SetLambdaNP(lambdaIN)
 
     lambdaNP=lambdaIN
     call ModelUpdate(lambdaNP)
-    gridIsReady_inKT=.false.
 
     if(outputLevel>2) write(*,*) 'arTeMiDe.',moduleName,': NPparameters reset = (',lambdaNP,')'
 
     if(makeGrid_inKT) then
         call updateGrid_inKT()
-        gridIsReady_inKT=.true.
     end if
 end subroutine CollinsTMDFF_SetLambdaNP
 
@@ -309,7 +301,7 @@ subroutine updateGrid_inKT()
 real(dp)::Q,x
 integer::h
 
-call PrepareGrid_inKT(toGrid)
+call mainKTGrid%MakeGrid(toGrid)
 
 contains
 
@@ -345,21 +337,6 @@ function toGrid(x_in,Q_in,h_in,arraySize1,arraySize2)
 end function toGrid
 
 end subroutine updateGrid_inKT
-
-! subroutine testGrid_inKT()
-!
-! call TestGrid_inKT_internal(ToCompare)
-!
-! contains
-!
-! function ToCompare(x,kT,Q,h)
-! real(dp),dimension(-5:5)::ToCompare
-! real(dp),intent(in)::x,kT,Q
-! integer,intent(in)::h
-! ToCompare=TMD_ev_inKT(x,kT,Q,Q**2,h)
-! end function ToCompare
-!
-! end subroutine testGrid_inKT
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
@@ -512,18 +489,9 @@ function TMD_grid_inKT(x,kT,mu,hadron)
     real(dp),intent(in):: x,kT,mu
     integer,intent(in)::hadron
 
-    if(gridIsReady_inKT) then
-!         if(ISNAN(kT)) then
-!             write(*,*) "HERE",kT,x,mu
-!             stop
-!         end if
-
-        TMD_grid_inKT=ExtractFromGrid_inKT(x,kT,mu,abs(hadron))
-
+    if(makeGrid_inKT) then
+        TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,abs(hadron))
         if(hadron<0) TMD_grid_inKT=TMD_grid_inKT(5:-5:-1)
-
-    else if(makeGrid_inKT) then
-        ERROR STOP ErrorString("Attempt to extract TMD from grid, while grid is not ready. CHECK!",moduleName)
     else
         TMD_grid_inKT=TMD_ev_inKT(x,kT,mu,mu**2,hadron)
     end if

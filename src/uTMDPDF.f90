@@ -1,5 +1,5 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 3.0
+!			arTeMiDe 3.04
 !
 !	Evaluation of the unpolarized TMD PDF at low normalization point in zeta-prescription.
 !	
@@ -7,6 +7,7 @@
 !
 !	18.08.2023  Implementation in ver.3.0
 !	13.10.2025  Update of class system
+!	23.06.2026  Removed old INCLUDE-dependances
 !
 !				A.Vladimirov (18.08.2023)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -15,17 +16,14 @@ module Fourier_Levin_uTMDPDF
 INCLUDE 'Code/KTspace/Fourier_Levin.f90'
 end module Fourier_Levin_uTMDPDF
 
-module gridInKT_uTMDPDF
-INCLUDE 'Code/KTspace/grid_inKT.f90'
-end module gridInKT_uTMDPDF
 
 module uTMDPDF
 use aTMDe_Numerics
 use aTMDe_IO
 use aTMDe_Ogata
+use aTMDe_ktGrid
 use QCDinput
 use Fourier_Levin_uTMDPDF
-use gridInKT_uTMDPDF
 use TMDR
 use uTMDPDF_OPE
 use uTMDPDF_model
@@ -36,7 +34,7 @@ implicit none
 private 
 
 !Current version of module
-character (len=5),parameter :: version="v3.03"
+character (len=5),parameter :: version="v3.04"
 character (len=7),parameter :: moduleName="uTMDPDF"
 !Last appropriate version of constants-file
 integer,parameter::inputver=30
@@ -70,7 +68,8 @@ integer,parameter::TMDtypeN=0 !!!!! this is the order of Bessel-transform (IT IS
 type(OgataIntegrator)::Hankel
 
 !!!------------------------------ Parameters of transform in KT space and KT-grid ------------------------------
-logical::makeGrid_inKT,gridIsReady_inKT
+logical::makeGrid_inKT
+type(ktGrid)::mainKTGrid
 
 !!!------------------------------ Parameters of transform to TMM -------------------------------------------
 
@@ -81,7 +80,7 @@ real(dp)::muTMM_min=0.8_dp  !!!!! minimal mu
 public::uTMDPDF_Initialize,uTMDPDF_IsInitialized,uTMDPDF_SetScaleVariation,uTMDPDF_SetPDFreplica
 public::uTMDPDF_SetLambdaNP,uTMDPDF_CurrentLambdaNP
 public::uTMDPDF_lowScale5
-public::uTMDPDF_inB,uTMDPDF_TMM_G,uTMDPDF_TMM_X,uPDF_uPDF,uTMDPDF_inKT,testGrid_inKT
+public::uTMDPDF_inB,uTMDPDF_TMM_G,uTMDPDF_TMM_X,uPDF_uPDF,uTMDPDF_inKT
 
 interface uTMDPDF_inB
     module procedure TMD_opt,TMD_ev
@@ -221,13 +220,11 @@ subroutine uTMDPDF_Initialize(file,prefix)
 
     call Initialize_Fourier_Levin(path,'*4   ','*F   ',moduleName,outputLevel,TMDtypeN)
     if(makeGrid_inKT) then
-        call Initialize_GridInKT(path,'*4   ','*F   ',numOfHadrons,includeGluon,moduleName,outputLevel)
+        mainKTGrid=ktGrid(path,'*4   ','*F   ',numOfHadrons,includeGluon,moduleName,outputLevel)
     end if
 
     call ModelInitialization(lambdaNPlength)
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.uTMDPDF_model : .... initialized',c_green)
-
-    gridIsReady_inKT=.false.
 
     !!!!!! TODO: fix the minimal value of KT
     Hankel=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass,0.0001d0)
@@ -255,10 +252,6 @@ subroutine uTMDPDF_Initialize(file,prefix)
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.uTMDPDF '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) ' '
 
-!!!   The grid in KT can be done only after some non-perturbative values are inset
-!     if(makeGrid_inKT) then
-!         call updateGrid_inKT()
-!     end if
 end subroutine uTMDPDF_Initialize
 
 !!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
@@ -295,10 +288,8 @@ subroutine uTMDPDF_SetLambdaNP(lambdaIN)
     lambdaNP=lambdaIN
     call ModelUpdate(lambdaNP)
 
-    gridIsReady_inKT=.false.
     if(makeGrid_inKT) then
         call updateGrid_inKT()
-        gridIsReady_inKT=.true.
     end if
 
     if(outputLevel>2) write(*,*) 'arTeMiDe.',moduleName,': NPparameters reset = (',lambdaNP,')'
@@ -317,7 +308,7 @@ subroutine updateGrid_inKT()
 real(dp)::Q,x
 integer::h
 
-call PrepareGrid_inKT(toGrid)
+call mainKTGrid%MakeGrid(toGrid)
 
 contains
 
@@ -353,21 +344,6 @@ function toGrid(x_in,Q_in,h_in,arraySize1,arraySize2)
 end function toGrid
 
 end subroutine updateGrid_inKT
-
-subroutine testGrid_inKT()
-
-call TestGrid_inKT_internal(ToCompare)
-
-contains
-
-function ToCompare(x,kT,Q,h)
-real(dp),dimension(-5:5)::ToCompare
-real(dp),intent(in)::x,kT,Q
-integer,intent(in)::h
-ToCompare=TMD_ev_inKT(x,kT,Q,Q**2,h)
-end function ToCompare
-
-end subroutine testGrid_inKT
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
@@ -552,18 +528,9 @@ function TMD_grid_inKT(x,kT,mu,hadron)
     real(dp),intent(in):: x,kT,mu
     integer,intent(in)::hadron
 
-    if(gridIsReady_inKT) then
-!         if(ISNAN(kT)) then
-!             write(*,*) "HERE",kT,x,mu
-!             stop
-!         end if
-
-        TMD_grid_inKT=ExtractFromGrid_inKT(x,kT,mu,abs(hadron))
-
+    if(makeGrid_inKT) then
+        TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,abs(hadron))
         if(hadron<0) TMD_grid_inKT=TMD_grid_inKT(5:-5:-1)
-
-    else if(makeGrid_inKT) then
-        ERROR STOP ErrorString("Attempt to extract TMD from grid, while grid is not ready. CHECK!",moduleName)
     else
         TMD_grid_inKT=TMD_ev_inKT(x,kT,mu,mu**2,hadron)
     end if

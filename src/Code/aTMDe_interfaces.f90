@@ -50,6 +50,30 @@ abstract interface
     end function optTMD_proc
 end interface
 
+!!! this is interface for TMDatQ-like function (-5:5)
+!!! it can be in b or kT space
+abstract interface
+    function TMDatQ_proc(x,kT,Q,h)
+        import::dp
+        real(dp),dimension(-5:5) :: TMDatQ_proc
+        real(dp), intent(in) ::x,Q,kT
+        integer,intent(in)::h
+    end function TMDatQ_proc
+end interface
+
+!!! This is a very specific interface, it is used to exchange grids in-between Levin-transform and kt-grids
+!!! Basically, it returns values of TMD(-5:5) as a matrix of numKsubgrids, each of kGridSize
+abstract interface
+    function TMDgrid_inKT(x,Q,h,arraySize1,arraySize2)
+        import::dp
+        integer,intent(in)::arraySize1,arraySize2
+        real(dp),dimension(1:arraySize1,0:arraySize2,-5:5) :: TMDgrid_inKT
+        real(dp), intent(in) ::x,Q
+        integer,intent(in)::h
+
+    end function TMDgrid_inKT
+end interface
+
 !!! this is interface for structure function
 !!! with process0 being last 3 numbers of the process-numeration
 abstract interface

@@ -120,7 +120,7 @@ this%withGluon=withGluon_in
 
 !!!! check that the upper limit is zero
 if(abs(this%xRanges(this%numXsubgrids)-1._dp)>this%zero) then
-  error stop ErrorString('Upper x-range must be 1. Got '//numToStr(this%xRanges(this%numXsubgrids)),this%parentName)
+  error stop ErrorString('Upper x-range must be 1. Got '//numToStr(this%xRanges(this%numXsubgrids)),this%parentName,moduleName)
 end if
 
 !!!!allocation of lists
@@ -218,17 +218,6 @@ class(optGrid), intent(inout)::this
   call cpu_time(time1)
   !$ time1=omp_get_wtime()
   if(this%outputlevel>2) write(*,*) 'arTeMiDe.',this%parentName,'.optGrid starts to compute grid.'
-
-!   write(*,*) "1-->",bIntervals
-!   write(*,*) "2-->",bMeans
-!
-!   do iB=1,numBsubgrids
-!   do jB=0,bGridSize
-!   b_local=BfromNode(iB,jB)
-!   write(*,*) iB,jB,b_local
-!   end do
-!   end do
-!   stop
 
   do h=1,this%numH
    !!! !$OMP PARALLEL DO PRIVATE(iB, jX, jB, n, x_local, b_local,h)
@@ -426,23 +415,23 @@ class(optGrid),intent(in)::this
   !real(dp),dimension(0:this%bGridSize,-5:5)::interGrid
 
   if(.not.this%gridReady) then
-    error stop ErrorString('attempt to extract from grid while it is not ready',this%parentName//".optGrid")
+    error stop ErrorString('attempt to extract from grid while it is not ready',this%parentName,moduleName)
   end if
 
   !!! checking exeptions
   if(h==0 .or. h>this%numH) then
-    error stop ErrorString('the hadron '//numToStr(h)//' is not found in the grid',this%parentName//".optGrid")
+    error stop ErrorString('the hadron '//numToStr(h)//' is not found in the grid',this%parentName,moduleName)
   end if
 
   if(x+this%zero<this%XMin) then
    error stop ErrorString('The TMD with x ='//numToStr(x)//' is called. Current grid size is up to '//&
-              numToStr(this%XMin)//'. Enlarge boundaries.',this%parentName//".optGrid")
+              numToStr(this%XMin)//'. Enlarge boundaries.',this%parentName,moduleName)
   end if
   if(x>1.d0) then
-   error stop ErrorString('The TMD with x >1 ('//numToStr(x)//') is called.',this%parentName//".optGrid")
+   error stop ErrorString('The TMD with x >1 ('//numToStr(x)//') is called.',this%parentName,moduleName)
   end if
   if(bT<0d0) then
-   error stop ErrorString('The TMD with bT <0 ('//numToStr(bT)//') is called.',this%parentName//".optGrid")
+   error stop ErrorString('The TMD with bT <0 ('//numToStr(bT)//') is called.',this%parentName,moduleName)
   end if
 
   if(x==1.d0) then

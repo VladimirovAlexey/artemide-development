@@ -49,6 +49,10 @@ end type
 interface numToStr
   module procedure intToStr,spToStr,dpToStr
 end interface numToStr
+
+interface ErrorString
+  module procedure ErrorString1,ErrorString2
+end interface ErrorString
   
 contains
 
@@ -156,11 +160,19 @@ pure function WarningString(str, moduleName) result(out)
 end function WarningString
 
 !!!Common format of error line in artemide
-pure function ErrorString(str, moduleName) result(out)
+pure function ErrorString1(str, moduleName) result(out)
   character(len=*), intent(in) :: str
   character(len=*), intent(in) :: moduleName
   character(len=:), allocatable :: out
   out = color('ERROR: artemide.'//trim(moduleName)//': '//trim(str),c_red_bold)
-end function ErrorString
+end function ErrorString1
+
+!!!Common format of error line in artemide
+pure function ErrorString2(str, moduleName1, moduleName2) result(out)
+  character(len=*), intent(in) :: str
+  character(len=*), intent(in) :: moduleName1,moduleName2
+  character(len=:), allocatable :: out
+  out = color('ERROR: artemide.'//trim(moduleName1)//'.'//trim(moduleName2)//': '//trim(str),c_red_bold)
+end function ErrorString2
   
 end module aTMDe_IO
