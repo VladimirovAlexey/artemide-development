@@ -1323,7 +1323,7 @@ end function XIntegrandForDYwithZgamma
 
 !-------------------------------------------------------------------------------------------------------------------------------------
 !-------------------------------------------------------------------------------------------------------------------------------------
-!!! The hadron tensonr for the structure function GTU in DY icludes Z + gamma
+!!! The hadron tenson for the structure function GTU in DY icludes Z + gamma
 function XIntegrandForDYwithZgamma_GTU(FAB,Q2)
      real(dp)::XIntegrandForDYwithZgamma_GTU,Q2
     !!cross-seciton parameters
