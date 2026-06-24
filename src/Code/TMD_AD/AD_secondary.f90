@@ -86,7 +86,7 @@ subroutine SetDnkGluon()
     !! 4-loop
     do n=NfMIN,NfMAX
         d_nk_G_internal(4,4,n)=GammaCusp_g(0,n)*(betaQCD(0,n)**3)/8d0
-        d_nk_G_internal(4,3,n)=5d0/12d0*GammaCusp_q(0,n)*betaQCD(0,n)*betaQCD(1,n)&
+        d_nk_G_internal(4,3,n)=5d0/12d0*GammaCusp_g(0,n)*betaQCD(0,n)*betaQCD(1,n)&
                                 +GammaCusp_g(1,n)*(betaQCD(0,n)**2)/2d0
         d_nk_G_internal(4,2,n)=GammaCusp_g(0,n)*betaQCD(2,n)/4d0+GammaCusp_g(1,n)*betaQCD(1,n)/2d0&
                                 +3d0/4d0*GammaCusp_g(2,n)*betaQCD(0,n)&
@@ -179,7 +179,7 @@ subroutine SetDnklQuark()
 end subroutine SetDnklQuark
 
 
-!!!! sets the values of RAD-resummed coefficients for  QUARK
+!!!! sets the values of RAD-resummed coefficients for  GLUON
 !!!! D=-GAMMA0/2BETA0(LOG(1-X)+as^n/(1-X)^n dnkl X^k Log(1-X)^l
 subroutine SetDnklGluon()
     integer::n, i,j
@@ -329,7 +329,7 @@ subroutine SetVnkQuark()
     
 end subroutine SetVnkQuark
 
-!!!! sets the values of zeta-line PT coefficients for  QUARK
+!!!! sets the values of zeta-line PT coefficients for  GLUON
 !!!! zeta=C0 mu/b*exp(-v), v=a^n L^k v^{(nk)}
 subroutine SetVnkGluon()
     integer::n
@@ -513,8 +513,8 @@ subroutine SetOMEGAnkQuark()
     
 end subroutine SetOMEGAnkQuark
 
-!!!! sets the values of EXACT zeta-line PT coefficients for  QUARK
-!!!! zeta=mu^2*exp(-1/as * OMEGA), OMEGA=a^n OMEGA^{(nk)} ...
+!!!! sets the values of EXACT zeta-line PT coefficients for  GLUON
+!!!! zeta=mu^2*exp(-1/as/beta0 * OMEGA), OMEGA=a^n OMEGA^{(nk)} ...
 !!!! ... in each term different.
 subroutine SetOMEGAnkGluon()
     integer::n
@@ -565,7 +565,7 @@ subroutine SetOMEGAnkGluon()
         !! * z_1
         OMEGA_nk_G_internal(3,1,n)=(2d0*B3+(B1**2)*G1-B2*G1-G1**3+3*G1*G2-B1*B2-B1*G2-2d0*G3)/6d0*commonF
         !! * z_{-1}
-        OMEGA_nk_G_internal(3,2,n)=(-B2+B1*G1+G1**2-G2-2d0*G1*gg1+2d0*gg2)*(B1-G1)/2d0*commonF
+        OMEGA_nk_G_internal(3,2,n)=(-B2+B1*G1+G1**2-G2-2d0*G1*gg1+2d0*gg2)*(G1-B1)/2d0*commonF
         !! * z_{-2}
         OMEGA_nk_G_internal(3,3,n)=((-B1*B2-B3+(B1**2)*G1+2d0*B2*G1-4d0*(G1**3)-B1*G2+6d0*G1*G2-2d0*G3)/12d0&
                 +(2d0*G1-B1)*(G1*gg1-gg2)/2d0-(G2*gg1-gg3)/2d0)*commonF
@@ -750,7 +750,7 @@ subroutine SetBetaRoots()
             else
                 write(*,*) ErrorString('The beta-root is incorrect:',moduleName)
                 write(*,'(I1,"-loop , root-", I1, " Nf=",I2, ": root incorrect")') i,j,n
-                write(*,*) "EQN yealds=", answ
+                write(*,*) "EQN yields=", answ
             end if
         end do
         end do

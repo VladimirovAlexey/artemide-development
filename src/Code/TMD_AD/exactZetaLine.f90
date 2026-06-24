@@ -38,7 +38,7 @@ end function zetaSL
  
 !!! expression for G, at given D,alpha, and mu
 !!! evaluated for type4 evolution for Quark
- function valueOfGD_type4_Q(dd,alpha,mu)
+function valueOfGD_type4_Q(dd,alpha,mu)
     real(dp)::valueOfGD_type4_Q,dd,alpha,mu
     integer::Nf
     real(dp)::p,pFF,z1,zm1,zm2,zm3,val
@@ -179,8 +179,6 @@ pure function zFUNC(p,n)
         !!!! in the case p~0, the computation requires cancelation of zero, I expand in a series
         zFUNC=real(n**2,dp)*p/2d0-real(n**3,dp)*(p**2)/6d0
     end if
-
-
 
 end function zFUNC 
  

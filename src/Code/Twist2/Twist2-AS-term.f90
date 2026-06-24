@@ -18,7 +18,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!! The Asumptotic term is equal to the small-b matching with
 !!!! the coefficient function -[c1+2c2+6 c3]=C_AS
-!!!! where CC[L]=[c0+L c1+L^2 c2+L^3 c3] is the original N3LO coefficeint function
+!!!! where CC[L]=[c0+L c1+L^2 c2+L^3 c3] is the original N3LO coefficient function
 !!!! C_AS can be computed simply as
 !!!! C_AS=3/4*CC[0]-2/3*CC[1]-CC[4]/12
 !!!! If we compute with muOPE the coefficients contain logarithms

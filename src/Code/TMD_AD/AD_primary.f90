@@ -71,7 +71,7 @@ end subroutine SetBetaFunction
 !!!! sets the values of cusp anomalous dimension
 !!!! the 4-loop expression is taken from [2001.11377] (appendix C)
 !!!! the 5-loop expression is taken from [1812.11818] formula (13), central value(!!) 
-!!!!      only nf=3,4,5 avalible
+!!!!      only nf=3,4,5 available
 subroutine SetGammaCuspQuark()
     integer::n
     
@@ -116,6 +116,7 @@ subroutine SetGammaCuspQuark()
         else if(n==4) then
             GammaCuspQ_internal(4,n)=4d0*CF*19949.2d0
         else
+            !!! Principally this also defines for Nf>5
             GammaCuspQ_internal(4,n)=4d0*CF*12468.3d0
         end if
     end do    
@@ -124,10 +125,9 @@ end subroutine SetGammaCuspQuark
 
 !!!! sets the values of cusp anomalous dimension
 !!!! the values up to 3-loop are the same as for the quark *CA/CF
-!!!! the explicit 4-loop expression is not given yet.
-!!!! Instead, I use the numeric values for given in [1805.09638]
+!!!! the 4-loop expression is given in the numeric form, taken from [1805.09638]
 !!!! the 5-loop expression is taken as CA/CF from [1812.11818] formula (13), central value(!!) 
-!!!!      only nf=3,4,5 avalible,
+!!!!      only nf=3,4,5 available,
 subroutine SetGammaCuspGluon()
     integer::n
     
@@ -161,6 +161,7 @@ subroutine SetGammaCuspGluon()
         else if(n==4) then
             GammaCuspG_internal(4,n)=4d0*CA*19949.2d0
         else
+            !!! Principally this also defines for Nf>5
             GammaCuspG_internal(4,n)=4d0*CA*12468.3d0
         end if
     end do
@@ -274,7 +275,7 @@ end subroutine SetDn0Quark
 
 !!!! sets the values of finite part for RAD
 !!!! Expression is taken from [1707.07606]
-!!!! at this order the differance between quark and gluon is CA/CF
+!!!! at this order the difference between quark and gluon is CA/CF
 !!!! 4-loop expression is taken from aux-files in [2205.02249] (there is no CA/CF any more)
 subroutine SetDn0Gluon()
     integer::n
@@ -300,7 +301,6 @@ subroutine SetDn0Gluon()
     
     !! 4-loop
     do n=NfMIN,NfMAX
-        d_nk_G_internal(3,0,n)=-333.769693860101_dp - 5506.38d0*n + 851.1879639470966_dp*n**2 - 18.16183115986835_dp*n**3
+        d_nk_G_internal(4,0,n)=-333.769693860101_dp - 5506.38d0*n + 851.1879639470966_dp*n**2 - 18.16183115986835_dp*n**3
     end do
-    
 end subroutine SetDn0Gluon

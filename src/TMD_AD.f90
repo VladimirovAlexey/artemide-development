@@ -1,10 +1,12 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 2.03
+!			arTeMiDe 3.04
 !
 !	Contains the expressions for coefficients of anomalous dimensions used by TMDR module.
 !   Main purpose is to make evaluation of ADs fast and transparent.
 !	
 !	if you use this module please, quote 1803.11089
+!
+!   (24.06.2026) Fixed couple of bugs in gluon part. AV
 !
 !				A.Vladimirov (10.02.2020)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -18,13 +20,13 @@ implicit none
 
 private
 
- !Current version of module
- character (len=5),parameter :: version="v2.06"
- character (len=7),parameter :: moduleName="TMD_AD"
- 
- logical::started=.false.
+!Current version of module
+character (len=5),parameter :: version="v3.04"
+character (len=7),parameter :: moduleName="TMD_AD"
 
-!!! Minimum and maximum avalible values of Nf (number of quark flavors)
+logical::started=.false.
+
+!!! Minimum and maximum available values of Nf (number of quark flavors)
 integer,parameter::NfMIN=0
 integer,parameter::NfMAX=6
 
@@ -38,7 +40,7 @@ real(dp),parameter::dFF=5d0/96d0      !d_F^{abcd}d_F^{abcd}/(N^2-1)
 
 !!--------------------------------------------------
 !! I precompute values of AD on initialization stage
-!! and same them to matrices (internal to module).
+!! and save them to matrices (internal to module).
 !! A pack of get-functions returns the values of matrices.
 !!
 !! There are two classes of anomalous dimensions primary and secondary.
@@ -70,7 +72,6 @@ COMPLEX*16,dimension(1:4,0:4,NfMIN:NfMAX)::GammaIntegral_G_internal
 real(dp),dimension(1:4,0:4,NfMIN:NfMAX)::d_nk_Q_internal
 real(dp),dimension(1:4,0:4,NfMIN:NfMAX)::d_nk_G_internal
 
-
 !!! d^{(n,k,l)} (resummed coefficients) for quark/Gluon (up to 4 loops/no tree)(numeration starts from 0/)
 real(dp),dimension(1:4,0:4,0:4,NfMIN:NfMAX)::d_nkl_Q_internal
 real(dp),dimension(1:4,0:4,0:4,NfMIN:NfMAX)::d_nkl_G_internal
@@ -80,7 +81,7 @@ real(dp),dimension(0:4,0:5,NfMIN:NfMAX)::v_nk_Q_internal
 real(dp),dimension(0:4,0:5,NfMIN:NfMAX)::v_nk_G_internal
 
 !!! OMEGA^{(n,k)} for quark/Gluon (up to 5 loops )(numeration starts from 0)
-!!! Each terms is multiplied by its own functional coefficeint.
+!!! Each term is multiplied by its own functional coefficient.
 real(dp),dimension(0:4,1:5,NfMIN:NfMAX)::OMEGA_nk_Q_internal
 real(dp),dimension(0:4,1:5,NfMIN:NfMAX)::OMEGA_nk_G_internal
 !!! 2 beta0/Gamma0
@@ -89,11 +90,11 @@ real(dp),dimension(NfMIN:NfMAX)::pFACTOR_G_internal
 
 !!!! the orders of used perturbative expressions for AD
 !!!! the values of these constants are set thorugh initialization routine
-integer::orderCusp      !for Cusp AD
-integer::orderV         !for gammaV
-integer::orderD         !for RAD
-integer::orderDresum    !for resummed RAD
-integer::orderZETA      !for zeta-line
+integer::orderCusp      !for Cusp AD [1-loop =Gamma_0; orderCusp=0],
+integer::orderV         !for gammaV [1-loop => orderV=1]
+integer::orderD         !for RAD [1-loop => orderD=1]
+integer::orderDresum    !for resummed RAD [1-loop => orderDresum=1]
+integer::orderZETA      !for zeta-line [1-loop => orderZETA=1]
 
 public:: TMD_AD_Initialize
 !public:: betaQCD,GammaCusp_q,GammaCusp_g,gammaV_q, gammaV_g,dnk_q,dnk_g,dnkl_q,dnkl_g
@@ -146,8 +147,8 @@ subroutine TMD_AD_Initialize(oCusp,oV,oD,oDresum,oZETA)
     
     !---------Set values for integrals
     call SetBetaRoots()
-    call SetIntegralCoefficeintsGAMMA_Q()
-    call SetIntegralCoefficeintsGAMMA_G()   
+    call SetIntegralCoefficientsGAMMA_Q()
+    call SetIntegralCoefficientsGAMMA_G()
     
     started=.true.
 
@@ -248,14 +249,14 @@ pure function OMEGA_g(n,k,Nf)
     OMEGA_g=OMEGA_nk_G_internal(n,k,Nf)
 end function OMEGA_g
 
-!! coefficeint for p QUARK
+!! coefficient for p QUARK
 pure function pFACTOR_q(Nf)
     real(dp)::pFACTOR_q
     integer,intent(in)::Nf    
     pFACTOR_q=pFACTOR_Q_internal(Nf)
 end function pFACTOR_q
 
-!! coefficeint for p GLUON
+!! coefficient for p GLUON
 pure function pFACTOR_g(Nf)
     real(dp)::pFACTOR_g
     integer,intent(in)::Nf    

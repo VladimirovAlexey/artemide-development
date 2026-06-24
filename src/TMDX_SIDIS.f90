@@ -555,7 +555,7 @@ end subroutine SetPT
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FUNCTIONS FOR PREFACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-!!! hard coefficeint taken from 1004.3653 up to 2-loop
+!!! hard coefficient taken from 1004.3653 up to 2-loop
 !!! it takes global values of Q,order
 !!! NOTE it uses Nf=3(fixed)
 function HardCoefficientSIDIS(mu)

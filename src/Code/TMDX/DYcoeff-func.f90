@@ -10,7 +10,7 @@
 
 !-----------------------------------------------------------------------------------------------------
 !------------------------------------------Drell-Yan -------------------------------------------------
-!!! hard coefficeint taken from 1004.3653 up to 3-loop
+!!! hard coefficient taken from 1004.3653 up to 3-loop
 !!! it is evaluated at mu=Q
 function HardCoefficientDY(mu)
     real(dp)::HardCoefficientDY
@@ -175,7 +175,7 @@ function EffCouplingHFF(mu)
 end function EffCouplingHFF
 
 
-!!! hard coefficeint taken from 1004.3653 up to 3-loop
+!!! hard coefficient taken from 1004.3653 up to 3-loop
 !!! it is evaluated at mu=Q
 function HardCoefficientHIGGS(mu)
     real(dp)::HardCoefficientHIGGS,mu,LQ!=Log[Q^2/mu^2]=-2Log[c1]

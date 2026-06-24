@@ -10,9 +10,9 @@
 
 
 !!!! Defines the coefficients for the decomposition for the integral Gamma/(-2 beta) over the roots of beta-function
-!!!! The zeroth terms is G0/(-2b0) (common)
+!!!! The zeroth term is G0/(-2b0) (common)
 !!!! k=number of root. The expression is given by Lagrange decomposition
-subroutine SetIntegralCoefficeintsGAMMA_Q()
+subroutine SetIntegralCoefficientsGAMMA_Q()
     integer::n,i,j,k
     real(dp)::G1,G2,G3,G4,BB
     COMPLEX(dp)::ps
@@ -43,7 +43,7 @@ subroutine SetIntegralCoefficeintsGAMMA_Q()
                 
                 !!! numerator is Gamma at root
                 GammaIntegral_Q_internal(i,j,n)=1d0
-                if(i>0) GammaIntegral_Q_internal(i,j,n)=GammaIntegral_Q_internal(i,j,n)+G1*betaRoots_internal(i,j,n)
+                GammaIntegral_Q_internal(i,j,n)=GammaIntegral_Q_internal(i,j,n)+G1*betaRoots_internal(i,j,n)
                 if(i>1) GammaIntegral_Q_internal(i,j,n)=GammaIntegral_Q_internal(i,j,n)+G2*betaRoots_internal(i,j,n)**2
                 if(i>2) GammaIntegral_Q_internal(i,j,n)=GammaIntegral_Q_internal(i,j,n)+G3*betaRoots_internal(i,j,n)**3
                 if(i>3) GammaIntegral_Q_internal(i,j,n)=GammaIntegral_Q_internal(i,j,n)+G4*betaRoots_internal(i,j,n)**4
@@ -54,12 +54,12 @@ subroutine SetIntegralCoefficeintsGAMMA_Q()
 
     end do
 
-end subroutine SetIntegralCoefficeintsGAMMA_Q
+end subroutine SetIntegralCoefficientsGAMMA_Q
 
 !!!! Defines the coefficients for the decomposition for the integral Gamma/(-2 beta) over the roots of beta-function
 !!!! The zeroth terms is G0/(-2b0) (common)
 !!!! k=number of root. The expression is given by Lagrange decomposition
-subroutine SetIntegralCoefficeintsGAMMA_G()
+subroutine SetIntegralCoefficientsGAMMA_G()
     integer::n,i,j,k
     real(dp)::G1,G2,G3,G4,BB
     COMPLEX(dp)::ps
@@ -90,7 +90,7 @@ subroutine SetIntegralCoefficeintsGAMMA_G()
                 
                 !!! numerator is Gamma at root
                 GammaIntegral_G_internal(i,j,n)=1d0
-                if(i>0) GammaIntegral_G_internal(i,j,n)=GammaIntegral_G_internal(i,j,n)+G1*betaRoots_internal(i,j,n)
+                GammaIntegral_G_internal(i,j,n)=GammaIntegral_G_internal(i,j,n)+G1*betaRoots_internal(i,j,n)
                 if(i>1) GammaIntegral_G_internal(i,j,n)=GammaIntegral_G_internal(i,j,n)+G2*betaRoots_internal(i,j,n)**2
                 if(i>2) GammaIntegral_G_internal(i,j,n)=GammaIntegral_G_internal(i,j,n)+G3*betaRoots_internal(i,j,n)**3
                 if(i>3) GammaIntegral_G_internal(i,j,n)=GammaIntegral_G_internal(i,j,n)+G4*betaRoots_internal(i,j,n)**4
@@ -101,7 +101,7 @@ subroutine SetIntegralCoefficeintsGAMMA_G()
 
     end do
 
-end subroutine SetIntegralCoefficeintsGAMMA_G
+end subroutine SetIntegralCoefficientsGAMMA_G
 
 !!!! Compute the integral
 !!!! Gamma(a)/(-2beta(a)) for [a0,a1]
@@ -204,7 +204,11 @@ function RADevolution(mu0,mu1,f)
     else
         write(*,*) WarningString(' RADevolution finds impossible combination of thresholds.',moduleName)
         write(*,*) "Numbers for Nf", n0, " to ",n1, "(compute with ",n0,")"
-        inter=GammaIntegral_G(a0,a1,orderCusp,n0)
+        if(f==0) then
+            inter=GammaIntegral_G(a0,a1,orderCusp,n0)
+        else
+            inter=GammaIntegral_Q(a0,a1,orderCusp,n0)
+        end if
     end if
     
     if(naturalOrder) then

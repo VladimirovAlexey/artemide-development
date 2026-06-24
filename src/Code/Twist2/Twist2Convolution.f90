@@ -20,7 +20,7 @@
 !! the b here is b*,
 !! Functions muOPE and bSTAR are defined in _OPE_model
 !! x is global x, y is the convolution variable
-!! this funciton is used only in Coefficeint functions
+!! this funciton is used only in Coefficient functions
 pure function LogMuB(bT,x,y)
     real(dp)::LogMuB
     real(dp),intent(in)::bT,x,y
