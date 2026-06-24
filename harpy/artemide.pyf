@@ -129,12 +129,12 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
         integer :: f
         real*8 :: getdnp
     end function getdnp
-    function getr(b,mu,zeta,f) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
+    function getr(b,muf,zetaf,f) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         real*8 :: b
-        real*8 :: mu
-        real*8 :: zeta
+        real*8 :: muf
+        real*8 :: zetaf
         integer :: f
-        real :: getr
+        real*8 :: getr
     end function getr
     function utmdpdf_5_evolved(x,bt,muf,zetaf,hadron) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
         real*8 :: x

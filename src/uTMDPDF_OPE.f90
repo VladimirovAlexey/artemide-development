@@ -429,8 +429,8 @@ function uTMDPDF_X0_AS(x,mu,mu0,h,addGluon)
     else if(x==1.d0) then
         uTMDPDF_X0_AS=0._dp
         return
-    else if(x<1d-12) then
-        ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
+    else if(x<xMin) then
+        ERROR STOP ErrorString('Called x<xMin. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     end if
 
     !!!! case NA

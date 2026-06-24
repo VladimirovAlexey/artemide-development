@@ -15,7 +15,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!! The large-X resummation leds to the following expression
-!!! (\delta(1-x)-A/(1-x)^(1+A)) Exp[EXP]
+!!! (\delta(1-x)-A/(1-x)_+^(1+A)) Exp[EXP]
 !!! where A and EXP are perturbative expressions
 !!! in this module create these expressions from the known part
 
@@ -195,21 +195,20 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
     Csinggg,Csingqq,Csingqq,Csingqq,Csingqq,Csingqq/)*PDFat1
 
 
-    !!! if mu is y-independent then one can use the value of coeff at y=1
-    !!! and do not update them for each iteration of the integral
-    if(.not.IsMuYdependent) then
-        Bqq=Coeff_q_q_reg(asAt1,NfAt1,LogAt1)
-        Bqg=Coeff_q_g_reg(asAt1,NfAt1,LogAt1)
-        if(includeGluon) then
-        Bgq=Coeff_g_q_reg(asAt1,NfAt1,LogAt1)
-        Bgg=Coeff_g_g_reg(asAt1,NfAt1,LogAt1)
-        else
-        Bgq=0._dp
-        Bgg=0._dp
-        end if
-        Bqqb=Coeff_q_qb_reg(asAt1,NfAt1,LogAt1)
-        Bqqp=Coeff_q_qp_reg(asAt1,NfAt1,LogAt1)
+    !!! These are values of coefficients at y=1
+    !!! they are used in the regular integration when it is y-independent
+    !!! and also for extimation of the integral tail for range y close to 1 (always)
+    Bqq=Coeff_q_q_reg(asAt1,NfAt1,LogAt1)
+    Bqg=Coeff_q_g_reg(asAt1,NfAt1,LogAt1)
+    if(includeGluon) then
+    Bgq=Coeff_g_q_reg(asAt1,NfAt1,LogAt1)
+    Bgg=Coeff_g_g_reg(asAt1,NfAt1,LogAt1)
+    else
+    Bgq=0._dp
+    Bgg=0._dp
     end if
+    Bqqb=Coeff_q_qb_reg(asAt1,NfAt1,LogAt1)
+    Bqqp=Coeff_q_qp_reg(asAt1,NfAt1,LogAt1)
 
     !!! for smaller x, the part y~1 can be computed approximately (the xCUT is necesary since if x~y the error grows)
     !!! however if x is large ~1, the  should be closer to 1.
@@ -234,7 +233,7 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
     write(*,*) ErrorString('convolution computed to NAN. CHECK INTEGRATION',moduleName)
     write(*,*) '----- information on last call -----'
     write(*,*) 'x=', x, 'bT=',bT,' i=',i, 'hadron=',hadron,' result=',CxF_largeX_compute(i)
-
+    ERROR STOP
    end if
   end do
 
@@ -382,7 +381,7 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
     function Integrate_largey_PLUS()
         real(dp),dimension(-5:5)::Integrate_largey_PLUS
         real(dp),dimension(1:3)::Cplus_qq,Cplus_gg
-        real(dp)::muCurrent,asCurrent,LogCurrent,dummy1,dummy2,alpha_inter
+        real(dp)::muCurrent,asCurrent,LogCurrent,dummy1,dummy2,alpha_interQ,alpha_interG
         integer::NfCurrent
         real(dp),dimension(-5:5)::PDFs,inter1,inter2
 
@@ -397,25 +396,24 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
             PDFs=xf(x/yCUT,muCurrent,hadron)
 
             !!!! expression at y
-            alpha_inter=LargeX_A_q_q(asCurrent,NfCurrent,LogCurrent)
-            dummy1=alpha_inter/(1-yCUT)**(alpha_inter)/(1-alpha_inter)
+            alpha_interQ=LargeX_A_q_q(asCurrent,NfCurrent,LogCurrent)
+            dummy1=alpha_interQ/(1-yCUT)**(alpha_interQ)/(1-alpha_interQ)
 
             if(includeGluon) then
-                alpha_inter=LargeX_A_g_g(asCurrent,NfCurrent,LogCurrent)
-                dummy2=alpha_inter/(1-yCUT)**(1+alpha_inter)/(1-alpha_inter)
+                alpha_interG=LargeX_A_g_g(asCurrent,NfCurrent,LogCurrent)
+                dummy2=alpha_interG/(1-yCUT)**(alpha_interG)/(1-alpha_interG)
             else
                 dummy2=0._dp
             end if
-            PDFs=xf(x/yCUT,muCurrent,hadron)
 
             inter1=(/dummy1,dummy1,dummy1,dummy1,dummy1,&
             dummy2,dummy1,dummy1,dummy1,dummy1,dummy1/)
 
             !!!! expression at y=1
-            dummy1=alpha_powerQ_at1/(1-yCUT)**(alpha_powerQ_at1)/(1-alpha_inter)
+            dummy1=alpha_powerQ_at1/(1-yCUT)**(alpha_powerQ_at1)/(1-alpha_powerQ_at1)
 
             if(includeGluon) then
-                dummy2=alpha_powerG_at1/(1-yCUT)**(alpha_powerG_at1)/(1-alpha_inter)
+                dummy2=alpha_powerG_at1/(1-yCUT)**(alpha_powerG_at1)/(1-alpha_powerG_at1)
             else
                 dummy2=0._dp
             end if
@@ -428,10 +426,10 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
             PDFs=xf(x/yCUT,muAt1,hadron)
 
             !!!! expression at y=1
-            dummy1=alpha_powerQ_at1/(1-yCUT)**(alpha_powerQ_at1)/(1-alpha_inter)
+            dummy1=alpha_powerQ_at1/(1-yCUT)**(alpha_powerQ_at1)/(1-alpha_powerQ_at1)
 
             if(includeGluon) then
-                dummy2=alpha_powerG_at1/(1-yCUT)**(alpha_powerG_at1)/(1-alpha_inter)
+                dummy2=alpha_powerG_at1/(1-yCUT)**(alpha_powerG_at1)/(1-alpha_powerG_at1)
             else
                 dummy2=0._dp
             end if

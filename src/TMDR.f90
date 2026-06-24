@@ -425,11 +425,11 @@ end function TMDR_R
 !!! Evolution exponent in the improved gamma-picture to zeta-line (defined by zetaNP)
 !!! Basically it is R=(zeta/zeta_0[b,mu])^(-D(b,mu))
 function TMDR_Rzeta(b,muf,zetaf,f)
-  real(dp), intent(in)::b,muf,zetaf
+  real(dp),intent(in)::b,muf,zetaf
   integer,intent(in)::f
-  real(dp)::TMDR_Rzeta,bLocal
+  real(dp)::TMDR_Rzeta
 
-  real(dp)::Dvalue,zetaP
+  real(dp)::Dvalue,zetaP,bLocal
 
   bLocal=max(b,bFREEZE)
 

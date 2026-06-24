@@ -161,7 +161,7 @@ function CxF_AS(x,mu,mu0,hadron,includeGluon)
     write(*,*) ErrorString('AS convolution computed to NAN. CHECK INTEGRATION',moduleName)
     write(*,*) '----- information on last call -----'
     write(*,*) 'x=', x,' i=',i, 'hadron=',hadron,' result=',CxF_AS(i)
-
+    !!! it is OK, not to exit, because it is not essential
    end if
   end do
 

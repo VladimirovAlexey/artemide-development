@@ -40,9 +40,10 @@ function TestMU()
     do i=1,10
         call RANDOM_NUMBER(bR)
         bR=5d0*bR
+        call RANDOM_NUMBER(xR)
         if(xR>0.99d0) xR=xR/2d0
         if(xR<0.00001d0) xR=0.0001d0+xR
-            !!! generate some random input
+        !!! generate some random input
         call RANDOM_NUMBER(yR)
         if(yR>0.99d0) yR=yR/2d0
         if(yR<0.00001d0) yR=0.0001d0+yR
@@ -143,21 +144,20 @@ function CxF_compute(x,bT,hadron,includeGluon)
     PLUSremnant=(/Csingqq,Csingqq,Csingqq,Csingqq,Csingqq,&
     Csinggg,Csingqq,Csingqq,Csingqq,Csingqq,Csingqq/)*PDFat1
 
-    !!! if mu is y-independent then one can use the value of coeff at y=1
-    !!! and do not update them for each iteration of the integral
-    if(.not.IsMuYdependent) then
-        Bqq=Coeff_q_q_reg(asAt1,NfAt1,LogAt1)
-        Bqg=Coeff_q_g_reg(asAt1,NfAt1,LogAt1)
-        if(includeGluon) then
+    !!! These are values of coefficients at y=1
+    !!! they are used in the regular integration when it is y-independent
+    !!! and also for extimation of the integral tail for range y close to 1 (always)
+    Bqq=Coeff_q_q_reg(asAt1,NfAt1,LogAt1)
+    Bqg=Coeff_q_g_reg(asAt1,NfAt1,LogAt1)
+    if(includeGluon) then
         Bgq=Coeff_g_q_reg(asAt1,NfAt1,LogAt1)
         Bgg=Coeff_g_g_reg(asAt1,NfAt1,LogAt1)
-        else
+    else
         Bgq=0._dp
         Bgg=0._dp
-        end if
-        Bqqb=Coeff_q_qb_reg(asAt1,NfAt1,LogAt1)
-        Bqqp=Coeff_q_qp_reg(asAt1,NfAt1,LogAt1)
     end if
+    Bqqb=Coeff_q_qb_reg(asAt1,NfAt1,LogAt1)
+    Bqqp=Coeff_q_qp_reg(asAt1,NfAt1,LogAt1)
 
     !!! for smaller x, the part y~1 can be computed approximately (the xCUT is necesary since if x~y the error grows)
     !!! however if x is large ~1, the  should be closer to 1.
@@ -179,7 +179,7 @@ function CxF_compute(x,bT,hadron,includeGluon)
     write(*,*) '----- information on last call -----'
     write(*,*) 'x=', x, 'bT=',bT,' i=',i, 'hadron=',hadron,' result=',CxF_compute(i)
     write(*,*) "--FF-->",PDFat1
-    write(*,*) "delta->",(/Csingqq,Csingqq,Csingqq,Csingqq,Csingqq,&
+    if(orderMain/=0) write(*,*) "delta->",(/Csingqq,Csingqq,Csingqq,Csingqq,Csingqq,&
     Csinggg,Csingqq,Csingqq,Csingqq,Csingqq,Csingqq/)
     error stop
    end if
