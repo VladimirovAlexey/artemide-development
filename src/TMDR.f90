@@ -98,7 +98,7 @@ end function TMDR_IsInitialized
 subroutine TMDR_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
-    character(len=300)::path
+    character(len=:),allocatable::path
     logical::initRequired
     character(len=8)::orderMain,orderI
     logical::overrideORDER=.false.
@@ -107,9 +107,9 @@ subroutine TMDR_Initialize(file,prefix)
     if(started) return
     
     if(present(prefix)) then
-      path=trim(adjustl(prefix))//trim(adjustr(file))
+      path=trim(adjustl(prefix))//trim(adjustl(file))
     else
-      path=trim(adjustr(file))
+      path=trim(adjustl(file))
     end if
   
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")

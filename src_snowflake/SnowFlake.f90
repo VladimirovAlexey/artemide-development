@@ -49,14 +49,14 @@ contains
 subroutine SnowFlake_Initialize(file,prefix)
 character(len=*)::file
 character(len=*),optional::prefix
-character(len=300)::path
+character(len=:),allocatable::path
 !$ real*8::omp_get_wtime
 real*8::t1,t2
 
 if(present(prefix)) then
-    path=trim(adjustl(prefix))//trim(adjustr(file))
+    path=trim(adjustl(prefix))//trim(adjustl(file))
 else
-    path=trim(adjustr(file))
+    path=trim(adjustl(file))
 end if
 
 call cpu_time(t1)

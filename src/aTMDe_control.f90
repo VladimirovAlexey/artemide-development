@@ -79,7 +79,7 @@ subroutine artemide_Initialize(file,prefix,order)
     character(len=*)::file
     character(len=*),optional::prefix
     character(len=*),optional::order
-    character(len=300)::path
+    character(len=:),allocatable::path
     integer::FILEver
     !-----------------------------------------------------------
     if(present(prefix).and.present(order)) then
@@ -100,9 +100,9 @@ subroutine artemide_Initialize(file,prefix,order)
     !-----------------------------------------------------------
 
     if(present(prefix)) then
-        path=trim(adjustl(prefix))//trim(adjustr(constNAME))
+        path=trim(adjustl(prefix))//trim(adjustl(constNAME))
     else
-        path=trim(adjustr(constNAME))
+        path=trim(adjustl(constNAME))
     end if
 
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")

@@ -122,7 +122,7 @@ end function wgtTMDPDF_OPE_IsInitialized
 subroutine wgtTMDPDF_OPE_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
-    character(len=300)::path
+    character(len=:),allocatable::path
     logical::initRequired
     character(len=8)::order_global
     integer::i,FILEver,messageTrigger
@@ -140,9 +140,9 @@ subroutine wgtTMDPDF_OPE_Initialize(file,prefix)
     end if
 
     if(present(prefix)) then
-        path=trim(adjustl(prefix))//trim(adjustr(file))
+        path=trim(adjustl(prefix))//trim(adjustl(file))
     else
-        path=trim(adjustr(file))
+        path=trim(adjustl(file))
     end if
 
     !----------------- reading ini-file --------------------------------------

@@ -720,14 +720,14 @@ end subroutine SetupDefault
 function CheckConstantsFile(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
-    character(len=516)::path
+    character(len=:),allocatable::path
     logical::CheckConstantsFile
     integer::FILEversion
 
     if(present(prefix)) then
-        path=trim(adjustl(prefix))//trim(adjustr(file))
+        path=trim(adjustl(prefix))//trim(adjustl(file))
     else
-        path=trim(adjustr(file))
+        path=trim(adjustl(file))
     end if
 
     !!!read the version of the file
@@ -761,16 +761,16 @@ end function CheckConstantsFile
 subroutine CreateConstantsFile(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
-    character(len=516)::path
+    character(len=:),allocatable::path
 
     integer::values(1:8),i
 
     if(outputLevel>2) write(*,*) '-----------------------------------'
     if(outputLevel>1) write(*,*) 'aTMDe_setup: Creating setup file ...'
     if(present(prefix)) then
-        path=trim(adjustl(prefix))//trim(adjustr(file))
+        path=trim(adjustl(prefix))//trim(adjustl(file))
     else
-        path=trim(adjustr(file))
+        path=trim(adjustl(file))
     end if
     if(outputLevel>2) write(*,*) '   path for constants-file:',path
     
@@ -1775,7 +1775,7 @@ end subroutine CreateConstantsFile
 subroutine ReadConstantsFile(file,prefix)
     character(len=*),intent(in)::file
     character(len=*),intent(in),optional::prefix
-    character(len=516)::path
+    character(len=:),allocatable::path
     character(len=516)::dummyString
     !!!! this is version of input file. it is read first and then result is compared with the current ID
     !!!! It suppose to make compatibility betwen versions
@@ -1788,9 +1788,9 @@ subroutine ReadConstantsFile(file,prefix)
     if(outputLevel>2) write(*,*) '-----------------------------------'
     if(outputLevel>1) write(*,*) 'aTMDe_setup: Reading setup file ...'
     if(present(prefix)) then
-        path=trim(adjustl(prefix))//trim(adjustr(file))
+        path=trim(adjustl(prefix))//trim(adjustl(file))
     else
-        path=trim(adjustr(file))
+        path=trim(adjustl(file))
     end if
     if(outputLevel>1) write(*,*)'       path:', color(trim(path),c_yellow)
     

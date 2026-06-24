@@ -97,7 +97,7 @@ end function TMDX_SIDIS_IsInitialized
 subroutine TMDX_SIDIS_Initialize(file,prefix)
     character(len=*),intent(in)::file
     character(len=*),intent(in),optional::prefix
-    character(len=300)::path
+    character(len=:),allocatable::path
     logical::initRequired
     character(len=8)::orderMain
     integer::i,j,FILEver,messageTrigger
@@ -105,9 +105,9 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
     if(started) return
 
     if(present(prefix)) then
-        path=trim(adjustl(prefix))//trim(adjustr(file))
+        path=trim(adjustl(prefix))//trim(adjustl(file))
     else
-        path=trim(adjustr(file))
+        path=trim(adjustl(file))
     end if
 
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")

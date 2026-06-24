@@ -3,7 +3,7 @@
 !
 ! The module that handle the PDF from the LHAPDF-file. 1412.7420
 ! Reads info-file, interpolate, etc.
-! This module contains the definition of class
+! This module contains the definition of class (upon creation self-initialize by replica 0)
 !
 !           A.Vladimirov (16.10.2025)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -167,13 +167,15 @@ END SELECT
     
 end subroutine ParseInfoLine
 
-!!! opens the info-file and read lines.
+!!! This is also the constructor of the LHAPDFgridReader
+!!! Opens the info-file and read lines.
+!!! Then it initializes it-self by the replica 0.
 function ReadInfo(name,directory,outL) result(this)
     type(LHAPDFgridReader)::this
     character(len=*),intent(in)::name
     character(len=*),intent(in)::directory
     integer,intent(in)::outL
-    character(len=300)::path
+    character(len=:),allocatable::path
     character(len=1024)::line !!!! 1024 line size!
     integer::ios,i,j
     
@@ -205,7 +207,7 @@ function ReadInfo(name,directory,outL) result(this)
     
     CLOSE (51, STATUS='KEEP')
 
-    if(this%outputLevel>1) write(*,*) "Info-file for "//trim(this%PDFname)//" parsed succesfully"
+    if(this%outputLevel>1) write(*,*) "Info-file for "//trim(this%PDFname)//" parsed successfully"
 
     call this%SetReplica(0)
 
@@ -219,7 +221,8 @@ end function ReadInfo
 subroutine SetReplica_this(this,num)
     class(LHAPDFgridReader),intent(inout)::this
     integer,intent(in)::num !!! the number of replica to set
-    character(len=500)::path
+    character(len=:),allocatable::path
+    character(len=4)::numAPPENDUM
     character(len=4096)::line !!!! 4096 line size!
     character(len=:),allocatable:: lineToParse
     real(dp),dimension(:),allocatable::listToCheck,PDFentry,Qentry
@@ -248,7 +251,10 @@ subroutine SetReplica_this(this,num)
             '. The maximum number of replicas (according to info) is '//trim(numToStr(this%NumMembers)),this%moduleName)
 
     !!!! create the name of replica-file MainPath_000n.dat
-    write(path,'(A,"_",I4.4,".dat")') trim(this%MainPath),num
+    !!!! this way of creating path is needed because total path has indefinite length (len=:)
+    write(numAPPENDUM,'(I4.4)') num
+    path=trim(this%MainPath)//"_"//numAPPENDUM//".dat"
+
 
 #if DEBUGMODE==1
     write(*,*) "------------ LHA-READER DEBUG MODE ----------------"

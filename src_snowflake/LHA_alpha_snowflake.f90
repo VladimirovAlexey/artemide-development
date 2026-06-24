@@ -183,13 +183,13 @@ end subroutine ParseInfoLine
 subroutine ReadInfo(name,directory)
     character(len=*),intent(in)::name
     character(len=*),intent(in)::directory
-    character(len=300)::path
+    character(len=:),allocatable::path
     character(len=4096)::line !!!! Long line to guaranty the input
     integer::ios,i
     
     AlphaStype_IsRecognized=.false.
     
-    path=trim(adjustl(directory))//trim(adjustr(name))//"/"//trim(adjustr(name))//".info"
+    path=trim(adjustl(directory))//trim(adjustl(name))//"/"//trim(adjustl(name))//".info"
 
     write(*,'(A)') color("----- Loading Alpha_s from "//trim(name),c_yellow)
 

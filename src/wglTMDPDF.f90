@@ -88,7 +88,7 @@ end function wglTMDPDF_IsInitialized
 subroutine wglTMDPDF_Initialize(file,prefix)
 character(len=*)::file
 character(len=*),optional::prefix
-character(len=300)::path
+character(len=:),allocatable::path
 logical::initRequired
 integer::FILEver,messageTrigger
 real(dp)::hOGATA,toleranceOGATA
@@ -97,9 +97,9 @@ real(dp)::hOGATA_TMM,toleranceOGATA_TMM,kT_FREEZE
 if(started) return
 
 if(present(prefix)) then
-    path=trim(adjustl(prefix))//trim(adjustr(file))
+    path=trim(adjustl(prefix))//trim(adjustl(file))
 else
-    path=trim(adjustr(file))
+    path=trim(adjustl(file))
 end if
 
 OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
