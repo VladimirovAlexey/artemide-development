@@ -33,7 +33,7 @@ implicit none
 private
 character (len=14),parameter :: moduleName="aTMDe-control"
 character (len=5),parameter :: version="v3.03"
-!Last appropriate verion of constants-file
+!Last appropriate version of constants-file
 integer,parameter::inputver=37
 character (len=15),parameter :: constNAME="aTMDe-temporary"
 
@@ -53,7 +53,7 @@ integer::NPlength_total
 integer::NPlength_TMDR,NPlength_uTMDPDF,NPlength_uTMDFF,NPlength_lpTMDPDF,&
     NPlength_SiversTMDPDF,NPlength_wgtTMDPDF,NPlength_wglTMDPDF,NPlength_BoerMuldersTMDPDF,NPlength_eeTMDFF,NPlength_CollinsTMDFF
 
-!!!! non-pertrubative parameters for individual modules
+!!!! non-perturbative parameters for individual modules
 real(dp),allocatable::lambdaNP_TMDR(:),lambdaNP_uTMDPDF(:),lambdaNP_uTMDFF(:),lambdaNP_lpTMDPDF(:),&
             lambdaNP_SiversTMDPDF(:),lambdaNP_wgtTMDPDF(:),lambdaNP_wglTMDPDF(:),lambdaNP_BoerMuldersTMDPDF(:),lambdaNP_eeTMDFF(:),&
             lambdaNP_CollinsTMDFF(:)

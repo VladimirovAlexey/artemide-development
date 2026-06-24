@@ -223,7 +223,7 @@ pure function Coeff_q_q_plus(alpha,Nf,Lmu)
 end function Coeff_q_q_plus
   
   !!!!!coefficient function g<-g singular-part  (1/(1-x)_+,(Log(1-x)/(1-x))_+)
-function Coeff_g_g_plus(alpha,Nf,Lmu)
+pure function Coeff_g_g_plus(alpha,Nf,Lmu)
   real(dp),dimension(1:3)::Coeff_g_g_plus
   real(dp),intent(in)::alpha,Lmu
   integer,intent(in)::Nf
@@ -267,7 +267,7 @@ function Coeff_g_g_plus(alpha,Nf,Lmu)
 end function Coeff_g_g_plus
   
   !!!!!coefficient function q->q
-function Coeff_q_q_reg(alpha,Nf,Lmu)
+pure function Coeff_q_q_reg(alpha,Nf,Lmu)
   real(dp),intent(in)::alpha,Lmu
   integer,intent(in)::Nf
   real(dp),dimension(1:parametrizationLength)::Coeff_q_q_reg

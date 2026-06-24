@@ -68,7 +68,7 @@ real(dp) :: toleranceINT=1d-6  !!! tolerance for numerical integration
 real(dp) :: toleranceGEN=1d-6  !!! tolerance for other purposes
 integer :: maxIteration=4000   !!! maximum iteration in the integrals (not used at the moment)
 
-logical(dp) :: IsMuYdependent = .true.  !!! if mu is y independent, computation is much(!) faster
+logical :: IsMuYdependent = .true.  !!! if mu is y independent, computation is much(!) faster
 
 !!!! grid preparation
 logical :: useGrid=.true.  !!!idicator that grid must be prepared
@@ -444,7 +444,7 @@ function uTMDPDF_X0_AS(x,mu,mu0,h,addGluon)
 
 end function uTMDPDF_X0_AS
 
-!!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
+!!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 !!! This subroutine forces reconstruction of the grid (if griding is ON)
 subroutine uTMDPDF_OPE_resetGrid()
     if(useGrid) then
@@ -469,7 +469,7 @@ subroutine uTMDPDF_OPE_SetPDFreplica(rep,hadron)
 
 end subroutine uTMDPDF_OPE_SetPDFreplica
 
-!!!! this routine set the variations of scales
+!!!! this routine sets the variations of scales
 !!!! it is used for the estimation of errors
 subroutine uTMDPDF_OPE_SetScaleVariation(c4_in)
     real(dp),intent(in)::c4_in

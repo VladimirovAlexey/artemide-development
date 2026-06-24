@@ -4,7 +4,7 @@
 !	Evaluation of the Collins TMD FF at low normalization point in zeta-prescription.
 !
 !    ver 3.03: release (SP & AV, 27.10.2025)
-!	23.06.2026  Removed old INCLUDE-dependances
+!	23.06.2026  Removed old INCLUDE-dependencies
 !
 !                S.Piloneta (27.10.2025)
 !                A.Vladimirov (23.06.2026)
@@ -57,6 +57,7 @@ real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
 integer,parameter::TMDtypeN=1 !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD)
 
 type(OgataIntegrator)::HankelbyOGATA
+real(dp),parameter::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value in OGATA (it is not dynamical in current implementation)
 
 !!!------------------------------ Parameters of transform in KT space and KT-grid ------------------------------
 logical::makeGrid_inKT
@@ -215,7 +216,7 @@ subroutine CollinsTMDFF_Initialize(file,prefix)
     end if
 
     !!!!!! TODO: fix the minimal value of KT
-    HankelbyOGATA=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass,0.0001_dp)
+    HankelbyOGATA=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass,kT_FREEZE)
 
     if(.not.TMDR_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
@@ -245,7 +246,7 @@ subroutine CollinsTMDFF_Initialize(file,prefix)
 !!!   The grid in KT can be done only after some non-perturbative values are inset
 end subroutine CollinsTMDFF_Initialize
 
-!!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
+!!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 !!! update FF replica
 subroutine CollinsTMDFF_SetFFreplica_tw3(rep,hadron)
     integer,intent(in):: rep,hadron
@@ -253,14 +254,14 @@ subroutine CollinsTMDFF_SetFFreplica_tw3(rep,hadron)
     call CollinsTMDFF_OPE_tw3_SetFFreplica(rep,hadron)
 end subroutine CollinsTMDFF_SetFFreplica_tw3
 
-!!!! this routine set the variations of scales
+!!!! this routine sets the variations of scales
 subroutine CollinsTMDFF_SetScaleVariation_tw3(c4_in)
     real(dp),intent(in)::c4_in
     call CollinsTMDFF_OPE_tw3_SetScaleVariation(c4_in)
 end subroutine CollinsTMDFF_SetScaleVariation_tw3
 
-!!!Sets the non-pertrubative parameters lambda
-!!! carries additionl option to build the grid
+!!!Sets the non-perturbative parameters lambda
+!!! carries additional option to build the grid
 !!! if need to build grid, specify the gluon required directive.
 subroutine CollinsTMDFF_SetLambdaNP(lambdaIN)
     real(dp),intent(in)::lambdaIN(:)
@@ -292,7 +293,7 @@ function CollinsTMDFF_CurrentLambdaNP()
     CollinsTMDFF_CurrentLambdaNP=lambdaNP
 end function CollinsTMDFF_CurrentLambdaNP
 
-!!!!! Function that constracts the grid in KT-space
+!!!!! Function that constructs the grid in KT-space
 !!!!! I take the TMD and send it to Fourier, and then resend it to the grid...
 subroutine updateGrid_inKT()
 real(dp)::Q,x
@@ -337,7 +338,7 @@ end subroutine updateGrid_inKT
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
-!!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
+!!!!! the names are neutral because these procedures are fed to Fourier transform and other universal subprograms.
 
 !!!!!!! the function that actually returns the CollinsTMDFF!
 function TMD_opt(x,bT,hadron)
@@ -390,17 +391,17 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
-    TMD_ev(5)=0_dp
-    TMD_ev(-5)=0_dp
+    TMD_ev(5)=0._dp
+    TMD_ev(-5)=0._dp
     end if
     if(muf<mCHARM) then
-    TMD_ev(4)=0_dp
-    TMD_ev(-4)=0_dp
+    TMD_ev(4)=0._dp
+    TMD_ev(-4)=0._dp
     end if
 
 end function TMD_ev
 
-!!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
+!!!!! the names are neutral because these procedures are fed to Fourier transform and other universal subprograms.
 
 !!!!!!! the function that actually returns the uTMDPDF optimal value
 function TMD_opt_inKT(x,kT,hadron)
@@ -449,12 +450,12 @@ function TMD_ev_inKT(x,kT,muf,zetaf,hadron)
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
-    TMD_ev_inKT(5)=0_dp
-    TMD_ev_inKT(-5)=0_dp
+    TMD_ev_inKT(5)=0._dp
+    TMD_ev_inKT(-5)=0._dp
     end if
     if(muf<mCHARM) then
-    TMD_ev_inKT(4)=0_dp
-    TMD_ev_inKT(-4)=0_dp
+    TMD_ev_inKT(4)=0._dp
+    TMD_ev_inKT(-4)=0._dp
     end if
 
 contains
@@ -480,7 +481,7 @@ end function TMD_ev_inKT
 
 
 !!!!!!!! the function that actually returns the uTMDPDF evolved to (mu,mu^2) value
-!!!!!!! This is exactly what is stored in the grid. So if grid is buid attempt to extract from it.
+!!!!!!! This is exactly what is stored in the grid. So if grid is built attempt to extract from it.
 function TMD_grid_inKT(x,kT,mu,hadron)
     real(dp)::TMD_grid_inKT(-5:5)
     real(dp),intent(in):: x,kT,mu
@@ -511,12 +512,12 @@ function CollinsTMDFF_TMM_G(x,mu,hadron)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
-    CollinsTMDFF_TMM_G(5)=0_dp
-    CollinsTMDFF_TMM_G(-5)=0_dp
+    CollinsTMDFF_TMM_G(5)=0._dp
+    CollinsTMDFF_TMM_G(-5)=0._dp
     end if
     if(mu<mCHARM) then
-    CollinsTMDFF_TMM_G(4)=0_dp
-    CollinsTMDFF_TMM_G(-4)=0_dp
+    CollinsTMDFF_TMM_G(4)=0._dp
+    CollinsTMDFF_TMM_G(-4)=0._dp
     end if
 contains
     function F(b)
@@ -542,12 +543,12 @@ function CollinsTMDFF_TMM_X(x,mu,hadron)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
-    CollinsTMDFF_TMM_X(5)=0_dp
-    CollinsTMDFF_TMM_X(-5)=0_dp
+    CollinsTMDFF_TMM_X(5)=0._dp
+    CollinsTMDFF_TMM_X(-5)=0._dp
     end if
     if(mu<mCHARM) then
-    CollinsTMDFF_TMM_X(4)=0_dp
-    CollinsTMDFF_TMM_X(-4)=0_dp
+    CollinsTMDFF_TMM_X(4)=0._dp
+    CollinsTMDFF_TMM_X(-4)=0._dp
     end if
 contains
     function F(b)

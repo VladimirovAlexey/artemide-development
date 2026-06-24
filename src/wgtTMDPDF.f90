@@ -237,7 +237,7 @@ if(outputLevel>0) write(*,*) color('----- arTeMiDe.wgtTMDPDF '//trim(version)//'
 if(outputLevel>1) write(*,*) ' '
 end subroutine wgtTMDPDF_Initialize
 
-!!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
+!!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 !!! update PDF replica
 subroutine wgtTMDPDF_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
@@ -252,20 +252,20 @@ subroutine wgtTMDPDF_SetPDFreplica_tw3(rep,hadron)
     call wgtTMDPDF_OPE_tw3_SetPDFreplica(rep,hadron)
 end subroutine wgtTMDPDF_SetPDFreplica_tw3
 
-!!!! this routine set the variations of scales
+!!!! this routine sets the variations of scales
 subroutine wgtTMDPDF_SetScaleVariation(c4_in)
     real(dp),intent(in)::c4_in
     call wgtTMDPDF_OPE_SetScaleVariation(c4_in)
 end subroutine wgtTMDPDF_SetScaleVariation
 
-!!!! this routine set the variations of scales
+!!!! this routine sets the variations of scales
 subroutine wgtTMDPDF_SetScaleVariation_tw3(c4_in)
     real(dp),intent(in)::c4_in
     call wgtTMDPDF_OPE_tw3_SetScaleVariation(c4_in)
 end subroutine wgtTMDPDF_SetScaleVariation_tw3
 
-!!!Sets the non-pertrubative parameters lambda
-!!! carries additionl option to build the grid
+!!!Sets the non-perturbative parameters lambda
+!!! carries additional option to build the grid
 !!! if need to build grid, specify the gluon required directive.
 subroutine wgtTMDPDF_SetLambdaNP(lambdaIN)
     real(dp),intent(in)::lambdaIN(:)
@@ -296,7 +296,7 @@ end function wgtTMDPDF_CurrentLambdaNP
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
-!!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
+!!!!! the names are neutral because these procedures are fed to Fourier transform and other universal subprograms.
 
 !!!!!!! the function that actually returns the wgtTMDPDF!
 function TMD_opt(x,bT,hadron)
@@ -355,12 +355,12 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
-    TMD_ev(5)=0_dp
-    TMD_ev(-5)=0_dp
+    TMD_ev(5)=0._dp
+    TMD_ev(-5)=0._dp
     end if
     if(muf<mCHARM) then
-    TMD_ev(4)=0_dp
-    TMD_ev(-4)=0_dp
+    TMD_ev(4)=0._dp
+    TMD_ev(-4)=0._dp
     end if
 
 end function TMD_ev
@@ -380,12 +380,12 @@ function wgtTMDPDF_TMM_G(x,mu,hadron)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
-    wgtTMDPDF_TMM_G(5)=0_dp
-    wgtTMDPDF_TMM_G(-5)=0_dp
+    wgtTMDPDF_TMM_G(5)=0._dp
+    wgtTMDPDF_TMM_G(-5)=0._dp
     end if
     if(mu<mCHARM) then
-    wgtTMDPDF_TMM_G(4)=0_dp
-    wgtTMDPDF_TMM_G(-4)=0_dp
+    wgtTMDPDF_TMM_G(4)=0._dp
+    wgtTMDPDF_TMM_G(-4)=0._dp
     end if
 contains
     function F(b)
@@ -410,12 +410,12 @@ function wgtTMDPDF_TMM_X(x,mu,hadron)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
-    wgtTMDPDF_TMM_X(5)=0_dp
-    wgtTMDPDF_TMM_X(-5)=0_dp
+    wgtTMDPDF_TMM_X(5)=0._dp
+    wgtTMDPDF_TMM_X(-5)=0._dp
     end if
     if(mu<mCHARM) then
-    wgtTMDPDF_TMM_X(4)=0_dp
-    wgtTMDPDF_TMM_X(-4)=0_dp
+    wgtTMDPDF_TMM_X(4)=0._dp
+    wgtTMDPDF_TMM_X(-4)=0._dp
     end if
 contains
     function F(b)

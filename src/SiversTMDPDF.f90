@@ -235,7 +235,7 @@ if(outputLevel>0) write(*,*) color('----- arTeMiDe.SiversTMDPDF '//trim(version)
 if(outputLevel>1) write(*,*) ' '
 end subroutine SiversTMDPDF_Initialize
 
-!!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
+!!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 !!! update PDF replica
 subroutine SiversTMDPDF_SetPDFreplica_tw3(rep,hadron)
     integer,intent(in):: rep,hadron
@@ -243,14 +243,14 @@ subroutine SiversTMDPDF_SetPDFreplica_tw3(rep,hadron)
     call SiversTMDPDF_OPE_tw3_SetPDFreplica(rep,hadron)
 end subroutine SiversTMDPDF_SetPDFreplica_tw3
 
-!!!! this routine set the variations of scales
+!!!! this routine sets the variations of scales
 subroutine SiversTMDPDF_SetScaleVariation_tw3(c4_in)
     real(dp),intent(in)::c4_in
     call SiversTMDPDF_OPE_tw3_SetScaleVariation(c4_in)
 end subroutine SiversTMDPDF_SetScaleVariation_tw3
 
-!!!Sets the non-pertrubative parameters lambda
-!!! carries additionl option to build the grid
+!!!Sets the non-perturbative parameters lambda
+!!! carries additional option to build the grid
 !!! if need to build grid, specify the gluon required directive.
 subroutine SiversTMDPDF_SetLambdaNP(lambdaIN)
     real(dp),intent(in)::lambdaIN(:)
@@ -281,7 +281,7 @@ end function SiversTMDPDF_CurrentLambdaNP
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
-!!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
+!!!!! the names are neutral because these procedures are fed to Fourier transform and other universal subprograms.
 
 !!!!!!! the function that actually returns the SiversTMDPDF!
 function TMD_opt(x,bT,hadron)
@@ -334,12 +334,12 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
-    TMD_ev(5)=0_dp
-    TMD_ev(-5)=0_dp
+    TMD_ev(5)=0._dp
+    TMD_ev(-5)=0._dp
     end if
     if(muf<mCHARM) then
-    TMD_ev(4)=0_dp
-    TMD_ev(-4)=0_dp
+    TMD_ev(4)=0._dp
+    TMD_ev(-4)=0._dp
     end if
 
 end function TMD_ev
@@ -359,12 +359,12 @@ function SiversTMDPDF_TMM_G(x,mu,hadron)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
-    SiversTMDPDF_TMM_G(5)=0_dp
-    SiversTMDPDF_TMM_G(-5)=0_dp
+    SiversTMDPDF_TMM_G(5)=0._dp
+    SiversTMDPDF_TMM_G(-5)=0._dp
     end if
     if(mu<mCHARM) then
-    SiversTMDPDF_TMM_G(4)=0_dp
-    SiversTMDPDF_TMM_G(-4)=0_dp
+    SiversTMDPDF_TMM_G(4)=0._dp
+    SiversTMDPDF_TMM_G(-4)=0._dp
     end if
 contains
     function F(b)
@@ -390,12 +390,12 @@ function SiversTMDPDF_TMM_X(x,mu,hadron)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
-    SiversTMDPDF_TMM_X(5)=0_dp
-    SiversTMDPDF_TMM_X(-5)=0_dp
+    SiversTMDPDF_TMM_X(5)=0._dp
+    SiversTMDPDF_TMM_X(-5)=0._dp
     end if
     if(mu<mCHARM) then
-    SiversTMDPDF_TMM_X(4)=0_dp
-    SiversTMDPDF_TMM_X(-4)=0_dp
+    SiversTMDPDF_TMM_X(4)=0._dp
+    SiversTMDPDF_TMM_X(-4)=0._dp
     end if
 contains
     function F(b)

@@ -70,7 +70,7 @@ integer :: maxIteration=4000   !!! maximum iteration in the integrals (not used 
 !!!total number of hadrons to be used
 integer::numberOfHadrons=1
 
-logical(dp) :: IsMuYdependent = .true.  !!! if mu is y independent, computation is much(!) faster
+logical :: IsMuYdependent = .true.  !!! if mu is y independent, computation is much(!) faster
 
 !!!! grid preparation
 logical :: useGrid=.true.  !!!idicator that grid must be prepared
@@ -364,8 +364,8 @@ end function functionToGrid
 !!!!array of x times PDF(x,Q) for hadron 'hadron'
 !!!! array is (-5:5) (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
 function xf(x,Q,hadron)
-    real(dp) :: x,Q
-    integer:: hadron
+    real(dp),intent(in) :: x,Q
+    integer,intent(in):: hadron
     real(dp), dimension(-5:5):: xf
     
     xf=x_gPDF(x,Q,hadron)
@@ -448,7 +448,7 @@ function wgtTMDPDF_OPE_tw3_convolution(x,b,h,addGluon)
 end function wgtTMDPDF_OPE_tw3_convolution
 
 
-!!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
+!!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 !!! This subroutine force reconstruction of the grid (if griding is ON)
 subroutine wgtTMDPDF_OPE_resetGrid()
     if(useGrid) then
@@ -473,7 +473,7 @@ subroutine wgtTMDPDF_OPE_SetPDFreplica(rep,hadron)
 
 end subroutine wgtTMDPDF_OPE_SetPDFreplica
 
-!!!! this routine set the variations of scales
+!!!! this routine sets the variations of scales
 !!!! it is used for the estimation of errors
 subroutine wgtTMDPDF_OPE_SetScaleVariation(c4_in)
     real(dp),intent(in)::c4_in
@@ -509,7 +509,7 @@ subroutine wgtTMDPDF_OPE_tw3_SetPDFreplica(rep,hadron)
 
 end subroutine wgtTMDPDF_OPE_tw3_SetPDFreplica
 
-!!!! this routine set the variations of scales
+!!!! this routine sets the variations of scales
 !!!! it is used for the estimation of errors
 subroutine wgtTMDPDF_OPE_tw3_SetScaleVariation(c4_in)
     real(dp),intent(in)::c4_in

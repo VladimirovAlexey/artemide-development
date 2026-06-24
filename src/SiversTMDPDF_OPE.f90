@@ -263,7 +263,7 @@ function SiversTMDPDF_OPE_tw3_convolution(x,b,h,addGluon)
 end function SiversTMDPDF_OPE_tw3_convolution
 
 
-!!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
+!!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 
 !!! This subroutine force reconstruction of the grid (if griding is ON)
 subroutine SiversTMDPDF_OPE_tw3_resetGrid()
@@ -282,7 +282,7 @@ subroutine SiversTMDPDF_OPE_tw3_SetPDFreplica(rep,hadron)
 
 end subroutine SiversTMDPDF_OPE_tw3_SetPDFreplica
 
-!!!! this routine set the variations of scales
+!!!! this routine sets the variations of scales
 !!!! it is used for the estimation of errors
 subroutine SiversTMDPDF_OPE_tw3_SetScaleVariation(c4_in)
     real(dp),intent(in)::c4_in

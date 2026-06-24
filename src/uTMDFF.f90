@@ -3,10 +3,10 @@
 !
 !	Evaluation of the unpolarized TMD FF at low normalization point in zeta-prescription.
 !	
-!	if you use this module please, quote 1706.01473
+!	if you use this module, please, quote 1706.01473
 !
 !	18.08.2023  Implementation in ver.3.0
-!	23.06.2026  Removed old INCLUDE-dependances
+!	23.06.2026  Removed old INCLUDE-dependencies
 !
 ! !				A.Vladimirov (24.06.2026)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -39,6 +39,7 @@ logical:: started=.false.
 !! 0=only critical
 !! 1=initialization details
 !! 2=WARNINGS
+!! 3=FULL output
 integer::outputLevel=2
 type(Warning_OBJ)::Warning_Handler
 
@@ -58,8 +59,7 @@ real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
 integer,parameter::TMDtypeN=0 !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD)
 
 type(OgataIntegrator)::HankelbyOGATA
-
-real(dp)::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value
+real(dp),parameter::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value in OGATA (it is not dynamical in current implementation)
 
 !!!------------------------------ Parameters of transform in KT space and KT-grid ------------------------------
 logical::makeGrid_inKT
@@ -110,7 +110,6 @@ subroutine uTMDFF_Initialize(file,prefix)
     end if
 
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
-    !!! Search for output level
     call MoveTO(51,'*0   ')
     call MoveTO(51,'*A   ')
     call MoveTO(51,'*p1  ')
@@ -143,7 +142,7 @@ subroutine uTMDFF_Initialize(file,prefix)
         write(*,*) ErrorString('TMDR module MUST be included.',moduleName)
         write(*,*) ErrorString('Check initialization-file. Evaluation stop.',moduleName)
         CLOSE (51, STATUS='KEEP')
-        stop
+        ERROR stop
     end if
 
     call MoveTO(51,'*5   ')
@@ -178,7 +177,7 @@ subroutine uTMDFF_Initialize(file,prefix)
     write(*,*) ErrorString(&
     'Initialize: number of non-perturbative parameters should be >=1. Check the constants-file. Evaluation STOP',moduleName)
             CLOSE (51, STATUS='KEEP')
-    stop
+    ERROR stop
     end if
 
     !!!!! ---- parameters of numerical evaluation
@@ -221,7 +220,7 @@ subroutine uTMDFF_Initialize(file,prefix)
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.uTMDFF_model : .... initialized',c_green)
 
     !!!!!! TODO: fix the minimal value of KT
-    HankelbyOGATA=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass, 0.0001_dp)
+    HankelbyOGATA=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass, kT_FREEZE)
 
     if(.not.TMDR_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
@@ -247,7 +246,7 @@ subroutine uTMDFF_Initialize(file,prefix)
     if(outputLevel>1) write(*,*) ' '
 end subroutine uTMDFF_Initialize
 
-!!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
+!!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 !!! update FF replica
 subroutine uTMDFF_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
@@ -255,15 +254,14 @@ subroutine uTMDFF_SetPDFreplica(rep,hadron)
     call uTMDFF_OPE_SetPDFreplica(rep,hadron)
 end subroutine uTMDFF_SetPDFreplica
 
-!!!! this routine set the variations of scales
+!!!! this routine sets the variations of scales
 subroutine uTMDFF_SetScaleVariation(c4_in)
     real(dp),intent(in)::c4_in
     call uTMDFF_OPE_SetScaleVariation(c4_in)
 end subroutine uTMDFF_SetScaleVariation
 
-!!!Sets the non-pertrubative parameters lambda
-!!! carries additionl option to build the grid
-!!! if need to build grid, specify the gluon required directive.
+!!!Sets the non-perturbative parameters lambda
+!!! carries additional option to build the grid
 subroutine uTMDFF_SetLambdaNP(lambdaIN)
     real(dp),intent(in)::lambdaIN(:)
     integer::ll
@@ -295,7 +293,7 @@ function uTMDFF_CurrentLambdaNP()
     uTMDFF_CurrentLambdaNP=lambdaNP
 end function uTMDFF_CurrentLambdaNP
 
-!!!!! Function that constracts the grid in KT-space
+!!!!! Function that constructs the grid in KT-space
 !!!!! I take the TMD and send it to Fourier, and then resend it to the grid...
 subroutine updateGrid_inKT()
 real(dp)::Q,x
@@ -340,7 +338,7 @@ end subroutine updateGrid_inKT
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
-!!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
+!!!!! the names are neutral because these procedures are fed to Fourier transform and other universal subprograms.
 
 !!!!!!! the function that actually returns the uTMDFF optimal value
 function TMD_opt(x,bT,hadron)
@@ -359,7 +357,7 @@ function TMD_opt(x,bT,hadron)
     else if(bT>BMAX_ABS) then
         TMD_opt=0._dp
         return
-    else if(x<toleranceGEN) then
+    else if(x<0) then
         Error STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     else if(bT<0d0) then
         ERROR STOP ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
@@ -368,7 +366,7 @@ function TMD_opt(x,bT,hadron)
     !!!! all is computed at |h|, i.e. for hadron.
     TMD_opt=uTMDFF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
 
-    !!!! here is the alternation to anti-hadron
+    !!!! here the array is reversed for anti-hadron
     if(hadron<0) TMD_opt=TMD_opt(5:-5:-1)
 
 end function TMD_opt
@@ -379,6 +377,12 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
     real(dp),intent(in):: x,bt,muf,zetaf
     integer,intent(in)::hadron
     real(dp):: Rkernel,RkernelG
+
+    !!!! for an earlier exit (in this case do not compute evolution factor)
+    if(bT>BMAX_ABS) then
+      TMD_ev=0._dp
+      return
+    end if
 
     if(includeGluon) then
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
@@ -395,12 +399,12 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
-    TMD_ev(5)=0_dp
-    TMD_ev(-5)=0_dp
+    TMD_ev(5)=0._dp
+    TMD_ev(-5)=0._dp
     end if
     if(muf<mCHARM) then
-    TMD_ev(4)=0_dp
-    TMD_ev(-4)=0_dp
+    TMD_ev(4)=0._dp
+    TMD_ev(-4)=0._dp
     end if
 
 end function TMD_ev
@@ -419,7 +423,7 @@ function TMD_opt_inKT(x,kT,hadron)
      else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
         TMD_opt_inKT=0._dp
         return
-    else if(x<toleranceGEN) then
+    else if(x<0) then
         ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     else if(kT<0d0) then
         ERROR STOP ErrorString('Called kT<0. kT='//numToStr(kT)//' . Evaluation STOP',moduleName)
@@ -446,18 +450,24 @@ function TMD_ev_inKT(x,kT,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: Rkernel,RkernelG
 
+    !!!! for an earlier exit
+    if(x>=1._dp) then
+      TMD_ev_inKT=0._dp
+      return
+    end if
+
     TMD_ev_inKT=HankelbyLEVIN%Fourier_atPoint(toFourier,kT)
 
     if(hadron<0) TMD_ev_inKT=TMD_ev_inKT(5:-5:-1)
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
-    TMD_ev_inKT(5)=0_dp
-    TMD_ev_inKT(-5)=0_dp
+    TMD_ev_inKT(5)=0._dp
+    TMD_ev_inKT(-5)=0._dp
     end if
     if(muf<mCHARM) then
-    TMD_ev_inKT(4)=0_dp
-    TMD_ev_inKT(-4)=0_dp
+    TMD_ev_inKT(4)=0._dp
+    TMD_ev_inKT(-4)=0._dp
     end if
 
 contains
@@ -482,7 +492,7 @@ end function toFourier
 end function TMD_ev_inKT
 
 !!!!!!!! the function that actually returns the uTMDFF evolved to (mu,mu^2) value
-!!!!!!! This is exactly what is stored in the grid. So if grid is buid attempt to extract from it.
+!!!!!!! This is exactly what is stored in the grid. So if grid is built attempt to extract from it.
 function TMD_grid_inKT(x,kT,mu,hadron)
     real(dp)::TMD_grid_inKT(-5:5)
     real(dp),intent(in):: x,kT,mu
@@ -511,12 +521,12 @@ function uTMDFF_TMM_G(x,mu,hadron)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
-    uTMDFF_TMM_G(5)=0_dp
-    uTMDFF_TMM_G(-5)=0_dp
+    uTMDFF_TMM_G(5)=0._dp
+    uTMDFF_TMM_G(-5)=0._dp
     end if
     if(mu<mCHARM) then
-    uTMDFF_TMM_G(4)=0_dp
-    uTMDFF_TMM_G(-4)=0_dp
+    uTMDFF_TMM_G(4)=0._dp
+    uTMDFF_TMM_G(-4)=0._dp
     end if
 contains
     function F(b)
@@ -542,12 +552,12 @@ function uTMDFF_TMM_X(x,mu,hadron)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
-    uTMDFF_TMM_X(5)=0_dp
-    uTMDFF_TMM_X(-5)=0_dp
+    uTMDFF_TMM_X(5)=0._dp
+    uTMDFF_TMM_X(-5)=0._dp
     end if
     if(mu<mCHARM) then
-    uTMDFF_TMM_X(4)=0_dp
-    uTMDFF_TMM_X(-4)=0_dp
+    uTMDFF_TMM_X(4)=0._dp
+    uTMDFF_TMM_X(-4)=0._dp
     end if
 contains
     function F(b)

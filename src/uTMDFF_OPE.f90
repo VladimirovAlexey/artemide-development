@@ -34,7 +34,7 @@ private
 
 !Current version of module
 character (len=5),parameter :: version="v3.00"
-character (len=11),parameter :: moduleName="uTMDFF_OPE"
+character (len=10),parameter :: moduleName="uTMDFF_OPE"
 !Last appropriate version of constants-file
 integer,parameter::inputver=30
 
@@ -68,7 +68,7 @@ real(dp) :: toleranceINT=1d-6  !!! tolerance for numerical integration
 real(dp) :: toleranceGEN=1d-6  !!! tolerance for other purposes
 integer :: maxIteration=4000   !!! maximum iteration in the integrals (not used at the moment)
 
-logical(dp) :: IsMuYdependent = .true.  !!! if mu is y independent, computation is much(!) faster
+logical :: IsMuYdependent = .true.  !!! if mu is y independent, computation is much(!) faster
 
 !!!! grid preparation
 logical :: useGrid=.true.  !!!idicator that grid must be prepared
@@ -297,8 +297,7 @@ subroutine uTMDFF_OPE_Initialize(file,prefix)
     bMax=subGridsB(size(subGridsB)-1)
 
     if(abs(subGridsX(size(subGridsX)-1)-1)>toleranceGEN) then
-        write(*,*) ErrorString("The last subgrid in X must complete by x=1. Initialization terminated",moduleName)
-        stop
+        ERROR STOP ErrorString("The last subgrid in X must complete by x=1. Initialization terminated",moduleName)
     end if
 
     mainGrid=optGrid(path,'*5   ','*E   ',numberOfHadrons,withGluon,moduleName,outputLevel)
@@ -343,8 +342,8 @@ end function functionToGrid
 !!!!array of x times PDF(x,Q) for hadron 'hadron'
 !!!! array is (-5:5) (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
 function xf(x,Q,hadron)
-    real(dp) :: x,Q
-    integer:: hadron
+    real(dp),intent(in) :: x,Q
+    integer,intent(in):: hadron
     real(dp), dimension(-5:5):: xf
     
     xf=xFF(x,Q,hadron)
@@ -355,8 +354,8 @@ end function xf
 !!!! needed solely for analysis of TMDs, to not to run LHAPDF again
 !!!! NOTE: it is not mutiplied by x
 function uTMDFF_OPE_FF(x,mu,hadron)
-    real(dp) :: x,mu
-    integer:: hadron
+    real(dp),intent(in) :: x,mu
+    integer,intent(in):: hadron
     real(dp), dimension(-5:5):: uTMDFF_OPE_FF
 
     uTMDFF_OPE_FF=xFF(x,mu,hadron)/x
@@ -430,9 +429,8 @@ function uTMDFF_X0_AS(x,mu,mu0,h,addGluon)
     else if(x==1.d0) then
         uTMDFF_X0_AS=0._dp
         return
-    else if(x<1d-12) then
-        write(*,*) ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
-        stop
+    else if(x<0) then
+        ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     end if
 
     !!!! case NA
@@ -446,7 +444,7 @@ function uTMDFF_X0_AS(x,mu,mu0,h,addGluon)
 
 end function uTMDFF_X0_AS
 
-!!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
+!!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 !!! This subroutine force reconstruction of the grid (if griding is ON)
 subroutine uTMDFF_OPE_resetGrid()
     if(useGrid) then
@@ -471,7 +469,7 @@ subroutine uTMDFF_OPE_SetPDFreplica(rep,hadron)
 
 end subroutine uTMDFF_OPE_SetPDFreplica
 
-!!!! this routine set the variations of scales
+!!!! this routine sets the variations of scales
 !!!! it is used for the estimation of errors
 subroutine uTMDFF_OPE_SetScaleVariation(c4_in)
     real(dp),intent(in)::c4_in

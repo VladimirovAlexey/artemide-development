@@ -22,7 +22,7 @@ function Dpert(mu,bT,f)
 
     LL=2_dp*LOG(bt*mu*C0_inv_const)
     astrong=As(mu)
-    !Dpert=0_dp
+    !Dpert=0._dp
     
     Nf=ActiveNf(mu)
 
@@ -82,7 +82,7 @@ function gammaV(mu,f)
     
     Nf=ActiveNf(mu)
    
-    gammaV=0_dp
+    gammaV=0._dp
     if(f==0) then   !!gluon case
      do i=orderV,1,-1
         gammaV=(gammaV+gammaV_G(i,Nf))*astrong
@@ -110,7 +110,7 @@ function gammaCUSP(mu,f)
     
     Nf=activeNf(mu)
     
-    gammaCUSP=0_dp
+    gammaCUSP=0._dp
     if(f==0) then   !!gluon case
      do i=orderCusp,0,-1
         gammaCUSP=(gammaCUSP+GammaCusp_G(i,Nf))*astrong
@@ -145,7 +145,7 @@ function Dresum(mu,bT,f)
     !!!!! This is optimized sum
     !!!! Dresum = a^2(d2+a*(d3+a*(d4+...)))=a^2 d2+a^3 d3+a^4 d4+....
 
-    Dresum=0_dp
+    Dresum=0._dp
     if(f==0) then !! gluon case
         do n=orderDresum,2,-1
             Dresum=alpha*(dnk_G(n,0,Nf)+Dresum)
@@ -176,7 +176,7 @@ function Dresum(mu,bT,f)
     if(f==0) then !! gluon case
         commulant=0._dp
         do n=orderDresum,1,-1
-        inter=0_dp
+        inter=0._dp
             do k=0,n
             do l=0,n
                 inter=inter+Xpow(k)*lXpow(l)*dnkl_G(n,k,l,Nf)
@@ -191,7 +191,7 @@ function Dresum(mu,bT,f)
     else !!! quark case
         commulant=0._dp
         do n=orderDresum,1,-1
-        inter=0_dp
+        inter=0._dp
             do k=0,n
             do l=0,n
                 inter=inter+Xpow(k)*lXpow(l)*dnkl_Q(n,k,l,Nf)
@@ -242,7 +242,7 @@ function zetaMUpert(mu,bt,f)
     if(f==0) then !!! gluon
         val=0._dp
         do n=orderZETA,1,-1
-            iter = 0_dp
+            iter =0._dp
             do k=n+1,1,-1
                 iter=(vnk_g(n,k,Nf)+iter)*LL
             end do
@@ -254,7 +254,7 @@ function zetaMUpert(mu,bt,f)
     else !!!! quark
         val=0._dp
         do n=orderZETA,1,-1
-            iter = 0_dp
+            iter =0._dp
             do k=n+1,1,-1
                 iter=(vnk_q(n,k,Nf)+iter)*LL
             end do

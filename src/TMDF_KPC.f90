@@ -32,7 +32,7 @@ private
 
 character (len=8),parameter :: moduleName="TMDF-KPC"
 character (len=5),parameter :: version="v3.03"
-!Last appropriate verion of constants-file
+!Last appropriate version of constants-file
 integer,parameter::inputver=37
 
 integer::outputLevel=2

@@ -226,8 +226,8 @@ end subroutine CollinsTMDFF_OPE_Initialize
 ! !!!!array of x times PDF(x,Q) for hadron 'hadron'
 ! !!!! array is (-5:5) (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
 ! function xf(x,Q,hadron)
-!     real(dp) :: x,Q
-!     integer:: hadron
+!     real(dp),intent(in) :: x,Q
+!     integer,intent(in):: hadron
 !     real(dp), dimension(-5:5):: xf
 !
 !     xf=x_hPDF(x,Q,hadron)
@@ -267,7 +267,7 @@ function CollinsTMDFF_OPE_tw3_convolution(x,b,h,addGluon)
 end function CollinsTMDFF_OPE_tw3_convolution
 
 
-!!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
+!!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 
 !!! This subroutine force reconstruction of the grid (if griding is ON)
 subroutine CollinsTMDFF_OPE_tw3_resetGrid()
@@ -288,7 +288,7 @@ subroutine CollinsTMDFF_OPE_tw3_SetFFreplica(rep,hadron)
 
 end subroutine CollinsTMDFF_OPE_tw3_SetFFreplica
 
-!!!! this routine set the variations of scales
+!!!! this routine sets the variations of scales
 !!!! it is used for the estimation of errors
 subroutine CollinsTMDFF_OPE_tw3_SetScaleVariation(c4_in)
     real(dp),intent(in)::c4_in

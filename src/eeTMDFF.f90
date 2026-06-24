@@ -257,9 +257,9 @@ subroutine eeTMDFF_Initialize(file,prefix)
 
 end subroutine eeTMDFF_Initialize
 
-!!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
+!!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 
-!!!! this routine set the variations of scales
+!!!! this routine sets the variations of scales
 subroutine eeTMDFF_SetScaleVariation(c4_in)
     real(dp),intent(in)::c4_in
     if(c4_in<0.1d0 .or. c4_in>10.d0) then
@@ -273,8 +273,8 @@ subroutine eeTMDFF_SetScaleVariation(c4_in)
     end if
 end subroutine eeTMDFF_SetScaleVariation
 
-!!!Sets the non-pertrubative parameters lambda
-!!! carries additionl option to build the grid
+!!!Sets the non-perturbative parameters lambda
+!!! carries additional option to build the grid
 !!! if need to build grid, specify the gluon required directive.
 subroutine eeTMDFF_SetLambdaNP(lambdaIN)
     real(dp),intent(in)::lambdaIN(:)
@@ -312,7 +312,7 @@ end function eeTMDFF_CurrentLambdaNP
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
 
-!!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
+!!!!! the names are neutral because these procedures are fed to Fourier transform and other universal subprograms.
 
 !!!!!!! the function that actually returns the eeTMDFF optimal value
 function TMD_opt(bT,hadron)
@@ -371,17 +371,17 @@ function TMD_ev(bt,muf,zetaf,hadron)
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
-    TMD_ev(5)=0_dp
-    TMD_ev(-5)=0_dp
+    TMD_ev(5)=0._dp
+    TMD_ev(-5)=0._dp
     end if
     if(muf<mCHARM) then
-    TMD_ev(4)=0_dp
-    TMD_ev(-4)=0_dp
+    TMD_ev(4)=0._dp
+    TMD_ev(-4)=0._dp
     end if
 
 end function TMD_ev
 
-!!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
+!!!!! the names are neutral because these procedures are fed to Fourier transform and other universal subprograms.
 
 !!!!!!! the function that actually returns the eeTMDFF optimal value
 function TMD_opt_inKT(kT,hadron)

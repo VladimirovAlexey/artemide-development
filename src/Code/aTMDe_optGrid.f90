@@ -34,7 +34,7 @@ type, public :: optGrid
   integer::numXsubgrids,numBsubgrids
   !!!! xNodes & bNodes are the list of values of nodes in the terms of T=[-1,1]
   real(dp),allocatable::xNodes(:),bNodes(:)
-  !!!! xNodes & bNodes are the list of factors (-1)^i/2^%., there %=1 for i=0,NUM, and 0 otherwice
+  !!!! xNodes & bNodes are the list of factors (-1)^i/2^%., there %=1 for i=0,NUM, and 0 otherwise
   real(dp),allocatable::xNodeFactors(:),bNodeFactors(:)
   !!!! xGridSize & bGridSize are the number of nodes in the subgrids
   !!!! number of nodes is made same for all subgrids, in order to simplify memory operation (store all nodes in single multi-array)

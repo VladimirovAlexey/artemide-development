@@ -61,7 +61,7 @@ NPparam=newNPParams !! save new vector of NP-parameters
 
 end subroutine ModelUpdate
   
-!!! This is  non-pertrubative function
+!!! This is  non-perturbative function
 !!! non=pertrubative parameters are lambdaNP()
 !!! x-- is the bjorken variable of TMD
 function FNP(x,bT,hadron,lambdaNP)

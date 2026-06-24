@@ -3,11 +3,11 @@
 !
 !	Evaluation of the unpolarized TMD PDF at low normalization point in zeta-prescription.
 !	
-!	if you use this module please, quote 1706.01473
+!	if you use this module, please, quote 1706.01473
 !
 !	18.08.2023  Implementation in ver.3.0
 !	13.10.2025  Update of class system
-!	23.06.2026  Removed old INCLUDE-dependances
+!	23.06.2026  Removed old INCLUDE-dependencies
 !
 !				A.Vladimirov (18.08.2023)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -40,6 +40,7 @@ logical:: started=.false.
 !! 0=only critical
 !! 1=initialization details
 !! 2=WARNINGS
+!! 3=FULL output
 integer::outputLevel=2
 
 type(Warning_OBJ)::Warning_Handler
@@ -60,7 +61,7 @@ real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
 integer,parameter::TMDtypeN=0 !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD)
 
 type(OgataIntegrator)::HankelbyOGATA
-
+real(dp),parameter::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value in OGATA (it is not dynamical in current implementation)
 !!!------------------------------ Parameters of transform in KT space and KT-grid ------------------------------
 logical::makeGrid_inKT
 type(ktGrid)::mainKTGrid
@@ -74,7 +75,6 @@ real(dp)::muTMM_min=0.8_dp  !!!!! minimal mu
 
 public::uTMDPDF_Initialize,uTMDPDF_IsInitialized,uTMDPDF_SetScaleVariation,uTMDPDF_SetPDFreplica
 public::uTMDPDF_SetLambdaNP,uTMDPDF_CurrentLambdaNP
-public::uTMDPDF_lowScale5
 public::uTMDPDF_inB,uTMDPDF_TMM_G,uTMDPDF_TMM_X,uPDF_uPDF,uTMDPDF_inKT
 
 interface uTMDPDF_inB
@@ -222,7 +222,7 @@ subroutine uTMDPDF_Initialize(file,prefix)
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.uTMDPDF_model : .... initialized',c_green)
 
     !!!!!! TODO: fix the minimal value of KT
-    HankelbyOGATA=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass,0.0001d0)
+    HankelbyOGATA=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass,kT_FREEZE)
 
     if(.not.TMDR_IsInitialized()) then
         if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
@@ -249,7 +249,7 @@ subroutine uTMDPDF_Initialize(file,prefix)
 
 end subroutine uTMDPDF_Initialize
 
-!!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
+!!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 !!! update PDF replica
 subroutine uTMDPDF_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
@@ -257,15 +257,14 @@ subroutine uTMDPDF_SetPDFreplica(rep,hadron)
     call uTMDPDF_OPE_SetPDFreplica(rep,hadron)
 end subroutine uTMDPDF_SetPDFreplica
 
-!!!! this routine set the variations of scales
+!!!! this routine sets the variations of scales
 subroutine uTMDPDF_SetScaleVariation(c4_in)
     real(dp),intent(in)::c4_in
     call uTMDPDF_OPE_SetScaleVariation(c4_in)
 end subroutine uTMDPDF_SetScaleVariation
 
-!!!Sets the non-pertrubative parameters lambda
-!!! carries additionl option to build the grid
-!!! if need to build grid, specify the gluon required directive.
+!!!Sets the non-perturbative parameters lambda
+!!! carries additional option to build the grid
 subroutine uTMDPDF_SetLambdaNP(lambdaIN)
     real(dp),intent(in)::lambdaIN(:)
     integer::ll
@@ -297,7 +296,7 @@ function uTMDPDF_CurrentLambdaNP()
     uTMDPDF_CurrentLambdaNP=lambdaNP
 end function uTMDPDF_CurrentLambdaNP
 
-!!!!! Function that constracts the grid in KT-space
+!!!!! subroutine that constructs the grid in KT-space
 !!!!! I take the TMD and send it to Fourier, and then resend it to the grid...
 subroutine updateGrid_inKT()
 real(dp)::Q,x
@@ -341,40 +340,7 @@ end function toGrid
 end subroutine updateGrid_inKT
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
-!!!!!!! the function that actually returns the uTMDPDF!
-function uTMDPDF_lowScale5(x,bT,hadron)
-  real(dp),dimension(-5:5)::uTMDPDF_lowScale5
-  real(dp),intent(in) :: x, bT
-  integer,intent(in)::hadron
-
-  !!! test boundaries
-    if(x>1d0) then
-        call Warning_Handler%WarningRaise('Called x>1 (return 0). x='//numToStr(x))
-        uTMDPDF_lowScale5=0._dp
-        return
-     else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
-        uTMDPDF_lowScale5=0._dp
-        return
-    else if(bT>BMAX_ABS) then
-        uTMDPDF_lowScale5=0._dp
-        return
-    else if(x<1d-12) then
-        ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
-    else if(bT<0d0) then
-        ERROR STOP ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
-    end if
-
-    uTMDPDF_lowScale5=uTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
-
-    if(hadron<0) uTMDPDF_lowScale5=uTMDPDF_lowScale5(5:-5:-1)
-
-end function uTMDPDF_lowScale5
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!======TO REMOVE
-
-
-!!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
+!!!!! the names are neutral because these procedures are fed to Fourier transform and other universal subprograms.
 
 !!!!!!! the function that actually returns the uTMDPDF optimal value
 function TMD_opt(x,bT,hadron)
@@ -393,7 +359,7 @@ function TMD_opt(x,bT,hadron)
     else if(bT>BMAX_ABS) then
         TMD_opt=0._dp
         return
-    else if(x<toleranceGEN) then
+    else if(x<0.) then
         ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     else if(bT<0d0) then
         ERROR STOP ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
@@ -412,6 +378,12 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: Rkernel,RkernelG
 
+    !!!! for an earlier exit (in this case do not compute evolution factor)
+    if(bT>BMAX_ABS) then
+      TMD_ev=0._dp
+      return
+    end if
+
     if(includeGluon) then
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
         RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
@@ -427,17 +399,17 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
-    TMD_ev(5)=0_dp
-    TMD_ev(-5)=0_dp
+    TMD_ev(5)=0._dp
+    TMD_ev(-5)=0._dp
     end if
     if(muf<mCHARM) then
-    TMD_ev(4)=0_dp
-    TMD_ev(-4)=0_dp
+    TMD_ev(4)=0._dp
+    TMD_ev(-4)=0._dp
     end if
 
 end function TMD_ev
 
-!!!!! the names are neutral because these procedures are feed to Fourier transform. And others universal sub programs.
+!!!!! the names are neutral because these procedures are fed to Fourier transform and other universal subprograms.
 
 !!!!!!! the function that actually returns the uTMDPDF optimal value
 function TMD_opt_inKT(x,kT,hadron)
@@ -453,7 +425,7 @@ function TMD_opt_inKT(x,kT,hadron)
      else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
         TMD_opt_inKT=0._dp
         return
-    else if(x<toleranceGEN) then
+    else if(x<0) then
         ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     else if(kT<0d0) then
         ERROR STOP ErrorString('Called kT<0. kT='//numToStr(kT)//' . Evaluation STOP',moduleName)
@@ -480,18 +452,24 @@ function TMD_ev_inKT(x,kT,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: Rkernel,RkernelG
 
+    !!!! for an earlier exit
+    if(x>=1._dp) then
+      TMD_ev_inKT=0._dp
+      return
+    end if
+
     TMD_ev_inKT=HankelbyLEVIN%Fourier_atPoint(toFourier,kT)
 
     if(hadron<0) TMD_ev_inKT=TMD_ev_inKT(5:-5:-1)
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
-    TMD_ev_inKT(5)=0_dp
-    TMD_ev_inKT(-5)=0_dp
+    TMD_ev_inKT(5)=0._dp
+    TMD_ev_inKT(-5)=0._dp
     end if
     if(muf<mCHARM) then
-    TMD_ev_inKT(4)=0_dp
-    TMD_ev_inKT(-4)=0_dp
+    TMD_ev_inKT(4)=0._dp
+    TMD_ev_inKT(-4)=0._dp
     end if
 
 contains
@@ -517,7 +495,7 @@ end function TMD_ev_inKT
 
 
 !!!!!!!! the function that actually returns the uTMDPDF evolved to (mu,mu^2) value
-!!!!!!! This is exactly what is stored in the grid. So if grid is buid attempt to extract from it.
+!!!!!!! This is exactly what is stored in the grid. So if grid is built attempt to extract from it.
 function TMD_grid_inKT(x,kT,mu,hadron)
     real(dp)::TMD_grid_inKT(-5:5)
     real(dp),intent(in):: x,kT,mu
@@ -533,8 +511,8 @@ function TMD_grid_inKT(x,kT,mu,hadron)
 end function TMD_grid_inKT
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PRODUCTS FOR DY!!!!!!!!!!!!!!!!!!!!!!
-!!! Product of quark*antiquark uTMDPDFs. Slightly faster then just product
-! vector (bbar,cbar,sbar,ubar,dbar,??,d,u,s,c,b)
+!!! Product of quark*antiquark uTMDPDFs. Slightly faster than just product
+! vector (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
 function uPDF_uPDF(x1,x2,bt,muf,zetaf,hadron1,hadron2)
     real(dp),dimension(-5:5)::uPDF_uPDF
     real(dp),intent(in):: x1,x2,bt,muf,zetaf
@@ -542,19 +520,20 @@ function uPDF_uPDF(x1,x2,bt,muf,zetaf,hadron1,hadron2)
     real(dp):: Rkernel, RkernelG
     real(dp),dimension(-5:5)::tmd1,tmd2
 
-
-    tmd1=uTMDPDF_lowScale5(x1,bT,hadron1)
-    tmd2=uTMDPDF_lowScale5(x2,bT,hadron2)
-
-    !!!! both hadrons, so it is q*barq product
-    if(sign(1,hadron1)==sign(1,hadron1)) then
-        uPDF_uPDF=tmd1*(tmd2(5:-5:-1))
-    else !!!!! one hadron is anti-hadron, so it is q*q product
-        uPDF_uPDF=tmd1*tmd2
+    !!!! for an earlier exit (in this case do not compute evolution factor)
+    if(bT>BMAX_ABS) then
+      uPDF_uPDF=0._dp
+      return
     end if
 
+    tmd1=TMD_opt(x1,bT,hadron1)
+    tmd2=TMD_opt(x2,bT,hadron2)
+
+    ! tmd2 reversed so quark i (hadron1) pairs with antiquark -i (hadron2).
+    uPDF_uPDF=tmd1*(tmd2(5:-5:-1))
+
+    !!! the evolution factor is squared because it is a product of two TMDs
     if(includeGluon) then
-        !!! the evolution factor is squared because There is a product of two TMDs
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)**2
         RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)**2
 
@@ -562,19 +541,18 @@ function uPDF_uPDF(x1,x2,bt,muf,zetaf,hadron1,hadron2)
             (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
 
     else
-        !!! the evolution factor is squared because There is a product of two TMDs
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)**2
         uPDF_uPDF=Rkernel*uPDF_uPDF
     end if
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
-        uPDF_uPDF(5)=0_dp
-        uPDF_uPDF(-5)=0_dp
+        uPDF_uPDF(5)=0._dp
+        uPDF_uPDF(-5)=0._dp
     end if
     if(muf<mCHARM) then
-        uPDF_uPDF(4)=0_dp
-        uPDF_uPDF(-4)=0_dp
+        uPDF_uPDF(4)=0._dp
+        uPDF_uPDF(-4)=0._dp
     end if
 end function uPDF_uPDF
 
@@ -593,12 +571,12 @@ function uTMDPDF_TMM_G(x,mu,hadron)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
-    uTMDPDF_TMM_G(5)=0_dp
-    uTMDPDF_TMM_G(-5)=0_dp
+    uTMDPDF_TMM_G(5)=0._dp
+    uTMDPDF_TMM_G(-5)=0._dp
     end if
     if(mu<mCHARM) then
-    uTMDPDF_TMM_G(4)=0_dp
-    uTMDPDF_TMM_G(-4)=0_dp
+    uTMDPDF_TMM_G(4)=0._dp
+    uTMDPDF_TMM_G(-4)=0._dp
     end if
 contains
     function F(b)
@@ -624,12 +602,12 @@ function uTMDPDF_TMM_X(x,mu,hadron)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
-    uTMDPDF_TMM_X(5)=0_dp
-    uTMDPDF_TMM_X(-5)=0_dp
+    uTMDPDF_TMM_X(5)=0._dp
+    uTMDPDF_TMM_X(-5)=0._dp
     end if
     if(mu<mCHARM) then
-    uTMDPDF_TMM_X(4)=0_dp
-    uTMDPDF_TMM_X(-4)=0_dp
+    uTMDPDF_TMM_X(4)=0._dp
+    uTMDPDF_TMM_X(-4)=0._dp
     end if
 contains
     function F(b)
