@@ -1,18 +1,19 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!            arTeMiDe 2.00
+!            arTeMiDe 3.04
 !
 !    Evaluation of the TMD evolution kernel
 !    Here we use the improved gamma-solution, and the universal TMD definition.
 !
-!    if you use this module please, quote 1803.11089
+!    If you use this module, please, quote 1803.11089
 !
 !                A.Vladimirov (17.04.2018)
 !            v1.32   A.Vladimirov (30.08.2018)
 !                b-freeze at 1d-6 A.Vladimirov (16.09.2018)
 !            v1.41   transpose-issue fixed A.Vladimirov (11.03.2019)
 !                29.03.2019  Update to version 2.00 (AV).
-!            v2.01     Added zeta-line with non-pertrubative D A.Vladimirov (06.06.2019)
+!            v2.01     Added zeta-line with non-perturbative D A.Vladimirov (06.06.2019)
 !                Added gluon evolution A.Vladimirov (12.06.2019)
+!            v3.04  Cleaning the code. Removed CSS-evolution completely AV (24.06.2026)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module TMDR
 use aTMDe_Numerics
@@ -25,14 +26,10 @@ implicit none
 
 private
 
-!!!!!! 0=STANDARD MODE
-!!!!!! 1=CSS mode - former type 1 (ONLY FOR TESTING)
-#define EVOLUTION_MODE 0
-
 !Current version of module
-character (len=5),parameter :: version="v3.00"
+character (len=5),parameter :: version="v3.04"
 character (len=7),parameter :: moduleName="TMDR"
-!Last appropriate verion of constants-file
+!Last appropriate version of constants-file
 integer,parameter::inputver=30
 
 !------------------------------------------Working variables------------------------------------------------------------
@@ -47,8 +44,9 @@ integer::orderZETA      !for zeta-line
 
 !! Level of output
 !! 0=only critical
-!! 1=initialization details
-!! 2=WARNINGS
+!! 1=warnings
+!! 2=initialization details
+!! 3=verbose
 integer::outputLevel=2
 type(Warning_OBJ)::Warning_Handler
 
@@ -57,33 +55,27 @@ logical::started=.false.
 !! Scale variation of OPE
 real(dp)::c1_global=1._dp
 !! Precision tolerance used in various routines
-real(dp)::tolerance=0.0001d0
-!! The lowerst value of b (below the expression is freezed)
+real(dp)::tolerance=0.000001d0
+!! Zero value (used to eliminate some contributions, e.g. in interpolation from perturbative to np regimes)
+real(dp)::zero=1d-10
+!! The lowest value of b (below the expression is frozen)
 real(dp)::bFREEZE=1d-6
-!! Parameter that interpolaes the small-b part of zeta-line
+!! Parameter that interpolates the small-b part of zeta-line
 real(dp)::smoothingParameter=0.01d0
 
-integer::counter
+!------------------------------------------Non-perturbative parameters--------------------------------------------------
 
-!------------------------------------------Non-pertrubative parameters--------------------------------------------------
-
-!!Number of non-pertrubative parameters
+!!Number of non-perturbative parameters
 integer::NPlength=0
-!! array of non-pertrubative parameters
+!! array of non-perturbative parameters
 real(dp),allocatable,dimension(:):: NPparam
 
-public::TMDR_R,TMDR_Rzeta,TMDR_Rzeta_harpy
-public:: TMDR_Initialize,TMDR_setNPparameters,LowestQ,TMDR_IsInitialized,TMDR_CurrentNPparameters,TMDR_SetScaleVariation
+public::TMDR_R,TMDR_Rzeta
+public:: TMDR_Initialize,TMDR_setNPparameters,LowestQ,TMDR_IsInitialized,TMDR_SetScaleVariation
 public:: CS_kernel,zetaNP
 
   
 contains
-
-#if INTEGRATION_MODE==1
-    !!! THE EVOLUTION BY CSS-formula
-    INCLUDE 'Code/TMDR/typeCSS.f90'
-#endif
-
 
 function TMDR_IsInitialized()
     logical::TMDR_IsInitialized
@@ -91,10 +83,7 @@ function TMDR_IsInitialized()
 end function TMDR_IsInitialized
 
    
-!!! Initializing routing
-!!! Filles the prebuiled arrays
-!!! orderAD, is order of anomalous dimension for evolution
-!!!! order zeta is the order of pertrubative zeta expression, used only in the "universal TMD"
+!!! Initialization routine
 subroutine TMDR_Initialize(file,prefix)
     character(len=*)::file
     character(len=*),optional::prefix
@@ -119,11 +108,11 @@ subroutine TMDR_Initialize(file,prefix)
     call MoveTO(51,'*p1  ')
     read(51,*) FILEver
     if(FILEver<inputver) then
+      CLOSE (51, STATUS='KEEP')
       write(*,*) 'artemide.'//trim(moduleName)//': const-file version is too old.'
       write(*,*) '             Update the const-file with artemide.setup'
       write(*,*) '  '
       stop
-      CLOSE (51, STATUS='KEEP')
     end if
     call MoveTO(51,'*p2  ')
     read(51,*) outputLevel    
@@ -150,7 +139,7 @@ subroutine TMDR_Initialize(file,prefix)
     
     if(.not.overrideORDER) then !!! usual definition
     !!!!! IMPORTANT
-    !!!!! Gamma cusp start from Gamma0, i.e. orderCusp=0 = as^1    
+    !!!!! Gamma cusp starts from Gamma0, i.e. orderCusp=0 = as^1
     SELECT CASE(orderMain)
       CASE ("LO")
     if(outputLevel>1) write(*,*) trim(moduleName)//' Order set: LO'
@@ -220,8 +209,8 @@ subroutine TMDR_Initialize(file,prefix)
       write(*,'(A,I1)') ' |  zeta_mu       =as^',orderZETA
      end if
 
-    else !!! overrided definition
-      if(outputLevel>1) write(*,*) trim(moduleName)//' Starndard order-definition is overrided'
+    else !!! overriden definition
+      if(outputLevel>1) write(*,*) trim(moduleName)//' Standard order-definition is overridden'
 
       call MoveTO(51,'*p3  ')
       read(51,*) orderI
@@ -308,21 +297,15 @@ subroutine TMDR_Initialize(file,prefix)
     call ModelInitialization(NPlength)
 
     c1_global=1._dp
-
-#if INTEGRATION_MODE==1
-    if(outputLevel>0) write(*,*) color('  CSS-like evolution path is selected',c_red)
-    if(outputLevel>0) write(*,*) color('  !!! IT IS NOT A DEFAULT OPTION !!! ',c_red)
-#endif
     
     started=.true.
-    counter=0
     if(outputLevel>0) write(*,*) color('----- arTeMiDe.TMDR '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) ' '
 end subroutine TMDR_Initialize
 
 !!! function that associates LO=0, NLO=1, etc.
 pure function OrderSelector(orderSTR)
-  character*8,intent(in)::orderSTR
+  character(len=8),intent(in)::orderSTR
   integer::OrderSelector
       SELECT CASE(orderSTR)
       CASE ("LO")
@@ -353,14 +336,14 @@ subroutine TMDR_setNPparameters(lambdaIN)
     if(ll<NPlength) then 
       if(outputLevel>0) write(*,"(A,I3,A,I3,')')")&
           WarningString('length of lambdaNP(',moduleName),ll,&
-          color(') is less then requred (',c_red),NPlength
+          color(') is less than required (',c_red),NPlength
       if(outputLevel>0) write(*,*)color('                Rest parameters are replaced by zeros!',c_red)
       NPparam=0d0*NPparam
       NPparam(1:ll)=lambdaIN(1:ll)
     else if (ll>NPlength) then
       if(outputLevel>0) write(*,"(A,I3,A,I3,')')")&
           WarningString('length of lambdaNP(',moduleName),ll,&
-          color(') is greater then requred (',c_red),NPlength
+          color(') is greater than required (',c_red),NPlength
       if(outputLevel>0) write(*,*)color('                Array is truncated!',c_red)
       NPparam(1:NPlength)=lambdaIN(1:NPlength)
      else
@@ -373,15 +356,8 @@ subroutine TMDR_setNPparameters(lambdaIN)
     
 end subroutine TMDR_setNPparameters
 
-subroutine TMDR_CurrentNPparameters(var)
-    real(dp),dimension(1:NPlength)::var
-    var=NPparam
- 
-end subroutine TMDR_CurrentNPparameters
-
-
 !!!-------------------------------------------------------------------------------------------------------
-!!!-----------------------------Routines for the evolution of type 3--------------------------------------
+!!!-----------------------------Routines for the evolution -----------------------------------------------
 !!!----------------------------------(zeta-prescription)--------------------------------------------------
 !!!-------------------------------------------------------------------------------------------------------
 
@@ -399,9 +375,9 @@ function CS_kernel(mu,b,f)
 
 end function CS_kernel
 
-!! This is the non-pertrubative shape of zeta_mu line.
-!! It MUST follow the equipotential line in perturbative regime (at small-b), at the level pf PT accuracy.
-!! Otherwice, your evolution is completely broken.
+!! This is the non-perturbative shape of zeta_mu line.
+!! It MUST follow the equipotential line in perturbative regime (at small-b), at the level of PT accuracy.
+!! Otherwise, your evolution is completely broken.
 !! Use zetaMUpert for perturbative values, use zetaSL for exact values
 function zetaNP(mu,b,f)
     real(dp)::zetaNP
@@ -413,55 +389,53 @@ function zetaNP(mu,b,f)
     zetaNP=zetaNP_rad(mu,rad,b,f)
 end function zetaNP
 
+!! This is the non-perturbative shape of zeta_mu line, Evaluated at particular value of CS-kernel(=rad)
 function zetaNP_rad(mu,rad,b,f)
     real(dp)::zetaNP_rad
     real(dp),intent(in)::mu,b,rad
     integer,intent(in)::f
     real(dp)::zz
 
-    !! this ofset is required to guaranty a good numerical behavior at b->0.
-    !! In principle, zz=0 also works
+    !! In principle, the computation is valid at all b (checked for usual cases)
+    !! but for very small b, it can became numerically unstable (there are many exponents of exponents)
+    !! So, here I introduce a smoothing parameter which turns the curve to pure perturbative value (which is numerically stable) for b->0
+    !! For typical values of smoothingParameter, at b=0.5 the contribution is negligible ~10^-10.
     zz=Exp(-b**2/smoothingParameter)
 
-    zetaNP_rad=zetaMUpert(mu,b,f)*zz+zetaSL(mu,rad,f)*(1d0-zz)
+    !!!! since zz us usually VERY small. There is no reason to compute perturbative term
+    if(zz<zero) then
+      zetaNP_rad=zetaSL(mu,rad,f)
+    else
+      zetaNP_rad=zetaMUpert(mu,b,f)*zz+zetaSL(mu,rad,f)*(1d0-zz)
+    end if
 
 end function zetaNP_rad
 
- !!! general interface for evolutions from (muf,zetaf)->(mui,zetai)
+!!! general interface for evolutions from (muf,zetaf)->(mui,zetai)
 function TMDR_R(b,muf,zetaf,mui,zetai,f)
   real(dp)::TMDR_R
   real(dp),intent(in)::b,muf,zetaf,mui,zetai
   integer,intent(in)::f
+
   TMDR_R=TMDR_Rzeta(b,muf,zetaf,f)/TMDR_Rzeta(b,mui,zetai,f)
+
 end function TMDR_R
 
 
 !!! Evolution exponent in the improved gamma-picture to zeta-line (defined by zetaNP)
+!!! Basically it is R=(zeta/zeta_0[b,mu])^(-D(b,mu))
 function TMDR_Rzeta(b,muf,zetaf,f)
   real(dp), intent(in)::b,muf,zetaf
   integer,intent(in)::f
   real(dp)::TMDR_Rzeta,bLocal
 
-  real(dp)::Dvalue,zetaP,muLOW
+  real(dp)::Dvalue,zetaP
 
-  if(b<bFREEZE) then
-    bLocal=bFREEZE
-  else
-    bLocal=b
-  end if
+  bLocal=max(b,bFREEZE)
 
-#if INTEGRATION_MODE==0
-  !!!!! THIS IS DEFAULT VERSION
-    Dvalue=CS_kernel(muf,b,f)
-
-    zetaP=zetaNP_rad(muf,Dvalue,bLocal,f)
-
-    TMDR_Rzeta=EXP(-Dvalue*Log(zetaf/zetaP))
-#elif INTEGRATION_MODE==1
-    !!!!! THIS IS FOR CSS-like evolution !!!!!
-    muLOW=muOPE(b,c1_global)
-    TMDR_Rzeta=TMDR_Rzeta_type1(b,muf,zetaf,muLOW,muLOW,f)
-#endif
+  Dvalue=CS_kernel(muf,b,f)
+  zetaP=zetaNP_rad(muf,Dvalue,bLocal,f)
+  TMDR_Rzeta=EXP(-Dvalue*Log(zetaf/zetaP))
 
   if(TMDR_Rzeta>1d6) then
     write(*,*) ErrorString('Evolution factor is TOO HUGE check the formula',moduleName)
@@ -477,16 +451,9 @@ function TMDR_Rzeta(b,muf,zetaf,f)
 
 end function TMDR_Rzeta
 
-function TMDR_Rzeta_harpy(b,muf,zetaf,f)
-  real(dp)::TMDR_Rzeta_harpy,b,muf,zetaf
-  integer::f
+!!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 
-  TMDR_Rzeta_harpy=TMDR_Rzeta(b,muf,zetaf,f)
-end function TMDR_Rzeta_harpy
-
-!!!!!!!!!! ------------------------ SUPPORINTG ROUTINES --------------------------------------
-
-!!!! this routine set the variations of scales
+!!!! this routine sets the OPE scale factor c1 (within the perturbative RAD)
 !!!! it is used for the estimation of errors
 subroutine TMDR_SetScaleVariation(c1_in)
     real(dp),intent(in)::c1_in
@@ -501,103 +468,100 @@ subroutine TMDR_SetScaleVariation(c1_in)
     end if
 end subroutine TMDR_SetScaleVariation
 
- !! we search for the lowest avalible Q, under which the evolution is inverted (for quark)
-  !! it is defined by Q^2<zeta_Q(b->infty)
-  !! with variabtions it is Q^2<zeta_{c Q}(b->infty)
-  !! the function return the values for c={0.5,1,2} at b=25 (let it be assimptotic value)
-  !! The function returns 1 if Q<1
- function LowestQ()
-  real(dp),dimension(1:3)::LowestQ
-  
-  real(dp),parameter::b=25d0
-  integer,parameter::f=1
-  real(dp)::Qs1,Qs2,Qs3,V1,V2,V3
-  
-  !c=1
-  Qs1=1d0
-  V1=Qs1**2-zetaNP(Qs1,b,f)
-  
-  Qs3=25d0
-  V3=Qs3**2-zetaNP(Qs3,b,f)
-  
-  if(V1<0d0 .and. V3>0d0) then
-    do
-      Qs2=(Qs3+Qs1)/2d0
-      V2=Qs2**2-zetaNP(Qs2,b,f)
-      if(V2>0d0) then 
-    Qs3=Qs2
-    V3=V2
-      else
-    Qs1=Qs2
-    V1=V2
-      end if
-      if(Qs3-Qs1<tolerance) exit
-    end do
-    LowestQ(2)=(Qs3+Qs1)/2d0
-  else if(V1>0d0 .and. V3>0d0) then
-    LowestQ(2)=1d0
-  else
-    write(*,*) ErrorString('LowestQ: Negative value at large Q (c=1).',moduleName)
-    stop
-  end if
-  
-    !c=0.5
-  Qs1=1d0
-  V1=Qs1**2-zetaNP(0.5d0*Qs1,b,f)
-  
-  Qs3=25d0
-  V3=Qs3**2-zetaNP(0.5d0*Qs3,b,f)
-  
-  if(V1<0d0 .and. V3>0d0) then
-    do
-      Qs2=(Qs3+Qs1)/2d0
-      V2=Qs2**2-zetaNP(0.5d0*Qs2,b,f)
-      if(V2>0d0) then 
-    Qs3=Qs2
-    V3=V2
-      else
-    Qs1=Qs2
-    V1=V2
-      end if
-      if(Qs3-Qs1<tolerance) exit
-    end do
-    LowestQ(1)=(Qs3+Qs1)/2d0
-  else if(V1>0d0 .and. V3>0d0) then
-    LowestQ(1)=1d0
-  else
-    write(*,*) ErrorString('LowestQ: Negative value at large Q (c=1).',moduleName)
-    stop
-  end if
-  
-    !c=2
-  Qs1=1d0
-  V1=Qs1**2-zetaNP(2d0*Qs1,b,f)
-  
-  Qs3=25d0
-  V3=Qs3**2-zetaNP(2d0*Qs3,b,f)
-  
-  if(V1<0d0 .and. V3>0d0) then
-    do
-      Qs2=(Qs3+Qs1)/2d0
-      V2=Qs2**2-zetaNP(2d0*Qs2,b,f)
-      if(V2>0d0) then 
-    Qs3=Qs2
-    V3=V2
-      else
-    Qs1=Qs2
-    V1=V2
-      end if
-      if(Qs3-Qs1<tolerance) exit
-    end do
-    LowestQ(3)=(Qs3+Qs1)/2d0
-  else if(V1>0d0 .and. V3>0d0) then
-    LowestQ(3)=1d0
-  else
-    write(*,*) ErrorString('LowestQ: Negative value at large Q (c=1).',moduleName)
-    stop
-  end if
- 
- end function LowestQ
+!! we search for the lowest available Q, under which the evolution is inverted (for quark)
+!! it is defined by Q^2<zeta_Q(b->infty)
+!! with variations it is Q^2<zeta_{c Q}(b->infty)
+!! the function returns the values for c={0.5,1,2} at b=25 (let it be asymptotic value)
+!! The function returns 1 if Q<1
+function LowestQ()
+real(dp),dimension(1:3)::LowestQ
+
+real(dp),parameter::b=25d0
+integer,parameter::f=1
+real(dp)::Qs1,Qs2,Qs3,V1,V2,V3
+
+!c=1
+Qs1=1d0
+V1=Qs1**2-zetaNP(Qs1,b,f)
+
+Qs3=25d0
+V3=Qs3**2-zetaNP(Qs3,b,f)
+
+if(V1<0d0 .and. V3>0d0) then
+  do
+    Qs2=(Qs3+Qs1)/2d0
+    V2=Qs2**2-zetaNP(Qs2,b,f)
+    if(V2>0d0) then
+  Qs3=Qs2
+  V3=V2
+    else
+  Qs1=Qs2
+  V1=V2
+    end if
+    if(Qs3-Qs1<tolerance) exit
+  end do
+  LowestQ(2)=(Qs3+Qs1)/2d0
+else if(V1>0d0 .and. V3>0d0) then
+  LowestQ(2)=1d0
+else
+  ERROR STOP ErrorString('LowestQ: Negative value at large Q (c=1).',moduleName)
+end if
+
+  !c=0.5
+Qs1=1d0
+V1=Qs1**2-zetaNP(0.5d0*Qs1,b,f)
+
+Qs3=25d0
+V3=Qs3**2-zetaNP(0.5d0*Qs3,b,f)
+
+if(V1<0d0 .and. V3>0d0) then
+  do
+    Qs2=(Qs3+Qs1)/2d0
+    V2=Qs2**2-zetaNP(0.5d0*Qs2,b,f)
+    if(V2>0d0) then
+  Qs3=Qs2
+  V3=V2
+    else
+  Qs1=Qs2
+  V1=V2
+    end if
+    if(Qs3-Qs1<tolerance) exit
+  end do
+  LowestQ(1)=(Qs3+Qs1)/2d0
+else if(V1>0d0 .and. V3>0d0) then
+  LowestQ(1)=1d0
+else
+  ERROR STOP ErrorString('LowestQ: Negative value at large Q (c=0.5).',moduleName)
+end if
+
+  !c=2
+Qs1=1d0
+V1=Qs1**2-zetaNP(2d0*Qs1,b,f)
+
+Qs3=25d0
+V3=Qs3**2-zetaNP(2d0*Qs3,b,f)
+
+if(V1<0d0 .and. V3>0d0) then
+  do
+    Qs2=(Qs3+Qs1)/2d0
+    V2=Qs2**2-zetaNP(2d0*Qs2,b,f)
+    if(V2>0d0) then
+  Qs3=Qs2
+  V3=V2
+    else
+  Qs1=Qs2
+  V1=V2
+    end if
+    if(Qs3-Qs1<tolerance) exit
+  end do
+  LowestQ(3)=(Qs3+Qs1)/2d0
+else if(V1>0d0 .and. V3>0d0) then
+  LowestQ(3)=1d0
+else
+  ERROR STOP ErrorString('LowestQ: Negative value at large Q (c=2).',moduleName)
+end if
+
+end function LowestQ
 
 
 end module TMDR

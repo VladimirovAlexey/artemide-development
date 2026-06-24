@@ -244,7 +244,7 @@ end function GetTw3_WGT
     real*8::b,mu,zeta
     integer::f
 
-    getR=TMDR_Rzeta_harpy(b,mu,zeta,f)
+    getR=TMDR_Rzeta(b,mu,zeta,f)
   end function getR
   
   
