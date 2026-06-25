@@ -52,7 +52,6 @@ type(Warning_OBJ)::Warning_Handler
 integer :: orderMain=2 !! LO=0, NLO=1,...
 !!! Order of large-X resummation
 logical,parameter :: resumLargeX=.false. !!!! could not be resummation of largeX
-integer :: orderLX=0 !! LO=0 [no-resummation], NLO=1,...
 
 !!! Phase space limitations parameters
 real(dp) :: xMin=0.00001_dp !!! min x
@@ -259,8 +258,7 @@ subroutine lpTMDPDF_OPE_Initialize(file,prefix)
     bMax=subGridsB(size(subGridsB)-1)
 
     if(abs(subGridsX(size(subGridsX)-1)-1)>toleranceGEN) then
-        write(*,*) ErrorString("The last subgrid in X must complete by x=1. Initialization terminated",moduleName)
-        stop
+        ERROR STOP ErrorString("The last subgrid in X must complete by x=1. Initialization terminated",moduleName)
     end if
 
     mainGrid=optGrid(path,'*11  ','*E   ',numberOfHadrons,withGluon,moduleName,outputLevel)
@@ -324,7 +322,7 @@ function lpTMDPDF_OPE_convolution(x,b,h,addGluon)
         gluon=withGluon
     end if
 
-    !!!! test for boundaries is done in lpTMDPDF_lowScale5 (on the enty to this procedure)
+    !!!! test for boundaries is done in lpTMDPDF_lowScale5 (on the entry to this procedure)
 
     !!!! case NA
     if(orderMain==-50) then

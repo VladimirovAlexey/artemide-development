@@ -11,8 +11,9 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!COEFFICIENT FUNCTIONS!!
   
 !!! the function which contains the functions of parameterizations
-function parametrizationString(z)
-real(dp)::z,lz,llz,zz
+pure function parametrizationString(z)
+real(dp),intent(in)::z
+real(dp)::lz,llz,zz
 real(dp),dimension(1:parametrizationLength)::parametrizationString
     zz=1d0-z
     lz=Log(z)
@@ -31,8 +32,8 @@ end function parametrizationString
   !!! the function which contains
   !!! int_z^1 parameterization at values of z -> 1
   !!! it is used to estimate integration error at z~1
-function parametrizationStringAt1(z)
-real(dp)::z
+pure function parametrizationStringAt1(z)
+real(dp),intent(in)::z
 real(dp),dimension(1:parametrizationLength)::parametrizationStringAt1
 
 parametrizationStringAt1=(/1d0-z, 0d0,0d0,0d0,1d0-z,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0/)
