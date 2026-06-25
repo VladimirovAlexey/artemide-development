@@ -111,7 +111,7 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
     end if
 
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
-    !!! Search for output level
+
     call MoveTO(51,'*0   ')
     call MoveTO(51,'*A   ')
     call MoveTO(51,'*p1  ')

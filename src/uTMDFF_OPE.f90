@@ -72,8 +72,8 @@ integer :: maxIteration=4000   !!! maximum iteration in the integrals (not used 
 logical :: IsMuYdependent = .true.  !!! if mu is y independent, computation is much(!) faster
 
 !!!! grid preparation
-logical :: useGrid=.true.  !!!idicator that grid must be prepared
-logical :: withGluon=.false.   !!!indicator the gluon is needed in the grid
+logical :: useGrid=.true.  !!!indicator that grid must be prepared
+logical :: withGluon=.false.   !!!indicator that the gluon is needed in the grid
 logical :: runTest=.false.   !!!trigger to run the test
 
 type(optGrid)::mainGrid
@@ -141,7 +141,7 @@ subroutine uTMDFF_OPE_Initialize(file,prefix)
 
     !----------------- reading ini-file --------------------------------------
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
-    !!! Search for output level
+
     call MoveTO(51,'*0   ')
     call MoveTO(51,'*A   ')
     call MoveTO(51,'*p1  ')
@@ -446,7 +446,7 @@ function uTMDFF_X0_AS(x,mu,mu0,h,addGluon)
 end function uTMDFF_X0_AS
 
 !!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
-!!! This subroutine force reconstruction of the grid (if griding is ON)
+!!! This subroutine forces reconstruction of the grid (if gridding is ON)
 subroutine uTMDFF_OPE_resetGrid()
     if(useGrid) then
         if(outputLevel>1) write(*,*) 'arTeMiDe ',moduleName,':  Grid Reset. with c4=',c4_global
@@ -455,7 +455,7 @@ subroutine uTMDFF_OPE_resetGrid()
 end subroutine uTMDFF_OPE_resetGrid
 
 !! call QCDinput to change the PDF replica number
-!! unset the grid, since it should be recalculated fro different PDF replica.
+!! unset the grid, since it should be recalculated for different PDF replica.
 subroutine uTMDFF_OPE_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
     logical::newPDF

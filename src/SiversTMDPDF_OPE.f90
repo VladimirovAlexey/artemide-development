@@ -1,11 +1,12 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!            arTeMiDe 3.00
+!            arTeMiDe 3.04
 !
 !    Evaluation of the small-b OPE for SiversTMDPDF
 !
 !    if you use this module please, quote 1901.04519
 !
 !    ver 3.00: release (AV, 21.07.2023)
+!    ver 3.04: minor update (AV, 25.06.2026)
 !
 !                A.Vladimirov (21.07.2023)
 !
@@ -32,7 +33,7 @@ implicit none
 private 
 
 !Current version of module
-character (len=5),parameter :: version="v3.00"
+character (len=5),parameter :: version="v3.04"
 character (len=16),parameter :: moduleName="SiversTMDPDF_OPE"
 !Last appropriate version of constants-file
 integer,parameter::inputver=36
@@ -62,8 +63,8 @@ real(dp) :: toleranceGEN=1d-6  !!! tolerance for other purposes
 integer :: maxIteration=4000   !!! maximum iteration in the integrals (not used at the moment)
 
 !!!! grid preparation for tw3 part
-logical :: useGridTW3=.false.  !!!idicator that grid must be prepared
-logical :: withGluonTW3=.false.   !!!indicator the gluon is needed in the grid
+logical :: useGridTW3=.false.  !!!indicator that grid must be prepared
+logical :: withGluonTW3=.false.   !!!indicator that the gluon is needed in the grid
 logical :: runTestTW3=.false.   !!!trigger to run the test
 
 type(optGrid)::mainGrid
@@ -71,23 +72,20 @@ type(optGrid)::mainGrid
 !!!------------------------- HARD-CODED PARAMETERS ----------------------
 
 !!!------------------------- DYNAMICAL-GLOBAL PARAMETERS -------------------
-real(dp) :: c4_global=1_dp  !!! scale variation parameter
+real(dp) :: c4_global=1._dp  !!! scale variation parameter
 
 !!!------------------------- SPECIAL VARIABLES FOR GRID (used by TMDGrid-XB)------------------
 integer::numberOfHadrons=1                !!!total number of hadrons to be stored
 
 !!--------------------------------------Public interface-----------------------------------------
 public::SiversTMDPDF_OPE_IsInitialized,SiversTMDPDF_OPE_Initialize
-public::SiversTMDPDF_OPE_tw3_convolution,SiversTMDPDF_OPE_tw3_resetGrid
+public::SiversTMDPDF_OPE_tw3,SiversTMDPDF_OPE_tw3_resetGrid
 public::SiversTMDPDF_OPE_tw3_SetPDFreplica,SiversTMDPDF_OPE_tw3_SetScaleVariation
 
 !!!!!!----FOR TEST
 !public::MakeGrid,ExtractFromGrid,CxF_compute,TestGrid
 
 contains
-
-!! Coefficient function
-!INCLUDE 'Code/SiversTMDPDF/coeffFunc-new2.f90'
 
 
 function SiversTMDPDF_OPE_IsInitialized()
@@ -123,7 +121,7 @@ subroutine SiversTMDPDF_OPE_Initialize(file,prefix)
 
     !----------------- reading ini-file --------------------------------------
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
-    !!! Search for output level
+
     call MoveTO(51,'*0   ')
     call MoveTO(51,'*A   ')
     call MoveTO(51,'*p1  ')
@@ -148,6 +146,7 @@ subroutine SiversTMDPDF_OPE_Initialize(file,prefix)
     !$read(51,*) i
     !$ call OMP_set_num_threads(i)
 
+    !!! Module-specific ini section: check if initialization is required
     call MoveTO(51,'*12  ')
     call MoveTO(51,'*p1  ')
     read(51,*) initRequired
@@ -206,9 +205,9 @@ subroutine SiversTMDPDF_OPE_Initialize(file,prefix)
 
     Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
 
-    c4_global=1d0
+    c4_global=1._dp
 
-    mainGrid=optGrid(path,'*12   ','*E   ',numberOfHadrons,withGluonTW3,moduleName,outputLevel)
+    mainGrid=optGrid(path,'*12  ','*E   ',numberOfHadrons,withGluonTW3,moduleName,outputLevel)
     
     !!! Model initialisation is called from the SiversTMDPDF-module
 
@@ -226,13 +225,12 @@ end subroutine SiversTMDPDF_OPE_Initialize
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
 !!! This is defining procedure it computes the convolution of tw3 PDF with coefficient function
-!!! this is convolution with twist3 PDF
+!!! It has interface suitable to store in the optGrid
+!!! For now it is empty
 function tw3_convolution(x,b,h)
     real(dp),dimension(-5:5)::tw3_convolution
     real(dp),intent(in)::x,b
     integer,intent(in)::h
-
-    !!!! test for boundaries is done in SiversTMDPDF_lowScale5 (on the enty to this procedure)
 
     !!!! case NA
     if(orderMainTW3==-50) then
@@ -249,24 +247,23 @@ function tw3_convolution(x,b,h)
 end function tw3_convolution
 
 !!! this is convolution with twist3 PDF
-function SiversTMDPDF_OPE_tw3_convolution(x,b,h,addGluon)
-    real(dp),dimension(-5:5)::SiversTMDPDF_OPE_tw3_convolution
+function SiversTMDPDF_OPE_tw3(x,b,h)
+    real(dp),dimension(-5:5)::SiversTMDPDF_OPE_tw3
     real(dp),intent(in)::x,b
     integer,intent(in)::h
-    logical,optional,intent(in)::addGluon
 
     if(useGridTW3) then
-        SiversTMDPDF_OPE_tw3_convolution=mainGrid%Extract(x,b,h)
+        SiversTMDPDF_OPE_tw3=mainGrid%Extract(x,b,h)
     else
-        SiversTMDPDF_OPE_tw3_convolution=tw3_convolution(x,b,h)
+        SiversTMDPDF_OPE_tw3=tw3_convolution(x,b,h)
     end if
 
-end function SiversTMDPDF_OPE_tw3_convolution
+end function SiversTMDPDF_OPE_tw3
 
 
 !!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 
-!!! This subroutine force reconstruction of the grid (if griding is ON)
+!!! This subroutine forces reconstruction of the grid (if gridding is ON)
 subroutine SiversTMDPDF_OPE_tw3_resetGrid()
     if(useGridTW3) then
         if(outputLevel>1) write(*,*) 'arTeMiDe ',moduleName,':  Grid Reset. with c4=',c4_global
@@ -275,7 +272,7 @@ subroutine SiversTMDPDF_OPE_tw3_resetGrid()
 end subroutine SiversTMDPDF_OPE_tw3_resetGrid
 
 !! call QCDinput to change the PDF replica number
-!! unset the grid, since it should be recalculated fro different PDF replica.
+!! unset the grid, since it should be recalculated for different PDF replica.
 subroutine SiversTMDPDF_OPE_tw3_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
 

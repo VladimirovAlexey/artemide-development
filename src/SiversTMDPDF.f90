@@ -103,7 +103,7 @@ else
 end if
 
 OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
-!!! Search for output level
+
 call MoveTO(51,'*0   ')
 call MoveTO(51,'*A   ')
 call MoveTO(51,'*p1  ')
@@ -307,7 +307,7 @@ function TMD_opt(x,bT,hadron)
         ERROR STOP ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
     end if
 
-    TMD_opt=SiversTMDPDF_OPE_tw3_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
+    TMD_opt=SiversTMDPDF_OPE_tw3(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
 
     if(hadron<0) TMD_opt=TMD_opt(5:-5:-1)
 

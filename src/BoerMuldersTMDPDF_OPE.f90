@@ -1,11 +1,12 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!            arTeMiDe 3.00
+!            arTeMiDe 3.04
 !
 !    Evaluation of the small-b OPE for BoerMuldersTMDPDF
 !
 !    if you use this module please, quote     2209.00962
 !
 !    ver 3.00: release (AV, 29.01.2024)
+!    ver 3.04: minor update (AV, 25.06.2026)
 !
 !                A.Vladimirov (29.07.2024)
 !
@@ -22,6 +23,7 @@ module BoerMuldersTMDPDF_OPE
 use aTMDe_Numerics
 use aTMDe_Integration
 use aTMDe_IO
+use aTMDe_optGrid
 use QCDinput
 use BoerMuldersTMDPDF_model
 implicit none
@@ -31,7 +33,7 @@ implicit none
 private 
 
 !Current version of module
-character (len=5),parameter :: version="v3.00"
+character (len=5),parameter :: version="v3.04"
 character (len=21),parameter :: moduleName="BoerMuldersTMDPDF_OPE"
 !Last appropriate version of constants-file
 integer,parameter::inputver=30
@@ -61,32 +63,29 @@ real(dp) :: toleranceGEN=1d-6  !!! tolerance for other purposes
 integer :: maxIteration=4000   !!! maximum iteration in the integrals (not used at the moment)
 
 !!!! grid preparation for tw3 part
-logical :: useGridTW3=.false.  !!!idicator that grid must be prepared
-logical :: withGluonTW3=.false.   !!!indicator the gluon is needed in the grid
+logical :: useGridTW3=.false.  !!!indicator that grid must be prepared
+logical :: withGluonTW3=.false.   !!!indicator that the gluon is needed in the grid
 logical :: runTestTW3=.false.   !!!trigger to run the test
+
+type(optGrid)::mainGrid
 
 !!!------------------------- HARD-CODED PARAMETERS ----------------------
 
 !!!------------------------- DYNAMICAL-GLOBAL PARAMETERS -------------------
-real(dp) :: c4_global=1_dp  !!! scale variation parameter
-logical :: gridReady!!!!indicator that grid is ready to use. If it is .true., the TMD calculated from the grid
+real(dp) :: c4_global=1._dp  !!! scale variation parameter
 
 !!!------------------------- SPECIAL VARIABLES FOR GRID (used by TMDGrid-XB)------------------
 integer::numberOfHadrons=1                !!!total number of hadrons to be stored
 
 !!--------------------------------------Public interface-----------------------------------------
 public::BoerMuldersTMDPDF_OPE_IsInitialized,BoerMuldersTMDPDF_OPE_Initialize
-public::BoerMuldersTMDPDF_OPE_tw3_convolution,BoerMuldersTMDPDF_OPE_tw3_resetGrid,BoerMuldersTMDPDF_OPE_tw3_testGrid
+public::BoerMuldersTMDPDF_OPE_tw3,BoerMuldersTMDPDF_OPE_tw3_resetGrid
 public::BoerMuldersTMDPDF_OPE_tw3_SetPDFreplica,BoerMuldersTMDPDF_OPE_tw3_SetScaleVariation
 
 !!!!!!----FOR TEST
 !public::MakeGrid,ExtractFromGrid,CxF_compute,TestGrid
 
 contains
-
-!! Coefficient function
-!INCLUDE 'Code/BoerMuldersTMDPDF/coeffFunc-new2.f90'
-
 
 function BoerMuldersTMDPDF_OPE_IsInitialized()
     logical::BoerMuldersTMDPDF_OPE_IsInitialized
@@ -121,7 +120,6 @@ subroutine BoerMuldersTMDPDF_OPE_Initialize(file,prefix)
 
     !----------------- reading ini-file --------------------------------------
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
-    !!! Search for output level
     call MoveTO(51,'*0   ')
     call MoveTO(51,'*A   ')
     call MoveTO(51,'*p1  ')
@@ -146,6 +144,7 @@ subroutine BoerMuldersTMDPDF_OPE_Initialize(file,prefix)
     !$read(51,*) i
     !$ call OMP_set_num_threads(i)
 
+    !!! Module-specific ini section: check if initialization is required
     call MoveTO(51,'*14  ')
     call MoveTO(51,'*p1  ')
     read(51,*) initRequired
@@ -201,19 +200,17 @@ subroutine BoerMuldersTMDPDF_OPE_Initialize(file,prefix)
      end if
 
     CLOSE (51, STATUS='KEEP')
-    c4_global=1d0
+
+    c4_global=1._dp
 
     Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
+
+    mainGrid=optGrid(path,'*14  ','*E   ',numberOfHadrons,withGluonTW3,moduleName,outputLevel)
     
     !!! Model initialisation is called from the BoerMuldersTMDPDF-module
-    gridReady=.false.
-
-!     if(useGrid) then
-!         call MakeGrid()
-!         gridReady=.true.
-!
-!         if(runTest) call TestGrid()
-!     end if
+    if(useGridTW3) then
+        call mainGrid%MakeGrid(tw3_convolution)
+    end if
 
     started=.true.
 
@@ -224,64 +221,55 @@ end subroutine BoerMuldersTMDPDF_OPE_Initialize
 
 !!!!!!!--------------------------- DEFINING ROUTINES ------------------------------------------
 
-! !!!!array of x times PDF(x,Q) for hadron 'hadron'
-! !!!! array is (-5:5) (bbar,cbar,sbar,ubar,dbar,g,d,u,s,c,b)
-! function xf(x,Q,hadron)
-!     real(dp),intent(in) :: x,Q
-!     integer,intent(in):: hadron
-!     real(dp), dimension(-5:5):: xf
-!
-!     xf=x_hPDF(x,Q,hadron)
-!
-! end function xf
-
-!!! this is convolution with twist3 PDF
-function BoerMuldersTMDPDF_OPE_tw3_convolution(x,b,h,addGluon)
-    real(dp),dimension(-5:5)::BoerMuldersTMDPDF_OPE_tw3_convolution
+!!! This is defining procedure it computes the convolution of tw3 PDF with coefficient function
+!!! It has interface suitable to store in the optGrid
+!!! For now it is empty
+function tw3_convolution(x,b,h)
+    real(dp),dimension(-5:5)::tw3_convolution
     real(dp),intent(in)::x,b
     integer,intent(in)::h
-    logical,optional,intent(in)::addGluon
-
-    logical::gluon
-
-    !!! check gluonity
-    if(present(addGluon)) then
-        gluon=addGluon
-    else
-        gluon=withGluonTW3
-    end if
-
-    !!!! test for boundaries is done in BoerMuldersTMDPDF_lowScale5 (on the enty to this procedure)
 
     !!!! case NA
     if(orderMainTW3==-50) then
-        if(gluon) then
-            BoerMuldersTMDPDF_OPE_tw3_convolution=1._dp
+        if(withGluonTW3) then
+            tw3_convolution=1._dp
         else
-            BoerMuldersTMDPDF_OPE_tw3_convolution=(/1._dp,1._dp,1._dp,1._dp,1._dp,0._dp,1._dp,1._dp,1._dp,1._dp,1._dp/)
+            tw3_convolution=(/1._dp,1._dp,1._dp,1._dp,1._dp,0._dp,1._dp,1._dp,1._dp,1._dp,1._dp/)
         end if
         return
     end if
 
     !!!!! perturbative convolution is not implemented yet
 
-end function BoerMuldersTMDPDF_OPE_tw3_convolution
+end function tw3_convolution
+
+!!! this is convolution with twist3 PDF
+function BoerMuldersTMDPDF_OPE_tw3(x,b,h)
+    real(dp),dimension(-5:5)::BoerMuldersTMDPDF_OPE_tw3
+    real(dp),intent(in)::x,b
+    integer,intent(in)::h
+
+    if(useGridTW3) then
+        BoerMuldersTMDPDF_OPE_tw3=mainGrid%Extract(x,b,h)
+    else
+        BoerMuldersTMDPDF_OPE_tw3=tw3_convolution(x,b,h)
+    end if
+
+end function BoerMuldersTMDPDF_OPE_tw3
 
 
 !!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 
-!!! This subroutine force reconstruction of the grid (if griding is ON)
+!!! This subroutine forces reconstruction of the grid (if gridding is ON)
 subroutine BoerMuldersTMDPDF_OPE_tw3_resetGrid()
-    !!!!! not implemented yet
+    if(useGridTW3) then
+        if(outputLevel>1) write(*,*) 'arTeMiDe ',moduleName,':  Grid Reset. with c4=',c4_global
+        call mainGrid%MakeGrid(tw3_convolution)!
+    end if
 end subroutine BoerMuldersTMDPDF_OPE_tw3_resetGrid
 
-!!! This subroutine force reconstruction of the grid (if griding is ON)
-subroutine BoerMuldersTMDPDF_OPE_tw3_testGrid()
-    !!!!! not implemented yet
-end subroutine BoerMuldersTMDPDF_OPE_tw3_testGrid
-
 !! call QCDinput to change the PDF replica number
-!! unset the grid, since it should be recalculated fro different PDF replica.
+!! unset the grid, since it should be recalculated for different PDF replica.
 subroutine BoerMuldersTMDPDF_OPE_tw3_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
 

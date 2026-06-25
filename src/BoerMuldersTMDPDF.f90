@@ -111,7 +111,7 @@ subroutine BoerMuldersTMDPDF_Initialize(file,prefix)
     end if
 
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
-    !!! Search for output level
+
     call MoveTO(51,'*0   ')
     call MoveTO(51,'*A   ')
     call MoveTO(51,'*p1  ')
@@ -312,12 +312,12 @@ function toFourier(b)
     Rkernel=TMDR_Rzeta(b,Q,Q**2,1)
     RkernelG=TMDR_Rzeta(b,Q,Q**2,0)
 
-    toFourier=BoerMuldersTMDPDF_OPE_tw3_convolution(x,b,abs(h))*FNP(x,b,abs(h),lambdaNP)*&
+    toFourier=BoerMuldersTMDPDF_OPE_tw3(x,b,abs(h))*FNP(x,b,abs(h),lambdaNP)*&
         (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
 
     else
         Rkernel=TMDR_Rzeta(b,Q,Q**2,1)
-        toFourier=Rkernel*BoerMuldersTMDPDF_OPE_tw3_convolution(x,b,abs(h))*FNP(x,b,abs(h),lambdaNP)
+        toFourier=Rkernel*BoerMuldersTMDPDF_OPE_tw3(x,b,abs(h))*FNP(x,b,abs(h),lambdaNP)
     end if
 end function toFourier
 
@@ -363,7 +363,7 @@ function TMD_opt(x,bT,hadron)
         ERROR STOP ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
     end if
 
-    TMD_opt=BoerMuldersTMDPDF_OPE_tw3_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
+    TMD_opt=BoerMuldersTMDPDF_OPE_tw3(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
 
     if(hadron<0) TMD_opt=TMD_opt(5:-5:-1)
 
@@ -432,7 +432,7 @@ function TMD_opt_inKT(x,kT,hadron)
     function toFourier(b)
         real(dp),dimension(-5:5) :: toFourier
         real(dp), intent(in) ::b
-        toFourier=BoerMuldersTMDPDF_OPE_tw3_convolution(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)
+        toFourier=BoerMuldersTMDPDF_OPE_tw3(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)
     end function toFourier
 
 end function TMD_opt_inKT
@@ -468,12 +468,12 @@ function toFourier(b)
     Rkernel=TMDR_Rzeta(b,muf,zetaf,1)
     RkernelG=TMDR_Rzeta(b,muf,zetaf,0)
 
-    toFourier=BoerMuldersTMDPDF_OPE_tw3_convolution(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)*&
+    toFourier=BoerMuldersTMDPDF_OPE_tw3(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)*&
         (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
 
     else
         Rkernel=TMDR_Rzeta(b,muf,zetaf,1)
-        toFourier=Rkernel*BoerMuldersTMDPDF_OPE_tw3_convolution(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)
+        toFourier=Rkernel*BoerMuldersTMDPDF_OPE_tw3(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)
     end if
 end function toFourier
 

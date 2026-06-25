@@ -73,15 +73,15 @@ integer::numberOfHadrons=1
 logical :: IsMuYdependent = .true.  !!! if mu is y independent, computation is much(!) faster
 
 !!!! grid preparation
-logical :: useGrid=.true.  !!!idicator that grid must be prepared
-logical :: withGluon=.false.   !!!indicator the gluon is needed in the grid
+logical :: useGrid=.true.  !!!indicator that grid must be prepared
+logical :: withGluon=.false.   !!!indicator that the gluon is needed in the grid
 logical :: runTest=.false.   !!!trigger to run the test
 
 type(optGrid)::mainGridTw2
 
 !!!! grid preparation for tw3 part
-logical :: useGridTW3=.false.  !!!idicator that grid must be prepared
-logical :: withGluonTW3=.false.   !!!indicator the gluon is needed in the grid
+logical :: useGridTW3=.false.  !!!indicator that grid must be prepared
+logical :: withGluonTW3=.false.   !!!indicator that the gluon is needed in the grid
 logical :: runTestTW3=.false.   !!!trigger to run the test
 
 !!!------------------------- HARD-CODED PARAMETERS ----------------------
@@ -146,7 +146,7 @@ subroutine wglTMDPDF_OPE_Initialize(file,prefix)
 
     !----------------- reading ini-file --------------------------------------
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
-    !!! Search for output level
+
     call MoveTO(51,'*0   ')
     call MoveTO(51,'*A   ')
     call MoveTO(51,'*p1  ')
@@ -450,7 +450,7 @@ end function wglTMDPDF_OPE_tw3_convolution
 
 
 !!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
-!!! This subroutine force reconstruction of the grid (if griding is ON)
+!!! This subroutine forces reconstruction of the grid (if gridding is ON)
 subroutine wglTMDPDF_OPE_resetGrid()
     if(useGrid) then
         if(outputLevel>1) write(*,*) 'arTeMiDe ',moduleName,':  Grid Reset. with c4=',c4_global
@@ -459,7 +459,7 @@ subroutine wglTMDPDF_OPE_resetGrid()
 end subroutine wglTMDPDF_OPE_resetGrid
 
 !! call QCDinput to change the PDF replica number
-!! unset the grid, since it should be recalculated fro different PDF replica.
+!! unset the grid, since it should be recalculated for different PDF replica.
 subroutine wglTMDPDF_OPE_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
     logical::newPDF
@@ -491,18 +491,18 @@ subroutine wglTMDPDF_OPE_SetScaleVariation(c4_in)
     end if
 end subroutine wglTMDPDF_OPE_SetScaleVariation
 
-!!! This subroutine force reconstruction of the grid (if griding is ON)
+!!! This subroutine forces reconstruction of the grid (if gridding is ON)
 subroutine wglTMDPDF_OPE_tw3_resetGrid()
     !!!!! not implemented yet
 end subroutine wglTMDPDF_OPE_tw3_resetGrid
 
-!!! This subroutine force reconstruction of the grid (if griding is ON)
+!!! This subroutine forces reconstruction of the grid (if gridding is ON)
 subroutine wglTMDPDF_OPE_tw3_testGrid()
     !!!!! not implemented yet
 end subroutine wglTMDPDF_OPE_tw3_testGrid
 
 !! call QCDinput to change the PDF replica number
-!! unset the grid, since it should be recalculated fro different PDF replica.
+!! unset the grid, since it should be recalculated for different PDF replica.
 subroutine wglTMDPDF_OPE_tw3_SetPDFreplica(rep,hadron)
     integer,intent(in):: rep,hadron
 
