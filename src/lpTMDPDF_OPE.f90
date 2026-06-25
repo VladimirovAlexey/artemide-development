@@ -267,7 +267,7 @@ subroutine lpTMDPDF_OPE_Initialize(file,prefix)
     
     !!! Model initialisation is called from the lpTMDPDF-module
     
-    !!!!!!!Checking the x-dependance of muOPE
+    !!!!!!!Checking the x-dependence of muOPE
     IsMuYdependent=testMU()
 
     if(IsMuYdependent) then

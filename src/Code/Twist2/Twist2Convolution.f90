@@ -27,7 +27,7 @@ pure function LogMuB(bT,x,y)
     LogMuB=2._dp*Log(bSTAR(bT,x,y)*muOPE(bt,x,y,c4_global)*C0_inv_const)
 end function LogMuB
 
-!!! test MU for y-dependance
+!!! test MU for y-dependence
 !!! the test consists in the evaluation of FNP at several random sets and NParray
 !!! and comparison of the values.
 !!! testMU=true muOPE is dependent on y

@@ -1,6 +1,6 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!
-!!!!!!!!!       part of wgtTMDPDF module for artemide
+!!!!!!!!!       part of wglTMDPDF module for artemide
 !!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -87,7 +87,7 @@ pure function Coeff_q_q_reg(alpha,Nf,Lmu)
 
     !! the Leading order is 1, it is WW-part of worm-gear function
     Coeff_q_q_reg=(/1d0,0d0,0d0,0d0/) !1
-    if(orderMain>=1) then
+    if(orderMainTW2>=1) then
               
         Coeff_q_q_reg=Coeff_q_q_reg+alpha*4d0/3d0*(/&
         -3d0*Lmu-zeta2, 0d0, 4d0*Lmu, -4d0*Lmu/) !
@@ -114,14 +114,14 @@ pure function Coeff_g_q_reg(alpha,Nf,Lmu)
 
     !! the Leading order is always zero, therefore calculation should be done only for order >=1
     Coeff_g_q_reg=(/0d0,0d0,0d0,0d0/)
-    !   if(orderMain>=1) then
+    !   if(orderMainTW2>=1) then
     !     Coeff_g_q=Coeff_g_q+alpha*(/0d0/)!
     !     
     !   end if
 end function Coeff_g_q_reg
 
     !!!!!coefficient function g<-g regular-part  
-function Coeff_g_g_reg(alpha,Nf,Lmu)
+pure function Coeff_g_g_reg(alpha,Nf,Lmu)
     real(dp),dimension(1:parametrizationLength)::Coeff_g_g_reg
     real(dp), intent(in)::alpha,Lmu
     integer,intent(in)::Nf
@@ -150,50 +150,3 @@ pure function Coeff_q_qp_reg(alpha,Nf,Lmu)
     !! the Leading order is always zero, therefore calculation should be done only for order >=1
     Coeff_q_qp_reg=(/0d0,0d0,0d0,0d0/)
 end function Coeff_q_qp_reg
-
-!!! This function has been used during debuging
-subroutine CheckCoefficient(as,Nf,Lmu,z)
-    real(dp)::Lmu,as,z,lz,l1z
-    integer,intent(in)::Nf
-!     real(dp), dimension(1:23)::func
-!     real(dp), dimension(1:2)::func1
-
-    !   lz=Log(z)
-    !   l1z=Log(1d0-z)
-    !   func=(/l1z,l1z**2,l1z**3,&
-    ! 	    1d0/z,lz/z,&  
-    ! 	    lz,lz**2,lz**3,&
-    ! 	    1d0,z,z**2,& 
-    ! 	    z/(1d0-z)*lz, z*lz, (z**2)*lz,& 
-    ! 	    z/(1d0-z)*lz**2,z*lz**2,& 
-    ! 	    (lz/(1d0-z)+1d0)*l1z,lz*l1z,z*lz*l1z,& 
-    ! 	    (1d0-z)/z*l1z, (1d0-z)*l1z, ((1d0-z)**2)*l1z,(1d0-z)*l1z**2/)
-    !      
-    !   func1=(/1d0/(1d0-z),Log(1d0-z)/(1d0-z)/)
-    !  
-    !!Q->Q
-    !   call Set_CoeffSing1_q_q(as,Nf,Lmu) 
-    !   call Set_Coeff_q_q(as,Nf,Lmu)  
-    !   write(*,*) SUM(Coeff_q_q*func)+SUM(CoeffSing1_q_q*func1)
-
-    !   !!Q->G
-    !   call Set_Coeff_q_g(as,Nf,Lmu)  
-    !   write(*,*) SUM(Coeff_q_g*func)
-
-    !   !!Q->Q'
-    !   call Set_Coeff_q_qp(as,Nf,Lmu)  
-    !   write(*,*) SUM(Coeff_q_qp*func)
-
-    !!Q->Qbar
-    !   call Set_Coeff_q_qb(as,Nf,Lmu)  
-    !   write(*,*) SUM(Coeff_q_qb*func)
-
-    !  !! G->Q
-    !   call Set_Coeff_g_q(as,Nf,Lmu)  
-    !   write(*,*) SUM(Coeff_g_q*func)
-
-    !	!!G->G
-!     call Set_CoeffSing1_g_g(as,Nf,Lmu)
-!     call Set_Coeff_g_g(as,Nf,Lmu)
-    !write(*,*) SUM(Coeff_g_g*func)+SUM(CoeffSing1_g_g*func1)
-end subroutine CheckCoefficient

@@ -27,7 +27,7 @@ pure function Coeff_q_q_reg_largeX(alpha,Nf,Lmu)
 
     !! the Leading order is 1, it is WW-part of worm-gear function
     Coeff_q_q_reg_largeX=(/0d0,0d0,0d0,0d0/) !1
-    if(orderMain>=1) then
+    if(orderMainTW2>=1) then
               
         Coeff_q_q_reg_largeX=Coeff_q_q_reg_largeX+alpha*4d0/3d0*(/&
         2d0*Lmu-2d0, -2d0*Lmu+2d0, 2d0*Lmu-2d0, 0d0/) !
@@ -44,7 +44,7 @@ pure function Coeff_q_g_reg_largeX(alpha,Nf,Lmu)
 
     !! the Leading order is always zero, therefore calculation should be done only for order >=1
     Coeff_q_g_reg_largeX=(/0d0,0d0,0d0,0d0/)
-    if(orderMain>=1) then
+    if(orderMainTW2>=1) then
         Coeff_q_g_reg_largeX=Coeff_q_g_reg_largeX+alpha*(/-2d0*Lmu+1d0, 2d0*Lmu-1d0, -Lmu+0.5d0, 0d0/)
     end if
 end function Coeff_q_g_reg_largeX
@@ -57,7 +57,7 @@ pure function Coeff_g_q_reg_largeX(alpha,Nf,Lmu)
 
     !! the Leading order is always zero, therefore calculation should be done only for order >=1
     Coeff_g_q_reg_largeX=(/0d0,0d0,0d0,0d0/)
-    !   if(orderMain>=1) then
+    !   if(orderMainTW2>=1) then
     !     Coeff_g_q=Coeff_g_q+alpha*(/0d0/)!
     !     
     !   end if

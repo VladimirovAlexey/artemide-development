@@ -225,7 +225,7 @@ end function GetTw3_WGT
     !! reset the number for PDF replica for wgtTMDPDF
   subroutine SetwgtPDFreplica(rep,hadron)
     integer::rep,hadron
-    call wgtTMDPDF_SetPDFreplica(rep,hadron)
+    call wgtTMDPDF_SetPDFreplica_tw2(rep,hadron)
   end subroutine SetwgtPDFreplica
   
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -27,10 +27,10 @@ INCLUDE 'Code/Twist2/largeX_ADs.f90'
 pure function LogMuB(bT,x,y)
     real(dp)::LogMuB
     real(dp),intent(in)::bT,x,y
-    LogMuB=2._dp*Log(bSTAR(bT,x,y)*muOPE(bt,x,y,c4_global)*C0_inv_const)
+    LogMuB=2._dp*Log(bSTAR(bT,x,y)*muOPE(bt,x,y,c4_tw2_global)*C0_inv_const)
 end function LogMuB
 
-!!! test MU for y-dependance
+!!! test MU for y-dependence
 !!! the test consists in the evaluation of FNP at several random sets and NParray
 !!! and comparison of the values.
 !!! testMU=true muOPE is dependent on y
@@ -104,7 +104,7 @@ function CxF_compute(x,bT,hadron,includeGluon)
 
     !!! values of parameters at y=1
     !!! they are used also later
-    muAt1=muOPE(bTcurrent,x,1._dp,c4_global)
+    muAt1=muOPE(bTcurrent,x,1._dp,c4_tw2_global)
     asAt1=As(muAt1)
     LogAt1=LogMuB(bTcurrent,x,1._dp)
     NfAt1=activeNf(muAt1)
@@ -169,7 +169,7 @@ function CxF_compute(x,bT,hadron,includeGluon)
 
         !!! if mu is y-dependent one needs to update the values of parameters for each y
         if(IsMuYdependent) then
-            muCurrent=muOPE(bTcurrent,x,y,c4_global)
+            muCurrent=muOPE(bTcurrent,x,y,c4_tw2_global)
             asCurrent=As(muCurrent)
             LogCurrent=LogMuB(bTcurrent,x,y)
             NfCurrent=activeNf(muCurrent)
@@ -385,7 +385,7 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
 
     !!! values of parameters at y=1
     !!! they are used also later
-    muAt1=muOPE(bTcurrent,x,1._dp,c4_global)
+    muAt1=muOPE(bTcurrent,x,1._dp,c4_tw2_global)
     asAt1=As(muAt1)
     LogAt1=LogMuB(bTcurrent,x,1._dp)
     NfAt1=activeNf(muAt1)
@@ -489,7 +489,7 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
 
         !!! if mu is y-dependent one needs to update the values of parameters for each y
         if(IsMuYdependent) then
-            muCurrent=muOPE(bTcurrent,x,y,c4_global)
+            muCurrent=muOPE(bTcurrent,x,y,c4_tw2_global)
             asCurrent=As(muCurrent)
             LogCurrent=LogMuB(bTcurrent,x,y)
             NfCurrent=activeNf(muCurrent)

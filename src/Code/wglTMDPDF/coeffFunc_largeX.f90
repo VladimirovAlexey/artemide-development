@@ -1,6 +1,6 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!
-!!!!!!!!!       part of wgtTMDPDF module for artemide
+!!!!!!!!!       part of wglTMDPDF module for artemide
 !!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -31,7 +31,7 @@ pure function Coeff_q_q_reg_largeX(alpha,Nf,Lmu)
 
     !! the Leading order is 1, it is WW-part of worm-gear function
     Coeff_q_q_reg_largeX=(/0d0,0d0,0d0,0d0/) !1
-    if(orderMain>=1) then
+    if(orderMainTW2>=1) then
 
         Coeff_q_q_reg_largeX=Coeff_q_q_reg_largeX+alpha*4d0/3d0*&
             (/0d0,0d0,4d0*Lmu,0d0/)

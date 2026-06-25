@@ -63,8 +63,8 @@ real(dp)::muTMM_min=0.8_dp  !!!!! minimal mu
 !!-----------------------------------------------Public interface---------------------------------------------------
 
 public::wglTMDPDF_Initialize,wglTMDPDF_IsInitialized
-public::wglTMDPDF_SetScaleVariation, wglTMDPDF_SetScaleVariation_tw3
-public::wglTMDPDF_SetPDFreplica,wglTMDPDF_SetPDFreplica_tw3
+public::wglTMDPDF_SetScaleVariation_tw2, wglTMDPDF_SetScaleVariation_tw3
+public::wglTMDPDF_SetPDFreplica_tw2,wglTMDPDF_SetPDFreplica_tw3
 public::wglTMDPDF_SetLambdaNP,wglTMDPDF_CurrentLambdaNP
 public::wglTMDPDF_inB,wglTMDPDF_inKT,wglTMDPDF_TMM_G,wglTMDPDF_TMM_X
 
@@ -239,11 +239,11 @@ end subroutine wglTMDPDF_Initialize
 
 !!!!!!!!!! ------------------------ SUPPORTING ROUTINES --------------------------------------
 !!! update PDF replica
-subroutine wglTMDPDF_SetPDFreplica(rep,hadron)
+subroutine wglTMDPDF_SetPDFreplica_tw2(rep,hadron)
     integer,intent(in):: rep,hadron
 
-    call wglTMDPDF_OPE_SetPDFreplica(rep,hadron)
-end subroutine wglTMDPDF_SetPDFreplica
+    call wglTMDPDF_OPE_tw2_SetPDFreplica(rep,hadron)
+end subroutine wglTMDPDF_SetPDFreplica_tw2
 
 !!! update PDF replica
 subroutine wglTMDPDF_SetPDFreplica_tw3(rep,hadron)
@@ -253,10 +253,10 @@ subroutine wglTMDPDF_SetPDFreplica_tw3(rep,hadron)
 end subroutine wglTMDPDF_SetPDFreplica_tw3
 
 !!!! this routine sets the variations of scales
-subroutine wglTMDPDF_SetScaleVariation(c4_in)
+subroutine wglTMDPDF_SetScaleVariation_tw2(c4_in)
     real(dp),intent(in)::c4_in
-    call wglTMDPDF_OPE_SetScaleVariation(c4_in)
-end subroutine wglTMDPDF_SetScaleVariation
+    call wglTMDPDF_OPE_tw2_SetScaleVariation(c4_in)
+end subroutine wglTMDPDF_SetScaleVariation_tw2
 
 !!!! this routine sets the variations of scales
 subroutine wglTMDPDF_SetScaleVariation_tw3(c4_in)
@@ -322,8 +322,8 @@ function TMD_opt(x,bT,hadron)
         ERROR STOP ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
     end if
 
-    TMD_opt=wglTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)&
-        +wglTMDPDF_OPE_tw3_convolution(x,bT,abs(hadron))*FNP_tw3(x,bT,abs(hadron),lambdaNP)
+    TMD_opt=wglTMDPDF_OPE_tw2(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)&
+        +wglTMDPDF_OPE_tw3(x,bT,abs(hadron))*FNP_tw3(x,bT,abs(hadron),lambdaNP)
 
     if(hadron<0) TMD_opt=TMD_opt(5:-5:-1)
 

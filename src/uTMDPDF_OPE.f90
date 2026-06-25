@@ -309,7 +309,7 @@ subroutine uTMDPDF_OPE_Initialize(file,prefix)
     
     !!! Model initialisation is called from the uTMDPDF-module
     
-    !!!!!!!Checking the x-dependance of muOPE
+    !!!!!!!Checking the x-dependence of muOPE
     IsMuYdependent=testMU()
 
     if(IsMuYdependent) then
@@ -382,7 +382,7 @@ function uTMDPDF_OPE_convolution(x,b,h,addGluon)
         gluon=withGluon
     end if
 
-    !!!! test for boundaries is done in uTMDPDF_lowScale5 (on the enty to this procedure)
+    !!!! test for boundaries is done in uTMDPDF_lowScale5 (on the entry to this procedure)
 
     !!!! case NA
     if(orderMain==-50) then
