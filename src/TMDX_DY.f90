@@ -1003,7 +1003,7 @@ end if
 
 nBINS=size(qt_min_in)
 if(size(qt_max_in)/=nBINS) then
-  ERROR STOP ErrorString('Sizes of qT-min and qT-max lists do not coincide',moduleName)
+  error stop ErrorString('Sizes of qT-min and qT-max lists do not coincide',moduleName)
 end if
 
 !!!------------------------- checking Q----------
@@ -1329,7 +1329,7 @@ subroutine MainInterface_AsAAAloo(X,process,s,qT,Q,y,includeCuts,CutParameters,N
   integer::nn
   real(dp),dimension(1:4)::CutParam
 
-if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
+if(.not.started) error stop ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
   !! determine number of sections
   if(present(Num)) then
@@ -1376,7 +1376,7 @@ subroutine xSec_DY_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num,doParti
   integer::k,j,numberOfP,listOfParts(1:size(s)),n_private
   integer,allocatable:: partI1(:),partSize(:)
 
-if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
+if(.not.started) error stop ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
   length=size(s)
 
@@ -1553,7 +1553,7 @@ subroutine xSec_DY_List_BINLESS(X,process,s,qT,Q,y,includeCuts,CutParameters)
   real(dp),allocatable,dimension(:,:)::vv
   integer :: i,length
 
-if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
+if(.not.started) error stop ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
   length=size(s)
 
@@ -1628,7 +1628,7 @@ subroutine xSec_DY_List_APPROXIMATE(X,process,s,qT,Q,y,includeCuts,CutParameters
   real(dp),dimension(:),intent(out)::X
   integer :: i,length
 
-if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
+if(.not.started) error stop ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
   length=size(s)
 

@@ -155,13 +155,13 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
       write(*,*) ErrorString('The powerQ of large-X resummation is bigger than 0.9',moduleName)
       write(*,*) '----- information on last call -----'
       write(*,*) 'x=', x, 'bT=',bT, 'hadron=',hadron,' power=',alpha_powerQ_at1
-      ERROR STOP ErrorString('The powerQ of large-X resummation is bigger than 0.9',moduleName)
+      error stop ErrorString('The powerQ of large-X resummation is bigger than 0.9',moduleName)
     end if
     if(alpha_powerG_at1>0.9_dp) then
       write(*,*) ErrorString('The powerG of large-X resummation is bigger than 0.9',moduleName)
       write(*,*) '----- information on last call -----'
       write(*,*) 'x=', x, 'bT=',bT, 'hadron=',hadron,' power=',alpha_powerG_at1
-      ERROR STOP ErrorString('The powerG of large-X resummation is bigger than 0.9',moduleName)
+      error stop ErrorString('The powerG of large-X resummation is bigger than 0.9',moduleName)
     end if
 
     !!!! the computation with large-X resummation has different structure
@@ -233,7 +233,7 @@ function CxF_largeX_compute(x,bT,hadron,includeGluon)
     write(*,*) ErrorString('convolution computed to NAN. CHECK INTEGRATION',moduleName)
     write(*,*) '----- information on last call -----'
     write(*,*) 'x=', x, 'bT=',bT,' i=',i, 'hadron=',hadron,' result=',CxF_largeX_compute(i)
-    ERROR STOP
+    error stop
    end if
   end do
 

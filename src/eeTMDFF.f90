@@ -55,9 +55,9 @@ integer :: orderMain=2 !! LO=0, NLO=1,...
 real(dp) :: c4_global=1_dp  !!! scale variation parameter
 
 !!!------------------------------ General parameters----------------------------------------------
-logical::includeGluon=.false.   !! gluons included/non-included
+logical::includeGluon=.false.   !! gluons included/excluded
 integer::numOfHadrons=1         !! total number of hadrons to compute
-real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
+real(dp)::TMDmass=1._dp         !! mass parameter used as a mass-scale
 
 !!!------------------------------ Parameters of transform to KT-space -------------------------------------------
 
@@ -219,7 +219,7 @@ subroutine eeTMDFF_Initialize(file,prefix)
     call MoveTO(51,'*p3  ')
     read(51,*) maxIteration
 
-    !!!!! ---- parameters kT-transform and grid
+    !!!!! ---- parameters of kT-transform and grid
     call MoveTO(51,'*F   ')
     call MoveTO(51,'*p1  ')
     read(51,*) makeGrid_inKT
@@ -275,8 +275,6 @@ subroutine eeTMDFF_SetScaleVariation(c4_in)
 end subroutine eeTMDFF_SetScaleVariation
 
 !!!Sets the non-perturbative parameters lambda
-!!! carries additional option to build the grid
-!!! if need to build grid, specify the gluon required directive.
 subroutine eeTMDFF_SetLambdaNP(lambdaIN)
     real(dp),intent(in)::lambdaIN(:)
     integer::ll
@@ -297,7 +295,7 @@ subroutine eeTMDFF_SetLambdaNP(lambdaIN)
     gridIsReady_inKT=.false.
     if(makeGrid_inKT) then
         write(*,*) ErrorString('KT-space of Jet is not implemented . Evaluation STOP',moduleName)
-        ERROR STOP
+        error stop
     end if
 
     if(outputLevel>2) write(*,*) 'arTeMiDe.',moduleName,': NPparameters reset = (',lambdaNP,')'
@@ -328,7 +326,7 @@ function TMD_opt(bT,hadron)
         return
     else if(bT<0d0) then
         write(*,*) ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
-        ERROR STOP
+        error stop
     end if
 
     !!!!!-----------------coefficient function to write -------------------------
@@ -390,7 +388,7 @@ function TMD_opt_inKT(kT,hadron)
   real(dp),intent(in) :: kT
   integer,intent(in)::hadron
 
-    ERROR STOP ErrorString('KT-space of Jet is not implemented . Evaluation STOP',moduleName)
+    error stop ErrorString('KT-space of Jet is not implemented . Evaluation STOP',moduleName)
 
 end function TMD_opt_inKT
 !
@@ -401,7 +399,7 @@ function TMD_ev_inKT(kT,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: Rkernel,RkernelG
 
-    ERROR STOP ErrorString('KT-space of Jet is not implemented . Evaluation STOP',moduleName)
+    error stop ErrorString('KT-space of Jet is not implemented . Evaluation STOP',moduleName)
 end function TMD_ev_inKT
 
 end module eeTMDFF

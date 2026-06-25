@@ -287,13 +287,13 @@ do iK=1,this%numKsubgrids
 do jK=0,this%kGridSize
 do ff=-5,5
     if(ISNAN(this%mainGRID(iX,jX,iK,jK,iQ,ff,h))) then
-        ERROR STOP ErrorString("Element of the grid-inKT is NaN. Evaluation STOP",this%parentName,moduleName)
+        error stop ErrorString("Element of the grid-inKT is NaN. Evaluation STOP",this%parentName,moduleName)
     end if
     if(abs(this%mainGRID(iX,jX,iK,jK,iQ,ff,h))>1.d8) then
         write(*,*) ErrorString("Element of the grid-inKT is greater than 10^8. Evaluation STOP",this%parentName,moduleName)
         write(*,*) "At X=",XfromNode(this,iX,jX)," kT=",KfromNode(this,iK,jK)," Q=",this%QNodes(iQ), "h=",h
         write(*,*) "Value=",this%mainGRID(iX,jX,iK,jK,iQ,:,h)
-        ERROR STOP
+        error stop
     end if
 end do
 end do
@@ -417,30 +417,30 @@ real(dp),dimension(1:4,-5:5)::interQ
 real(dp),dimension(1:4)::deltaTQ
 
 if(.not.this%gridReady) then
-ERROR STOP ErrorString('attempt to extract from grid while it is not ready',this%parentName,moduleName)
+error stop ErrorString('attempt to extract from grid while it is not ready',this%parentName,moduleName)
 end if
 
 !!! checking exeptions
 if(h==0 .or. h>this%numH) then
-ERROR STOP ErrorString('the hadron '//numToStr(h)//' is not found in the grid',this%parentName,moduleName)
+error stop ErrorString('the hadron '//numToStr(h)//' is not found in the grid',this%parentName,moduleName)
 end if
 
 if(x+this%zero<this%XMin) then
-ERROR STOP ErrorString('The TMD with x ='//numToStr(x)//' is called. Current grid size is up to '//&
+error stop ErrorString('The TMD with x ='//numToStr(x)//' is called. Current grid size is up to '//&
 numToStr(this%XMin)//'. Enlarge boundaries.',this%parentName,moduleName)
 end if
 if(x>1.d0) then
-ERROR STOP ErrorString('The TMD with x >1 ('//numToStr(x)//') is called.',this%parentName,moduleName)
+error stop ErrorString('The TMD with x >1 ('//numToStr(x)//') is called.',this%parentName,moduleName)
 end if
 if(kT<0d0) then
-ERROR STOP ErrorString('The TMD with kT <0 ('//numToStr(kT)//') is called.',this%parentName,moduleName)
+error stop ErrorString('The TMD with kT <0 ('//numToStr(kT)//') is called.',this%parentName,moduleName)
 end if
 if(Q<=this%QMIN) then
-ERROR STOP ErrorString('The TMD with Q <=QMIN ('//numToStr(Q)//'<'//numToStr(this%QMIN)//') is called.',&
+error stop ErrorString('The TMD with Q <=QMIN ('//numToStr(Q)//'<'//numToStr(this%QMIN)//') is called.',&
             this%parentName,moduleName)
 end if
 if(Q>=this%QMAX) then
-ERROR STOP ErrorString('The TMD with Q >=QMAX ('//numToStr(Q)//">"//numToStr(this%QMAX)//') is called.',&
+error stop ErrorString('The TMD with Q >=QMAX ('//numToStr(Q)//">"//numToStr(this%QMAX)//') is called.',&
             this%parentName,moduleName)
 end if
 
@@ -457,7 +457,7 @@ if(nQ==0) then
 else if(nQ==this%QGridSize-1) then
     nQ=this%QGridSize-2
 else if(nQ>=this%QGridSize) then
-    ERROR STOP ErrorString('The TMD called outside of the grid',this%parentName,moduleName)
+    error stop ErrorString('The TMD called outside of the grid',this%parentName,moduleName)
 end if
 
 !!!! searching for the subgrid in X

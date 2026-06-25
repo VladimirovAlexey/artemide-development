@@ -52,16 +52,16 @@ real(dp)::BMAX_ABS=100._dp !!! for large values of b returns 0
 real(dp)::toleranceGEN !!! tolerance general
 
 !!!------------------------------ General parameters----------------------------------------------
-logical::includeGluon=.false.   !! gluons included/non-included
+logical::includeGluon=.false.   !! gluons included/excluded
 integer::numOfHadrons=1         !! total number of hadrons to compute
-real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
+real(dp)::TMDmass=1._dp         !! mass parameter used as a mass-scale
 
 !!!------------------------------ Parameters of transform to KT-space -------------------------------------------
 
 integer,parameter::TMDtypeN=0 !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD)
 
 type(OgataIntegrator)::HankelbyOGATA
-real(dp),parameter::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value in OGATA (it is not dynamical in current implementation)
+real(dp),parameter::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value in OGATA (it is not dynamic in current implementation)
 !!!------------------------------ Parameters of transform in KT space and KT-grid ------------------------------
 logical::makeGrid_inKT
 type(ktGrid)::mainKTGrid
@@ -122,7 +122,7 @@ subroutine uTMDPDF_Initialize(file,prefix)
         write(*,*) '		     Update the const-file with artemide.setup'
         write(*,*) '  '
         CLOSE (51, STATUS='KEEP')
-        stop
+        error stop
     end if
 
     call MoveTO(51,'*p2  ')
@@ -145,7 +145,7 @@ subroutine uTMDPDF_Initialize(file,prefix)
         write(*,*) ErrorString('TMDR module MUST be included.',moduleName)
         write(*,*) ErrorString('Check initialization-file. Evaluation stop.',moduleName)
         CLOSE (51, STATUS='KEEP')
-        ERROR STOP
+        error stop
     end if
 
     call MoveTO(51,'*4   ')
@@ -179,7 +179,7 @@ subroutine uTMDPDF_Initialize(file,prefix)
         write(*,*) ErrorString(&
         'Initialize: number of non-perturbative parameters should be >=1. Check the constants-file. Evaluation STOP',moduleName)
             CLOSE (51, STATUS='KEEP')
-        ERROR STOP
+        error stop
     end if
 
     !!!!! ---- parameters of numerical evaluation
@@ -187,7 +187,7 @@ subroutine uTMDPDF_Initialize(file,prefix)
     call MoveTO(51,'*p2  ')
     read(51,*) toleranceGEN
 
-    !!!!! ---- parameters kT-transform and grid
+    !!!!! ---- parameters of kT-transform and grid
     call MoveTO(51,'*F   ')
     call MoveTO(51,'*p1  ')
     read(51,*) makeGrid_inKT
@@ -264,7 +264,6 @@ subroutine uTMDPDF_SetScaleVariation(c4_in)
 end subroutine uTMDPDF_SetScaleVariation
 
 !!!Sets the non-perturbative parameters lambda
-!!! carries additional option to build the grid
 subroutine uTMDPDF_SetLambdaNP(lambdaIN)
     real(dp),intent(in)::lambdaIN(:)
     integer::ll
@@ -309,19 +308,8 @@ contains
 function toFourier(b)
     real(dp),dimension(-5:5) :: toFourier
     real(dp), intent(in) ::b
-    real(dp):: Rkernel,RkernelG
 
-    if(includeGluon) then
-    Rkernel=TMDR_Rzeta(b,Q,Q**2,1)
-    RkernelG=TMDR_Rzeta(b,Q,Q**2,0)
-
-    toFourier=uTMDPDF_OPE_convolution(x,b,abs(h))*FNP(x,b,abs(h),lambdaNP)*&
-        (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
-
-    else
-        Rkernel=TMDR_Rzeta(b,Q,Q**2,1)
-        toFourier=Rkernel*uTMDPDF_OPE_convolution(x,b,abs(h))*FNP(x,b,abs(h),lambdaNP)
-    end if
+    toFourier=TMD_ev(x,b,Q,Q**2,abs(h))
 end function toFourier
 
 function toGrid(x_in,Q_in,h_in,arraySize1,arraySize2)
@@ -359,10 +347,10 @@ function TMD_opt(x,bT,hadron)
     else if(bT>BMAX_ABS) then
         TMD_opt=0._dp
         return
-    else if(x<0.) then
-        ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
+    else if(x<=0) then
+        error stop ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     else if(bT<0d0) then
-        ERROR STOP ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
+        error stop ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
     end if
 
     TMD_opt=uTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
@@ -378,7 +366,7 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: Rkernel,RkernelG
 
-    !!!! for an earlier exit (in this case do not compute evolution factor)
+    !!!! for an early exit (in this case do not compute evolution factor)
     if(bT>BMAX_ABS) then
       TMD_ev=0._dp
       return
@@ -409,7 +397,6 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
 
 end function TMD_ev
 
-!!!!! the names are neutral because these procedures are fed to Fourier transform and other universal subprograms.
 
 !!!!!!! the function that actually returns the uTMDPDF optimal value
 function TMD_opt_inKT(x,kT,hadron)
@@ -425,10 +412,10 @@ function TMD_opt_inKT(x,kT,hadron)
      else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
         TMD_opt_inKT=0._dp
         return
-    else if(x<0) then
-        ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
+    else if(x<=0) then
+        error stop ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     else if(kT<0d0) then
-        ERROR STOP ErrorString('Called kT<0. kT='//numToStr(kT)//' . Evaluation STOP',moduleName)
+        error stop ErrorString('Called kT<0. kT='//numToStr(kT)//' . Evaluation STOP',moduleName)
     end if
 
     TMD_opt_inKT=HankelbyLEVIN%Fourier_atPoint(toFourier,kT)
@@ -440,7 +427,7 @@ function TMD_opt_inKT(x,kT,hadron)
     function toFourier(b)
         real(dp),dimension(-5:5) :: toFourier
         real(dp), intent(in) ::b
-        toFourier=uTMDPDF_OPE_convolution(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)
+        toFourier=TMD_opt(x,b,abs(hadron))
     end function toFourier
 
 end function TMD_opt_inKT
@@ -450,9 +437,8 @@ function TMD_ev_inKT(x,kT,muf,zetaf,hadron)
     real(dp)::TMD_ev_inKT(-5:5)
     real(dp),intent(in):: x,kT,muf,zetaf
     integer,intent(in)::hadron
-    real(dp):: Rkernel,RkernelG
 
-    !!!! for an earlier exit
+    !!!! for an early exit
     if(x>=1._dp) then
       TMD_ev_inKT=0._dp
       return
@@ -477,25 +463,14 @@ contains
 function toFourier(b)
     real(dp),dimension(-5:5) :: toFourier
     real(dp), intent(in) ::b
-
-    if(includeGluon) then
-    Rkernel=TMDR_Rzeta(b,muf,zetaf,1)
-    RkernelG=TMDR_Rzeta(b,muf,zetaf,0)
-
-    toFourier=uTMDPDF_OPE_convolution(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)*&
-        (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
-
-    else
-        Rkernel=TMDR_Rzeta(b,muf,zetaf,1)
-        toFourier=Rkernel*uTMDPDF_OPE_convolution(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)
-    end if
+    toFourier=TMD_ev(x,b,muf,zetaf,abs(hadron))
 end function toFourier
 
 end function TMD_ev_inKT
 
 
 !!!!!!!! the function that actually returns the uTMDPDF evolved to (mu,mu^2) value
-!!!!!!! This is exactly what is stored in the grid. So if grid is built attempt to extract from it.
+!!!!!!! This is exactly what is stored in the grid. So if the grid is built, extract from it  .
 function TMD_grid_inKT(x,kT,mu,hadron)
     real(dp)::TMD_grid_inKT(-5:5)
     real(dp),intent(in):: x,kT,mu
@@ -520,7 +495,7 @@ function uPDF_uPDF(x1,x2,bt,muf,zetaf,hadron1,hadron2)
     real(dp):: Rkernel, RkernelG
     real(dp),dimension(-5:5)::tmd1,tmd2
 
-    !!!! for an earlier exit (in this case do not compute evolution factor)
+    !!!! for an early exit (in this case do not compute evolution factor)
     if(bT>BMAX_ABS) then
       uPDF_uPDF=0._dp
       return

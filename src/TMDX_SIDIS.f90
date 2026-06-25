@@ -121,7 +121,7 @@ subroutine TMDX_SIDIS_Initialize(file,prefix)
         write(*,*) '             Update the const-file with artemide.setup'
         write(*,*) '  '
         CLOSE (51, STATUS='KEEP')
-        ERROR STOP
+        error stop
     end if
     call MoveTO(51,'*p2  ')
     read(51,*) outputLevel    
@@ -661,7 +661,7 @@ SELECT CASE(process(1))
   CASE DEFAULT
       PreFactor2=0._dp
       write(*,*) ErrorString(' unknown process p1=',moduleName), process(2)
-      ERROR STOP color('Evaluation stop.',c_red_bold)
+      error stop color('Evaluation stop.',c_red_bold)
 END SELECT
 end function PreFactor2
 
@@ -713,7 +713,7 @@ SELECT CASE(process(1))
   CASE DEFAULT
       PreFactorKPC=0._dp
       write(*,*) ErrorString(' unknown process p1=',moduleName), process(2)
-      ERROR STOP color('Evaluation stop.',c_red_bold)
+      error stop color('Evaluation stop.',c_red_bold)
 END SELECT
 end function PreFactorKPC
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -932,7 +932,7 @@ if(xmax > 1) then
   xmax=1d0
 end if
 if(xmin < 0.000001d0) then
-  ERROR STOP ErrorString('lower limit of x-integration is < 10^{-6}. Evaluation stop.',moduleName)
+  error stop ErrorString('lower limit of x-integration is < 10^{-6}. Evaluation stop.',moduleName)
 end if
 
 !! in case of cut we determine the recut values
@@ -1160,7 +1160,7 @@ end if
 
 nBINS=size(ptMin_in)
 if(size(ptMax_in)/=nBINS) then
-  ERROR STOP ErrorString('Sizes of pT-min and pT-max lists do not coincide',moduleName)
+  error stop ErrorString('Sizes of pT-min and pT-max lists do not coincide',moduleName)
 end if
 
 !!!------------------------- checking pT  ------------------
@@ -1244,7 +1244,7 @@ subroutine xSec_SIDIS(xx,process,s,pT,z,x,Q,doCut,Cuts,masses)
   real(dp),dimension(1:13):: var
   integer::Num
 
-if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
+if(.not.started) error stop ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
   CallCounter=CallCounter+1
   if(PRESENT(masses)) then
@@ -1281,62 +1281,62 @@ subroutine xSec_SIDIS_List(xx,process,s,pT,z,x,Q,doCut,Cuts,masses,doPartitionin
   integer::k,j,numberOfP,listOfParts(1:size(s))
   integer,allocatable:: partI1(:),partSize(:)
 
-if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
+if(.not.started) error stop ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
   length=size(s)
   CallCounter=CallCounter+length
 
   !!! cheking sizes
   if(size(xx)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of xSec and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: sizes of xSec and s lists are not equal.',moduleName)
   end if
   if(size(process,1)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of process and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: sizes of process and s lists are not equal.',moduleName)
   end if
   if(size(pT,1)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of pT and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: sizes of pT and s lists are not equal.',moduleName)
   end if
   if(size(x,1)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of x and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: sizes of x and s lists are not equal.',moduleName)
   end if
   if(size(Q,1)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of Q and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: sizes of Q and s lists are not equal.',moduleName)
   end if
   if(size(z,1)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of z and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: sizes of z and s lists are not equal.',moduleName)
   end if
   if(size(doCut)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of doCut and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: sizes of doCut and s lists are not equal.',moduleName)
   end if
   if(size(Cuts,1)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_List: sizes of Cuts and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: sizes of Cuts and s lists are not equal.',moduleName)
   end if
   if(size(process,2)/=4) then
-    ERROR STOP ErrorString('xSec_SIDIS_List: process list must be (:,1:3).',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: process list must be (:,1:3).',moduleName)
   end if
   if(size(pT,2)/=2) then
-    ERROR STOP ErrorString('xSec_SIDIS_List: pt list must be (:,1:2).',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: pt list must be (:,1:2).',moduleName)
   end if
   if(size(x,2)/=2) then
-    ERROR STOP ErrorString('xSec_SIDIS_List: x list must be (:,1:2).',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: x list must be (:,1:2).',moduleName)
   end if
   if(size(Q,2)/=2) then
-    ERROR STOP ErrorString('xSec_SIDIS_List: Q list must be (:,1:2).',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: Q list must be (:,1:2).',moduleName)
   end if
   if(size(z,2)/=2) then
-    ERROR STOP ErrorString('xSec_SIDIS_List: z list must be (:,1:2).',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: z list must be (:,1:2).',moduleName)
   end if
   if(size(Cuts,2)/=4) then
-    ERROR STOP ErrorString('xSec_SIDIS_List: cuts list must be (:,1:4).',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: cuts list must be (:,1:4).',moduleName)
   end if
 
   CallCounter=CallCounter+length
   if(PRESENT(masses)) then
     if(size(masses,1)/=length) then
-      ERROR STOP ErrorString('xSec_SIDIS_List: sizes of masses and s lists are not equal.',moduleName)
+      error stop ErrorString('xSec_SIDIS_List: sizes of masses and s lists are not equal.',moduleName)
     end if
     if(size(masses,2)/=2) then
-      ERROR STOP ErrorString('xSec_SIDIS_List: mass list must be (:,1:2).',moduleName)
+      error stop ErrorString('xSec_SIDIS_List: mass list must be (:,1:2).',moduleName)
     end if
     m2_list(1:length,1:2)=masses(1:length,1:2)**2
   else
@@ -1435,7 +1435,7 @@ real(dp):: xSecFULL
 real(dp)::var(1:13)
 integer::Num
 
-if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
+if(.not.started) error stop ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
 var=kinematicArray((ptmin+ptmax)/2d0,s,(zmin+zmax)/2d0,(xmin+xmax)/2d0,(Qmin+Qmax)/2d0,m1,m2)
 Num=NumPT_auto(ptmax-ptmin,var(2))
@@ -1460,41 +1460,41 @@ subroutine xSec_SIDIS_BINLESS_List_forharpy(xx,process,s,pT,z,x,Q,masses)
   real(dp),dimension(:),intent(out)::xx
   integer :: i,length
 
-  if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
+  if(.not.started) error stop ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
   length=size(s)
   CallCounter=CallCounter+length
 
   !!! cheking sizes
   if(size(xx)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_BINLESS_List: sizes of xSec and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_BINLESS_List: sizes of xSec and s lists are not equal.',moduleName)
   end if
   if(size(process,1)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_BINLESS_List: sizes of process and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_BINLESS_List: sizes of process and s lists are not equal.',moduleName)
   end if
   if(size(pT)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_BINLESS_List: sizes of pT and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_BINLESS_List: sizes of pT and s lists are not equal.',moduleName)
   end if
   if(size(x)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_BINLESS_List: sizes of x and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_BINLESS_List: sizes of x and s lists are not equal.',moduleName)
   end if
   if(size(Q)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_BINLESS_List: sizes of Q and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_BINLESS_List: sizes of Q and s lists are not equal.',moduleName)
   end if
   if(size(z)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_BINLESS_List: sizes of z and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_BINLESS_List: sizes of z and s lists are not equal.',moduleName)
   end if
   if(size(process,2)/=4) then
-    ERROR STOP ErrorString('xSec_SIDIS_BINLESS_List: process list must be (:,1:3).',moduleName)
+    error stop ErrorString('xSec_SIDIS_BINLESS_List: process list must be (:,1:3).',moduleName)
   end if
 
   CallCounter=CallCounter+length
 
   if(size(masses,1)/=length) then
-    ERROR STOP ErrorString('xSec_SIDIS_BINLESS_List: sizes of masses and s lists are not equal.',moduleName)
+    error stop ErrorString('xSec_SIDIS_BINLESS_List: sizes of masses and s lists are not equal.',moduleName)
   end if
   if(size(masses,2)/=2) then
-    ERROR STOP ErrorString('xSec_SIDIS_BINLESS_List: mass list must be (:,1:2).',moduleName)
+    error stop ErrorString('xSec_SIDIS_BINLESS_List: mass list must be (:,1:2).',moduleName)
   end if
 
   !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED)
@@ -1514,7 +1514,7 @@ real(dp)::xSec_SIDIS_BINLESS
 
 real(dp)::var(1:13)
 
-if(.not.started) ERROR STOP ErrorString('The module is not initialized. Check INI-file.',moduleName)
+if(.not.started) error stop ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
 var=kinematicArray(pt,s,z,x,Q,m1,m2)
 

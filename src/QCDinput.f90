@@ -107,7 +107,7 @@ OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
     CLOSE (51, STATUS='KEEP')
     write(*,*) 'artemide.'//trim(moduleName)//': const-file version is too old.'
     write(*,*) '             Update the const-file with artemide.setup'
-    ERROR STOP '  '
+    error stop '  '
   end if
   call MoveTO(51,'*p2  ')
   read(51,*) outputLevel
@@ -296,7 +296,7 @@ subroutine QCDinput_SetPDFreplica(rep,hadron,newPDF)
     logical,intent(out)::newPDF
 
     if(hadron<1 .or. hadron>num_of_uPDFs) &
-      ERROR STOP ErrorString('SetPDFreplica. Called with non-existent hadron. h= '//trim(numToStr(hadron)),moduleName)
+      error stop ErrorString('SetPDFreplica. Called with non-existent hadron. h= '//trim(numToStr(hadron)),moduleName)
     !!! if the number of replica to change coincides with the already used. Do not change it
     if(current_replica_uPDFs(hadron)==rep) then
       newPDF=.false.
@@ -317,7 +317,7 @@ subroutine QCDinput_SetFFreplica(rep,hadron,newPDF)
     logical,intent(out)::newPDF
 
     if(hadron<1 .or. hadron>num_of_uFFs) &
-      ERROR STOP ErrorString('SetFFreplica. Called with non-existent hadron. h= '//trim(numToStr(hadron)),moduleName)
+      error stop ErrorString('SetFFreplica. Called with non-existent hadron. h= '//trim(numToStr(hadron)),moduleName)
     !!! if the number of replica to change coincides with the already used. Do not change it
     if(current_replica_uFFs(hadron)==rep) then
       newPDF=.false.
@@ -338,7 +338,7 @@ subroutine QCDinput_SetlpPDFreplica(rep,hadron,newPDF)
     logical,intent(out)::newPDF
 
     if(hadron<1 .or. hadron>num_of_lpPDFs) &
-      ERROR STOP ErrorString('SetlpPDFreplica. Called with non-existent hadron. h= '//trim(numToStr(hadron)),moduleName)
+      error stop ErrorString('SetlpPDFreplica. Called with non-existent hadron. h= '//trim(numToStr(hadron)),moduleName)
     !!! if the number of replica to change coincides with the already used. Do not change it
     if(current_replica_lpPDFs(hadron)==rep) then
       newPDF=.false.
@@ -359,7 +359,7 @@ subroutine QCDinput_SetgPDFreplica(rep,hadron,newPDF)
     logical,intent(out)::newPDF
 
     if(hadron<1 .or. hadron>num_of_gPDFs) &
-      ERROR STOP ErrorString('SetgPDFreplica. Called with non-existent hadron. h= '//trim(numToStr(hadron)),moduleName)
+      error stop ErrorString('SetgPDFreplica. Called with non-existent hadron. h= '//trim(numToStr(hadron)),moduleName)
     !!! if the number of replica to change coincides with the already used. Do not change it
     if(current_replica_gPDFs(hadron)==rep) then
       newPDF=.false.
@@ -380,7 +380,7 @@ subroutine QCDinput_SethPDFreplica(rep,hadron,newPDF)
     logical,intent(out)::newPDF
 
     if(hadron<1 .or. hadron>num_of_hPDFs) &
-      ERROR STOP ErrorString('SethPDFreplica. Called with non-existent hadron. h= '//trim(numToStr(hadron)),moduleName)
+      error stop ErrorString('SethPDFreplica. Called with non-existent hadron. h= '//trim(numToStr(hadron)),moduleName)
     !!! if the number of replica to change coincides with the already used. Do not change it
     if(current_replica_hPDFs(hadron)==rep) then
       newPDF=.false.

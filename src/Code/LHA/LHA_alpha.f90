@@ -134,7 +134,7 @@ subroutine ParseInfoLine(line)
     !!!! The reading of alpha_s part only if it is required
     CASE("AlphaS_Type")
         if(index(linePart2,"ipol")==0) then
-            ERROR STOP ErrorString('Only "ipol" type of alphaS can be used. Current input is '//trim(linePart2),moduleName)
+            error stop ErrorString('Only "ipol" type of alphaS can be used. Current input is '//trim(linePart2),moduleName)
         else
             AlphaStype_IsRecognized=.true.!!! check passed
         end if
@@ -200,7 +200,7 @@ subroutine ReadInfo(name,directory,outP)
     if(outputLevel>1) write(*,'(A)') color("----- Loading Alpha_s from "//trim(name),c_yellow)
 
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old", IOSTAT=ios)
-    if(ios /= 0) ERROR STOP ErrorString('The info-file is not found at '//trim(path),moduleName)
+    if(ios /= 0) error stop ErrorString('The info-file is not found at '//trim(path),moduleName)
     
     !!! reading all lines
     do
@@ -233,11 +233,11 @@ subroutine ReadInfo(name,directory,outP)
     
     !!! check that alphas-variables are loaded succesfully.
     if(.not.AlphaStype_IsRecognized) &
-        ERROR STOP ErrorString('Type of alphaS is not recognized in  '//trim(path),moduleName)
+        error stop ErrorString('Type of alphaS is not recognized in  '//trim(path),moduleName)
     if(.not.allocated(AlphaS_Qs)) &
-        ERROR STOP ErrorString('AlphaS_Qs variables are missed in '//trim(path),moduleName)
+        error stop ErrorString('AlphaS_Qs variables are missed in '//trim(path),moduleName)
     if(.not.allocated(AlphaS_Vals)) &
-        ERROR STOP ErrorString('AlphaS_Vals variables are missed in '//trim(path),moduleName)
+        error stop ErrorString('AlphaS_Vals variables are missed in '//trim(path),moduleName)
 
     !!!!!------------ prepare the table of alphaS-interpolation
     AlphaS_N=size(AlphaS_Qs)-1
@@ -307,12 +307,12 @@ subroutine ReadInfo(name,directory,outP)
     extrapolB2=AlphaS_Vals(1)*Log(AlphaS_Qs(1)/AlphaS_Qs(0))
 
     if(AlphaS_Vals(0)==AlphaS_Vals(1)) &
-    ERROR STOP ErrorString('Two first entries for alpha are the same. It couses the problem with extrapolation.',moduleName)
+    error stop ErrorString('Two first entries for alpha are the same. It couses the problem with extrapolation.',moduleName)
 
     LambdaEFF=exp(-extrapolB2/extrapolB1)*AlphaS_Qs(0)
 
     if(LambdaEFF+0.1>Qmin) &
-    ERROR STOP ErrorString('Effective LambdaQCD computed as '//numToStr(LambdaEFF)//' It is too high...',moduleName)
+    error stop ErrorString('Effective LambdaQCD computed as '//numToStr(LambdaEFF)//' It is too high...',moduleName)
 
     if(outputLevel>1) write(*,'("AlphaS prepared with Effective LambdaQCD = ",F10.6)') LambdaEFF
     LambdaEFF=max(LambdaEFF+0.1d0,0.4d0)
@@ -334,7 +334,7 @@ integer::i,j
 integer::lo,hi,mid
 
 if(Q<Qmin) then !!! logarithmic log-extrapolation
-    if(Q<LambdaEFF) ERROR STOP ErrorString('Q ='//numToStr(Q)//' is smaller than Effective LambdaQCD',moduleName)
+    if(Q<LambdaEFF) error stop ErrorString('Q ='//numToStr(Q)//' is smaller than Effective LambdaQCD',moduleName)
 
     AlphaS=extrapolA/(extrapolB1*Log(Q/AlphaS_Qs(0))+extrapolB2)
 else if(Q>=Qmax) then !!! constant

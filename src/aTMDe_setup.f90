@@ -17,7 +17,7 @@ private
 character (len=5),parameter :: version="v3.04"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=40
+integer,parameter::inputVer=41
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -140,7 +140,12 @@ integer::SiversTMDPDF_maxIteration
 integer::SiversTMDPDF_numSubGridsX,SiversTMDPDF_numSubGridsB
 real(dp),allocatable::SiversTMDPDF_subGridsX(:),SiversTMDPDF_subGridsB(:)
 integer::SiversTMDPDF_grid_SizeX,SiversTMDPDF_grid_SizeB
-real(dp)::SiversTMDPDF_hOGATA,SiversTMDPDF_toleranceOGATA,SiversTMDPDF_KT_FREEZE
+logical::SiversTMDPDF_makeGrid_inKT,SiversTMDPDF_runGridTest_inKT
+integer::SiversTMDPDF_numSubGridsX_inKT,SiversTMDPDF_numSubGridsKT_inKT,SiversTMDPDF_numSubGridsB_inKT
+real(dp),allocatable::SiversTMDPDF_subGridsX_inKT(:),SiversTMDPDF_subGridsB_inKT(:),SiversTMDPDF_subGridsKT_inKT(:)
+integer::SiversTMDPDF_grid_SizeX_inKT,SiversTMDPDF_grid_SizeB_inKT,SiversTMDPDF_grid_SizeKT_inKT
+real(dp)::SiversTMDPDF_minQ_inKT,SiversTMDPDF_maxQ_inKT
+integer::SiversTMDPDF_grid_SizeQ_inKT
 real(dp)::SiversTMDPDF_hOGATA_TMM,SiversTMDPDF_toleranceOGATA_TMM,SiversTMDPDF_muMIN_TMM
 
 !-------------------- wgtTMDPDF parameters
@@ -161,7 +166,12 @@ integer::wgtTMDPDF_grid_SizeX,wgtTMDPDF_grid_SizeB
 integer::wgtTMDPDF_tw3_numSubGridsX,wgtTMDPDF_tw3_numSubGridsB
 real(dp),allocatable::wgtTMDPDF_tw3_subGridsX(:),wgtTMDPDF_tw3_subGridsB(:)
 integer::wgtTMDPDF_tw3_grid_SizeX,wgtTMDPDF_tw3_grid_SizeB
-real(dp)::wgtTMDPDF_hOGATA,wgtTMDPDF_toleranceOGATA,wgtTMDPDF_KT_FREEZE
+logical::wgtTMDPDF_makeGrid_inKT,wgtTMDPDF_runGridTest_inKT
+integer::wgtTMDPDF_numSubGridsX_inKT,wgtTMDPDF_numSubGridsKT_inKT,wgtTMDPDF_numSubGridsB_inKT
+real(dp),allocatable::wgtTMDPDF_subGridsX_inKT(:),wgtTMDPDF_subGridsB_inKT(:),wgtTMDPDF_subGridsKT_inKT(:)
+integer::wgtTMDPDF_grid_SizeX_inKT,wgtTMDPDF_grid_SizeB_inKT,wgtTMDPDF_grid_SizeKT_inKT
+real(dp)::wgtTMDPDF_minQ_inKT,wgtTMDPDF_maxQ_inKT
+integer::wgtTMDPDF_grid_SizeQ_inKT
 real(dp)::wgtTMDPDF_hOGATA_TMM,wgtTMDPDF_toleranceOGATA_TMM,wgtTMDPDF_muMIN_TMM
 
 !-------------------- wglTMDPDF parameters
@@ -182,7 +192,12 @@ integer::wglTMDPDF_grid_SizeX,wglTMDPDF_grid_SizeB
 integer::wglTMDPDF_tw3_numSubGridsX,wglTMDPDF_tw3_numSubGridsB
 real(dp),allocatable::wglTMDPDF_tw3_subGridsX(:),wglTMDPDF_tw3_subGridsB(:)
 integer::wglTMDPDF_tw3_grid_SizeX,wglTMDPDF_tw3_grid_SizeB
-real(dp)::wglTMDPDF_hOGATA,wglTMDPDF_toleranceOGATA,wglTMDPDF_KT_FREEZE
+logical::wglTMDPDF_makeGrid_inKT,wglTMDPDF_runGridTest_inKT
+integer::wglTMDPDF_numSubGridsX_inKT,wglTMDPDF_numSubGridsKT_inKT,wglTMDPDF_numSubGridsB_inKT
+real(dp),allocatable::wglTMDPDF_subGridsX_inKT(:),wglTMDPDF_subGridsB_inKT(:),wglTMDPDF_subGridsKT_inKT(:)
+integer::wglTMDPDF_grid_SizeX_inKT,wglTMDPDF_grid_SizeB_inKT,wglTMDPDF_grid_SizeKT_inKT
+real(dp)::wglTMDPDF_minQ_inKT,wglTMDPDF_maxQ_inKT
+integer::wglTMDPDF_grid_SizeQ_inKT
 real(dp)::wglTMDPDF_hOGATA_TMM,wglTMDPDF_toleranceOGATA_TMM,wglTMDPDF_muMIN_TMM
 
 !-------------------- BoerMuldersTMDPDF parameters
@@ -195,6 +210,9 @@ real(dp)::BoerMuldersTMDPDF_BMAX_ABS
 real(dp)::BoerMuldersTMDPDF_toleranceINT
 real(dp)::BoerMuldersTMDPDF_toleranceGEN
 integer::BoerMuldersTMDPDF_maxIteration
+integer::BoerMuldersTMDPDF_numSubGridsX,BoerMuldersTMDPDF_numSubGridsB
+real(dp),allocatable::BoerMuldersTMDPDF_subGridsX(:),BoerMuldersTMDPDF_subGridsB(:)
+integer::BoerMuldersTMDPDF_grid_SizeX,BoerMuldersTMDPDF_grid_SizeB
 logical::BoerMuldersTMDPDF_makeGrid_inKT,BoerMuldersTMDPDF_runGridTest_inKT
 integer::BoerMuldersTMDPDF_numSubGridsX_inKT,BoerMuldersTMDPDF_numSubGridsKT_inKT,BoerMuldersTMDPDF_numSubGridsB_inKT
 real(dp),allocatable::BoerMuldersTMDPDF_subGridsX_inKT(:),BoerMuldersTMDPDF_subGridsB_inKT(:),BoerMuldersTMDPDF_subGridsKT_inKT(:)
@@ -398,7 +416,7 @@ subroutine SetupDefault(order)
     uTMDPDF_lambdaLength=2
     uTMDPDF_BMAX_ABS=100.d0
     uTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
-    uTMDPDF_toleranceGEN=1.d-6!general tolerance
+    uTMDPDF_toleranceGEN=1.d-6!error stop
     uTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     uTMDPDF_numSubGridsX=4
     allocate(uTMDPDF_subGridsX(0:uTMDPDF_numSubGridsX))
@@ -442,7 +460,7 @@ subroutine SetupDefault(order)
     uTMDFF_lambdaLength=2
     uTMDFF_BMAX_ABS=100.d0
     uTMDFF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
-    uTMDFF_toleranceGEN=1.d-6!general tolerance
+    uTMDFF_toleranceGEN=1.d-6!error stop
     uTMDFF_maxIteration=10000    !maxIteration for adaptive integration
     uTMDFF_numSubGridsX=3
     allocate(uTMDFF_subGridsX(0:uTMDFF_numSubGridsX))
@@ -483,7 +501,7 @@ subroutine SetupDefault(order)
     lpTMDPDF_lambdaLength=2
     lpTMDPDF_BMAX_ABS=100.d0
     lpTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
-    lpTMDPDF_toleranceGEN=1.d-6!general tolerance
+    lpTMDPDF_toleranceGEN=1.d-6!error stop
     lpTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     lpTMDPDF_numSubGridsX=4
     allocate(lpTMDPDF_subGridsX(0:lpTMDPDF_numSubGridsX))
@@ -510,7 +528,7 @@ subroutine SetupDefault(order)
     SiversTMDPDF_lambdaLength=1
     SiversTMDPDF_BMAX_ABS=100.d0
     SiversTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
-    SiversTMDPDF_toleranceGEN=1.d-6!general tolerance
+    SiversTMDPDF_toleranceGEN=1.d-6!error stop
     SiversTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     SiversTMDPDF_numSubGridsX=2
     allocate(SiversTMDPDF_subGridsX(0:SiversTMDPDF_numSubGridsX))
@@ -520,9 +538,23 @@ subroutine SetupDefault(order)
     allocate(SiversTMDPDF_subGridsB(0:SiversTMDPDF_numSubGridsB))
     SiversTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
     SiversTMDPDF_grid_SizeB=8
-    SiversTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
-    SiversTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
-    SiversTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
+    SiversTMDPDF_makeGrid_inKT=.false.
+    SiversTMDPDF_runGridTest_inKT=.false.
+    SiversTMDPDF_numSubGridsX_inKT=4
+    allocate(SiversTMDPDF_subGridsX_inKT(0:SiversTMDPDF_numSubGridsX_inKT))
+    SiversTMDPDF_subGridsX_inKT=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
+    SiversTMDPDF_grid_SizeX_inKT=16
+    SiversTMDPDF_numSubGridsKT_inKT=5
+    allocate(SiversTMDPDF_subGridsKT_inKT(0:SiversTMDPDF_numSubGridsKT_inKT))
+    SiversTMDPDF_subGridsKT_inKT=(/0.01d0,1.d0,5.d0,15.d0,50.d0,200.d0/)
+    SiversTMDPDF_grid_SizeKT_inKT=16
+    SiversTMDPDF_minQ_inKT=1.d0
+    SiversTMDPDF_maxQ_inKT=200.d0
+    SiversTMDPDF_grid_SizeQ_inKT=40
+    SiversTMDPDF_numSubGridsB_inKT=5
+    allocate(SiversTMDPDF_subGridsB_inKT(0:SiversTMDPDF_numSubGridsB_inKT))
+    SiversTMDPDF_subGridsB_inKT=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
+    SiversTMDPDF_grid_SizeB_inKT=16
     SiversTMDPDF_toleranceOGATA_TMM=1.d-4    !!! OGATA tolerance (for TMM)
     SiversTMDPDF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
     SiversTMDPDF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
@@ -539,7 +571,7 @@ subroutine SetupDefault(order)
     wgtTMDPDF_lambdaLength=2
     wgtTMDPDF_BMAX_ABS=100.d0
     wgtTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
-    wgtTMDPDF_toleranceGEN=1.d-6!general tolerance
+    wgtTMDPDF_toleranceGEN=1.d-6!error stop
     wgtTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     wgtTMDPDF_numSubGridsX=3
     allocate(wgtTMDPDF_subGridsX(0:wgtTMDPDF_numSubGridsX))
@@ -561,9 +593,23 @@ subroutine SetupDefault(order)
     allocate(wgtTMDPDF_tw3_subGridsB(0:wgtTMDPDF_tw3_numSubGridsB))
     wgtTMDPDF_tw3_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,25.d0/)
     wgtTMDPDF_tw3_grid_SizeB=8
-    wgtTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
-    wgtTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
-    wgtTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
+    wgtTMDPDF_makeGrid_inKT=.false.
+    wgtTMDPDF_runGridTest_inKT=.false.
+    wgtTMDPDF_numSubGridsX_inKT=4
+    allocate(wgtTMDPDF_subGridsX_inKT(0:wgtTMDPDF_numSubGridsX_inKT))
+    wgtTMDPDF_subGridsX_inKT=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
+    wgtTMDPDF_grid_SizeX_inKT=16
+    wgtTMDPDF_numSubGridsKT_inKT=5
+    allocate(wgtTMDPDF_subGridsKT_inKT(0:wgtTMDPDF_numSubGridsKT_inKT))
+    wgtTMDPDF_subGridsKT_inKT=(/0.01d0,1.d0,5.d0,15.d0,50.d0,200.d0/)
+    wgtTMDPDF_grid_SizeKT_inKT=16
+    wgtTMDPDF_minQ_inKT=1.d0
+    wgtTMDPDF_maxQ_inKT=200.d0
+    wgtTMDPDF_grid_SizeQ_inKT=40
+    wgtTMDPDF_numSubGridsB_inKT=5
+    allocate(wgtTMDPDF_subGridsB_inKT(0:wgtTMDPDF_numSubGridsB_inKT))
+    wgtTMDPDF_subGridsB_inKT=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
+    wgtTMDPDF_grid_SizeB_inKT=16
     wgtTMDPDF_toleranceOGATA_TMM=1.d-4    !!! OGATA tolerance (for TMM)
     wgtTMDPDF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
     wgtTMDPDF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
@@ -580,7 +626,7 @@ subroutine SetupDefault(order)
     wglTMDPDF_lambdaLength=2
     wglTMDPDF_BMAX_ABS=100.d0
     wglTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
-    wglTMDPDF_toleranceGEN=1.d-6!general tolerance
+    wglTMDPDF_toleranceGEN=1.d-6!error stop
     wglTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     wglTMDPDF_numSubGridsX=3
     allocate(wglTMDPDF_subGridsX(0:wglTMDPDF_numSubGridsX))
@@ -602,9 +648,23 @@ subroutine SetupDefault(order)
     allocate(wglTMDPDF_tw3_subGridsB(0:wglTMDPDF_tw3_numSubGridsB))
     wglTMDPDF_tw3_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,25.d0/)
     wglTMDPDF_tw3_grid_SizeB=8
-    wglTMDPDF_toleranceOGATA=1.d-4    !!! OGATA tolerance
-    wglTMDPDF_hOGATA=1.d-3            !!! OGATA integration step
-    wglTMDPDF_KT_FREEZE=1.d-4         !!! min value of kT
+    wglTMDPDF_makeGrid_inKT=.false.
+    wglTMDPDF_runGridTest_inKT=.false.
+    wglTMDPDF_numSubGridsX_inKT=4
+    allocate(wglTMDPDF_subGridsX_inKT(0:wglTMDPDF_numSubGridsX_inKT))
+    wglTMDPDF_subGridsX_inKT=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
+    wglTMDPDF_grid_SizeX_inKT=16
+    wglTMDPDF_numSubGridsKT_inKT=5
+    allocate(wglTMDPDF_subGridsKT_inKT(0:wglTMDPDF_numSubGridsKT_inKT))
+    wglTMDPDF_subGridsKT_inKT=(/0.01d0,1.d0,5.d0,15.d0,50.d0,200.d0/)
+    wglTMDPDF_grid_SizeKT_inKT=16
+    wglTMDPDF_minQ_inKT=1.d0
+    wglTMDPDF_maxQ_inKT=200.d0
+    wglTMDPDF_grid_SizeQ_inKT=40
+    wglTMDPDF_numSubGridsB_inKT=5
+    allocate(wglTMDPDF_subGridsB_inKT(0:wglTMDPDF_numSubGridsB_inKT))
+    wglTMDPDF_subGridsB_inKT=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
+    wglTMDPDF_grid_SizeB_inKT=16       !!! min value of kT
     wglTMDPDF_toleranceOGATA_TMM=1.d-4    !!! OGATA tolerance (for TMM)
     wglTMDPDF_hOGATA_TMM=1.d-3            !!! OGATA integration step(for TMM)
     wglTMDPDF_muMIN_TMM=0.8d0         !!! min value of mu for TMM
@@ -619,8 +679,16 @@ subroutine SetupDefault(order)
     BoerMuldersTMDPDF_lambdaLength=1
     BoerMuldersTMDPDF_BMAX_ABS=100.d0
     BoerMuldersTMDPDF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
-    BoerMuldersTMDPDF_toleranceGEN=1.d-6!general tolerance
+    BoerMuldersTMDPDF_toleranceGEN=1.d-6!error stop
     BoerMuldersTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
+    BoerMuldersTMDPDF_numSubGridsX=2
+    allocate(BoerMuldersTMDPDF_subGridsX(0:BoerMuldersTMDPDF_numSubGridsX))
+    BoerMuldersTMDPDF_subGridsX=(/0.01d0,0.5d0,1.d0/)
+    BoerMuldersTMDPDF_grid_SizeX=8
+    BoerMuldersTMDPDF_numSubGridsB=5
+    allocate(BoerMuldersTMDPDF_subGridsB(0:BoerMuldersTMDPDF_numSubGridsB))
+    BoerMuldersTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
+    BoerMuldersTMDPDF_grid_SizeB=8
     BoerMuldersTMDPDF_makeGrid_inKT=.false.
     BoerMuldersTMDPDF_runGridTest_inKT=.false.
     BoerMuldersTMDPDF_numSubGridsX_inKT=4
@@ -649,8 +717,8 @@ subroutine SetupDefault(order)
     eeTMDFF_numHadron=0
     eeTMDFF_lambdaLength=2
     eeTMDFF_BMAX_ABS=100.d0
-    eeTMDFF_toleranceINT=1.d-6!general tolerance
-    eeTMDFF_toleranceGEN=1.d-6!general tolerance
+    eeTMDFF_toleranceINT=1.d-6!error stop
+    eeTMDFF_toleranceGEN=1.d-6!error stop
     eeTMDFF_maxIteration=10000    !maxIteration for adaptive integration
     eeTMDFF_makeGrid_inKT=.false.
 
@@ -664,7 +732,7 @@ subroutine SetupDefault(order)
     CollinsTMDFF_lambdaLength=1
     CollinsTMDFF_BMAX_ABS=100.d0
     CollinsTMDFF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
-    CollinsTMDFF_toleranceGEN=1.d-6!general tolerance
+    CollinsTMDFF_toleranceGEN=1.d-6!error stop
     CollinsTMDFF_maxIteration=10000    !maxIteration for adaptive integration
     CollinsTMDFF_makeGrid_inKT=.false.
     CollinsTMDFF_runGridTest_inKT=.false.
@@ -767,7 +835,7 @@ function CheckConstantsFile(file,prefix)
         , c_red)
         write(*,*) color('..           Please, use actual file or update it manually.'&
         ,c_red)
-        ERROR STOP
+        error stop
     end if
 
     if(FILEversion<inputVer) then
@@ -1400,13 +1468,35 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p6  : Number of nodes in the B-subgrid ')")
     write(51,*) SiversTMDPDF_grid_SizeB
     write(51,"(' ')")
-    write(51,"('*F   : ---- Transformation to KT-space ----')")
-    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
-    write(51,*) SiversTMDPDF_toleranceOGATA
-    write(51,"('*p2  : Ogata quadrature integration step')")
-    write(51,*) SiversTMDPDF_hOGATA
-    write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
-    write(51,*) SiversTMDPDF_KT_FREEZE
+    write(51,"('*F   : ---- Transform and grid in KT-space ----')")
+    write(51,"('*p1  : Prepare grid')")
+    write(51,*) SiversTMDPDF_makeGrid_inKT
+    write(51,"('*p2  : run the test of the grid (takes some time)')")
+    write(51,*) SiversTMDPDF_runGridTest_inKT
+    write(51,"('*p3  : Number of subgrids in X (required to read the next line)')")
+    write(51,*) SiversTMDPDF_numSubGridsX_inKT
+    write(51,"('*p4  : Intervals for subgrids in X (must include 1., as the last point)')")
+    write(51,*) SiversTMDPDF_subGridsX_inKT
+    write(51,"('*p5  : Number of nodes in the X-subgrid')")
+    write(51,*) SiversTMDPDF_grid_SizeX_inKT
+    write(51,"('*p6  : Number of subgrids in K (required to read the next line)')")
+    write(51,*) SiversTMDPDF_numSubGridsKT_inKT
+    write(51,"('*p7  : Intervals for subgrids in KT (below and above ultimate points the value is frozen)')")
+    write(51,*) SiversTMDPDF_subGridsKT_inKT
+    write(51,"('*p8  : Number of nodes in the KT-subgrid')")
+    write(51,*) SiversTMDPDF_grid_SizeKT_inKT
+    write(51,"('*p9  : Minimal Q in the grid')")
+    write(51,*) SiversTMDPDF_minQ_inKT
+    write(51,"('*p10 : Maximal Q in the grid')")
+    write(51,*) SiversTMDPDF_maxQ_inKT
+    write(51,"('*p11 : Number of nodes in the Q-grid')")
+    write(51,*) SiversTMDPDF_grid_SizeQ_inKT
+    write(51,"('*p12  : Number of subgrids in B (required to read the next line)')")
+    write(51,*) SiversTMDPDF_numSubGridsB_inKT
+    write(51,"('*p13  : Intervals for subgrids in B (below and above ultimate points the value is frozen)')")
+    write(51,*) SiversTMDPDF_subGridsB_inKT
+    write(51,"('*p14  : Number of nodes in the B-subgrid')")
+    write(51,*) SiversTMDPDF_grid_SizeB_inKT
     write(51,"(' ')")
     write(51,"('*G   : ---- Computation of Transverse Momentum Moments (TMM) ----')")
     write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
@@ -1493,13 +1583,35 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p6  : Number of nodes in the B-subgrid ')")
     write(51,*) wgtTMDPDF_tw3_grid_SizeB
     write(51,"(' ')")
-    write(51,"('*H   : ---- Transformation to KT-space ----')")
-    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
-    write(51,*) wgtTMDPDF_toleranceOGATA
-    write(51,"('*p2  : Ogata quadrature integration step')")
-    write(51,*) wgtTMDPDF_hOGATA
-    write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
-    write(51,*) wgtTMDPDF_KT_FREEZE
+    write(51,"('*H   : ---- Transform and grid in KT-space ----')")
+    write(51,"('*p1  : Prepare grid')")
+    write(51,*) wgtTMDPDF_makeGrid_inKT
+    write(51,"('*p2  : run the test of the grid (takes some time)')")
+    write(51,*) wgtTMDPDF_runGridTest_inKT
+    write(51,"('*p3  : Number of subgrids in X (required to read the next line)')")
+    write(51,*) wgtTMDPDF_numSubGridsX_inKT
+    write(51,"('*p4  : Intervals for subgrids in X (must include 1., as the last point)')")
+    write(51,*) wgtTMDPDF_subGridsX_inKT
+    write(51,"('*p5  : Number of nodes in the X-subgrid')")
+    write(51,*) wgtTMDPDF_grid_SizeX_inKT
+    write(51,"('*p6  : Number of subgrids in K (required to read the next line)')")
+    write(51,*) wgtTMDPDF_numSubGridsKT_inKT
+    write(51,"('*p7  : Intervals for subgrids in KT (below and above ultimate points the value is frozen)')")
+    write(51,*) wgtTMDPDF_subGridsKT_inKT
+    write(51,"('*p8  : Number of nodes in the KT-subgrid')")
+    write(51,*) wgtTMDPDF_grid_SizeKT_inKT
+    write(51,"('*p9  : Minimal Q in the grid')")
+    write(51,*) wgtTMDPDF_minQ_inKT
+    write(51,"('*p10 : Maximal Q in the grid')")
+    write(51,*) wgtTMDPDF_maxQ_inKT
+    write(51,"('*p11 : Number of nodes in the Q-grid')")
+    write(51,*) wgtTMDPDF_grid_SizeQ_inKT
+    write(51,"('*p12  : Number of subgrids in B (required to read the next line)')")
+    write(51,*) wgtTMDPDF_numSubGridsB_inKT
+    write(51,"('*p13  : Intervals for subgrids in B (below and above ultimate points the value is frozen)')")
+    write(51,*) wgtTMDPDF_subGridsB_inKT
+    write(51,"('*p14  : Number of nodes in the B-subgrid')")
+    write(51,*) wgtTMDPDF_grid_SizeB_inKT
     write(51,"(' ')")
     write(51,"('*I   : ---- Computation of Transverse Momentum Moments (TMM) ----')")
     write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
@@ -1547,6 +1659,18 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) BoerMuldersTMDPDF_maxIteration
     write(51,"(' ')")
     write(51,"('*E   : ---- (OPE) Parameters of grid ----')")
+    write(51,"('*p1  : Number of subgrids in X (required to read the next line)')")
+    write(51,*) BoerMuldersTMDPDF_numSubGridsX
+    write(51,"('*p2  : Intervals for subgrids in X (must include 1., as the last point)')")
+    write(51,*) BoerMuldersTMDPDF_subGridsX
+    write(51,"('*p3  : Number of nodes in the X-subgrid')")
+    write(51,*) BoerMuldersTMDPDF_grid_SizeX
+    write(51,"('*p4  : Number of subgrids in B (required to read the next line)')")
+    write(51,*) BoerMuldersTMDPDF_numSubGridsB
+    write(51,"('*p5  : Intervals for subgrids in B (below and above ultimate points the value is frozen)')")
+    write(51,*) BoerMuldersTMDPDF_subGridsB
+    write(51,"('*p6  : Number of nodes in the B-subgrid ')")
+    write(51,*) BoerMuldersTMDPDF_grid_SizeB
     write(51,"(' ')")
     write(51,"('*F   : ---- Transform and grid in KT-space ----')")
     write(51,"('*p1  : Prepare grid')")
@@ -1682,13 +1806,35 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p6  : Number of nodes in the B-subgrid ')")
     write(51,*) wglTMDPDF_tw3_grid_SizeB
     write(51,"(' ')")
-    write(51,"('*H   : ---- Transformation to KT-space ----')")
-    write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
-    write(51,*) wglTMDPDF_toleranceOGATA
-    write(51,"('*p2  : Ogata quadrature integration step')")
-    write(51,*) wglTMDPDF_hOGATA
-    write(51,"('*p3  : Minimum value of kT (below that value function is constant)')")
-    write(51,*) wglTMDPDF_KT_FREEZE
+    write(51,"('*H   : ---- Transform and grid in KT-space ----')")
+    write(51,"('*p1  : Prepare grid')")
+    write(51,*) wglTMDPDF_makeGrid_inKT
+    write(51,"('*p2  : run the test of the grid (takes some time)')")
+    write(51,*) wglTMDPDF_runGridTest_inKT
+    write(51,"('*p3  : Number of subgrids in X (required to read the next line)')")
+    write(51,*) wglTMDPDF_numSubGridsX_inKT
+    write(51,"('*p4  : Intervals for subgrids in X (must include 1., as the last point)')")
+    write(51,*) wglTMDPDF_subGridsX_inKT
+    write(51,"('*p5  : Number of nodes in the X-subgrid')")
+    write(51,*) wglTMDPDF_grid_SizeX_inKT
+    write(51,"('*p6  : Number of subgrids in K (required to read the next line)')")
+    write(51,*) wglTMDPDF_numSubGridsKT_inKT
+    write(51,"('*p7  : Intervals for subgrids in KT (below and above ultimate points the value is frozen)')")
+    write(51,*) wglTMDPDF_subGridsKT_inKT
+    write(51,"('*p8  : Number of nodes in the KT-subgrid')")
+    write(51,*) wglTMDPDF_grid_SizeKT_inKT
+    write(51,"('*p9  : Minimal Q in the grid')")
+    write(51,*) wglTMDPDF_minQ_inKT
+    write(51,"('*p10 : Maximal Q in the grid')")
+    write(51,*) wglTMDPDF_maxQ_inKT
+    write(51,"('*p11 : Number of nodes in the Q-grid')")
+    write(51,*) wglTMDPDF_grid_SizeQ_inKT
+    write(51,"('*p12  : Number of subgrids in B (required to read the next line)')")
+    write(51,*) wglTMDPDF_numSubGridsB_inKT
+    write(51,"('*p13  : Intervals for subgrids in B (below and above ultimate points the value is frozen)')")
+    write(51,*) wglTMDPDF_subGridsB_inKT
+    write(51,"('*p14  : Number of nodes in the B-subgrid')")
+    write(51,*) wglTMDPDF_grid_SizeB_inKT
     write(51,"(' ')")
     write(51,"('*I   : ---- Computation of Transverse Momentum Moments (TMM) ----')")
     write(51,"('*p1  : Tolerance (relative tolerance of summation in OGATA quadrature)')")
@@ -1870,7 +2016,7 @@ subroutine ReadConstantsFile(file,prefix)
         , c_red)
         write(*,*) color('..           Please, use actual file or update it manually.'&
         ,c_red)
-        ERROR STOP
+        error stop
     else if(FILEversion<inputVer) then
         if(outputLevel>0) write(*,*) color('aTMDe_setup: Version of input file(',c_red_bold), &
                                         color(int4ToStr(FILEversion),c_red_bold),&
@@ -2467,14 +2613,43 @@ subroutine ReadConstantsFile(file,prefix)
         read(51,*) SiversTMDPDF_subGridsB
         call MoveTO(51,'*p6  ')
         read(51,*) SiversTMDPDF_grid_SizeB
-
+    end if
+    if(FILEversion>40) then
         call MoveTO(51,'*F   ')
         call MoveTO(51,'*p1  ')
-        read(51,*) SiversTMDPDF_toleranceOGATA
+        read(51,*) SiversTMDPDF_makeGrid_inKT
         call MoveTO(51,'*p2  ')
-        read(51,*) SiversTMDPDF_hOGATA
+        read(51,*) SiversTMDPDF_runGridTest_inKT
         call MoveTO(51,'*p3  ')
-        read(51,*) SiversTMDPDF_KT_FREEZE
+        read(51,*) SiversTMDPDF_numSubGridsX_inKT
+        deallocate(SiversTMDPDF_subGridsX_inKT)
+        allocate(SiversTMDPDF_subGridsX_inKT(0:SiversTMDPDF_numSubGridsX_inKT))
+        call MoveTO(51,'*p4  ')
+        read(51,*) SiversTMDPDF_subGridsX_inKT
+        call MoveTO(51,'*p5  ')
+        read(51,*) SiversTMDPDF_grid_SizeX_inKT
+        call MoveTO(51,'*p6  ')
+        read(51,*) SiversTMDPDF_numSubGridsKT_inKT
+        deallocate(SiversTMDPDF_subGridsKT_inKT)
+        allocate(SiversTMDPDF_subGridsKT_inKT(0:SiversTMDPDF_numSubGridsKT_inKT))
+        call MoveTO(51,'*p7  ')
+        read(51,*) SiversTMDPDF_subGridsKT_inKT
+        call MoveTO(51,'*p8  ')
+        read(51,*) SiversTMDPDF_grid_SizeKT_inKT
+        call MoveTO(51,'*p9  ')
+        read(51,*) SiversTMDPDF_minQ_inKT
+        call MoveTO(51,'*p10 ')
+        read(51,*) SiversTMDPDF_maxQ_inKT
+        call MoveTO(51,'*p11 ')
+        read(51,*) SiversTMDPDF_grid_SizeQ_inKT
+        call MoveTO(51,'*p12 ')
+        read(51,*) SiversTMDPDF_numSubGridsB_inKT
+        deallocate(SiversTMDPDF_subGridsB_inKT)
+        allocate(SiversTMDPDF_subGridsB_inKT(0:SiversTMDPDF_numSubGridsB_inKT))
+        call MoveTO(51,'*p13 ')
+        read(51,*) SiversTMDPDF_subGridsB_inKT
+        call MoveTO(51,'*p14 ')
+        read(51,*) SiversTMDPDF_grid_SizeB_inKT
     end if
     call MoveTO(51,'*G   ')
     call MoveTO(51,'*p1  ')
@@ -2567,14 +2742,43 @@ subroutine ReadConstantsFile(file,prefix)
         read(51,*) wgtTMDPDF_tw3_subGridsB
         call MoveTO(51,'*p6  ')
         read(51,*) wgtTMDPDF_tw3_grid_SizeB
-
+    end if
+    if(FILEversion>40) then
         call MoveTO(51,'*H   ')
         call MoveTO(51,'*p1  ')
-        read(51,*) wgtTMDPDF_toleranceOGATA
+        read(51,*) wgtTMDPDF_makeGrid_inKT
         call MoveTO(51,'*p2  ')
-        read(51,*) wgtTMDPDF_hOGATA
+        read(51,*) wgtTMDPDF_runGridTest_inKT
         call MoveTO(51,'*p3  ')
-        read(51,*) wgtTMDPDF_KT_FREEZE
+        read(51,*) wgtTMDPDF_numSubGridsX_inKT
+        deallocate(wgtTMDPDF_subGridsX_inKT)
+        allocate(wgtTMDPDF_subGridsX_inKT(0:wgtTMDPDF_numSubGridsX_inKT))
+        call MoveTO(51,'*p4  ')
+        read(51,*) wgtTMDPDF_subGridsX_inKT
+        call MoveTO(51,'*p5  ')
+        read(51,*) wgtTMDPDF_grid_SizeX_inKT
+        call MoveTO(51,'*p6  ')
+        read(51,*) wgtTMDPDF_numSubGridsKT_inKT
+        deallocate(wgtTMDPDF_subGridsKT_inKT)
+        allocate(wgtTMDPDF_subGridsKT_inKT(0:wgtTMDPDF_numSubGridsKT_inKT))
+        call MoveTO(51,'*p7  ')
+        read(51,*) wgtTMDPDF_subGridsKT_inKT
+        call MoveTO(51,'*p8  ')
+        read(51,*) wgtTMDPDF_grid_SizeKT_inKT
+        call MoveTO(51,'*p9  ')
+        read(51,*) wgtTMDPDF_minQ_inKT
+        call MoveTO(51,'*p10 ')
+        read(51,*) wgtTMDPDF_maxQ_inKT
+        call MoveTO(51,'*p11 ')
+        read(51,*) wgtTMDPDF_grid_SizeQ_inKT
+        call MoveTO(51,'*p12 ')
+        read(51,*) wgtTMDPDF_numSubGridsB_inKT
+        deallocate(wgtTMDPDF_subGridsB_inKT)
+        allocate(wgtTMDPDF_subGridsB_inKT(0:wgtTMDPDF_numSubGridsB_inKT))
+        call MoveTO(51,'*p13 ')
+        read(51,*) wgtTMDPDF_subGridsB_inKT
+        call MoveTO(51,'*p14 ')
+        read(51,*) wgtTMDPDF_grid_SizeB_inKT
     end if
     call MoveTO(51,'*I   ')
     call MoveTO(51,'*p1  ')
@@ -2613,6 +2817,25 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) BoerMuldersTMDPDF_toleranceGEN
     call MoveTO(51,'*p3  ')
     read(51,*) BoerMuldersTMDPDF_maxIteration
+    if(FILEversion>39) then
+        call MoveTO(51,'*E   ')
+        call MoveTO(51,'*p1  ')
+        read(51,*) BoerMuldersTMDPDF_numSubGridsX
+        deallocate(BoerMuldersTMDPDF_subGridsX)
+        allocate(BoerMuldersTMDPDF_subGridsX(0:BoerMuldersTMDPDF_numSubGridsX))
+        call MoveTO(51,'*p2  ')
+        read(51,*) BoerMuldersTMDPDF_subGridsX
+        call MoveTO(51,'*p3  ')
+        read(51,*) BoerMuldersTMDPDF_grid_SizeX
+        call MoveTO(51,'*p4  ')
+        read(51,*) BoerMuldersTMDPDF_numSubGridsB
+        deallocate(BoerMuldersTMDPDF_subGridsB)
+        allocate(BoerMuldersTMDPDF_subGridsB(0:BoerMuldersTMDPDF_numSubGridsB))
+        call MoveTO(51,'*p5  ')
+        read(51,*) BoerMuldersTMDPDF_subGridsB
+        call MoveTO(51,'*p6  ')
+        read(51,*) BoerMuldersTMDPDF_grid_SizeB
+    end if
     call MoveTO(51,'*F   ')
     call MoveTO(51,'*p1  ')
     read(51,*) BoerMuldersTMDPDF_makeGrid_inKT
@@ -2755,14 +2978,43 @@ subroutine ReadConstantsFile(file,prefix)
         read(51,*) wglTMDPDF_tw3_subGridsB
         call MoveTO(51,'*p6  ')
         read(51,*) wglTMDPDF_tw3_grid_SizeB
-
+    end if
+    if(FILEversion>40) then
         call MoveTO(51,'*H   ')
         call MoveTO(51,'*p1  ')
-        read(51,*) wglTMDPDF_toleranceOGATA
+        read(51,*) wglTMDPDF_makeGrid_inKT
         call MoveTO(51,'*p2  ')
-        read(51,*) wglTMDPDF_hOGATA
+        read(51,*) wglTMDPDF_runGridTest_inKT
         call MoveTO(51,'*p3  ')
-        read(51,*) wglTMDPDF_KT_FREEZE
+        read(51,*) wglTMDPDF_numSubGridsX_inKT
+        deallocate(wglTMDPDF_subGridsX_inKT)
+        allocate(wglTMDPDF_subGridsX_inKT(0:wglTMDPDF_numSubGridsX_inKT))
+        call MoveTO(51,'*p4  ')
+        read(51,*) wglTMDPDF_subGridsX_inKT
+        call MoveTO(51,'*p5  ')
+        read(51,*) wglTMDPDF_grid_SizeX_inKT
+        call MoveTO(51,'*p6  ')
+        read(51,*) wglTMDPDF_numSubGridsKT_inKT
+        deallocate(wglTMDPDF_subGridsKT_inKT)
+        allocate(wglTMDPDF_subGridsKT_inKT(0:wglTMDPDF_numSubGridsKT_inKT))
+        call MoveTO(51,'*p7  ')
+        read(51,*) wglTMDPDF_subGridsKT_inKT
+        call MoveTO(51,'*p8  ')
+        read(51,*) wglTMDPDF_grid_SizeKT_inKT
+        call MoveTO(51,'*p9  ')
+        read(51,*) wglTMDPDF_minQ_inKT
+        call MoveTO(51,'*p10 ')
+        read(51,*) wglTMDPDF_maxQ_inKT
+        call MoveTO(51,'*p11 ')
+        read(51,*) wglTMDPDF_grid_SizeQ_inKT
+        call MoveTO(51,'*p12 ')
+        read(51,*) wglTMDPDF_numSubGridsB_inKT
+        deallocate(wglTMDPDF_subGridsB_inKT)
+        allocate(wglTMDPDF_subGridsB_inKT(0:wglTMDPDF_numSubGridsB_inKT))
+        call MoveTO(51,'*p13 ')
+        read(51,*) wglTMDPDF_subGridsB_inKT
+        call MoveTO(51,'*p14 ')
+        read(51,*) wglTMDPDF_grid_SizeB_inKT
     end if
     call MoveTO(51,'*I   ')
     call MoveTO(51,'*p1  ')

@@ -504,7 +504,7 @@ if(V1<0d0 .and. V3>0d0) then
 else if(V1>0d0 .and. V3>0d0) then
   LowestQ(2)=1d0
 else
-  ERROR STOP ErrorString('LowestQ: Negative value at large Q (c=1).',moduleName)
+  error stop ErrorString('LowestQ: Negative value at large Q (c=1).',moduleName)
 end if
 
   !c=0.5
@@ -531,7 +531,7 @@ if(V1<0d0 .and. V3>0d0) then
 else if(V1>0d0 .and. V3>0d0) then
   LowestQ(1)=1d0
 else
-  ERROR STOP ErrorString('LowestQ: Negative value at large Q (c=0.5).',moduleName)
+  error stop ErrorString('LowestQ: Negative value at large Q (c=0.5).',moduleName)
 end if
 
   !c=2
@@ -558,7 +558,7 @@ if(V1<0d0 .and. V3>0d0) then
 else if(V1>0d0 .and. V3>0d0) then
   LowestQ(3)=1d0
 else
-  ERROR STOP ErrorString('LowestQ: Negative value at large Q (c=2).',moduleName)
+  error stop ErrorString('LowestQ: Negative value at large Q (c=2).',moduleName)
 end if
 
 end function LowestQ

@@ -298,7 +298,7 @@ subroutine uTMDFF_OPE_Initialize(file,prefix)
     bMax=subGridsB(size(subGridsB)-1)
 
     if(abs(subGridsX(size(subGridsX)-1)-1)>toleranceGEN) then
-        ERROR STOP ErrorString("The last subgrid in X must complete by x=1. Initialization terminated",moduleName)
+        error stop ErrorString("The last subgrid in X must complete by x=1. Initialization terminated",moduleName)
     end if
 
     mainGrid=optGrid(path,'*5   ','*E   ',numberOfHadrons,withGluon,moduleName,outputLevel)
@@ -430,8 +430,8 @@ function uTMDFF_X0_AS(x,mu,mu0,h,addGluon)
     else if(x==1.d0) then
         uTMDFF_X0_AS=0._dp
         return
-    else if(x<0) then
-        ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
+    else if(x<=0) then
+        error stop ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     end if
 
     !!!! case NA

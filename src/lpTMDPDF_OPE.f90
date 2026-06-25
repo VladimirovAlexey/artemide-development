@@ -260,7 +260,7 @@ subroutine lpTMDPDF_OPE_Initialize(file,prefix)
     bMax=subGridsB(size(subGridsB)-1)
 
     if(abs(subGridsX(size(subGridsX)-1)-1)>toleranceGEN) then
-        ERROR STOP ErrorString("The last subgrid in X must complete by x=1. Initialization terminated",moduleName)
+        error stop ErrorString("The last subgrid in X must complete by x=1. Initialization terminated",moduleName)
     end if
 
     mainGrid=optGrid(path,'*11  ','*E   ',numberOfHadrons,withGluon,moduleName,outputLevel)

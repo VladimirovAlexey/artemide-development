@@ -45,7 +45,7 @@ type, public :: LevinIntegrator
     integer::outputLevel
 
     !!!! General parameters
-    !! mass parameter used as mass-scale
+    !! mass parameter used as a mass-scale
     real(dp)::TMDmass=1._dp
     !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD; Must be 0, 1 in the present implementation)
     integer::TMDtypeN
@@ -127,7 +127,7 @@ this%outputLevel=outLevel
 this%TMDtypeN=TMDt
 
 if(this%TMDtypeN/=0 .and. this%TMDtypeN/=1) then
-    ERROR STOP ErrorString(&
+    error stop ErrorString(&
     "TMDtype for Levin transform is defined only for 0 or 1, while called "//int4ToStr(this%TMDtypeN),this%parentName,moduleName)
 end if
 
@@ -273,7 +273,7 @@ SELECT CASE(this%TMDtypeN)
         end do
         end do
     CASE DEFAULT
-        ERROR STOP ErrorString("Fourier_Levin: Unknown TMDtype. Presently implemeted only types 0,1",this%parentName,moduleName)
+        error stop ErrorString("Fourier_Levin: Unknown TMDtype. Presently implemeted only types 0,1",this%parentName,moduleName)
 END SELECT
 
 end subroutine PrepareTransformationMatrix
@@ -308,7 +308,7 @@ SELECT CASE(this%TMDtypeN)
         end do
         Fourier_Levin=Fourier_Levin/pix2*this%TMDMass*this%TMDMass/kT
     CASE DEFAULT
-        ERROR STOP ErrorString("Fourier_Levin: Unknown TMDtype. Presently impleneted only types 0,1",this%parentName,moduleName)
+        error stop ErrorString("Fourier_Levin: Unknown TMDtype. Presently impleneted only types 0,1",this%parentName,moduleName)
 
 END SELECT
 

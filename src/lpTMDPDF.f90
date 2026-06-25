@@ -48,9 +48,9 @@ real(dp)::BMAX_ABS=100._dp !!! for large values of b returns 0
 real(dp)::toleranceGEN !!! tolerance general
 
 !!!------------------------------ General parameters----------------------------------------------
-logical::includeGluon=.true.    !! gluons included/non-included (TRUE for lp TMDPDF!)
+logical::includeGluon=.true.    !! gluons included/excluded (TRUE for lp TMDPDF!)
 integer::numOfHadrons=1         !! total number of hadrons to compute
-real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
+real(dp)::TMDmass=1._dp         !! mass parameter used as a mass-scale
 
 !!!------------------------------ Parameters of transform to KT-space -------------------------------------------
 
@@ -118,7 +118,7 @@ if(FILEver<inputver) then
     write(*,*) '		     Update the const-file with artemide.setup'
     write(*,*) '  '
     CLOSE (51, STATUS='KEEP')
-    ERROR STOP
+    error stop
 end if
 
 call MoveTO(51,'*p2  ')
@@ -141,7 +141,7 @@ if(.not.initRequired) then
     write(*,*) ErrorString('TMDR module MUST be included.',moduleName)
     write(*,*) ErrorString('Check initialization-file. Evaluation stop.',moduleName)
     CLOSE (51, STATUS='KEEP')
-    ERROR STOP
+    error stop
 end if
 
 call MoveTO(51,'*11  ')
@@ -175,7 +175,7 @@ if(lambdaNPlength<=0) then
     write(*,*) ErrorString(&
     'Initialize: number of non-perturbative parameters should be >=1. Check the constants-file. Evaluation STOP',moduleName)
         CLOSE (51, STATUS='KEEP')
-    ERROR STOP
+    error stop
 end if
 
 !!!!! ---- parameters of numerical evaluation
@@ -310,10 +310,10 @@ function TMD_opt(x,bT,hadron)
     else if(bT>BMAX_ABS) then
         TMD_opt=0._dp
         return
-    else if(x<0) then
-        ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
+    else if(x<=0) then
+        error stop ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     else if(bT<0d0) then
-        ERROR STOP ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
+        error stop ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
     end if
 
     TMD_opt=lpTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)

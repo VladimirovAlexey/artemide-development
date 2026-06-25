@@ -310,7 +310,7 @@ subroutine wgtTMDPDF_OPE_Initialize(file,prefix)
     bMax=subGridsB(size(subGridsB)-1)
 
     if(abs(subGridsX(size(subGridsX)-1)-1)>toleranceGEN) then
-        Error Stop ErrorString("The last subgrid in X must complete by x=1. Initialization terminated",moduleName)
+        error stop ErrorString("The last subgrid in X must complete by x=1. Initialization terminated",moduleName)
     end if
 
     mainGridTw2=optGrid(path,'*13  ','*E   ',numberOfHadrons,withGluon,moduleName,outputLevel)
@@ -383,7 +383,7 @@ function tw3_convolution(x,b,h)
     end if
 
     !!!!! perturbative convolution is not implemented yet
-    ERROR STOP ErrorString("Twist-3 convolution is not implemented yet!",moduleName)
+    error stop ErrorString("Twist-3 convolution is not implemented yet!",moduleName)
 
 end function tw3_convolution
 

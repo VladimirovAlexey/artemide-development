@@ -194,7 +194,7 @@ function ReadInfo(name,directory,outL) result(this)
     if(this%outputLevel>1) write(*,'(A)') color("----- Loading PDF from "//trim(name),c_yellow)
 
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old", IOSTAT=ios)
-    if(ios /= 0) ERROR STOP ErrorString('The info-file is not found at '//trim(path),this%moduleName)
+    if(ios /= 0) error stop ErrorString('The info-file is not found at '//trim(path),this%moduleName)
     
     !!! reading all lines
     do
@@ -247,7 +247,7 @@ subroutine SetReplica_this(this,num)
     allocate(listOfF(0:size(this%FlavorArray)-1))
 
     if(num<0 .or. num>this%NumMembers) &
-        ERROR STOP ErrorString('Attempt to call for replica '//trim(numToStr(num))//&
+        error stop ErrorString('Attempt to call for replica '//trim(numToStr(num))//&
             '. The maximum number of replicas (according to info) is '//trim(numToStr(this%NumMembers)),this%moduleName)
 
     !!!! create the name of replica-file MainPath_000n.dat
@@ -263,7 +263,7 @@ subroutine SetReplica_this(this,num)
 
 
     OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old", IOSTAT=ios)
-    if(ios /= 0) ERROR STOP ErrorString('The file is not found at '//trim(path),this%moduleName)
+    if(ios /= 0) error stop ErrorString('The file is not found at '//trim(path),this%moduleName)
 
     !!!! the file should be structured as follows [1412.7420]
     !!!PdfType: centra
@@ -335,11 +335,11 @@ subroutine SetReplica_this(this,num)
                 read(lineToParse,*) listToCheck
                 if(size(listToCheck)/=Xsize) then
                     CLOSE (51, STATUS='KEEP')
-                    ERROR STOP ErrorString("Different sizes of x-grids in LHAPDF file.",this%moduleName)
+                    error stop ErrorString("Different sizes of x-grids in LHAPDF file.",this%moduleName)
                 end if
                 if(sum(abs(this%Xnodes/listToCheck)-1)>this%tolerance) then
                     CLOSE (51, STATUS='KEEP')
-                    ERROR STOP ErrorString("X-grids for subgrids in LHAPDF file do not coincide.",this%moduleName)
+                    error stop ErrorString("X-grids for subgrids in LHAPDF file do not coincide.",this%moduleName)
                 end if
             else
                 XisSet=.true.
@@ -373,7 +373,7 @@ subroutine SetReplica_this(this,num)
             read(lineToParse,*) listOfF
             if(sum(listOfF-this%FlavorArray)/=0) then
                 CLOSE (51, STATUS='KEEP')
-                ERROR STOP ErrorString("Flavor-grids for subgrids in LHAPDF file do not coincide.",this%moduleName)
+                error stop ErrorString("Flavor-grids for subgrids in LHAPDF file do not coincide.",this%moduleName)
             end if
 
             !!! then it should be j * Xsize lines of grids
@@ -381,12 +381,12 @@ subroutine SetReplica_this(this,num)
                 read(51,'(A)', iostat=ios) line
                 if(ios /= 0) then
                     CLOSE (51, STATUS='KEEP')
-                    ERROR STOP ErrorString("Unexpected END-OF-FILE in "//trim(path),this%moduleName)
+                    error stop ErrorString("Unexpected END-OF-FILE in "//trim(path),this%moduleName)
                 end if
 
                 if(trim(line)=="---") then
                     CLOSE (51, STATUS='KEEP')
-                    ERROR STOP ErrorString("Incorrect number of entries subgrid of "//trim(path),this%moduleName)
+                    error stop ErrorString("Incorrect number of entries subgrid of "//trim(path),this%moduleName)
                 end if
             end do
         else
@@ -443,7 +443,7 @@ subroutine SetReplica_this(this,num)
         write(*,*) "Entry :", this%FlavorArray
         write(*,*) "Interpretation :", FlavorPermutationIndex
 #endif
-        !!ERROR STOP ErrorString("The flavor numbering list does not map to (-5:5)",this%moduleName)
+        !!error stop ErrorString("The flavor numbering list does not map to (-5:5)",this%moduleName)
     end if
 
 #if DEBUGMODE==1
@@ -697,10 +697,10 @@ real(dp),dimension(-5:5):: xPDF_this
 real(dp)::logQ,dd,deltaQ(1:4),subQ(1:4,-5:5),logX,deltaX(1:4),gg(-5:5)
 integer::iQ,iX,j
 
-if(X<this%Xmin .or. X>this%Xmax) ERROR STOP ErrorString('X ='//numTostr(X)//' is outside of X-range',this%moduleName)
+if(X<this%Xmin .or. X>this%Xmax) error stop ErrorString('X ='//numTostr(X)//' is outside of X-range',this%moduleName)
 
-if(Q>this%Qmax) ERROR STOP ErrorString('Q ='//numTostr(Q)//' is outside of QMax-range',this%moduleName)
-if(Q<0.4d0) ERROR STOP ErrorString('Q ='//numTostr(Q)//' is smaller than 0.4 GeV of Q-range',this%moduleName)
+if(Q>this%Qmax) error stop ErrorString('Q ='//numTostr(Q)//' is outside of QMax-range',this%moduleName)
+if(Q<0.4d0) error stop ErrorString('Q ='//numTostr(Q)//' is smaller than 0.4 GeV of Q-range',this%moduleName)
 
 if(Q<this%Qmin) then !!!! extrapolate!
     logX=log(X)

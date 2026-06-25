@@ -4,7 +4,7 @@
 !	Evaluation of the BoerMulders TMD PDF at low normalization point in zeta-prescription.
 !
 !	29.01.2024  Implementation in ver.3.0
-!	23.06.2026  Removed old INCLUDE-dependencies
+!	23.06.2026  Removed old INCLUDE-dependencies + updated of KT-part
 !
 !				A.Vladimirov (23.06.2026)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -28,7 +28,7 @@ private
 character (len=5),parameter :: version="v3.04"
 character (len=17),parameter :: moduleName="BoerMuldersTMDPDF"
 !Last appropriate version of constants-file
-integer,parameter::inputver=30
+integer,parameter::inputver=40
 
 !--------------------------------Working variables-----------------------------------------------
 !--- general
@@ -48,16 +48,16 @@ real(dp)::BMAX_ABS=100._dp !!! for large values of b returns 0
 real(dp)::toleranceGEN !!! tolerance general
 
 !!!------------------------------ General parameters----------------------------------------------
-logical::includeGluon=.false.   !! gluons included/non-included
+logical::includeGluon=.false.   !! gluons included/excluded
 integer::numOfHadrons=1         !! total number of hadrons to compute
-real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
+real(dp)::TMDmass=1._dp         !! mass parameter used as a mass-scale
 
 !!!------------------------------ Parameters of transform to KT-space -------------------------------------------
 
 integer,parameter::TMDtypeN=1 !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD)
 
 type(OgataIntegrator)::HankelbyOGATA
-real(dp),parameter::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value in OGATA (it is not dynamical in current implementation)
+real(dp),parameter::kT_FREEZE=0.0001_dp  !!!!! parameter of freezing the low-kT-value in OGATA (it is not dynamic in current implementation)
 
 !!!------------------------------ Parameters of transform in KT space and KT-grid ------------------------------
 logical::makeGrid_inKT
@@ -121,7 +121,7 @@ subroutine BoerMuldersTMDPDF_Initialize(file,prefix)
         write(*,*) '		     Update the const-file with artemide.setup'
         write(*,*) '  '
         CLOSE (51, STATUS='KEEP')
-        ERROR STOP
+        error stop
     end if
 
     call MoveTO(51,'*p2  ')
@@ -144,7 +144,7 @@ subroutine BoerMuldersTMDPDF_Initialize(file,prefix)
         write(*,*) ErrorString('TMDR module MUST be included.',moduleName)
         write(*,*) ErrorString('Check initialization-file. Evaluation stop.',moduleName)
         CLOSE (51, STATUS='KEEP')
-        ERROR STOP
+        error stop
     end if
 
     call MoveTO(51,'*14  ')
@@ -177,7 +177,7 @@ subroutine BoerMuldersTMDPDF_Initialize(file,prefix)
     write(*,*) ErrorString(&
     'Initialize: number of non-perturbative parameters should be >=1. Check the constants-file. Evaluation STOP',moduleName)
             CLOSE (51, STATUS='KEEP')
-    ERROR STOP
+    error stop
     end if
 
     !!!!! ---- parameters of numerical evaluation
@@ -185,7 +185,7 @@ subroutine BoerMuldersTMDPDF_Initialize(file,prefix)
     call MoveTO(51,'*p2  ')
     read(51,*) toleranceGEN
 
-    !!!!! ---- parameters kT-transform and grid
+    !!!!! ---- parameters of kT-transform and grid
     call MoveTO(51,'*F   ')
     call MoveTO(51,'*p1  ')
     read(51,*) makeGrid_inKT
@@ -261,8 +261,6 @@ subroutine BoerMuldersTMDPDF_SetScaleVariation_tw3(c4_in)
 end subroutine BoerMuldersTMDPDF_SetScaleVariation_tw3
 
 !!!Sets the non-perturbative parameters lambda
-!!! carries additional option to build the grid
-!!! if need to build grid, specify the gluon required directive.
 subroutine BoerMuldersTMDPDF_SetLambdaNP(lambdaIN)
     real(dp),intent(in)::lambdaIN(:)
     integer::ll
@@ -282,9 +280,8 @@ subroutine BoerMuldersTMDPDF_SetLambdaNP(lambdaIN)
 
     if(outputLevel>2) write(*,*) 'arTeMiDe.',moduleName,': NPparameters reset = (',lambdaNP,')'
 
-    if(makeGrid_inKT) then
-        call updateGrid_inKT()
-    end if
+    if(makeGrid_inKT) call updateGrid_inKT()
+
 end subroutine BoerMuldersTMDPDF_SetLambdaNP
 
 !!! returns current value of NP parameters
@@ -306,19 +303,8 @@ contains
 function toFourier(b)
     real(dp),dimension(-5:5) :: toFourier
     real(dp), intent(in) ::b
-    real(dp):: Rkernel,RkernelG
 
-    if(includeGluon) then
-    Rkernel=TMDR_Rzeta(b,Q,Q**2,1)
-    RkernelG=TMDR_Rzeta(b,Q,Q**2,0)
-
-    toFourier=BoerMuldersTMDPDF_OPE_tw3(x,b,abs(h))*FNP(x,b,abs(h),lambdaNP)*&
-        (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
-
-    else
-        Rkernel=TMDR_Rzeta(b,Q,Q**2,1)
-        toFourier=Rkernel*BoerMuldersTMDPDF_OPE_tw3(x,b,abs(h))*FNP(x,b,abs(h),lambdaNP)
-    end if
+    toFourier=TMD_ev(x,b,Q,Q**2,abs(h))
 end function toFourier
 
 function toGrid(x_in,Q_in,h_in,arraySize1,arraySize2)
@@ -357,10 +343,10 @@ function TMD_opt(x,bT,hadron)
     else if(bT>BMAX_ABS) then
         TMD_opt=0._dp
         return
-    else if(x<1d-12) then
-        ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
+    else if(x<=0) then
+        error stop ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     else if(bT<0d0) then
-        ERROR STOP ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
+        error stop ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
     end if
 
     TMD_opt=BoerMuldersTMDPDF_OPE_tw3(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
@@ -375,6 +361,11 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
     real(dp),intent(in):: x,bt,muf,zetaf
     integer,intent(in)::hadron
     real(dp):: Rkernel,RkernelG
+
+    if(bT>BMAX_ABS) then
+      TMD_ev=0._dp
+      return
+    end if
 
     if(includeGluon) then
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
@@ -401,9 +392,7 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
 
 end function TMD_ev
 
-!!!!! the names are neutral because these procedures are fed to Fourier transform and other universal subprograms.
-
-!!!!!!! the function that actually returns the uTMDPDF optimal value
+!!!!!!! the function that actually returns the optimal value
 function TMD_opt_inKT(x,kT,hadron)
   real(dp),dimension(-5:5)::TMD_opt_inKT
   real(dp),intent(in) :: x, kT
@@ -417,10 +406,10 @@ function TMD_opt_inKT(x,kT,hadron)
      else if(x==1.d0) then !!! funny but sometimes FORTRAN can compare real numbers exactly
         TMD_opt_inKT=0._dp
         return
-    else if(x<1d-12) then
-        ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
+    else if(x<=0) then
+        error stop ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
     else if(kT<0d0) then
-        ERROR STOP ErrorString('Called kT<0. kT='//numToStr(kT)//' . Evaluation STOP',moduleName)
+        error stop ErrorString('Called kT<0. kT='//numToStr(kT)//' . Evaluation STOP',moduleName)
     end if
 
     TMD_opt_inKT=HankelbyLEVIN%Fourier_atPoint(toFourier,kT)
@@ -432,17 +421,21 @@ function TMD_opt_inKT(x,kT,hadron)
     function toFourier(b)
         real(dp),dimension(-5:5) :: toFourier
         real(dp), intent(in) ::b
-        toFourier=BoerMuldersTMDPDF_OPE_tw3(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)
+        toFourier=TMD_opt(x,b,abs(hadron))
     end function toFourier
 
 end function TMD_opt_inKT
 !
-!!!!!!!! the function that actually returns the uTMDPDF evolved to (mu,zeta) value
+!!!!!!!! the function that actually returns the TMD evolved to (mu,zeta) value
 function TMD_ev_inKT(x,kT,muf,zetaf,hadron)
     real(dp)::TMD_ev_inKT(-5:5)
     real(dp),intent(in):: x,kT,muf,zetaf
     integer,intent(in)::hadron
-    real(dp):: Rkernel,RkernelG
+
+    if(x>=1._dp) then
+      TMD_ev_inKT=0._dp
+      return
+    end if
 
     TMD_ev_inKT=HankelbyLEVIN%Fourier_atPoint(toFourier,kT)
 
@@ -463,25 +456,14 @@ contains
 function toFourier(b)
     real(dp),dimension(-5:5) :: toFourier
     real(dp), intent(in) ::b
-
-    if(includeGluon) then
-    Rkernel=TMDR_Rzeta(b,muf,zetaf,1)
-    RkernelG=TMDR_Rzeta(b,muf,zetaf,0)
-
-    toFourier=BoerMuldersTMDPDF_OPE_tw3(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)*&
-        (/Rkernel,Rkernel,Rkernel,Rkernel,Rkernel,RkernelG,Rkernel,Rkernel,Rkernel,Rkernel,Rkernel/)
-
-    else
-        Rkernel=TMDR_Rzeta(b,muf,zetaf,1)
-        toFourier=Rkernel*BoerMuldersTMDPDF_OPE_tw3(x,b,abs(hadron))*FNP(x,b,abs(hadron),lambdaNP)
-    end if
+    toFourier=TMD_ev(x,b,muf,zetaf,abs(hadron))
 end function toFourier
 
 end function TMD_ev_inKT
 
 
-!!!!!!!! the function that actually returns the uTMDPDF evolved to (mu,mu^2) value
-!!!!!!! This is exactly what is stored in the grid. So if grid is built attempt to extract from it.
+!!!!!!!! the function that actually returns the TMD evolved to (mu,mu^2) value
+!!!!!!! This is exactly what is stored in the grid. So if the grid is built, extract from it  .
 function TMD_grid_inKT(x,kT,mu,hadron)
     real(dp)::TMD_grid_inKT(-5:5)
     real(dp),intent(in):: x,kT,mu
