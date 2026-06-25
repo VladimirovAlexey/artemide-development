@@ -44,6 +44,7 @@ logical:: started=.false.
 !! 0=only critical
 !! 1=initialization details
 !! 2=WARNINGS
+!! 3=FULL output
 integer::outputLevel=2
 !! variable that count number of WARNING mesagges. In order not to spam too much
 type(Warning_OBJ)::Warning_Handler

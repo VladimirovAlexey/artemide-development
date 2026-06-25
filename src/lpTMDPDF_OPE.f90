@@ -1,11 +1,12 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!            arTeMiDe 3.00
+!            arTeMiDe 3.04
 !
 !    Evaluation of the small-b OPE for lpTMDPDF
 !
 !    if you use this module please, quote ????.????
 !
 !    ver 3.00: release (AV, 20.07.2023)
+!    ver 3.04: light polishing (AV, 25.06.2026)
 !
 !                A.Vladimirov (20.07.2023)
 !
@@ -32,7 +33,7 @@ implicit none
 private 
 
 !Current version of module
-character (len=5),parameter :: version="v3.01"
+character (len=5),parameter :: version="v3.04"
 character (len=12),parameter :: moduleName="lpTMDPDF_OPE"
 !Last appropriate version of constants-file
 integer,parameter::inputver=30
@@ -43,6 +44,7 @@ logical:: started=.false.
 !! 0=only critical
 !! 1=initialization details
 !! 2=WARNINGS
+!! 3=FULL output
 integer::outputLevel=2
 type(Warning_OBJ)::Warning_Handler
 

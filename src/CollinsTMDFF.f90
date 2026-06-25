@@ -38,6 +38,7 @@ logical:: started=.false.
 !! 0=only critical
 !! 1=initialization details
 !! 2=WARNINGS
+!! 3=FULL output
 integer::outputLevel=2
 type(Warning_OBJ)::Warning_Handler
 

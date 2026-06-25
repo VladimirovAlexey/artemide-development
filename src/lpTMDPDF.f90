@@ -1,11 +1,12 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 3.0
+!			arTeMiDe 3.04
 !
 !	Evaluation of the liniearly polarized gluon TMD PDF at low normalization point in zeta-prescription.
 !	
 !	if you use this module please, quote 1706.01473
 !
 !	20.08.2023  Implementation in ver.3.0
+!	25.06.2026  Light polishing. AV (25.06.2026)
 !
 !				A.Vladimirov (20.08.2023)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -24,7 +25,7 @@ implicit none
 private 
 
 !Current version of module
-character (len=5),parameter :: version="v3.00"
+character (len=5),parameter :: version="v3.04"
 character (len=8),parameter :: moduleName="lpTMDPDF"
 !Last appropriate version of constants-file
 integer,parameter::inputver=30
@@ -36,6 +37,7 @@ logical:: started=.false.
 !! 0=only critical
 !! 1=initialization details
 !! 2=WARNINGS
+!! 3=FULL output
 integer::outputLevel=2
 type(Warning_OBJ)::Warning_Handler
 
@@ -54,7 +56,11 @@ real(dp)::TMDmass=1._dp         !! mass parameter used as mass-scale
 
 integer,parameter::TMDtypeN=2 !!!!! this is the order of Bessel-transform (IT IS STRICT FOR TMD)
 
+!!!!!! This integrator is used for transfomration to hte momentum space (to be updated to Levin, once it known n=2 case)
 type(OgataIntegrator)::Hankel
+
+!!!!!! This integrator is used for TMMDs
+type(OgataIntegrator)::HankelByOgata
 
 !!!------------------------------ Parameters of transform to TMM -------------------------------------------
 
@@ -200,7 +206,7 @@ CLOSE (51, STATUS='KEEP')
 Warning_Handler=Warning_OBJ(moduleName=moduleName,messageCounter=0,messageTrigger=messageTrigger)
 
 if(.not.includeGluon) then
-    write(*,*) color('INCONSITENCY: lpTMDPDF should include gluon',c_red)
+    write(*,*) color('INCONSISTENCY: lpTMDPDF should include gluon',c_red)
 end if
 
 if(outputLevel>2 .and. includeGluon) write(*,'(A)') ' ... gluons are included'
@@ -212,6 +218,8 @@ if(outputLevel>2) write(*,'(A,F12.2)') ' Absolute maximum b      =',BMAX_ABS
 allocate(lambdaNP(1:lambdaNPlength))
 
 Hankel=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA,hOGATA,TMDmass,kT_FREEZE)
+!!!! This one is usd for TMMs
+HankelByOgata=OgataIntegrator(moduleName,outputLevel,TMDtypeN, toleranceOGATA_TMM,hOGATA_TMM,TMDmass,kT_FREEZE)
 
 if(.not.TMDR_IsInitialized()) then
     if(outputLevel>2) write(*,*) '.. initializing TMDR (from ',moduleName,')'
@@ -255,8 +263,6 @@ subroutine lpTMDPDF_SetScaleVariation(c4_in)
 end subroutine lpTMDPDF_SetScaleVariation
 
 !!!Sets the non-perturbative parameters lambda
-!!! carries additional option to build the grid
-!!! if need to build grid, specify the gluon required directive.
 subroutine lpTMDPDF_SetLambdaNP(lambdaIN)
     real(dp),intent(in)::lambdaIN(:)
     integer::ll
@@ -275,7 +281,6 @@ subroutine lpTMDPDF_SetLambdaNP(lambdaIN)
     call ModelUpdate(lambdaNP)
 
     if(outputLevel>2) write(*,*) 'arTeMiDe.',moduleName,': NPparameters reset = (',lambdaNP,')'
-    call ModelUpdate(lambdaNP)
 end subroutine lpTMDPDF_SetLambdaNP
 
 !!! returns current value of NP parameters
@@ -305,12 +310,10 @@ function TMD_opt(x,bT,hadron)
     else if(bT>BMAX_ABS) then
         TMD_opt=0._dp
         return
-    else if(x<1d-12) then
+    else if(x<0) then
         ERROR STOP ErrorString('Called x<0. x='//numToStr(x)//' . Evaluation STOP',moduleName)
-        stop
     else if(bT<0d0) then
         ERROR STOP ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
-        stop
     end if
 
     TMD_opt=lpTMDPDF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
@@ -326,15 +329,19 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
     integer,intent(in)::hadron
     real(dp):: RkernelG
 
+    !!!! early exit to save calls.
+    if(bT>BMAX_ABS .or. x>=1.) then
+      TMD_ev=0._dp
+      return
+    end if
+
+
     if(includeGluon) then
         RkernelG=TMDR_Rzeta(bt,muf,zetaf,0)
-
         TMD_ev=RkernelG*TMD_opt(x,bT,hadron)
-
     else
         TMD_ev=0._dp
     end if
-
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
@@ -354,11 +361,10 @@ function lpTMDPDF_TMM_G(x,mu,hadron)
     integer,intent(in)::hadron
 
     if(mu<muTMM_min) then
-        write(*,*) ErrorString("ERROR in KT-moment computation. mu<mu_min:",moduleName),muTMM_min
-        error stop
+        error stop ErrorString("ERROR in KT-moment computation. mu<mu_min:"//numToStr(muTMM_min),moduleName)
     end if
 
-    lpTMDPDF_TMM_G=Hankel%Moment_G(F,mu)
+    lpTMDPDF_TMM_G=HankelByOgata%Moment_G(F,mu)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
@@ -384,11 +390,10 @@ function lpTMDPDF_TMM_X(x,mu,hadron)
     integer,intent(in)::hadron
 
     if(mu<muTMM_min) then
-        write(*,*) ErrorString("ERROR in KT-moment computation. mu<mu_min:",moduleName),muTMM_min
-        error stop
+        error stop ErrorString("ERROR in KT-moment computation. mu<mu_min:"//numToStr(muTMM_min),moduleName)
     end if
 
-    lpTMDPDF_TMM_X=Hankel%Moment_X(F,mu)
+    lpTMDPDF_TMM_X=HankelByOgata%Moment_X(F,mu)
 
     !!! forcefully set =0 below threshold
     if(mu<mBOTTOM) then
