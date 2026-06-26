@@ -588,7 +588,7 @@ $(OBJ)/TMDF_KPC.o: $(SOURCEDIR)/TMDF_KPC.f90 $(OBJ)/EWinput.o $(OBJ)/uTMDPDF.o $
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/TMDX_DY.o: $(SOURCEDIR)/TMDX_DY.f90 $(TMDXFiles) $(OBJ)/TMDF.o $(OBJ)/TMDF_KPC.o  $(OBJ)/QCDinput.o $(aTMDeUTILITY)
+$(OBJ)/TMDX_DY.o: $(SOURCEDIR)/TMDX_DY.f90 $(TMDXFiles) $(OBJ)/TMDF.o $(OBJ)/TMDF_KPC.o  $(OBJ)/LeptonCutsDY.o $(OBJ)/QCDinput.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/TMDX_DY.f90 -I$(MOD)
 	mv *.o $(OBJ)
