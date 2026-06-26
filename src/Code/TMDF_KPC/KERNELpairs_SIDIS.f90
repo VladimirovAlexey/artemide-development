@@ -53,9 +53,8 @@ SELECT CASE(process)
 
     CASE (3031,3032,3033,3131,3132,3133,3134,3135,3136,3137,3138,3139) !F_UU^cos(2phi_h) h H-part ATTENTION !TO BE UPDATED
         write(*,*) ErrorString('update process 3031: ',moduleName),process
-        write(*,*) color('Evaluation stop',c_red_bold)
-        stop
-            SIDIS_KERNEL = 1._dp
+        ERROR STOP ErrorString('This code is not yet done.',moduleName,'KERNELpairs_SIDIS')
+
 
 	CASE (3041,3042,3043,3141,3142,3143,3144,3145,3146,3147,3148,3149) !F_{UU,T}+\vareps F_{UU,L} h H-part
 

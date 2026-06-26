@@ -18,6 +18,8 @@ use aTMDe_Integration
 implicit none
 private
 
+character (len=12),parameter :: moduleName="LeptonCutsDY"
+
 !! Tolerance (absolute)
 real(dp)::toleranceINT=0.000001d0
 !! Tolerance (comparison)
@@ -138,7 +140,7 @@ function IntegralOverEtaFixedPhiEXACT(var,varC,phi,Cut_Type)
     par2=var(6)/var(2)
     par3=sin(phi)**2
 
-    IntegralOverEtaFixedPhiEXACT=3/(16*pi)*&
+    IntegralOverEtaFixedPhiEXACT=3d0/(16d0*pi)*&
       (integralEtaExactUNDEFINED(phi,par1,par2,par3,var(3)-eta2,del2,Cut_Type)&
       -integralEtaExactUNDEFINED(phi,par1,par2,par3,var(3)-eta1,del2,Cut_Type))
   end if
@@ -231,7 +233,7 @@ end function integralEtaExactUNDEFINED
 
 !!!!the theta (0 or 1) function of the integrand in the coordinates rapidity-angle
 !! Search for the boundary of integration between t1 and t2 at fixed phi
-!! by devision on 2
+!! by division by 2
 !      1     2    3       4          5                       6
 ! var =(/ qT,  Q_in, y_in,   Q_in**2,  qT**2/(Q_in**2+qT**2), SQRT(Q_in**2+qT**2)/)
 ! varC=(/ pT1, pT2,  etaMin, etaMax,   EXP(2*etaMin),         EXP(2*etaMax) /)
@@ -268,10 +270,10 @@ end function Integrand2THETA
 ! varC=(/ pT1, pT2,  etaMin, etaMax,   EXP(2*etaMin),         EXP(2*etaMax) /)
 function FindBoundary(var,varC,eta1_in,eta2_in,phi)
   real(dp),dimension(1:6),intent(in)::var,varC
-  real(dp),intent(in)::eta1_in,eta2_in
+  real(dp),intent(in)::eta1_in,eta2_in,phi
   real(dp)::FindBoundary
 
-  real(dp)::eta1,eta2,phi,eta3
+  real(dp)::eta1,eta2,eta3
   integer:: v1,v2,v3,i
   
   eta1=eta1_in
@@ -279,15 +281,15 @@ function FindBoundary(var,varC,eta1_in,eta2_in,phi)
   v1=Integrand2THETA(var,varC,eta1,phi)
   v2=Integrand2THETA(var,varC,eta2,phi)
   
+
   if(v1==v2) then
-    write(*,*) 'ERROR LeptonCuts: problem with boundary evaluation. Probably Q is too close to qT. EVALUATION STOP'
+    write(*,*) ErrorString('Problem with boundary evaluation. Probably Q is too close to qT.',moduleName)
     write(*,*) 'Problematic values:'
     write(*,*) 'Kinematic:  Q=',var(2), 'qT=',var(1),'y=',var(3)
     write(*,*) 'Cut params: (pT1,pT2)=(',SQRT(varC(1)),SQRT(varC(2)),'), eta =(',varC(3),varC(4),')'
-    stop
-    FindBoundary=(eta1+eta2)/2d0
+    error stop
   else
-    do 
+    do i=0,100 !!!! must exit much earlier
       eta3=(eta1+eta2)/2d0
       v3=Integrand2THETA(var,varC,eta3,phi)
       if(v3==v1) then 
@@ -295,10 +297,14 @@ function FindBoundary(var,varC,eta1_in,eta2_in,phi)
       else
         eta2=eta3
       end if
-      i=i+1
-      if (ABS(eta1-eta2)<toleranceINT) exit
+      !!!!! if boundary found
+      if (ABS(eta1-eta2)<toleranceINT) then
+        FindBoundary=(eta1+eta2)/2d0
+        return
+      end if
     end do 
-    FindBoundary=(eta1+eta2)/2d0
+    !!!! if the loop reaches 100 and exit, this is definite error
+    error stop ErrorString("Cannot find the boundary of integration in eta",moduleName)
   end if
 end function FindBoundary
 

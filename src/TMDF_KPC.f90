@@ -7,6 +7,7 @@
 !
 !    ver 3.0: created (AV, 07.09.2023)
 !    ver 3.03: optimization of integration algorithms (Sara&Oscar, 14.01.2026)
+!    ver 3.04: fixing various issues (AV, 26.06.2026)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module TMDF_KPC
 use aTMDe_Numerics
@@ -58,15 +59,15 @@ real(dp)::toleranceINT
 real(dp)::qTMIN
 
 !increment counters
-integer::GlobalCounter=0 !!!total counter of calls of TMD pairs
-integer::LocalCounter=0 !!!counter of calls of TMD pairs within the current integrand
+integer::GlobalCounter=0 !!!total counter of calls of TMD pairs (per session, it is reset by aTMDe_control)
+integer::LocalCounter=0 !!!counter of calls of TMD pairs within the current integrand (reset each integral call)
 
 ! parameter of TMD proportionality
 real(dp)::M2=1._dp
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!! Public declarations
-public::TMDF_KPC_IsInitialized,TMDF_KPC_Initialize,TMDF_KPC_IsconvergenceLost
+public::TMDF_KPC_IsInitialized,TMDF_KPC_Initialize,TMDF_KPC_IsconvergenceLost,TMDF_KPC_ResetCounters
 public::KPC_DYconv,KPC_SIDISconv
 
 contains
@@ -183,7 +184,7 @@ subroutine TMDF_KPC_Initialize(file,prefix)
     call MoveTO(51,'*p1  ')
     read(51,*) include_wglTMDPDF
 
-    !! BoerMuldersTMDPDF
+    !! CollinsTMDFF
     call MoveTO(51,'*18  ')
     call MoveTO(51,'*p1  ')
     read(51,*) include_CollinsTMDFF
@@ -288,7 +289,7 @@ subroutine TMDF_KPC_Initialize(file,prefix)
     write(*,*)  color('--------------------------------------------------------',c_red)
 #endif
 
-    if(outputLevel>0) write(*,*) color('----- arTeMiDe.TMDF '//trim(version)//': .... initialized',c_green)
+    if(outputLevel>0) write(*,*) color('----- arTeMiDe.TMDF-KPC '//trim(version)//': .... initialized',c_green)
     if(outputLevel>1) write(*,*) ' '
 
 
@@ -307,6 +308,13 @@ subroutine TMDF_KPC_convergenceISlost()
     convergenceLost=.true.
     if(outputLevel>1) call Warning_Handler%WarningRaise('convergenceLOST trigger ON')
 end subroutine TMDF_KPC_convergenceISlost
+
+!Resets the counters
+subroutine TMDF_KPC_ResetCounters()
+    convergenceLost=.false.
+    GlobalCounter=0
+    call Warning_Handler%Reset()
+end subroutine TMDF_KPC_ResetCounters
 
 !!!--------------------------------------------------------------------------------------------------
 !!!-----------------------------------DY PART -------------------------------------------------------
@@ -342,7 +350,7 @@ function KPC_DYconv(Q2,qT_in,x1,x2,mu,proc1)
     real(dp)::KPC_DYconv
 
     real(dp)::tau2,deltaT,qT
-    logical::exist
+    real(dp) :: delta,rho,atan_rho
 
     if(qT_in<qTMIN) then
         qT=qTMIN
@@ -354,6 +362,19 @@ function KPC_DYconv(Q2,qT_in,x1,x2,mu,proc1)
 
     tau2=Q2+qT**2
     deltaT=qT**2/tau2
+
+    !!!!! These are parameters for used to change variables in OMEGA function (they are global for this call)
+    ! First case: Q is much greater than qT -> the position of the peak needs to be corrected
+    if (Sqrt(Q2)/qT > 39.d0) then
+        delta=qT/Sqrt(Q2)+0.5d0*(Sqrt(Q2)/qT)**0.35d0/Sqrt(Q2)
+        rho=qT/Sqrt(Q2)
+    ! Second case: Q is greater than qT -> the width of the peak needs to be corrected
+    else
+        delta=qT/Sqrt(Q2)
+        rho=qT/Sqrt(Q2)+qT/(Sqrt(Q2)/qT)**(0.18d0)/2.5d0
+    end if
+    ! Some auxiliary variables to shorten expressions
+    atan_rho=atan(rho)
 
 #if INTEGRATION_MODE==1
 !!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -371,6 +392,15 @@ function KPC_DYconv(Q2,qT_in,x1,x2,mu,proc1)
 !!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     KPC_DYconv=Integrate_K15(Integrand_forOmega,-1._dp,1._dp)
 #endif
+
+   if(ISNAN(KPC_DYconv) .or. KPC_DYconv>1d32) then
+   write(*,*) ErrorString('DY structure function evaluated to '//numToStr(KPC_DYconv),moduleName)
+   write(*,*) 'x1,x2=',x1,x2,' process=',proc1
+   write(*,*) 'Q2=',Q2,'qT_in=',qT_in,'mu=',mu
+
+   call TMDF_KPC_convergenceISlost()
+   KPC_DYconv=1d10
+   end if
 
 
 contains
@@ -412,33 +442,19 @@ end function Integrand_forAlpha
 function Integrand_forOmega(omega)
     real(dp) :: Integrand_forOmega
     real(dp), intent(in) :: omega
-    real(dp) :: delta,rho,atan_rho,tan_o,jacobian
-    real(dp) :: alpha,sA
+    real(dp) :: tan_o,jacobian
+    real(dp) :: alpha,sA,denom
 
-    ! First case: Q is much greater than qT -> the position of the peak needs to be corrected
-    if (Sqrt(Q2)/qT > 39.d0) then
-
-        delta=qT/Sqrt(Q2)+0.5d0*(Sqrt(Q2)/qT)**0.35d0/Sqrt(Q2)
-        rho=qT/Sqrt(Q2)
-
-    ! Second case: Q is greater than qT -> the width of the peak needs to be corrected
-    else
-
-        delta=qT/Sqrt(Q2)
-        rho=qT/Sqrt(Q2)+qT/(Sqrt(Q2)/qT)**(0.18d0)/2.5d0
-
-    end if
-
-    ! Some auxiliary variables to shorten expressions
-    atan_rho=atan(rho)
+    !! delta, pho,atan_rho depends on global kinematics (Q and qT, so they are computed before calls)
     tan_o=tan(omega*atan_rho)
+    denom=(pi*rho+(4*delta-pi)*tan_o)
 
     ! Alpha as a function of omega
-    alpha=pi*delta*(rho+tan_o)/(pi*rho+(4*delta-pi)*tan_o)
+    alpha=pi*delta*(rho+tan_o)/denom
     sA=sin(alpha)
 
     ! Jacobian
-    jacobian=2*pi*(pi-2*delta)*delta*rho*atan_rho*(1+tan_o**2)/(pi*rho+(4*delta-pi)*tan_o)**2
+    jacobian=2*pi*(pi-2*delta)*delta*rho*atan_rho*(1+tan_o**2)/denom**2
 
     Integrand_forOmega = jacobian*INT_overTHETA(Q2,tau2,deltaT,x1,x2,mu,proc1,sA)
 
@@ -475,8 +491,6 @@ function Integrand_forALPHA(alpha)
     if(K1<toleranceGEN) K1=toleranceGEN
     if(K2<toleranceGEN) K2=toleranceGEN
 
-    LocalCounter=LocalCounter+1
-
     !!! it is devided by 2 (instead of 4), because the integral over cos(theta) is over (0,pi).
     Integrand_forALPHA=TMD_pair(Q2,xi1,xi2,K1,K2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,sinA,cT,proc1(3))*sinA
 end function Integrand_forALPHA
@@ -489,6 +503,10 @@ function INT_overTHETA(Q2,tau2,deltaT,x1,x2,mu,proc1,sA)
     integer,intent(in),dimension(1:3)::proc1
     real(dp)::INT_overTHETA
 
+    real(dp):: Lam,cosFactorInS
+
+    cosFactorInS=Sqrt(deltaT)*sA
+    Lam=(1-deltaT)*(1-sA*sA)
 
 #if INTEGRATION_MODE==1
 !!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -509,11 +527,10 @@ contains
 function Integrand_forTHETA(theta)
     real(dp)::Integrand_forTHETA
     real(dp),intent(in)::theta
-    real(dp)::S,Lam,xi1,xi2,K1,K2,cosT
+    real(dp)::S,xi1,xi2,K1,K2,cosT
 
     cosT=cos(theta)
-    S=Sqrt(deltaT)*sA*cosT
-    Lam=(1-deltaT)*(1-sA*sA)
+    S=cosFactorInS*cosT
 
     xi1=x1/2*(1+S+sqrt(Lam))
     xi2=x2/2*(1-S+sqrt(Lam))
@@ -523,8 +540,6 @@ function Integrand_forTHETA(theta)
     !!!! Some times K1 and K2 became too close to zero... and turns negative
     if(K1<toleranceGEN) K1=toleranceGEN
     if(K2<toleranceGEN) K2=toleranceGEN
-
-    LocalCounter=LocalCounter+1
 
     !!! it is divided by 2 (instead of 4), because the integral over cos(theta) is over (0,pi).
     Integrand_forTHETA=TMD_pair(Q2,xi1,xi2,K1,K2,mu,proc1)*DY_KERNEL(Q2,tau2,tau2-Q2,S,Lam,sA,cosT,proc1(3))*sA
@@ -556,8 +571,7 @@ end function INT_overTHETA
 !!! In its final form, the integral is evaluated first over theta (0,pi) and then over omega (–1,1),
 !!! using the K21 integration method for both integrations.
 !!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!!! NOTE: For computing observables that require this convolution integral, we recommend using
-!!! the previous version with the integration over delta, or alternatively the new version but with an
+!!! NOTE: For computing observables that require this convolution integral, we recommend using an
 !!! adaptive method such as GK, since using K21 together with the new change of variables
 !!! sacrifices a bit of precision (though not too much) in order to prioritize speed.
 
@@ -566,6 +580,8 @@ function KPC_SIDISconv(Q2, qT_in, x1, z1, vareps, mu, proc1)
     real(dp), intent(in) :: Q2, x1, z1, mu, qT_in, vareps
     integer, intent(in), dimension(1:3) :: proc1
     real(dp) :: tau2, dT, qT, x
+
+    real(dp) :: d,a,atan_a
 
     if(qT_in < qTMIN) then
         qT = qTMIN
@@ -579,35 +595,52 @@ function KPC_SIDISconv(Q2, qT_in, x1, z1, vareps, mu, proc1)
     dT = qT**2/tau2
     x = x1*Q2/tau2
 
+    !!!!! These are parameters of variable transformation for Delta (global for each call, so they are precomputed)
+    ! First case: "high" x -> the position of the peak needs to be corrected
+    if (x > 0.2d0) then
+        d=qT/Sqrt(Q2)+x*0.02d0*(Sqrt(Q2)/qT)**(0.3d0)
+        a=Sqrt(Q2)/qT!
+    ! Second case: "low" x -> the width of the peak needs to be corrected
+    else
+        d=qT/Sqrt(Q2)
+        a=qT/Sqrt(Q2)+5.1d0/(Sqrt(Q2)/qT)**(0.65d0)/x
+    end if
+    atan_a=atan(a)
+
 #if INTEGRATION_MODE==1
 !!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !!!   Adaptive implementations of the integral for computing observables
 !!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    ! First version, integral over theta (0,pi), then over delta (0,1)
-    KPC_SIDISconv = Integrate_GK(Integrand_forDeltat2, 0._dp, 1._dp, toleranceINT)
-
-    ! Second version, integral over theta (0,pi), then over omega (-1,1)
-!     KPC_SIDISconv=Integrate_GK(Integrand_forDelta_th,-1._dp,1._dp,toleranceINT)
+    KPC_SIDISconv=Integrate_GK(Integrand_forDelta_th,-1._dp,1._dp,toleranceINT)
 
 #elif INTEGRATION_MODE==2
 !!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !!!   Fixed-number of points implementations of the integral for fitting KPCs
 !!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     KPC_SIDISconv=Integrate_K21(Integrand_forDelta_th,-1._dp,1._dp)
 
 #endif
 
+   if(ISNAN(KPC_SIDISconv) .or. KPC_SIDISconv>1d32) then
+   write(*,*) ErrorString('SIDIS structure function evaluated to '//numToStr(KPC_SIDISconv),moduleName)
+   write(*,*) 'x1,z1=',x1,z1,' process=',proc1, 'eps=',vareps
+   write(*,*) 'Q2=',Q2,'qT_in=',qT_in,'mu=',mu
+
+   call TMDF_KPC_convergenceISlost()
+   KPC_SIDISconv=1d10
+   end if
 
 contains
 
-! Integral over Deltat over integral over theta
-function Integrand_forDeltat2(Deltat)
-    real(dp) :: Integrand_forDeltat2
-    real(dp), intent(in) :: Deltat
-
-    Integrand_forDeltat2 = INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, vareps, mu, proc1, Deltat)
-
-end function Integrand_forDeltat2
+! ! Integral over Deltat over integral over theta
+! function Integrand_forDeltat2(Deltat)
+!     real(dp) :: Integrand_forDeltat2
+!     real(dp), intent(in) :: Deltat
+!
+!     Integrand_forDeltat2 = INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, vareps, mu, proc1, Deltat)
+!
+! end function Integrand_forDeltat2
 
 
 !!! Integral over omega with a special change of variables that resolves the peak observed in delta.
@@ -622,34 +655,19 @@ end function Integrand_forDeltat2
 function Integrand_forDelta_th(omega)
     real(dp) :: Integrand_forDelta_th
     real(dp), intent(in) :: omega
-    real(dp) :: d,a,delta,atan_a,tan_o,jacobian
+    real(dp) :: delta,tan_o,jacobian,denom
 
-    ! First case: "high" x -> the position of the peak needs to be corrected
-    if (x > 0.2d0) then
-
-        d=qT/Sqrt(Q2)+x*0.02d0*(Sqrt(Q2)/qT)**(0.3d0)
-        a=Sqrt(Q2)/qT
-!
-    ! Second case: "low" x -> the width of the peak needs to be corrected
-    else
-
-        d=qT/Sqrt(Q2)
-        a=qT/Sqrt(Q2)+5.1d0/(Sqrt(Q2)/qT)**(0.65d0)/x
-
-    end if
-
-    atan_a=atan(a)
     tan_o=tan(omega*atan_a)
+    denom=a+(2*d-1)*tan_o
 
     !!!! expression for delta as function of omega
-    delta=d*(a+tan_o)/(a+(2*d-1)*tan_o)
+    delta=d*(a+tan_o)/denom
     !!!
-    jacobian=2*a*(1-d)*d*atan_a*(1+tan_o**2)/(a+(2*d-1)*tan_o)**2
+    jacobian=2*a*(1-d)*d*atan_a*(1+tan_o**2)/denom**2
 
-    if(ISNAN(delta)) then
+!    if(ISNAN(delta)) then
 !     write(*,*) "---->",d,a,atan_a,tan_o,delta,jacobian
-
-    end if
+!    end if
 
     !Deltat = sqrt(Deltat2)
     Integrand_forDelta_th = jacobian*INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, vareps, mu, proc1, delta)
@@ -664,6 +682,17 @@ function INT_overTHETA_SIDIS(Q2, tau2, dT, x1, z1, vareps, mu, proc1, Deltat)
     real(dp), intent(in) :: Q2, tau2, dT, x1, z1, vareps, mu, Deltat
     integer, intent(in), dimension(1:3) :: proc1
     real(dp) :: INT_overTHETA_SIDIS
+
+    real(dp) :: sqrtC,S0,S1,Lam_0,Lam_1,Lam_2
+
+    !!!! Common constants for SIDIS, they are fixed for each integrand
+    !!!! So, I precompute them to save evaluation time
+    sqrtC = sqrt(dT*(1+dT)*(1-x1))  !!! Typical variable
+    S0    = (2-x1)*dT/x1            !!! Coefficient of 1 in S
+    S1    = 2*Deltat*sqrtC/x1       !!! Coefficient of cosT in S
+    Lam_0 = (1+dT)*((1+dT) + 4*(1-x1)/x1**2*(Deltat**2+dT))  !!! Coefficient of 1 in Lambda
+    Lam_1 = (1+dT)*(4*(2-x1)/x1**2*sqrtC*Deltat)             !!! Coefficient of cosT in Lambda
+    Lam_2 = (1+dT)*(4*(1-x1)/x1**2*dT*Deltat**2)            !!! Coefficient of cosT^2 in Lambda
 
 
 #if INTEGRATION_MODE==1
@@ -688,12 +717,8 @@ function Integrand_forTHETA_SIDIS(theta)
     real(dp) :: S, Lam, xi, zeta, K, kh, cosT,RRR
 
     cosT = cos(theta)
-
-    S = ((2-x1)*dT+2*Deltat*cosT*sqrt(dT*(1+dT)*(1-x1)))/x1
-
-    Lam = (1.d0+dT)*((1+dT)+4*(2-x1)/x1**2*sqrt((1-x1)*dT*(1+dT))*Deltat*cosT&
-    +4*(1-x1)/x1**2*(Deltat**2+dT*(1+(Deltat*cosT)**2)))
-
+    S = S0 + S1*cosT
+    Lam = Lam_0 + Lam_1*cosT + Lam_2*cosT**2
 
     xi = x1*(1-S+sqrt(Lam))/2
     zeta = 2._dp*z1/(1+S+sqrt(Lam))
@@ -704,7 +729,6 @@ function Integrand_forTHETA_SIDIS(theta)
     if(K < toleranceGEN) K = toleranceGEN
     if(kh < toleranceGEN) kh = toleranceGEN
 
-    LocalCounter = LocalCounter + 1
     RRR=TMD_pair(Q2,xi,zeta,K,kh,mu,proc1)
     Integrand_forTHETA_SIDIS = 2*(1-x1)*zeta*(1+dT)/(x1**2*sqrt(Lam))*Deltat&
     *SIDIS_KERNEL(Q2,tau2,dT*tau2, vareps, S,Lam,proc1(3))*RRR

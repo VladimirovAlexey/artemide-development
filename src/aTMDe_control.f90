@@ -548,6 +548,7 @@ subroutine artemide_SetNPparameters_TMDR(lambdaNP)
 
     !!! reseting other packages
     if(include_TMDF) call TMDF_ResetCounters()
+    if(include_TMDF_KPC) call TMDF_KPC_ResetCounters()
     if(include_TMDX_DY) call TMDX_DY_ResetCounters()
     if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
 
