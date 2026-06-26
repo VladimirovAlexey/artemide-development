@@ -1,5 +1,5 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!            arTeMiDe 2.02
+!            arTeMiDe 3.04
 !
 !    Evaluation of the TMD cross-section for SIDIS-like cross-sections
 !
@@ -9,6 +9,7 @@
 !    ver 1.32: part of functions migrated to TMDF, rest updated (AV, 16.08.2018)
 !    ver 2.02:                            (AV,16.08.2019)
 !    ver 3.03:                            (AV,14.02.2026)
+!    ver 3.03:                            (AV,26.06.2026)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module TMDX_SIDIS
 use aTMDe_Numerics
@@ -29,7 +30,7 @@ private
 
 !Current version of module
 character (len=10),parameter :: moduleName="TMDX-SIDIS"
-character (len=5),parameter :: version="v3.03"
+character (len=5),parameter :: version="v3.04"
 !Last appropriate version of constants-file
 integer,parameter::inputver=39
 
@@ -331,6 +332,16 @@ end if
 
 end subroutine TMDX_SIDIS_SetScaleVariation
 
+!!!!! wrapper, to check the convergence in proper module.
+function isConvergenceLost_inSubmodule()
+logical::isConvergenceLost_inSubmodule
+if(useKPC) then
+  isConvergenceLost_inSubmodule=TMDF_KPC_IsconvergenceLost()
+else
+  isConvergenceLost_inSubmodule=TMDF_IsconvergenceLost()
+end if
+end function isConvergenceLost_inSubmodule
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!! PROCESS DEFINITION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -424,7 +435,7 @@ qT=var(1)/var(5)*Sqrt((1d0+var(8))/(1d0-var(9)))
 
 !!fac1 and fac2 are functions that appear in definition of x1, and z1
 !! fac1= -2/gamma^2(1-sqrt[1+gamma^2(1-qT^2/Q^2)])
-!! fac2= (1-sqrt[1-rho2 gamma^2])/(2 (1-qT^2/Q^2))
+!! fac2= (1+sqrt[1-rho2 gamma^2])/(2 (1-qT^2/Q^2))
 if(exactX1Z1) then
   if(corrQT .and. corrM1 .and. var(8)>toleranceGEN) then
       fac1=-2d0/var(8)*(1d0-sqrt(1d0+var(8)*(1d0-(qT/var(2))**2)))
@@ -660,8 +671,7 @@ SELECT CASE(process(1))
 
   CASE DEFAULT
       PreFactor2=0._dp
-      write(*,*) ErrorString(' unknown process p1=',moduleName), process(2)
-      error stop color('Evaluation stop.',c_red_bold)
+      error stop ErrorString(' unknown process p1='//numToStr(process(1)),moduleName)
 END SELECT
 end function PreFactor2
 
@@ -705,15 +715,14 @@ SELECT CASE(process(1))
       !!!! same as for case(1) but with factor x/y
 
       !!! uniPart is the prefactor for the cross-section
-      uniPart=pix2*alphaEM(scaleMu)**2/(var(3))*(var(6)*var(4))/((1d0-var(7))*sqrt(1-var(10)))
+      uniPart=pi2*alphaEM(scaleMu)**2/(var(3))*(var(6)*var(4))/((1d0-var(7))*sqrt(1-var(10)))
 
       PreFactorKPC=uniPart*HardCoefficientSIDIS(scaleMu)*&
       hc2*1d9!from GeV to pbarn
 
   CASE DEFAULT
       PreFactorKPC=0._dp
-      write(*,*) ErrorString(' unknown process p1=',moduleName), process(2)
-      error stop color('Evaluation stop.',c_red_bold)
+      error stop ErrorString(' unknown process p1='//numToStr(process(1)),moduleName)
 END SELECT
 end function PreFactorKPC
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -794,12 +803,13 @@ integer,dimension(1:4),intent(in)::process
 
 GlobalCounter=GlobalCounter+1
 
+if(isConvergenceLost_inSubmodule()) then
+  xSec=1d9
+  return
+end if
+
 !!!! KPC formula
 if(useKPC) then
-    if(TMDF_KPC_IsconvergenceLost()) then
-      xSec=1d9
-      return
-    end if
 
     call CalculateX1Z1qT(x1,z1,qT,var)
 
@@ -856,8 +866,7 @@ if(zmax_in > 1d0) then
     zMax=zMax_in
   end if
   if(zmin_in < 0.000001d0) then
-    write(*,*) ErrorString('lower limit of z-integration is < 10^{-6}. Evaluation stop.',moduleName)
-    stop
+    error stop ErrorString('lower limit of z-integration is < 10^{-6}. Evaluation stop.',moduleName)
   else
     zMin=zMin_in
   end if
@@ -1011,7 +1020,7 @@ if(doCut) then
     Qmax=QMaxWithCuts(xmax,Qmax,var,Cuts)
   else
     Qmin=QMinWithCuts((xmin+xmax)/2d0,Qmin,var,Cuts)
-    Qmax=QMaxWithCuts((xmin+xmax)/2d0,Qmin,var,Cuts)+toleranceGEN!!! this is needed to resolve 0
+    Qmax=QMaxWithCuts((xmin+xmax)/2d0,Qmax,var,Cuts)+toleranceGEN!!! this is needed to resolve 0
   end if
 end if
 
@@ -1150,10 +1159,8 @@ real(dp),dimension(1:13)::var
 real(dp):: pt_min(1:size(ptMin_in)),pt_max(1:size(ptMin_in))
 real(dp)::pT_bin_MAX,pT_bin_MIN,diffAB,sumAB,pTInter
 real(dp),dimension(0:NumChNodes)::fAtNodes,vectorR
-!!!!! scale for the rescaling of large integrals
-real(dp),parameter::scaleL=2.5_dp
 
-if(TMDF_IsconvergenceLost()) then
+if(isConvergenceLost_inSubmodule()) then
   Xsec_pTspectrum_Zint_Xint_Qint=1d9
   return
 end if
@@ -1278,7 +1285,7 @@ subroutine xSec_SIDIS_List(xx,process,s,pT,z,x,Q,doCut,Cuts,masses,doPartitionin
   integer :: i,length
 
   logical::doP
-  integer::k,j,numberOfP,listOfParts(1:size(s))
+  integer::k,numberOfP,listOfParts(1:size(s))
   integer,allocatable:: partI1(:),partSize(:)
 
 if(.not.started) error stop ErrorString('The module is not initialized. Check INI-file.',moduleName)
@@ -1330,7 +1337,6 @@ if(.not.started) error stop ErrorString('The module is not initialized. Check IN
     error stop ErrorString('xSec_SIDIS_List: cuts list must be (:,1:4).',moduleName)
   end if
 
-  CallCounter=CallCounter+length
   if(PRESENT(masses)) then
     if(size(masses,1)/=length) then
       error stop ErrorString('xSec_SIDIS_List: sizes of masses and s lists are not equal.',moduleName)
@@ -1487,8 +1493,6 @@ subroutine xSec_SIDIS_BINLESS_List_forharpy(xx,process,s,pT,z,x,Q,masses)
   if(size(process,2)/=4) then
     error stop ErrorString('xSec_SIDIS_BINLESS_List: process list must be (:,1:3).',moduleName)
   end if
-
-  CallCounter=CallCounter+length
 
   if(size(masses,1)/=length) then
     error stop ErrorString('xSec_SIDIS_BINLESS_List: sizes of masses and s lists are not equal.',moduleName)

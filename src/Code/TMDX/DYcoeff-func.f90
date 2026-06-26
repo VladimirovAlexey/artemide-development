@@ -91,7 +91,7 @@ function PiResumFactor_q(alpha)
   if(orderH_global>=3) then
     UU=UU+alpha/(1+aa**2)*(-3.4962177171202846d0*aa**2 + 3.3966025898820527d0*aa*ArcT &
       + 0.36427776d0*ArcT**2 + 2.9812442965487187d0*LogA &
-      - 0.41535829333333335d0*aa**2+LogA - 0.72855552d0*aa*ArcT*LogA - 0.36427776d0*LogA**2)
+      - 0.41535829333333335d0*aa**2*LogA - 0.72855552d0*aa*ArcT*LogA - 0.36427776d0*LogA**2)
    end if
    end if
    

@@ -242,6 +242,9 @@ real(dp)::CollinsTMDFF_BMAX_ABS
 real(dp)::CollinsTMDFF_toleranceINT
 real(dp)::CollinsTMDFF_toleranceGEN
 integer::CollinsTMDFF_maxIteration
+integer::CollinsTMDFF_numSubGridsX,CollinsTMDFF_numSubGridsB
+real(dp),allocatable::CollinsTMDFF_subGridsX(:),CollinsTMDFF_subGridsB(:)
+integer::CollinsTMDFF_grid_SizeX,CollinsTMDFF_grid_SizeB
 logical::CollinsTMDFF_makeGrid_inKT,CollinsTMDFF_runGridTest_inKT
 integer::CollinsTMDFF_numSubGridsX_inKT,CollinsTMDFF_numSubGridsKT_inKT,CollinsTMDFF_numSubGridsB_inKT
 real(dp),allocatable::CollinsTMDFF_subGridsX_inKT(:),CollinsTMDFF_subGridsB_inKT(:),CollinsTMDFF_subGridsKT_inKT(:)
@@ -265,7 +268,7 @@ character*8::TMDX_DY_order
 real(dp)::TMDX_DY_toleranceINT, TMDX_DY_toleranceGEN,TMDX_DY_maxQTrange
 integer::TMDX_DY_ptSECTION
 logical::TMDX_DY_exactX1X2,TMDX_DY_piResum,TMDX_DY_exactScale
-real::TMDX_DY_maxQbinSize,TMDX_DY_minqTabs
+real(dp)::TMDX_DY_maxQbinSize,TMDX_DY_minqTabs
 logical::TMDX_DY_useKPC,TMDX_DY_doPartition
 integer::TMDX_DY_ChNodes
 
@@ -359,7 +362,6 @@ subroutine SetupDefault(order)
     !-------------------Parameters for uPDFs evaluation
     number_of_uPDFs=1
     if(allocated(sets_of_uPDFs)) deallocate(sets_of_uPDFs)
-
     allocate(sets_of_uPDFs(1:1))
     sets_of_uPDFs=(/trim('UNKNOWN')/)
 
@@ -367,28 +369,28 @@ subroutine SetupDefault(order)
     ! by definition we do not initiate any FFs
     number_of_uFFs=0
     if(allocated(sets_of_uFFs)) deallocate(sets_of_uFFs)
-    allocate(sets_of_uFFs(1:0))
+    allocate(sets_of_uFFs(1:1))
     sets_of_uFFs=(/trim('ABSENT')/)
 
     !-------------------Parameters for lpPDFs evaluation
     ! by definition we do not initiate any lpPDF
     number_of_lpPDFs=0
     if(allocated(sets_of_lpPDFs)) deallocate(sets_of_lpPDFs)
-    allocate(sets_of_lpPDFs(1:0))
+    allocate(sets_of_lpPDFs(1:1))
     sets_of_lpPDFs=(/trim('ABSENT')/)
     
     !-------------------Parameters for gPDFs evaluation
     ! by definition we do not initiate any gPDF
     number_of_gPDFs=0
     if(allocated(sets_of_gPDFs)) deallocate(sets_of_gPDFs)
-    allocate(sets_of_gPDFs(1:0))
+    allocate(sets_of_gPDFs(1:1))
     sets_of_gPDFs=(/trim('ABSENT')/)
 
     !-------------------Parameters for hPDFs evaluation
     ! by definition we do not initiate any hPDF
     number_of_hPDFs=0
     if(allocated(sets_of_hPDFs)) deallocate(sets_of_hPDFs)
-    allocate(sets_of_hPDFs(1:0))
+    allocate(sets_of_hPDFs(1:1))
     sets_of_hPDFs=(/trim('ABSENT')/)
 
     !-------------------- parameters for TMDR
@@ -419,20 +421,24 @@ subroutine SetupDefault(order)
     uTMDPDF_toleranceGEN=1.d-6!error stop
     uTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     uTMDPDF_numSubGridsX=4
+    if(allocated(uTMDPDF_subGridsX)) deallocate(uTMDPDF_subGridsX)
     allocate(uTMDPDF_subGridsX(0:uTMDPDF_numSubGridsX))
     uTMDPDF_subGridsX=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
     uTMDPDF_grid_SizeX=8
     uTMDPDF_numSubGridsB=4
+    if(allocated(uTMDPDF_subGridsB)) deallocate(uTMDPDF_subGridsB)
     allocate(uTMDPDF_subGridsB(0:uTMDPDF_numSubGridsB))
     uTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
     uTMDPDF_grid_SizeB=8
     uTMDPDF_makeGrid_inKT=.false.
     uTMDPDF_runGridTest_inKT=.false.
     uTMDPDF_numSubGridsX_inKT=4
+    if(allocated(uTMDPDF_subGridsX_inKT)) deallocate(uTMDPDF_subGridsX_inKT)
     allocate(uTMDPDF_subGridsX_inKT(0:uTMDPDF_numSubGridsX_inKT))
     uTMDPDF_subGridsX_inKT=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
     uTMDPDF_grid_SizeX_inKT=16
     uTMDPDF_numSubGridsKT_inKT=5
+    if(allocated(uTMDPDF_subGridsKT_inKT)) deallocate(uTMDPDF_subGridsKT_inKT)
     allocate(uTMDPDF_subGridsKT_inKT(0:uTMDPDF_numSubGridsKT_inKT))
     uTMDPDF_subGridsKT_inKT=(/0.01d0,1.d0,5.d0,15.d0,50.d0,200.d0/)
     uTMDPDF_grid_SizeKT_inKT=16
@@ -440,6 +446,7 @@ subroutine SetupDefault(order)
     uTMDPDF_maxQ_inKT=200.d0
     uTMDPDF_grid_SizeQ_inKT=40
     uTMDPDF_numSubGridsB_inKT=5
+    if(allocated(uTMDPDF_subGridsB_inKT)) deallocate(uTMDPDF_subGridsB_inKT)
     allocate(uTMDPDF_subGridsB_inKT(0:uTMDPDF_numSubGridsB_inKT))
     uTMDPDF_subGridsB_inKT=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
     uTMDPDF_grid_SizeB_inKT=16
@@ -463,20 +470,24 @@ subroutine SetupDefault(order)
     uTMDFF_toleranceGEN=1.d-6!error stop
     uTMDFF_maxIteration=10000    !maxIteration for adaptive integration
     uTMDFF_numSubGridsX=3
+    if(allocated(uTMDFF_subGridsX)) deallocate(uTMDFF_subGridsX)
     allocate(uTMDFF_subGridsX(0:uTMDFF_numSubGridsX))
     uTMDFF_subGridsX=(/0.001d0,0.1d0,0.7d0,1.d0/)
     uTMDFF_grid_SizeX=8
     uTMDFF_numSubGridsB=4
+    if(allocated(uTMDFF_subGridsB)) deallocate(uTMDFF_subGridsB)
     allocate(uTMDFF_subGridsB(0:uTMDFF_numSubGridsB))
     uTMDFF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,25.d0/)
     uTMDFF_grid_SizeB=8
     uTMDFF_makeGrid_inKT=.false.
     uTMDFF_runGridTest_inKT=.false.
     uTMDFF_numSubGridsX_inKT=3
+    if(allocated(uTMDFF_subGridsX_inKT)) deallocate(uTMDFF_subGridsX_inKT)
     allocate(uTMDFF_subGridsX_inKT(0:uTMDFF_numSubGridsX_inKT))
     uTMDFF_subGridsX_inKT=(/0.001d0,0.1d0,0.7d0,1.d0/)
     uTMDFF_grid_SizeX_inKT=16
     uTMDFF_numSubGridsKT_inKT=4
+    if(allocated(uTMDFF_subGridsKT_inKT)) deallocate(uTMDFF_subGridsKT_inKT)
     allocate(uTMDFF_subGridsKT_inKT(0:uTMDFF_numSubGridsKT_inKT))
     uTMDFF_subGridsKT_inKT=(/0.01d0,1.d0,5.d0,15.d0,50.d0/)
     uTMDFF_grid_SizeKT_inKT=16
@@ -484,6 +495,7 @@ subroutine SetupDefault(order)
     uTMDFF_maxQ_inKT=40.d0
     uTMDFF_grid_SizeQ_inKT=20
     uTMDFF_numSubGridsB_inKT=5
+    if(allocated(uTMDFF_subGridsB_inKT)) deallocate(uTMDFF_subGridsB_inKT)
     allocate(uTMDFF_subGridsB_inKT(0:uTMDFF_numSubGridsB_inKT))
     uTMDFF_subGridsB_inKT=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
     uTMDFF_grid_SizeB_inKT=16
@@ -504,10 +516,12 @@ subroutine SetupDefault(order)
     lpTMDPDF_toleranceGEN=1.d-6!error stop
     lpTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     lpTMDPDF_numSubGridsX=4
+    if(allocated(lpTMDPDF_subGridsX)) deallocate(lpTMDPDF_subGridsX)
     allocate(lpTMDPDF_subGridsX(0:lpTMDPDF_numSubGridsX))
     lpTMDPDF_subGridsX=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
     lpTMDPDF_grid_SizeX=8
     lpTMDPDF_numSubGridsB=4
+    if(allocated(lpTMDPDF_subGridsB)) deallocate(lpTMDPDF_subGridsB)
     allocate(lpTMDPDF_subGridsB(0:lpTMDPDF_numSubGridsB))
     lpTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,25.d0/)
     lpTMDPDF_grid_SizeB=8
@@ -531,20 +545,24 @@ subroutine SetupDefault(order)
     SiversTMDPDF_toleranceGEN=1.d-6!error stop
     SiversTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     SiversTMDPDF_numSubGridsX=2
+    if(allocated(SiversTMDPDF_subGridsX)) deallocate(SiversTMDPDF_subGridsX)
     allocate(SiversTMDPDF_subGridsX(0:SiversTMDPDF_numSubGridsX))
     SiversTMDPDF_subGridsX=(/0.01d0,0.5d0,1.d0/)
     SiversTMDPDF_grid_SizeX=8
     SiversTMDPDF_numSubGridsB=5
+    if(allocated(SiversTMDPDF_subGridsB)) deallocate(SiversTMDPDF_subGridsB)
     allocate(SiversTMDPDF_subGridsB(0:SiversTMDPDF_numSubGridsB))
     SiversTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
     SiversTMDPDF_grid_SizeB=8
     SiversTMDPDF_makeGrid_inKT=.false.
     SiversTMDPDF_runGridTest_inKT=.false.
     SiversTMDPDF_numSubGridsX_inKT=4
+    if(allocated(SiversTMDPDF_subGridsX_inKT)) deallocate(SiversTMDPDF_subGridsX_inKT)
     allocate(SiversTMDPDF_subGridsX_inKT(0:SiversTMDPDF_numSubGridsX_inKT))
     SiversTMDPDF_subGridsX_inKT=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
     SiversTMDPDF_grid_SizeX_inKT=16
     SiversTMDPDF_numSubGridsKT_inKT=5
+    if(allocated(SiversTMDPDF_subGridsKT_inKT)) deallocate(SiversTMDPDF_subGridsKT_inKT)
     allocate(SiversTMDPDF_subGridsKT_inKT(0:SiversTMDPDF_numSubGridsKT_inKT))
     SiversTMDPDF_subGridsKT_inKT=(/0.01d0,1.d0,5.d0,15.d0,50.d0,200.d0/)
     SiversTMDPDF_grid_SizeKT_inKT=16
@@ -552,6 +570,7 @@ subroutine SetupDefault(order)
     SiversTMDPDF_maxQ_inKT=200.d0
     SiversTMDPDF_grid_SizeQ_inKT=40
     SiversTMDPDF_numSubGridsB_inKT=5
+    if(allocated(SiversTMDPDF_subGridsB_inKT)) deallocate(SiversTMDPDF_subGridsB_inKT)
     allocate(SiversTMDPDF_subGridsB_inKT(0:SiversTMDPDF_numSubGridsB_inKT))
     SiversTMDPDF_subGridsB_inKT=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
     SiversTMDPDF_grid_SizeB_inKT=16
@@ -574,32 +593,38 @@ subroutine SetupDefault(order)
     wgtTMDPDF_toleranceGEN=1.d-6!error stop
     wgtTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     wgtTMDPDF_numSubGridsX=3
+    if(allocated(wgtTMDPDF_subGridsX)) deallocate(wgtTMDPDF_subGridsX)
     allocate(wgtTMDPDF_subGridsX(0:wgtTMDPDF_numSubGridsX))
     wgtTMDPDF_subGridsX=(/0.001d0,0.1d0,0.7d0,1.d0/)
     wgtTMDPDF_grid_SizeX=8
     wgtTMDPDF_numSubGridsB=4
+    if(allocated(wgtTMDPDF_subGridsB)) deallocate(wgtTMDPDF_subGridsB)
     allocate(wgtTMDPDF_subGridsB(0:wgtTMDPDF_numSubGridsB))
     wgtTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,25.d0/)
     wgtTMDPDF_grid_SizeB=8
     wgtTMDPDF_order_tw3=trim("NA")
     wgtTMDPDF_makeGrid_tw3=.false.
-    wgtTMDPDF_withGluon_tw3=.false. !!! this is true by default
+    wgtTMDPDF_withGluon_tw3=.false. !!! this is false by default
     wgtTMDPDF_runGridTest_tw3=.false.
     wgtTMDPDF_tw3_numSubGridsX=3
+    if(allocated(wgtTMDPDF_tw3_subGridsX)) deallocate(wgtTMDPDF_tw3_subGridsX)
     allocate(wgtTMDPDF_tw3_subGridsX(0:wgtTMDPDF_tw3_numSubGridsX))
     wgtTMDPDF_tw3_subGridsX=(/0.001d0,0.1d0,0.7d0,1.d0/)
     wgtTMDPDF_tw3_grid_SizeX=8
     wgtTMDPDF_tw3_numSubGridsB=4
+    if(allocated(wgtTMDPDF_tw3_subGridsB)) deallocate(wgtTMDPDF_tw3_subGridsB)
     allocate(wgtTMDPDF_tw3_subGridsB(0:wgtTMDPDF_tw3_numSubGridsB))
     wgtTMDPDF_tw3_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,25.d0/)
     wgtTMDPDF_tw3_grid_SizeB=8
     wgtTMDPDF_makeGrid_inKT=.false.
     wgtTMDPDF_runGridTest_inKT=.false.
     wgtTMDPDF_numSubGridsX_inKT=4
+    if(allocated(wgtTMDPDF_subGridsX_inKT)) deallocate(wgtTMDPDF_subGridsX_inKT)
     allocate(wgtTMDPDF_subGridsX_inKT(0:wgtTMDPDF_numSubGridsX_inKT))
     wgtTMDPDF_subGridsX_inKT=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
     wgtTMDPDF_grid_SizeX_inKT=16
     wgtTMDPDF_numSubGridsKT_inKT=5
+    if(allocated(wgtTMDPDF_subGridsKT_inKT)) deallocate(wgtTMDPDF_subGridsKT_inKT)
     allocate(wgtTMDPDF_subGridsKT_inKT(0:wgtTMDPDF_numSubGridsKT_inKT))
     wgtTMDPDF_subGridsKT_inKT=(/0.01d0,1.d0,5.d0,15.d0,50.d0,200.d0/)
     wgtTMDPDF_grid_SizeKT_inKT=16
@@ -607,6 +632,7 @@ subroutine SetupDefault(order)
     wgtTMDPDF_maxQ_inKT=200.d0
     wgtTMDPDF_grid_SizeQ_inKT=40
     wgtTMDPDF_numSubGridsB_inKT=5
+    if(allocated(wgtTMDPDF_subGridsB_inKT)) deallocate(wgtTMDPDF_subGridsB_inKT)
     allocate(wgtTMDPDF_subGridsB_inKT(0:wgtTMDPDF_numSubGridsB_inKT))
     wgtTMDPDF_subGridsB_inKT=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
     wgtTMDPDF_grid_SizeB_inKT=16
@@ -629,32 +655,38 @@ subroutine SetupDefault(order)
     wglTMDPDF_toleranceGEN=1.d-6!error stop
     wglTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     wglTMDPDF_numSubGridsX=3
+    if(allocated(wglTMDPDF_subGridsX)) deallocate(wglTMDPDF_subGridsX)
     allocate(wglTMDPDF_subGridsX(0:wglTMDPDF_numSubGridsX))
     wglTMDPDF_subGridsX=(/0.001d0,0.1d0,0.7d0,1.d0/)
     wglTMDPDF_grid_SizeX=8
     wglTMDPDF_numSubGridsB=4
+    if(allocated(wglTMDPDF_subGridsB)) deallocate(wglTMDPDF_subGridsB)
     allocate(wglTMDPDF_subGridsB(0:wglTMDPDF_numSubGridsB))
     wglTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,25.d0/)
     wglTMDPDF_grid_SizeB=8
     wglTMDPDF_order_tw3=trim("NA")
     wglTMDPDF_makeGrid_tw3=.false.
-    wglTMDPDF_withGluon_tw3=.false. !!! this is true by default
+    wglTMDPDF_withGluon_tw3=.false. !!! this is false by default
     wglTMDPDF_runGridTest_tw3=.false.
     wglTMDPDF_tw3_numSubGridsX=3
+    if(allocated(wglTMDPDF_tw3_subGridsX)) deallocate(wglTMDPDF_tw3_subGridsX)
     allocate(wglTMDPDF_tw3_subGridsX(0:wglTMDPDF_tw3_numSubGridsX))
     wglTMDPDF_tw3_subGridsX=(/0.001d0,0.1d0,0.7d0,1.d0/)
     wglTMDPDF_tw3_grid_SizeX=8
     wglTMDPDF_tw3_numSubGridsB=4
+    if(allocated(wglTMDPDF_tw3_subGridsB)) deallocate(wglTMDPDF_tw3_subGridsB)
     allocate(wglTMDPDF_tw3_subGridsB(0:wglTMDPDF_tw3_numSubGridsB))
     wglTMDPDF_tw3_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,25.d0/)
     wglTMDPDF_tw3_grid_SizeB=8
     wglTMDPDF_makeGrid_inKT=.false.
     wglTMDPDF_runGridTest_inKT=.false.
     wglTMDPDF_numSubGridsX_inKT=4
+    if(allocated(wglTMDPDF_subGridsX_inKT)) deallocate(wglTMDPDF_subGridsX_inKT)
     allocate(wglTMDPDF_subGridsX_inKT(0:wglTMDPDF_numSubGridsX_inKT))
     wglTMDPDF_subGridsX_inKT=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
     wglTMDPDF_grid_SizeX_inKT=16
     wglTMDPDF_numSubGridsKT_inKT=5
+    if(allocated(wglTMDPDF_subGridsKT_inKT)) deallocate(wglTMDPDF_subGridsKT_inKT)
     allocate(wglTMDPDF_subGridsKT_inKT(0:wglTMDPDF_numSubGridsKT_inKT))
     wglTMDPDF_subGridsKT_inKT=(/0.01d0,1.d0,5.d0,15.d0,50.d0,200.d0/)
     wglTMDPDF_grid_SizeKT_inKT=16
@@ -662,6 +694,7 @@ subroutine SetupDefault(order)
     wglTMDPDF_maxQ_inKT=200.d0
     wglTMDPDF_grid_SizeQ_inKT=40
     wglTMDPDF_numSubGridsB_inKT=5
+    if(allocated(wglTMDPDF_subGridsB_inKT)) deallocate(wglTMDPDF_subGridsB_inKT)
     allocate(wglTMDPDF_subGridsB_inKT(0:wglTMDPDF_numSubGridsB_inKT))
     wglTMDPDF_subGridsB_inKT=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
     wglTMDPDF_grid_SizeB_inKT=16       !!! min value of kT
@@ -682,20 +715,24 @@ subroutine SetupDefault(order)
     BoerMuldersTMDPDF_toleranceGEN=1.d-6!error stop
     BoerMuldersTMDPDF_maxIteration=10000    !maxIteration for adaptive integration
     BoerMuldersTMDPDF_numSubGridsX=2
+    if(allocated(BoerMuldersTMDPDF_subGridsX)) deallocate(BoerMuldersTMDPDF_subGridsX)
     allocate(BoerMuldersTMDPDF_subGridsX(0:BoerMuldersTMDPDF_numSubGridsX))
     BoerMuldersTMDPDF_subGridsX=(/0.01d0,0.5d0,1.d0/)
     BoerMuldersTMDPDF_grid_SizeX=8
     BoerMuldersTMDPDF_numSubGridsB=5
+    if(allocated(BoerMuldersTMDPDF_subGridsB)) deallocate(BoerMuldersTMDPDF_subGridsB)
     allocate(BoerMuldersTMDPDF_subGridsB(0:BoerMuldersTMDPDF_numSubGridsB))
     BoerMuldersTMDPDF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
     BoerMuldersTMDPDF_grid_SizeB=8
     BoerMuldersTMDPDF_makeGrid_inKT=.false.
     BoerMuldersTMDPDF_runGridTest_inKT=.false.
     BoerMuldersTMDPDF_numSubGridsX_inKT=4
+    if(allocated(BoerMuldersTMDPDF_subGridsX_inKT)) deallocate(BoerMuldersTMDPDF_subGridsX_inKT)
     allocate(BoerMuldersTMDPDF_subGridsX_inKT(0:BoerMuldersTMDPDF_numSubGridsX_inKT))
     BoerMuldersTMDPDF_subGridsX_inKT=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
     BoerMuldersTMDPDF_grid_SizeX_inKT=16
     BoerMuldersTMDPDF_numSubGridsKT_inKT=5
+    if(allocated(BoerMuldersTMDPDF_subGridsKT_inKT)) deallocate(BoerMuldersTMDPDF_subGridsKT_inKT)
     allocate(BoerMuldersTMDPDF_subGridsKT_inKT(0:BoerMuldersTMDPDF_numSubGridsKT_inKT))
     BoerMuldersTMDPDF_subGridsKT_inKT=(/0.01d0,1.d0,5.d0,15.d0,50.d0,200.d0/)
     BoerMuldersTMDPDF_grid_SizeKT_inKT=16
@@ -703,6 +740,7 @@ subroutine SetupDefault(order)
     BoerMuldersTMDPDF_maxQ_inKT=200.d0
     BoerMuldersTMDPDF_grid_SizeQ_inKT=40
     BoerMuldersTMDPDF_numSubGridsB_inKT=5
+    if(allocated(BoerMuldersTMDPDF_subGridsB_inKT)) deallocate(BoerMuldersTMDPDF_subGridsB_inKT)
     allocate(BoerMuldersTMDPDF_subGridsB_inKT(0:BoerMuldersTMDPDF_numSubGridsB_inKT))
     BoerMuldersTMDPDF_subGridsB_inKT=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
     BoerMuldersTMDPDF_grid_SizeB_inKT=16
@@ -724,7 +762,7 @@ subroutine SetupDefault(order)
 
     !-------------------- parameters for CollinsTMDFF
     include_CollinsTMDFF=.false. !!! we do not initialize CollinsTMDFF by definition
-    CollinsTMDFF_order=trim('NA') !!! by definition BoerMulders is tree-order
+    CollinsTMDFF_order=trim('NA') !!! by definition Collins is tree-order
     CollinsTMDFF_makeGrid=.false.   !!! no need to make grid
     CollinsTMDFF_withGluon=.false.
     CollinsTMDFF_numHadron=1
@@ -734,13 +772,25 @@ subroutine SetupDefault(order)
     CollinsTMDFF_toleranceINT=1.d-6!tolerance (i.e. relative integration tolerance)
     CollinsTMDFF_toleranceGEN=1.d-6!error stop
     CollinsTMDFF_maxIteration=10000    !maxIteration for adaptive integration
+    CollinsTMDFF_numSubGridsX=2
+    if(allocated(CollinsTMDFF_subGridsX)) deallocate(CollinsTMDFF_subGridsX)
+    allocate(CollinsTMDFF_subGridsX(0:CollinsTMDFF_numSubGridsX))
+    CollinsTMDFF_subGridsX=(/0.01d0,0.5d0,1.d0/)
+    CollinsTMDFF_grid_SizeX=8
+    CollinsTMDFF_numSubGridsB=5
+    if(allocated(CollinsTMDFF_subGridsB)) deallocate(CollinsTMDFF_subGridsB)
+    allocate(CollinsTMDFF_subGridsB(0:CollinsTMDFF_numSubGridsB))
+    CollinsTMDFF_subGridsB=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
+    CollinsTMDFF_grid_SizeB=8
     CollinsTMDFF_makeGrid_inKT=.false.
     CollinsTMDFF_runGridTest_inKT=.false.
     CollinsTMDFF_numSubGridsX_inKT=4
+    if(allocated(CollinsTMDFF_subGridsX_inKT)) deallocate(CollinsTMDFF_subGridsX_inKT)
     allocate(CollinsTMDFF_subGridsX_inKT(0:CollinsTMDFF_numSubGridsX_inKT))
     CollinsTMDFF_subGridsX_inKT=(/0.00001d0,0.001d0,0.1d0,0.7d0,1.d0/)
     CollinsTMDFF_grid_SizeX_inKT=16
     CollinsTMDFF_numSubGridsKT_inKT=5
+    if(allocated(CollinsTMDFF_subGridsKT_inKT)) deallocate(CollinsTMDFF_subGridsKT_inKT)
     allocate(CollinsTMDFF_subGridsKT_inKT(0:CollinsTMDFF_numSubGridsKT_inKT))
     CollinsTMDFF_subGridsKT_inKT=(/0.01d0,1.d0,5.d0,15.d0,50.d0,200.d0/)
     CollinsTMDFF_grid_SizeKT_inKT=16
@@ -748,6 +798,7 @@ subroutine SetupDefault(order)
     CollinsTMDFF_maxQ_inKT=200.d0
     CollinsTMDFF_grid_SizeQ_inKT=40
     CollinsTMDFF_numSubGridsB_inKT=5
+    if(allocated(CollinsTMDFF_subGridsB_inKT)) deallocate(CollinsTMDFF_subGridsB_inKT)
     allocate(CollinsTMDFF_subGridsB_inKT(0:CollinsTMDFF_numSubGridsB_inKT))
     CollinsTMDFF_subGridsB_inKT=(/0.00001d0,0.01d0,0.2d0,2.d0,8.d0,25.d0/)
     CollinsTMDFF_grid_SizeB_inKT=16
@@ -1919,6 +1970,18 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) CollinsTMDFF_maxIteration
     write(51,"(' ')")
     write(51,"('*E   : ---- (OPE) Parameters of grid ----')")
+    write(51,"('*p1  : Number of subgrids in X (required to read the next line)')")
+    write(51,*) CollinsTMDFF_numSubGridsX
+    write(51,"('*p2  : Intervals for subgrids in X (must include 1., as the last point)')")
+    write(51,*) CollinsTMDFF_subGridsX
+    write(51,"('*p3  : Number of nodes in the X-subgrid')")
+    write(51,*) CollinsTMDFF_grid_SizeX
+    write(51,"('*p4  : Number of subgrids in B (required to read the next line)')")
+    write(51,*) CollinsTMDFF_numSubGridsB
+    write(51,"('*p5  : Intervals for subgrids in B (below and above ultimate points the value is frozen)')")
+    write(51,*) CollinsTMDFF_subGridsB
+    write(51,"('*p6  : Number of nodes in the B-subgrid ')")
+    write(51,*) CollinsTMDFF_grid_SizeB
     write(51,"(' ')")
     write(51,"('*F   : ---- Transform and grid in KT-space ----')")
     write(51,"('*p1  : Prepare grid')")
@@ -2559,6 +2622,13 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) lpTMDPDF_subGridsB
     call MoveTO(51,'*p6  ')
     read(51,*) lpTMDPDF_grid_SizeB
+    call MoveTO(51,'*F   ')
+    call MoveTO(51,'*p1  ')
+    read(51,*) lpTMDPDF_toleranceOGATA
+    call MoveTO(51,'*p2  ')
+    read(51,*) lpTMDPDF_hOGATA
+    call MoveTO(51,'*p3  ')
+    read(51,*) lpTMDPDF_KT_FREEZE
     call MoveTO(51,'*G   ')
     call MoveTO(51,'*p1  ')
     read(51,*) lpTMDPDF_toleranceOGATA_TMM
@@ -2836,41 +2906,43 @@ subroutine ReadConstantsFile(file,prefix)
         call MoveTO(51,'*p6  ')
         read(51,*) BoerMuldersTMDPDF_grid_SizeB
     end if
-    call MoveTO(51,'*F   ')
-    call MoveTO(51,'*p1  ')
-    read(51,*) BoerMuldersTMDPDF_makeGrid_inKT
-    call MoveTO(51,'*p2  ')
-    read(51,*) BoerMuldersTMDPDF_runGridTest_inKT
-    call MoveTO(51,'*p3  ')
-    read(51,*) BoerMuldersTMDPDF_numSubGridsX_inKT
-    deallocate(BoerMuldersTMDPDF_subGridsX_inKT)
-    allocate(BoerMuldersTMDPDF_subGridsX_inKT(0:BoerMuldersTMDPDF_numSubGridsX_inKT))
-    call MoveTO(51,'*p4  ')
-    read(51,*) BoerMuldersTMDPDF_subGridsX_inKT
-    call MoveTO(51,'*p5  ')
-    read(51,*) BoerMuldersTMDPDF_grid_SizeX_inKT
-    call MoveTO(51,'*p6  ')
-    read(51,*) BoerMuldersTMDPDF_numSubGridsKT_inKT
-    deallocate(BoerMuldersTMDPDF_subGridsKT_inKT)
-    allocate(BoerMuldersTMDPDF_subGridsKT_inKT(0:BoerMuldersTMDPDF_numSubGridsKT_inKT))
-    call MoveTO(51,'*p7  ')
-    read(51,*) BoerMuldersTMDPDF_subGridsKT_inKT
-    call MoveTO(51,'*p8  ')
-    read(51,*) BoerMuldersTMDPDF_grid_SizeKT_inKT
-    call MoveTO(51,'*p9  ')
-    read(51,*) BoerMuldersTMDPDF_minQ_inKT
-    call MoveTO(51,'*p10 ')
-    read(51,*) BoerMuldersTMDPDF_maxQ_inKT
-    call MoveTO(51,'*p11 ')
-    read(51,*) BoerMuldersTMDPDF_grid_SizeQ_inKT
-    call MoveTO(51,'*p12 ')
-    read(51,*) BoerMuldersTMDPDF_numSubGridsB_inKT
-    deallocate(BoerMuldersTMDPDF_subGridsB_inKT)
-    allocate(BoerMuldersTMDPDF_subGridsB_inKT(0:BoerMuldersTMDPDF_numSubGridsB_inKT))
-    call MoveTO(51,'*p13 ')
-    read(51,*) BoerMuldersTMDPDF_subGridsB_inKT
-    call MoveTO(51,'*p14 ')
-    read(51,*) BoerMuldersTMDPDF_grid_SizeB_inKT
+    if(FILEversion>40) then
+        call MoveTO(51,'*F   ')
+        call MoveTO(51,'*p1  ')
+        read(51,*) BoerMuldersTMDPDF_makeGrid_inKT
+        call MoveTO(51,'*p2  ')
+        read(51,*) BoerMuldersTMDPDF_runGridTest_inKT
+        call MoveTO(51,'*p3  ')
+        read(51,*) BoerMuldersTMDPDF_numSubGridsX_inKT
+        deallocate(BoerMuldersTMDPDF_subGridsX_inKT)
+        allocate(BoerMuldersTMDPDF_subGridsX_inKT(0:BoerMuldersTMDPDF_numSubGridsX_inKT))
+        call MoveTO(51,'*p4  ')
+        read(51,*) BoerMuldersTMDPDF_subGridsX_inKT
+        call MoveTO(51,'*p5  ')
+        read(51,*) BoerMuldersTMDPDF_grid_SizeX_inKT
+        call MoveTO(51,'*p6  ')
+        read(51,*) BoerMuldersTMDPDF_numSubGridsKT_inKT
+        deallocate(BoerMuldersTMDPDF_subGridsKT_inKT)
+        allocate(BoerMuldersTMDPDF_subGridsKT_inKT(0:BoerMuldersTMDPDF_numSubGridsKT_inKT))
+        call MoveTO(51,'*p7  ')
+        read(51,*) BoerMuldersTMDPDF_subGridsKT_inKT
+        call MoveTO(51,'*p8  ')
+        read(51,*) BoerMuldersTMDPDF_grid_SizeKT_inKT
+        call MoveTO(51,'*p9  ')
+        read(51,*) BoerMuldersTMDPDF_minQ_inKT
+        call MoveTO(51,'*p10 ')
+        read(51,*) BoerMuldersTMDPDF_maxQ_inKT
+        call MoveTO(51,'*p11 ')
+        read(51,*) BoerMuldersTMDPDF_grid_SizeQ_inKT
+        call MoveTO(51,'*p12 ')
+        read(51,*) BoerMuldersTMDPDF_numSubGridsB_inKT
+        deallocate(BoerMuldersTMDPDF_subGridsB_inKT)
+        allocate(BoerMuldersTMDPDF_subGridsB_inKT(0:BoerMuldersTMDPDF_numSubGridsB_inKT))
+        call MoveTO(51,'*p13 ')
+        read(51,*) BoerMuldersTMDPDF_subGridsB_inKT
+        call MoveTO(51,'*p14 ')
+        read(51,*) BoerMuldersTMDPDF_grid_SizeB_inKT
+    end if
     call MoveTO(51,'*G   ')
     call MoveTO(51,'*p1  ')
     read(51,*) BoerMuldersTMDPDF_toleranceOGATA_TMM
@@ -3086,6 +3158,25 @@ subroutine ReadConstantsFile(file,prefix)
     read(51,*) CollinsTMDFF_toleranceGEN
     call MoveTO(51,'*p3  ')
     read(51,*) CollinsTMDFF_maxIteration
+    if(FILEversion>40) then
+        call MoveTO(51,'*E   ')
+        call MoveTO(51,'*p1  ')
+        read(51,*) CollinsTMDFF_numSubGridsX
+        deallocate(CollinsTMDFF_subGridsX)
+        allocate(CollinsTMDFF_subGridsX(0:CollinsTMDFF_numSubGridsX))
+        call MoveTO(51,'*p2  ')
+        read(51,*) CollinsTMDFF_subGridsX
+        call MoveTO(51,'*p3  ')
+        read(51,*) CollinsTMDFF_grid_SizeX
+        call MoveTO(51,'*p4  ')
+        read(51,*) CollinsTMDFF_numSubGridsB
+        deallocate(CollinsTMDFF_subGridsB)
+        allocate(CollinsTMDFF_subGridsB(0:CollinsTMDFF_numSubGridsB))
+        call MoveTO(51,'*p5  ')
+        read(51,*) CollinsTMDFF_subGridsB
+        call MoveTO(51,'*p6  ')
+        read(51,*) CollinsTMDFF_grid_SizeB
+    end if
     call MoveTO(51,'*F   ')
     call MoveTO(51,'*p1  ')
     read(51,*) CollinsTMDFF_makeGrid_inKT

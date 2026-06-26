@@ -349,7 +349,7 @@
    1.0000000000000000E-003
 *p4  : Minimal hard scale (Q, mu, zeta1, zeta2) (for smaller values the error is generated)
    0.8
-*B   : ---- Global garameters of structure functions----
+*B   : ---- Global parameters of structure functions----
 *p1  : Mass parameter used in the structure function (mass of hadron)
   0.93827199935913086     
  
@@ -419,7 +419,7 @@
    F
 *p6  : Order of pT-interpolation in the partitioning
    10
-*p7  : Maximum range of QT=(pT/z) to evaluate in a single sequence (in GeV)')")
+*p7  : Maximum range of QT=(pT/z) to evaluate in a single sequence (in GeV)
    18.0
 
 *C   : ---- Definition of LP TMD factorization ----
@@ -954,7 +954,7 @@
  F
  
  # --------------------------------------------------------------------------
-# ----                         PARAMETERS OF CollinsTMDPDFF             -----
+# ----                         PARAMETERS OF CollinsTMDFF             -----
 # ---------------------------------------------------------------------------
 *18  :
 *p1  : initialize CollinsTMDFF module
@@ -989,7 +989,19 @@
        10000
        
 *E   : ---- (OPE) Parameters of grid ----
- 
+*p1  : Number of subgrids in X (required to read the next line)
+3
+*p2  : Intervals for subgrids in X (must include 1., as the last point)
+0.001  0.1  0.5  1.
+*p3  : Number of nodes in the X-subgrid
+   8
+*p4  : Number of subgrids in B (required to read the next line)
+   4
+*p5  : Intervals for subgrids in B (below and above ultimate points the value is frozen)
+0.00001  0.01  0.2  2.  25.
+*p6  : Number of nodes in the B-subgrid
+   8
+   
 *F   : ---- Transform and grid in KT-space ----
 *p1  : Prepare grid
  T

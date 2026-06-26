@@ -48,7 +48,6 @@ $(SOURCEDIR)/Code/aTMDe_Integration.f90 \
 $(SOURCEDIR)/Code/aTMDe_invMatrix.f90 \
 $(SOURCEDIR)/Code/aTMDe_optGrid.f90 \
 $(SOURCEDIR)/Code/aTMDe_ktGrid.f90 \
-$(SOURCEDIR)/Code/aTMDe_xGrid.f90 \
 $(SOURCEDIR)/Code/aTMDe_Ogata.f90 \
 $(SOURCEDIR)/Code/aTMDe_Levin.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_alpha.f90 \
@@ -150,8 +149,7 @@ aTMDeSetupFiles=\
 $(SOURCEDIR)/Code/aTMDe_setup/placeHolder.f90
 
 TMDXFiles=\
-$(SOURCEDIR)/Code/TMDX/DYcoeff-func.f90\
-$(SOURCEDIR)/Code/aTMDe_xGrid.f90
+$(SOURCEDIR)/Code/TMDX/DYcoeff-func.f90
 
 aTMDeMODEL = \
 $(SOURCEDIR)/Model/TMDR_model.f90 \
@@ -188,7 +186,6 @@ $(OBJ)/aTMDe_math.o \
 $(OBJ)/aTMDe_Integration.o \
 $(OBJ)/aTMDe_optGrid.o \
 $(OBJ)/aTMDe_ktGrid.o \
-$(OBJ)/aTMDe_xGrid.o \
 $(OBJ)/aTMDe_Ogata.o \
 $(OBJ)/aTMDe_Levin.o \
 $(OBJ)/aTMDe_invMatrix.o \
@@ -253,7 +250,6 @@ $(OBJ)/aTMDe_ktGrid.o\
 $(OBJ)/aTMDe_invMatrix.o \
 $(OBJ)/aTMDe_Ogata.o\
 $(OBJ)/aTMDe_Levin.o
-#$(OBJ)/aTMDe_xGrid.o
 
 
 
@@ -350,11 +346,6 @@ $(OBJ)/aTMDe_optGrid.o: $(SOURCEDIR)/Code/aTMDe_optGrid.f90 $(OBJ)/aTMDe_Numeric
 
 $(OBJ)/aTMDe_ktGrid.o: $(SOURCEDIR)/Code/aTMDe_ktGrid.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o
 	$(FC) -c $(SOURCEDIR)/Code/aTMDe_ktGrid.f90 -I$(MOD)
-	mv *.o $(OBJ)
-	mv *.mod $(MOD)
-
-$(OBJ)/aTMDe_xGrid.o: $(SOURCEDIR)/Code/aTMDe_xGrid.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o $(OBJ)/EWinput.o
-	$(FC) -c $(SOURCEDIR)/Code/aTMDe_xGrid.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 

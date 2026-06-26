@@ -1,17 +1,17 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!            arTeMiDe 3.00
+!            arTeMiDe 3.04
 !
 !    Evaluation of the TMD cross-section for DY-like cross-sections
 !
 !    if you use this module please, quote 1706.01473
 !
 !    ver 3.0: created from v.2.06 (AV, 05.09.2023)
+!    ver 3.04: Polishing (AV, 26.06.2026)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module TMDX_DY
 use aTMDe_Numerics
 use aTMDe_math
 use aTMDe_IO
-!use aTMDe_xGrid
 use TMDF
 use TMDF_KPC
 use LeptonCutsDY
@@ -28,7 +28,7 @@ private
 
 !Current version of module
 character (len=7),parameter :: moduleName="TMDX-DY"
-character (len=5),parameter :: version="v3.03"
+character (len=5),parameter :: version="v3.04"
 !Last appropriate version of constants-file
 integer,parameter::inputver=38
 
@@ -38,15 +38,7 @@ real(dp) :: toleranceGEN=0.0000001d0
 integer::outputlevel=2
 type(Warning_OBJ)::Warning_Handler
 
-!!!!!!! option to use the precomputed grids for processes
-!!!!!!! AWARE!!! this decresases the precision of computation down to 0.5% (avarage) but could speedup very repeatative computations
-!!!logical::usePrecomputedGrids=.false.
-!!!!!!! the following two arrays are synhronized
-!!!integer,allocatable,dimension(:,:)::storedProcesses
-!!!type(Xgrid),allocatable,dimension(:)::grids_for_processes
-
-!!!!
-!!!! in the module the kinematic is stored in the varibles "kinematic" real(dp),dimension(1:6)
+!!!! in the module the kinematic is stored in the varibles "kinematic" real(dp),dimension(1:7)
 !!!! which is (qT,s,Q,Q^2,x0,y,exp[y])
 !!!! where x0=sqrt[(Q^2+q_T^2)/s]   (if exactX1X2) or x0=Q^2/s (otherwise)
 !!!!
@@ -67,7 +59,7 @@ real(dp)::qTMin_ABS=0.0001d0
 !!!--------- approximate evaluation of qT-bin integration
 !!! Idea is based on the fact, that cross-section curve is very smooth vs. qT,
 !!! so few-point Chebyshev approximation gives very good result and can be split into bins and integrated exactly
-!!! Min Number of Chebyschev nodes in a range (for ranges bigges than 20 GeV, number increases automatically)
+!!! Min Number of Chebyschev nodes in a range (for ranges bigger than 20 GeV, the number is increased automatically)
 logical::doPartitioning_byDefault=.false.
 integer::NumChNodes=10
 real(dp)::MaxQT_range_toPartite=15._dp  !!!!! if the range is bigger than this, it is cut
@@ -84,9 +76,9 @@ real(dp)::hc2
 
 logical::started=.false.
 
-public::TMDX_DY_Initialize,TMDX_DY_SetScaleVariation,&
-TMDX_DY_ShowStatistic,TMDX_DY_ResetCounters,TMDX_DY_IsInitialized, F_toGrid
-public::  xSec_DY,xSec_DY_List,xSec_DY_List_BINLESS,xSec_DY_List_APPROXIMATE,Xsec_PTspectrum_Qint_Yint
+public:: TMDX_DY_Initialize,TMDX_DY_SetScaleVariation
+public:: TMDX_DY_ShowStatistic,TMDX_DY_ResetCounters,TMDX_DY_IsInitialized
+public:: xSec_DY,xSec_DY_List,xSec_DY_List_BINLESS,xSec_DY_List_APPROXIMATE,Xsec_PTspectrum_Qint_Yint
 
 interface xSec_DY
   module procedure MainInterface_AsAAAloo
@@ -151,8 +143,6 @@ subroutine TMDX_DY_Initialize(file,prefix)
   !$    read(51,*) i
   !$    call OMP_set_num_threads(i)
   !$    if(outputLevel>1) write(*,*) '    artemide.TMDX_DY: number of threads for parallel evaluation is set to ', i
-
-  !!! I also need MZ
 
   !!! go to section TMD-DY
   call MoveTO(51,'*9   ')
@@ -292,8 +282,7 @@ subroutine TMDX_DY_Initialize(file,prefix)
   !!!!! initializing Lepton Cut module
   call InitializeLeptonCutDY(toleranceINT,toleranceGEN)
 
-  !!!! the defintiion of CHebyshev interpolation matrix, which interpolates the
-  NumChNodes=10
+  !!!! the definition of Chebyshev interpolation matrix, which interpolates the qT-sequences
   allocate(ChInterpolationMatrix(0:NumChNodes,0:NumChNodes),ChNodes(0:NumChNodes))
   do i=0,NumChNodes
   ChNodes(i)=cos(i*pi/NumChNodes)
@@ -308,13 +297,6 @@ subroutine TMDX_DY_Initialize(file,prefix)
 
   GlobalCounter=0
   CallCounter=0
-
-!   allocate(grids_for_processes(1:1))
-!   grids_for_processes(1)=xGrid(F_toGrid,(/1,1,3/),&
-!     (45._dp)**2,(260._dp)**2,10,&
-!     0._dp,55._dp,10,&
-!     0.001_dp,1._dp,3,0.001_dp,1._dp,3,&
-!     moduleName,outputLevel)
 
   started=.true.
 
@@ -345,8 +327,6 @@ subroutine TMDX_DY_ShowStatistic()
     write(*,'(A,F12.3)')  '                                         average M :  ',Real(GlobalCounter)/Real(CallCounter)
 end subroutine TMDX_DY_ShowStatistic
   
-  
-  
 !!!!Call this after TMD initializetion but before NP, and X parameters
 subroutine TMDX_DY_SetScaleVariation(c2_in)
   real(dp),intent(in)::c2_in
@@ -361,6 +341,17 @@ subroutine TMDX_DY_SetScaleVariation(c2_in)
   end if
 
 end subroutine TMDX_DY_SetScaleVariation
+
+
+!!!!! wrapper, to check the convergence in proper module.
+function isConvergenceLost_inSubmodule()
+logical::isConvergenceLost_inSubmodule
+if(useKPC) then
+  isConvergenceLost_inSubmodule=TMDF_KPC_IsconvergenceLost()
+else
+  isConvergenceLost_inSubmodule=TMDF_IsconvergenceLost()
+end if
+end function isConvergenceLost_inSubmodule
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FUNCTIONS FOR OPERATION WITH KINEMATICS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -474,8 +465,8 @@ function PreFactor2(kin,process)
         hc2*1d9*&!from GeV to pb
         0.03645d0!Br from PDG, ee+mumu
   CASE (4) !Wboson in the narrow-width approximation
-    !4 pi^2 aem/Nc/s Br(z->ee+mumu)
-    uniPart=pi2x4/3d0**alphaEM(scaleMu)/kin(2)*&
+    !4 pi^2 aem/Nc/s Br(w->leptons)
+    uniPart=pi2x4/3d0*alphaEM(scaleMu)/kin(2)*&
         HardCoefficientDY(scaleMu)*&
         hc2*1d9*&!from GeV to pb
         0.1086d0!Br from PDG, ee+mumu
@@ -662,25 +653,6 @@ end function NumPT_auto
 
 !---------------------------------UNINTEGRATED------------------------------------------------------------------
 
-!!!!! this is function which is placed to the F_toGrid
-!!!!! it is positioned here because it knowns about variables of TMDX module
-function F_toGrid(Q2,qT,x1,x2,process0)
-real(dp),intent(in)::Q2,qT,x1,x2
-integer,dimension(1:3),intent(in)::process0
-real(dp)::F_toGrid
-
-real(dp)::scaleMu,scaleZeta
-scaleZeta=Q2
-scaleMu=sqrt(scaleZeta)
-
-if(useKPC) then
-  F_toGrid=KPC_DYconv(Q2,qT,x1,x2,scaleMu*c2_global,process0)
-else
-  F_toGrid=TMDF_F(Q2,qT,x1,x2,scaleMu*c2_global,scaleZeta,scaleZeta,process0)
-end if
-
-end function
-
 !!! this is help function which evaluate xSec at single qt (without lists) with only prefactor 2
 !!!! this is extended (and default) version of xSec, which include all parameters
 function xSec(var,process,incCut,CutParam)
@@ -693,13 +665,13 @@ function xSec(var,process,incCut,CutParam)
 
   GlobalCounter=GlobalCounter+1
 
+  if(isConvergenceLost_inSubmodule()) then
+    xSec=1d9
+    return
+  end if
+
   !!!!!!!!!!!!!!!!!!!! COMPUTATION WITH KPC
   if(useKPC) then
-    if(TMDF_KPC_IsconvergenceLost()) then
-      xSec=1d9
-      return
-    end if
-
     !!! setting values of X
     x1=var(5)*var(7)
     x2=var(5)/var(7)
@@ -714,11 +686,6 @@ function xSec(var,process,incCut,CutParam)
 
   !!!!!!!!!!!!!!!!!!!! COMPUTATION WITHOUT KPC
   else
-    if(TMDF_IsconvergenceLost()) then
-      xSec=1d9
-      return
-    end if
-
     !!! setting values of X
     x1=var(5)*var(7)
     x2=var(5)/var(7)
@@ -729,7 +696,6 @@ function xSec(var,process,incCut,CutParam)
 
     !!!!! compute cross-section for each process
     FF=TMDF_F(var(4),var(1),x1,x2,scaleMu*c2_global,scaleZeta,scaleZeta,process(2:4))
-    !FF=grids_for_processes(1)%getValue(var(4),var(1),x1,x2)
     LC=LeptonCutFactorLP(var,process(4),incCut,CutParam)
 
     xSec=PreFactor2(var,process(1))*FF*LC
@@ -754,7 +720,7 @@ function Xsec_Yint(var,process,incCut,CutParam,ymin_in,ymax_in)
   real(dp) :: ymin_Check,ymax_Check
 
 
-  if(TMDF_IsconvergenceLost()) then
+  if(isConvergenceLost_inSubmodule()) then
     Xsec_Yint=1d9
     return
   end if
@@ -840,7 +806,7 @@ function Xsec_Qint_Yint(var,process,incCut,CutParam,Qmin_in,Qmax_in,ymin_in,ymax
   integer::numSec,i
   real(dp)::dQ
 
-  if(TMDF_IsconvergenceLost()) then
+  if(isConvergenceLost_inSubmodule()) then
     Xsec_Qint_Yint=1d9
     return
   end if
@@ -902,7 +868,7 @@ real(dp),intent(in):: ymin_in,ymax_in,Q_min_in,Q_max_in,qt_min_in,qt_max_in,s_in
 real(dp):: Q_min,Q_max,qt_min,qt_max,s
 integer,intent(in) :: Num
 
-if(TMDF_IsconvergenceLost()) then
+if(isConvergenceLost_inSubmodule()) then
   Xsec_PTint_Qint_Yint=1d9
   return
 end if
@@ -996,7 +962,7 @@ real(dp),dimension(0:NumChNodes)::fAtNodes,vectorR
 !!!!! scale for the rescaling of large integrals
 real(dp),parameter::scaleL=2.5_dp
 
-if(TMDF_IsconvergenceLost()) then
+if(isConvergenceLost_inSubmodule()) then
   Xsec_PTspectrum_Qint_Yint=1d9
   return
 end if
@@ -1099,9 +1065,6 @@ do i=1,nBINS
   !write(*,*) "---->",vectorR
 end do
 
-contains
-
-
 end function Xsec_PTspectrum_Qint_Yint
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1121,7 +1084,7 @@ function Xsec_Yint_APROX(var,process,incCut,CutParam,ymin_in,ymax_in)
   real(dp) :: ymin_Check,ymax_Check
   integer,dimension(1:4),intent(in)::process
 
-  if(TMDF_IsconvergenceLost()) then
+  if(isConvergenceLost_inSubmodule()) then
     Xsec_Yint_APROX=1d9
     return
   end if
@@ -1168,7 +1131,7 @@ function integrandOverY(y)
 real(dp),intent(in)::y
 real(dp)::integrandOverY
 call SetY(y,var)
-integrandOverY=xSec(var,process,incCut,CutParam)
+integrandOverY=xSec(var,(/1,process(2),process(3),process(4)/),incCut,CutParam)
 end function integrandOverY
 
 end function Xsec_Yint_APROX
@@ -1186,10 +1149,8 @@ function Xsec_Qint_Yint_APROX(var,process,incCut,CutParam,Qmin_in,Qmax_in,ymin_i
   integer,dimension(1:4),intent(in)::process
   real(dp),intent(in) :: yMin_in,yMax_in,QMin_in,QMax_in
   real(dp):: Xsec_Qint_Yint_APROX
-  integer::numSec,i
-  real(dp)::dQ
 
-  if(TMDF_IsconvergenceLost()) then
+  if(isConvergenceLost_inSubmodule()) then
     Xsec_Qint_Yint_APROX=1d9
     return
   end if
@@ -1228,7 +1189,7 @@ function Xsec_PTint_Qint_Yint_APROX(process,incCut,CutParam,s_in,qt_min_in,qt_ma
   real(dp),intent(in):: ymin_in,ymax_in,Q_min_in,Q_max_in,qt_min_in,qt_max_in,s_in
   real(dp):: Q_min,Q_max,qt_min,qt_max,s
 
-  if(TMDF_IsconvergenceLost()) then
+  if(isConvergenceLost_inSubmodule()) then
     Xsec_PTint_Qint_Yint_APROX=1d9
     return
   end if
@@ -1261,8 +1222,8 @@ function Xsec_PTint_Qint_Yint_APROX(process,incCut,CutParam,s_in,qt_min_in,qt_ma
   !!!------------------------- checking PT----------
   if(qT_min_in<0.0d0) then
     call Warning_Handler%WarningRaise('Attempt to compute xSec with qT<0.')
-    write(*,*) "qTmin =",qT_min_in," (qTmin set to 0.GeV)"
-    qT_min=1._dp
+    write(*,*) "qTmin =",qT_min_in," (qTmin set to qTMin)"
+    qT_min=qTMin_ABS
   else
     qT_min=qT_min_in
   end if
@@ -1353,7 +1314,7 @@ if(.not.started) error stop ErrorString('The module is not initialized. Check IN
 
   !!!! evaluation
   CallCounter=CallCounter+1
-  X=Xsec_PTint_Qint_Yint(process,includeCuts,CutParameters,&
+  X=Xsec_PTint_Qint_Yint(process,includeCuts,CutParam,&
                   s,qT(1),qT(2),Q(1),Q(2),y(1),y(2),nn)
 
 end subroutine MainInterface_AsAAAloo
@@ -1526,7 +1487,7 @@ end if
     nn=Num
     else
         do i=1,length
-            nn=NumPT_auto(qT(i,2)-qT(i,1),(Q(i,2)+Q(i,1))/2d0)
+            nn(i)=NumPT_auto(qT(i,2)-qT(i,1),(Q(i,2)+Q(i,1))/2d0)
         end do
     end if
     !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED)
@@ -1550,7 +1511,7 @@ subroutine xSec_DY_List_BINLESS(X,process,s,qT,Q,y,includeCuts,CutParameters)
   real(dp),intent(in),dimension(:,:)::CutParameters            !(p1,p2,eta1,eta2)
   real(dp),dimension(:),intent(out)::X
 
-  real(dp),allocatable,dimension(:,:)::vv
+  real(dp),dimension(:)::var(1:7)
   integer :: i,length
 
 if(.not.started) error stop ErrorString('The module is not initialized. Check INI-file.',moduleName)
@@ -1601,17 +1562,12 @@ end if
 
   CallCounter=CallCounter+length
 
-  allocate(vv(1:length,1:7))
-
-  !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED)
-
+  !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED) PRIVATE(var)
     do i=1,length
-      vv(i,1:7)=kinematicArray(qt(i),s(i),Q(i),y(i))
-      X(i)=xSec(vv(i,1:7),process(i,1:4),includeCuts(i),CutParameters(i,1:4))
-
+      var=kinematicArray(qt(i),s(i),Q(i),y(i))
+      X(i)=xSec(var,process(i,1:4),includeCuts(i),CutParameters(i,1:4))
     end do
   !$OMP END PARALLEL DO
-  deallocate(vv)
 end subroutine xSec_DY_List_BINLESS
 
 
@@ -1634,57 +1590,57 @@ if(.not.started) error stop ErrorString('The module is not initialized. Check IN
 
 !!! cheking sizes
 if(size(X)/=length) then
-  write(*,*) ErrorString('xSec_DY_List: sizes of xSec and s lists are not equal.',moduleName)
+  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: sizes of xSec and s lists are not equal.',moduleName)
   write(*,*) ErrorString('Evaluation stop',moduleName)
   stop
 end if
 if(size(process,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List: sizes of process and s lists are not equal.',moduleName)
+  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: sizes of process and s lists are not equal.',moduleName)
   write(*,*) ErrorString('Evaluation stop',moduleName)
   stop
 end if
 if(size(qT,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List: sizes of qT and s lists are not equal.',moduleName)
+  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: sizes of qT and s lists are not equal.',moduleName)
   write(*,*) ErrorString('Evaluation stop',moduleName)
   stop
 end if
 if(size(y,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List: sizes of y and s lists are not equal.',moduleName)
+  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: sizes of y and s lists are not equal.',moduleName)
   write(*,*) ErrorString('Evaluation stop',moduleName)
   stop
 end if
 if(size(Q,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List: sizes of Q and s lists are not equal.',moduleName)
+  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: sizes of Q and s lists are not equal.',moduleName)
   write(*,*) ErrorString('Evaluation stop',moduleName)
   stop
 end if
 if(size(includeCuts)/=length) then
-  write(*,*) ErrorString('xSec_DY_List: sizes of includeCuts and s lists are not equal.',moduleName)
+  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: sizes of includeCuts and s lists are not equal.',moduleName)
   write(*,*) ErrorString('Evaluation stop',moduleName)
   stop
 end if
 if(size(CutParameters,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List: sizes of CutParameters and s lists are not equal.',moduleName)
+  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: sizes of CutParameters and s lists are not equal.',moduleName)
   write(*,*) ErrorString('Evaluation stop',moduleName)
   stop
 end if
 if(size(process,2)/=4) then
-  write(*,*) ErrorString('xSec_DY_List: process list must be (:,1:4).',moduleName)
+  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: process list must be (:,1:4).',moduleName)
   write(*,*) ErrorString('Evaluation stop',moduleName)
   stop
 end if
 if(size(qT,2)/=2) then
-  write(*,*) ErrorString('xSec_DY_List: qt list must be (:,1:2).',moduleName)
+  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: qt list must be (:,1:2).',moduleName)
   write(*,*) ErrorString('Evaluation stop',moduleName)
   stop
 end if
 if(size(y,2)/=2) then
-  write(*,*) ErrorString('xSec_DY_List: y list must be (:,1:2).',moduleName)
+  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: y list must be (:,1:2).',moduleName)
   write(*,*) ErrorString('Evaluation stop',moduleName)
   stop
 end if
 if(size(Q,2)/=2) then
-  write(*,*) ErrorString('xSec_DY_List: Q list must be (:,1:2).',moduleName)
+  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: Q list must be (:,1:2).',moduleName)
   write(*,*) ErrorString('Evaluation stop',moduleName)
   stop
 end if

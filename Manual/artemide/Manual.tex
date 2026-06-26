@@ -3182,6 +3182,12 @@ polarized DY
 
 \section{Version history}
 \begin{itemize}
+\item[\textbf{Ver.3.04}]
+\begin{itemize}
+	\item \textbf{SiversTMDPDF, wgtTMDPDF, wglTMDPDF, CollinsTMDFF, BoerMuldersTMDPDF} uniformization of the Kt-integration, and grid (now it is like in uTMDPDF and uTMDFF).
+	\item \textbf{Utility modules} uniformization of naming. Found bug in GK2041 (loss of precision) and Stroud35\_56 (incorrect boundary). For all modules made a test codes.
+	\item \textbf{\red{All modules}} Passed module by module with Claude, small optimization \& bug fixing. Found 2 bugs (wrong copy-paste for gluon evolution at 3-loop; and incorrect estimation of asymptotic part of Mellin integral in large-x resummed expression), rest bugs are negligible.
+\end{itemize}
 \item[\textbf{Ver.3.03}]
 \begin{itemize}
 	\item \textbf{TMDF\_KPC} optimized DY and SIDIS structure function computations (added non-adaptive routines). Added processes with $W$-boson, and SIDIS.
