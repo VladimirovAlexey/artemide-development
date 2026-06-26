@@ -1,5 +1,5 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!            arTeMiDe 1.41
+!            arTeMiDe 3.04
 !
 !    Evaluation of the TMD structure function
 !
@@ -9,6 +9,7 @@
 !    ver 1.41: fixed potential bug in the initialisation order (AV, 28.02.2019)
 !    ver 3.00: removal of TMDs-module (AV, 12.02.2024)
 !    ver 3.03: updated using Ogata-class (AV, 14.10.2025)
+!    ver 3.04: small updates (AV, 26.06.2026)
 !
 !                A.Vladimirov (30.05.2018)
 !
@@ -31,11 +32,10 @@ use CollinsTMDFF
 implicit none
 
 private
-!   public
 
 character (len=7),parameter :: moduleName="TMDF"
-character (len=5),parameter :: version="v3.03"
-!Last appropriate verion of constants-file
+character (len=5),parameter :: version="v3.04"
+!Last appropriate version of constants-file
 integer,parameter::inputver=37
 
 !------------------------------------------Working variables------------------------------------------------------------
@@ -55,11 +55,12 @@ logical::include_wglTMDPDF
 logical::include_BoerMuldersTMDPDF
 logical::include_CollinsTMDFF
 
+!!!!! This is the mass used in the definition of structure function (e.g. Sivers structure function)
 real(dp):: global_mass_scale=0.938_dp
 real(dp):: qtMIN=0.0001d0
 real(dp):: HardScaleMIN=0.8d0
 
-!!!!! objects for Hankel tranforms of appropriate type
+!!!!! objects for Hankel transforms of appropriate type
 type(OgataIntegrator)::Hankel
 
 !-----------------------------------------Public interface--------------------------------------------------------------
@@ -100,6 +101,7 @@ call MoveTO(51,'*A   ')
 call MoveTO(51,'*p1  ')
 read(51,*) FILEver
 if(FILEver<inputver) then
+    CLOSE (51, STATUS='KEEP')
     write(*,*) 'artemide.'//trim(moduleName)//': const-file version is too old.'
     write(*,*) '             Update the const-file with artemide.setup'
     write(*,*) '  '
@@ -118,6 +120,7 @@ read(51,*) initRequired
 if(.not.initRequired) then
     if(outputLevel>2) write(*,*)'artemide.',moduleName,': initialization is not required. '
     started=.false.
+    CLOSE (51, STATUS='KEEP')
     return
 end if
 call MoveTO(51,'*A   ')
@@ -172,7 +175,7 @@ call MoveTO(51,'*14  ')
 call MoveTO(51,'*p1  ')
 read(51,*) include_BoerMuldersTMDPDF
 
-!! BoerMuldersTMDPDF
+!! wglTMDPDF
 call MoveTO(51,'*16  ')
 call MoveTO(51,'*p1  ')
 read(51,*) include_wglTMDPDF
@@ -279,7 +282,7 @@ if(outputLevel>1) write(*,*) ' '
 
 end subroutine TMDF_Initialize
 
-!!!!!!!Functions which carry the trigger on convergences.... Its used in xSec, and probably in other places.
+!!!!!!!Functions which carry the trigger on convergence.... It is used in xSec, and probably in other places.
 function TMDF_IsconvergenceLost()
     logical::TMDF_IsconvergenceLost
     !!! checks TMDs trigger
@@ -291,7 +294,7 @@ subroutine TMDF_convergenceISlost()
     if(outputLevel>1) write(*,*) WarningString('convergenceLOST trigger ON',moduleName)
 end subroutine TMDF_convergenceISlost
   
-!passes the NP parameters to TMDs
+!Resets the counters
 subroutine TMDF_ResetCounters()
     convergenceLost=.false.
     call Warning_Handler%Reset()
@@ -306,7 +309,6 @@ real(dp)::integral_result
 real(dp),intent(in)::qT,x1,x2,mu,zeta1,zeta2,Q2
 integer,dimension(1:3),intent(in)::process
 
-integer::n
 logical::ISconvergent
 
 if(x1>=1d0 .or. x2>=1d0) then
@@ -363,11 +365,6 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
  process=process_array(3) !! general process name
  h1=process_array(1)!! first hadron
  h2=process_array(2)!! second hadron
- 
- if(b>1000d0) then
-  Integrand=0d0
-  return
- end if
   
  SELECT CASE(process)
   !!!test cases
@@ -558,7 +555,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
 
   !--------------------------------------------------------------------------------  
   CASE (102) !h1+2H->gamma* !!this is for E772
-    !!!! strictrly hadron 1
+    !!!! strictly hadron 1
     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
     FB=uTMDPDF_inB(x2,b,mu,zeta2,1)
     Integrand=2d0/9d0*(FA(2)*FB(-2)+FA(-2)*FB(2))+2d0/9d0*(FA(-2)*FB(1)+FA(2)*FB(-1))&
@@ -566,7 +563,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
           +1d0/9d0*(FA(-3)*FB(3)+FA(3)*FB(-3)+4d0*FA(-4)*FB(4)+4d0*FA(4)*FB(-4)+FA(-5)*FB(5)+FA(5)*FB(-5))
   !--------------------------------------------------------------------------------  
   CASE (103) !h1+W->gamma* !!this is for E537
-    !!!! strictrly hadron 1
+    !!!! strictly hadron 1
     !Wolfram has A=183,    Z=74,    N=109
     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
     FB=uTMDPDF_inB(x2,b,mu,zeta2,1)
@@ -576,7 +573,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
   !----------------------------------------------------------------------------------
   !-------------------------SIDIS----------------------------------------------------
   !----------------------------------------------------------------------------------
-  CASE (2001) !h1->h2 where !!!! unpolarized SIDIS
+  CASE (2001) !h1->h2 !!!! unpolarized SIDIS
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
     FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
@@ -591,7 +588,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
   !--------------------------------------------------------------------------------  
-    CASE (2002) !d->h2 where d is deutron prepared from hadron 1 [i.e u->(u+d)/2, d->(u+d)/2]
+    CASE (2002) !d->h2 where d is deuteron prepared from hadron 1 [i.e u->(u+d)/2, d->(u+d)/2]
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
     FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
@@ -604,7 +601,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------  
-    CASE (2003) !n->h2 where n=last number (n=neutron=p(u<->d))
+    CASE (2003) !n->h2 where n=neutron=p(u<->d)
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
     FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
@@ -657,7 +654,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------  
-    CASE (2103) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2)
+    CASE (2103) !d->h? where h?=h1+h2 (d=deuteron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
     if(h2>0) then
@@ -674,7 +671,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------  
-    CASE (2104) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
+    CASE (2104) !d->h? where h?=h1+h2+h3 (d=deuteron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
     if(h2>0) then
@@ -748,7 +745,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !--------------------------------------------------------------------------------
-    CASE (2108) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2) [from 3+4]
+    CASE (2108) !d->h? where h?=h1+h2 (d=deuteron=(p+n)/2) [from 3+4]
     ! e_q^2 *F_q(A)*F_q(B)
     FA=uTMDPDF_inB(x1,b,mu,zeta1,1)
     if(h2>0) then
@@ -784,7 +781,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
       +FA(-4)*FB(-4)*4d0/9.d0&
       +FA(-5)*FB(-5)/9d0
 !----------------------------------------------------------------------------------------------------------------------------------  
-!-----------------------------------------------------Sivers asymetries------------------------------------------------------------
+!-----------------------------------------------------Sivers asymmetries-----------------------------------------------------------
 !----------------------------------------------------------------------------------------------------------------------------------
 !--------------------------------------------------------------------------------
     CASE (10001) !pp->gamma
@@ -840,8 +837,8 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
     !--------------------------------------------------------------------------------  
     CASE (10011) !h+p(s)->gamma
     ! e_q^2 *F_q(A)*F_qbar(B)
-    FA=uTMDPDF_inB(x1,b,mu,zeta2,h1)
-    FB=-SiversTMDPDF_inB(x2,b,mu,zeta1,h2)    !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
+    FA=uTMDPDF_inB(x1,b,mu,zeta1,h1)
+    FB=-SiversTMDPDF_inB(x2,b,mu,zeta2,h2)    !!!! -1 is due to definition of Sivers function (+1) for SIDIS (-1) for DY
     FAB=FA*(FB(5:-5:-1))
 
     !!!! extra factor -1 (total +1) is due to definition of Sivers, h1+h2(s)=-h1(s)+h2
@@ -873,7 +870,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
     !--------------------------------------------------------------------------------
-    CASE (12002) !Sivers asymmetry d->h2 N where n=last number (d=deutron=(p+n)/2)
+    CASE (12002) !Sivers asymmetry d->h2 N where d=deuteron=(p+n)/2
     ! e_q^2 *F_q(A)*F_q(B)
     FA=SiversTMDPDF_inB(x1,b,mu,zeta1,h1)
     FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
@@ -887,7 +884,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
     !--------------------------------------------------------------------------------
-    CASE (12003) !Sivers asymmetry n->hN (n=neutron=h1(u<->d))
+    CASE (12003) !Sivers asymmetry n->hN (n=h1(u<->d) [=neutron for h1=p])
     ! e_q^2 *F_q(A)*F_q(B)
     FA=SiversTMDPDF_inB(x1,b,mu,zeta1,h1)
     FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
@@ -944,7 +941,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
     !--------------------------------------------------------------------------------  
-    CASE (12103) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2)
+    CASE (12103) !d->h? where h?=h1+h2 (d=deuteron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     FA=SiversTMDPDF_inB(x1,b,mu,zeta1,h1)
     if(h2>0) then
@@ -962,7 +959,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
     !--------------------------------------------------------------------------------  
-    CASE (12104) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
+    CASE (12104) !d->h? where h?=h1+h2+h3 (d=deuteron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     FA=SiversTMDPDF_inB(x1,b,mu,zeta1,h1)
     if(h2>0) then
@@ -980,7 +977,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
     !--------------------------------------------------------------------------------  
-    CASE (12105) !n->h? where h?=h1+h2 (n=neutron=p(u<->d))
+    CASE (12105) !n->h? where h?=h1+h2+h3 (n=neutron=p(u<->d))
     ! e_q^2 *F_q(A)*F_q(B)
     FA=SiversTMDPDF_inB(x1,b,mu,zeta1,h1)
     if(h2>0) then
@@ -1039,7 +1036,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
     !--------------------------------------------------------------------------------  
-    CASE (13002) !A_LT asymmetry d->hN (d=deutron=(p+n)/2)
+    CASE (13002) !A_LT asymmetry d->hN (d=deuteron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
     FB=uTMDFF_inB(x2,b,mu,zeta2,h2)
@@ -1110,7 +1107,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
     !--------------------------------------------------------------------------------  
-    CASE (13103) !d->h? where h?=h1+h2 (d=deutron=(p+n)/2)
+    CASE (13103) !d->h? where h?=h1+h2 (d=deuteron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
     if(h2>0) then
@@ -1128,7 +1125,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         +FA(-4)*FB(-4)*4d0/9.d0&
         +FA(-5)*FB(-5)/9d0)
     !--------------------------------------------------------------------------------  
-    CASE (13104) !d->h? where h?=h1+h2+h3 (d=deutron=(p+n)/2)
+    CASE (13104) !d->h? where h?=h1+h2+h3 (d=deuteron=(p+n)/2)
     ! e_q^2 *F_q(A)*F_q(B)
     FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
     if(h2>0) then
@@ -1199,26 +1196,26 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
         FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
         
-        Integrand=-global_mass_scale*paramW_L*(& !!! -1=is due to the -gL^2 in the coupling for lepton
-        paramW_UD*(FA(2)*FB(-1)-FA(-1)*FB(2))&        !u*dbar+dbar*u
-        +paramW_US*(FA(2)*FB(-3)-FA(-3)*FB(2))&        !u*sbar+sbar*u
-        +paramW_UB*(FA(2)*FB(-5)-FA(-5)*FB(2))&        !u*bbar+bbar*u
-        +paramW_CD*(FA(4)*FB(-1)-FA(-1)*FB(4))&        !c*dbar+dbar*c
-        +paramW_CS*(FA(4)*FB(-3)-FA(-3)*FB(4))&        !c*sbar+sbar*c
-        +paramW_CB*(FA(4)*FB(-5)-FA(-5)*FB(4))&        !c*bbar+bbar*c
+        Integrand=-global_mass_scale*paramW_L*(& !!! -1 is due to the -gL^2 in the coupling for lepton
+        paramW_UD*(FA(2)*FB(-1)-FA(-1)*FB(2))&        !u*dbar-dbar*u
+        +paramW_US*(FA(2)*FB(-3)-FA(-3)*FB(2))&        !u*sbar-sbar*u
+        +paramW_UB*(FA(2)*FB(-5)-FA(-5)*FB(2))&        !u*bbar-bbar*u
+        +paramW_CD*(FA(4)*FB(-1)-FA(-1)*FB(4))&        !c*dbar-dbar*c
+        +paramW_CS*(FA(4)*FB(-3)-FA(-3)*FB(4))&        !c*sbar-sbar*c
+        +paramW_CB*(FA(4)*FB(-5)-FA(-5)*FB(4))&        !c*bbar-bbar*c
         )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2)
     !--------------------------------------------------------------------------------  
     CASE (13202) !pp-> W-
         FA=wgtTMDPDF_inB(x1,b,mu,zeta1,h1)
         FB=uTMDPDF_inB(x2,b,mu,zeta2,h2)
         
-        Integrand=-global_mass_scale*paramW_L*(& !!! -1=is due to the -gL^2 in the coupling for lepton
-        paramW_UD*(FA(1)*FB(-2)-FA(-2)*FB(1))&        !d*ubar+ubar*d
-        +paramW_US*(FA(3)*FB(-2)-FA(-2)*FB(3))&        !s*ubar+ubar*s
-        +paramW_UB*(FA(5)*FB(-2)-FA(-2)*FB(5))&        !b*ubar+ubar*b
-        +paramW_CD*(FA(1)*FB(-4)-FA(-4)*FB(1))&        !d*cbar+cbar*d
-        +paramW_CS*(FA(3)*FB(-4)-FA(-4)*FB(3))&        !s*cbar+cbar*s
-        +paramW_CB*(FA(5)*FB(-4)-FA(-4)*FB(5))&        !b*cbar+cbar*b
+        Integrand=-global_mass_scale*paramW_L*(& !!! -1 is due to the -gL^2 in the coupling for lepton
+        paramW_UD*(FA(1)*FB(-2)-FA(-2)*FB(1))&        !d*ubar-ubar*d
+        +paramW_US*(FA(3)*FB(-2)-FA(-2)*FB(3))&        !s*ubar-ubar*s
+        +paramW_UB*(FA(5)*FB(-2)-FA(-2)*FB(5))&        !b*ubar-ubar*b
+        +paramW_CD*(FA(1)*FB(-4)-FA(-4)*FB(1))&        !d*cbar-cbar*d
+        +paramW_CS*(FA(3)*FB(-4)-FA(-4)*FB(3))&        !s*cbar-cbar*s
+        +paramW_CB*(FA(5)*FB(-4)-FA(-4)*FB(5))&        !b*cbar-cbar*b
         )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2) 
     CASE DEFAULT
     write(*,*) ErrorString('undefined process: ',moduleName),process
@@ -1258,7 +1255,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
 
 !-------------------------------------------------------------------------------------------------------------------------------------
 !-------------------------------------------------------------------------------------------------------------------------------------
-!!! The hadron tensonr for the DY icludes Z + gamma, evaluated at FA and FB 
+!!! The hadron tensor for the DY includes Z + gamma, evaluated at FA and FB
 function XIntegrandForDYwithZgamma(FAB,Q2)
      real(dp)::XIntegrandForDYwithZgamma,Q2
     !!cross-seciton parameters
@@ -1323,7 +1320,7 @@ end function XIntegrandForDYwithZgamma
 
 !-------------------------------------------------------------------------------------------------------------------------------------
 !-------------------------------------------------------------------------------------------------------------------------------------
-!!! The hadron tenson for the structure function GTU in DY icludes Z + gamma
+!!! The hadron tensor for the structure function GTU in DY includes Z + gamma
 function XIntegrandForDYwithZgamma_GTU(FAB,Q2)
      real(dp)::XIntegrandForDYwithZgamma_GTU,Q2
     !!cross-seciton parameters
