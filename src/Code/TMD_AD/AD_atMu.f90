@@ -207,8 +207,7 @@ function Dresum(mu,bT,f)
     if(ISNAN(Dresum)) then
         write(*,*) ErrorString('Dresum is NaN.',moduleName)
         write(*,*) 'At mu=',mu,'b=',bT,'Lmu=',2_dp*Log(mu*bT*C0_inv_const), 'X=',X,'log(1-x)=',lX
-        write(*,*) 'Evaluation STOP'
-        stop
+        error stop
     end if
     
     end if

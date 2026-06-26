@@ -112,10 +112,12 @@ subroutine artemide_Initialize(file,prefix,order)
     call MoveTO(51,'*p1  ')
     read(51,*) FILEver
     if(FILEver<inputver) then
+        CLOSE (51, STATUS='KEEP')
+
         write(*,*) color('artemide.'//trim(moduleName)//': const-file version is too old.',c_red_bold)
         write(*,*) color('             Update the const-file with artemide.setup',c_red_bold)
         write(*,*) '  '
-        stop
+        error stop
     end if
     call MoveTO(51,'*p2  ')
     read(51,*) outputLevel    
@@ -1140,8 +1142,7 @@ function BaseNPString()
         end do
     end if
     if(j-1/=NPlength_total) then
-        write(*,*) ERRORstring("something went wrong on the creation of base NP parameters.",moduleName)
-        stop
+        error stop ERRORstring("something went wrong on the creation of base NP parameters.",moduleName)
     end if
 end function BaseNPString
   
@@ -1158,8 +1159,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
 
     INQUIRE(FILE=trim(FILE), EXIST=file_exists)
     if(.not.file_exists) then
-        write(*,*) ERRORstring('replica file is not found: '//trim(FILE),moduleName)
-        stop
+        error stop ERRORstring('replica file is not found: '//trim(FILE),moduleName)
     end if
 
     if(.not.isStarted .and. outputLevel>1) &
@@ -1176,8 +1176,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
     read(51,*) lenArray
     if(isStarted) then
         if(lenArray-1/=NPlength_total) then
-            write(*,*) ERRORstring('number of NP parameters in replica-file does not match the model',moduleName)
-            stop
+            error stop ERRORstring('number of NP parameters in replica-file does not match the model',moduleName)
         end if
     !!! --------------------check lengths by modules
 
@@ -1185,8 +1184,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
             call MoveTO(51,'*3   ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_TMDR) then
-                write(*,*) ERRORstring('number of NP parameters in replica-file does not match the TMDR model',moduleName)
-                stop
+                error stop ERRORstring('number of NP parameters in replica-file does not match the TMDR model',moduleName)
             end if
         end if
 
@@ -1194,8 +1192,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
             call MoveTO(51,'*4   ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_uTMDPDF) then
-                write(*,*) ERRORstring('number of NP parameters in replica-file does not match the uTMDPDF model',moduleName)
-                stop
+                error stop ERRORstring('number of NP parameters in replica-file does not match the uTMDPDF model',moduleName)
             end if
         end if
 
@@ -1203,8 +1200,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
             call MoveTO(51,'*5   ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_uTMDFF) then
-                write(*,*) ERRORstring('number of NP parameters in replica-file does not match the uTMDFF model',moduleName)
-                stop
+                error stop ERRORstring('number of NP parameters in replica-file does not match the uTMDFF model',moduleName)
             end if
         end if 
         
@@ -1212,8 +1208,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
             call MoveTO(51,'*11  ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_lpTMDPDF) then
-                write(*,*) ERRORstring('number of NP parameters in replica-file does not match the lpTMDPDF model',moduleName)
-                stop
+                error stop ERRORstring('number of NP parameters in replica-file does not match the lpTMDPDF model',moduleName)
             end if
         end if
         
@@ -1221,8 +1216,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
             call MoveTO(51,'*12  ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_SiversTMDPDF) then
-                write(*,*) ERRORstring('number of NP parameters in replica-file does not match the SiversTMDPDF model',moduleName)
-                stop
+                error stop ERRORstring('number of NP parameters in replica-file does not match the SiversTMDPDF model',moduleName)
             end if
         end if
         
@@ -1230,8 +1224,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
             call MoveTO(51,'*13  ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_wgtTMDPDF) then
-                write(*,*) ERRORstring('number of NP parameters in replica-file does not match the wgtTMDPDF model',moduleName)
-                stop
+                error stop ERRORstring('number of NP parameters in replica-file does not match the wgtTMDPDF model',moduleName)
             end if
         end if
 
@@ -1239,8 +1232,7 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
             call MoveTO(51,'*16  ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_wglTMDPDF) then
-                write(*,*) ERRORstring('number of NP parameters in replica-file does not match the wglTMDPDF model',moduleName)
-                stop
+                error stop ERRORstring('number of NP parameters in replica-file does not match the wglTMDPDF model',moduleName)
             end if
         end if
 
@@ -1248,18 +1240,16 @@ subroutine artemide_GetReplicaFromFile(file,rep,repString)
             call MoveTO(51,'*14  ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_BoerMuldersTMDPDF) then
-                write(*,*) ERRORstring('number of NP parameters in replica-file does not match the BoerMuldersTMDPDF model',&
+                error stop ERRORstring('number of NP parameters in replica-file does not match the BoerMuldersTMDPDF model',&
                 moduleName)
-                stop
             end if
         end if
         if(ver>=31 .and. include_eeTMDFF) then
             call MoveTO(51,'*16  ')
             read(51,*) k1,k2
             if(k2-k1+1/=NPlength_eeTMDFF) then
-                write(*,*) ERRORstring('number of NP parameters in replica-file does not match the eeTMDFF model',&
+                error stop ERRORstring('number of NP parameters in replica-file does not match the eeTMDFF model',&
                 moduleName)
-                stop
             end if
         end if
     end if
@@ -1327,8 +1317,7 @@ function artemide_NumOfReplicasInFile(file)
 
     INQUIRE(FILE=trim(FILE), EXIST=file_exists)
     if(.not.file_exists) then
-        write(*,*) ERRORstring('replica file is not found: '//trim(FILE),moduleName)
-        stop
+        error stop ERRORstring('replica file is not found: '//trim(FILE),moduleName)
     end if
     OPEN(UNIT=51, FILE=trim(FILE), ACTION="read", STATUS="old")
     !! indices related to the module

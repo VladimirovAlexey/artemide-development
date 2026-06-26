@@ -116,7 +116,7 @@ subroutine eeTMDFF_Initialize(file,prefix)
         write(*,*) '		     Update the const-file with artemide.setup'
         write(*,*) '  '
         CLOSE (51, STATUS='KEEP')
-        stop
+        error stop
     end if
 
     call MoveTO(51,'*p2  ')
@@ -136,10 +136,8 @@ subroutine eeTMDFF_Initialize(file,prefix)
     call MoveTO(51,'*p1  ')
     read(51,*) initRequired
     if(.not.initRequired) then
-        write(*,*) ErrorString('TMDR module MUST be included.',moduleName)
-        write(*,*) ErrorString('Check initialization-file. Evaluation stop.',moduleName)
         CLOSE (51, STATUS='KEEP')
-        stop
+        error stop ErrorString('TMDR module MUST be included.',moduleName)
     end if
 
     call MoveTO(51,'*17  ')
@@ -204,10 +202,9 @@ subroutine eeTMDFF_Initialize(file,prefix)
 
 
     if(lambdaNPlength<=0) then
-        write(*,*) ErrorString(&
-        'Initialize: number of non-perturbative parameters should be >=1. Check the constants-file. Evaluation STOP',moduleName)
-            CLOSE (51, STATUS='KEEP')
-        stop
+        CLOSE (51, STATUS='KEEP')
+        error stop ErrorString(&
+        'Initialize: number of non-perturbative parameters should be >=1. Check the constants-file.',moduleName)
     end if
 
     !!!!! ---- parameters of numerical evaluation
@@ -294,8 +291,7 @@ subroutine eeTMDFF_SetLambdaNP(lambdaIN)
 
     gridIsReady_inKT=.false.
     if(makeGrid_inKT) then
-        write(*,*) ErrorString('KT-space of Jet is not implemented . Evaluation STOP',moduleName)
-        error stop
+        error stop ErrorString('KT-space of Jet is not implemented . Evaluation STOP',moduleName)
     end if
 
     if(outputLevel>2) write(*,*) 'arTeMiDe.',moduleName,': NPparameters reset = (',lambdaNP,')'
@@ -325,8 +321,7 @@ function TMD_opt(bT,hadron)
         TMD_opt=0._dp
         return
     else if(bT<0d0) then
-        write(*,*) ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
-        error stop
+        error stop ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
     end if
 
     !!!!!-----------------coefficient function to write -------------------------

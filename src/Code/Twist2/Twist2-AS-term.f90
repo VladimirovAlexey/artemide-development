@@ -55,12 +55,10 @@ function CxF_AS(x,mu,mu0,hadron,includeGluon)
 
     !! for extremely small-values of mu return ERROR
     if(mu<0.8d0) then
-        write(*,*) ErrorString("ERROR in AS-moment computation. mu<0.8",moduleName)
-        stop
+        error stop ErrorString("ERROR in AS-moment computation. mu<0.8",moduleName)
     end if
     if(mu0<0.8d0) then
-        write(*,*) ErrorString("ERROR in AS-moment computation. muOPE<0.8",moduleName)
-        stop
+        error stop ErrorString("ERROR in AS-moment computation. muOPE<0.8",moduleName)
     end if
 
     l0=2._dp*Log(mu/mu0)

@@ -105,7 +105,7 @@ if(FILEver<inputver) then
     write(*,*) 'artemide.'//trim(moduleName)//': const-file version is too old.'
     write(*,*) '             Update the const-file with artemide.setup'
     write(*,*) '  '
-    stop
+    error stop
 end if
 call MoveTO(51,'*p2  ')
 read(51,*) outputLevel
@@ -1219,8 +1219,7 @@ function Integrand(Q2,b,x1,x2,mu,zeta1,zeta2,process_array)
         )*Q2*Q2/((Q2-MW2)**2+GammaW2*MW2) 
     CASE DEFAULT
     write(*,*) ErrorString('undefined process: ',moduleName),process
-    write(*,*) color('Evaluation stop',c_red_bold)
-    stop
+    error stop
  END SELECT
  
   if(ISNAN(Integrand)) then

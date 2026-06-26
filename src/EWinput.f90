@@ -97,7 +97,7 @@ OPEN(UNIT=51, FILE=path, ACTION="read", STATUS="old")
     write(*,*) '             Update the const-file with artemide.setup'
     write(*,*) '  '
     CLOSE (51, STATUS='KEEP')
-    stop
+    error stop
   end if
   call MoveTO(51,'*p2  ')
   read(51,*) outputLevel

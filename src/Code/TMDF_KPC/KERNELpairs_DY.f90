@@ -66,9 +66,7 @@ SELECT CASE(process)
     DY_KERNEL=-tau2*S/(4*M2*Q2)*sqrt(tau2/qT2)*(Q2*(-1+S**2-Lam)+2*Lam*tau2)
 
   CASE DEFAULT
-    write(*,*) ErrorString('undefined process 2 variables: ',moduleName),process
-    write(*,*) color('Evaluation stop',c_red_bold)
-    stop
+    error stop ErrorString('undefined process 2d variables: '//numToStr(process),moduleName)
  END SELECT
 
 

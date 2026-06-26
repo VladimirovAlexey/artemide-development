@@ -112,7 +112,7 @@ subroutine TMDR_Initialize(file,prefix)
       write(*,*) 'artemide.'//trim(moduleName)//': const-file version is too old.'
       write(*,*) '             Update the const-file with artemide.setup'
       write(*,*) '  '
-      stop
+      error stop
     end if
     call MoveTO(51,'*p2  ')
     read(51,*) outputLevel    

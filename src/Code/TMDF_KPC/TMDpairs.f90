@@ -590,8 +590,7 @@ SELECT CASE(process(3))
 
   CASE DEFAULT
     write(*,*) ErrorString('undefined process: ',moduleName),process
-    write(*,*) color('Evaluation stop',c_red_bold)
-    stop
+    error stop
  END SELECT
 !  write(44,*) sqrt(k1),FA(1)
 

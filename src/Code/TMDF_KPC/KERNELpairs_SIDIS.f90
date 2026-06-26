@@ -60,18 +60,8 @@ SELECT CASE(process)
 
         SIDIS_KERNEL = (1+2*vareps)*((S+sqrt(Lam))**2-1)*(2*qT2+tau2*(1-Lam+S**2))/8/M2
 
-
-!     ! To check convolution integral with gaussians
-!     CASE (999)
-!
-!         SIDIS_KERNEL = 1
-
-
     CASE DEFAULT
-        write(*,*) ErrorString('undefined process 2 variables: ',moduleName),process
-        write(*,*) color('Evaluation stop',c_red_bold)
-        stop
-
+        error stop ErrorString('undefined process 2d variables: '//numToStr(process),moduleName)
 END SELECT
 
 end function SIDIS_KERNEL

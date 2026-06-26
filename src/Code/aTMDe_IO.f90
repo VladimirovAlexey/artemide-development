@@ -106,10 +106,10 @@ subroutine MoveTO(stream,pos)
       read(stream,'(A)',IOSTAT=IOstatus) line
       if(IOstatus>0) then
           write(*,*) ErrorString("Error in attemt to read the line ("//pos//")", "aTMDe_IO_system")
-          stop
+          error stop
       else if(IOstatus<0) then
           write(*,*) ErrorString("EndOfFile during search of the line ("//pos//")", "aTMDe_IO_system")
-          stop
+          error stop
       else
           if(line(1:5)==pos) exit
       end if
@@ -117,7 +117,7 @@ subroutine MoveTO(stream,pos)
 
   if(i>10000000) then
     write(*,*) ErrorString("Line ("//pos//") not found within iteration limit","aTMDe_IO_system")
-    stop
+    error stop
   end if
 
 end subroutine MoveTO

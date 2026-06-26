@@ -121,7 +121,7 @@ subroutine TMDX_DY_Initialize(file,prefix)
     write(*,*) '             Update the const-file with artemide.setup'
     write(*,*) '  '
     CLOSE (51, STATUS='KEEP')
-    stop
+    error stop
   end if
 
   !!! Fill the message system
@@ -477,8 +477,7 @@ function PreFactor2(kin,process)
         HardCoefficientHIGGS(scaleMu)*(EffCouplingHFF(scaleMu)**2)*1.0677023627519822d0*&
         hc2*1d9!from GeV to pb
   CASE DEFAULT
-    write(*,*) ErrorString('unknown process p='//numToStr(process)//' .Evaluation stop.',moduleName)
-    stop
+    error stop ErrorString('unknown process p='//numToStr(process)//' .Evaluation stop.',moduleName)
   END SELECT
 
   PreFactor2=uniPart
@@ -551,8 +550,7 @@ function PreFactorKPC(kin,proc1)
         hc2*1d9!from GeV to pb
 
   CASE DEFAULT
-    write(*,*) ErrorString('unknown process p='//numToStr(proc1)//' .Evaluation stop.',moduleName)
-    stop
+    error stop ErrorString('unknown process p='//numToStr(proc1)//' .Evaluation stop.',moduleName)
   END SELECT
 
 end function PreFactorKPC
@@ -1304,9 +1302,7 @@ if(.not.started) error stop ErrorString('The module is not initialized. Check IN
     if(present(CutParameters)) then
       CutParam=CutParameters
     else
-      write(*,*) ErrorString('called includeCuts=true, while CutParameters are undefined',moduleName)
-      write(*,*) ErrorString('Evaluation stop',moduleName)
-      stop
+      error stop ErrorString('called includeCuts=true, while CutParameters are undefined',moduleName)
     end if
   else
     CutParam=(/0d0,0d0,0d0,0d0/)
@@ -1343,59 +1339,37 @@ if(.not.started) error stop ErrorString('The module is not initialized. Check IN
 
 !!! cheking sizes
 if(size(X)/=length) then
-  write(*,*) ErrorString('xSec_DY_List: sizes of xSec and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List: sizes of xSec and s lists are not equal.',moduleName)
 end if
 if(size(process,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List: sizes of process and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List: sizes of process and s lists are not equal.',moduleName)
 end if
 if(size(qT,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List: sizes of qT and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List: sizes of qT and s lists are not equal.',moduleName)
 end if
 if(size(y,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List: sizes of y and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List: sizes of y and s lists are not equal.',moduleName)
 end if
 if(size(Q,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List: sizes of Q and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List: sizes of Q and s lists are not equal.',moduleName)
 end if
 if(size(includeCuts)/=length) then
-  write(*,*) ErrorString('xSec_DY_List: sizes of includeCuts and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List: sizes of includeCuts and s lists are not equal.',moduleName)
 end if
 if(size(CutParameters,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List: sizes of CutParameters and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List: sizes of CutParameters and s lists are not equal.',moduleName)
 end if
 if(size(process,2)/=4) then
-  write(*,*) ErrorString('xSec_DY_List: process list must be (:,1:4).',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List: process list must be (:,1:4).',moduleName)
 end if
 if(size(qT,2)/=2) then
-  write(*,*) ErrorString('xSec_DY_List: qt list must be (:,1:2).',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List: qt list must be (:,1:2).',moduleName)
 end if
 if(size(y,2)/=2) then
-  write(*,*) ErrorString('xSec_DY_List: y list must be (:,1:2).',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List: y list must be (:,1:2).',moduleName)
 end if
 if(size(Q,2)/=2) then
-  write(*,*) ErrorString('xSec_DY_List: Q list must be (:,1:2).',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List: Q list must be (:,1:2).',moduleName)
 end if
 
 
@@ -1480,9 +1454,7 @@ end if
     allocate(nn(1:length))
     if(present(Num)) then
         if(size(Num,1)/=length) then
-      write(*,*) 'ERROR: arTeMiDe_DY: xSec_DY_List: sizes of Num and s lists are not equal.'
-      write(*,*) 'Evaluation stop'
-      stop
+      error stop ErrorString('xSec_DY_List: sizes of Num and s lists are not equal.',moduleName)
     end if
     nn=Num
     else
@@ -1520,44 +1492,28 @@ if(.not.started) error stop ErrorString('The module is not initialized. Check IN
 
   !!! cheking sizes
 if(size(X)/=length) then
-  write(*,*) ErrorString('xSec_DY_List_BINLESS: sizes of xSec and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_BINLESS: sizes of xSec and s lists are not equal.',moduleName)
 end if
 if(size(process,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List_BINLESS: sizes of process and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_BINLESS: sizes of process and s lists are not equal.',moduleName)
 end if
 if(size(qT)/=length) then
-  write(*,*) ErrorString('xSec_DY_List_BINLESS: sizes of qT and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_BINLESS: sizes of qT and s lists are not equal.',moduleName)
 end if
 if(size(y)/=length) then
-  write(*,*) ErrorString('xSec_DY_List_BINLESS: sizes of y and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_BINLESS: sizes of y and s lists are not equal.',moduleName)
 end if
 if(size(Q)/=length) then
-  write(*,*) ErrorString('xSec_DY_List_BINLESS: sizes of Q and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_BINLESS: sizes of Q and s lists are not equal.',moduleName)
 end if
 if(size(includeCuts)/=length) then
-  write(*,*) ErrorString('xSec_DY_List_BINLESS: sizes of includeCuts and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_BINLESS: sizes of includeCuts and s lists are not equal.',moduleName)
 end if
 if(size(CutParameters,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List_BINLESS: sizes of CutParameters and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_BINLESS: sizes of CutParameters and s lists are not equal.',moduleName)
 end if
 if(size(process,2)/=4) then
-  write(*,*) ErrorString('xSec_DY_List_BINLESS: process list must be (:,1:4).',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_BINLESS: process list must be (:,1:4).',moduleName)
 end if
 
   CallCounter=CallCounter+length
@@ -1590,59 +1546,37 @@ if(.not.started) error stop ErrorString('The module is not initialized. Check IN
 
 !!! cheking sizes
 if(size(X)/=length) then
-  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: sizes of xSec and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_APPROXIMATE: sizes of xSec and s lists are not equal.',moduleName)
 end if
 if(size(process,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: sizes of process and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_APPROXIMATE: sizes of process and s lists are not equal.',moduleName)
 end if
 if(size(qT,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: sizes of qT and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_APPROXIMATE: sizes of qT and s lists are not equal.',moduleName)
 end if
 if(size(y,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: sizes of y and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_APPROXIMATE: sizes of y and s lists are not equal.',moduleName)
 end if
 if(size(Q,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: sizes of Q and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_APPROXIMATE: sizes of Q and s lists are not equal.',moduleName)
 end if
 if(size(includeCuts)/=length) then
-  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: sizes of includeCuts and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_APPROXIMATE: sizes of includeCuts and s lists are not equal.',moduleName)
 end if
 if(size(CutParameters,1)/=length) then
-  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: sizes of CutParameters and s lists are not equal.',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_APPROXIMATE: sizes of CutParameters and s lists are not equal.',moduleName)
 end if
 if(size(process,2)/=4) then
-  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: process list must be (:,1:4).',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_APPROXIMATE: process list must be (:,1:4).',moduleName)
 end if
 if(size(qT,2)/=2) then
-  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: qt list must be (:,1:2).',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_APPROXIMATE: qt list must be (:,1:2).',moduleName)
 end if
 if(size(y,2)/=2) then
-  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: y list must be (:,1:2).',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_APPROXIMATE: y list must be (:,1:2).',moduleName)
 end if
 if(size(Q,2)/=2) then
-  write(*,*) ErrorString('xSec_DY_List_APPROXIMATE: Q list must be (:,1:2).',moduleName)
-  write(*,*) ErrorString('Evaluation stop',moduleName)
-  stop
+  error stop ErrorString('xSec_DY_List_APPROXIMATE: Q list must be (:,1:2).',moduleName)
 end if
 
   CallCounter=CallCounter+length

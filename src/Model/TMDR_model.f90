@@ -48,9 +48,7 @@ subroutine ModelInitialization(NPlength)
     integer,intent(in):: NPlength
 
     if(NPlength<4) then
-        write(*,*) color('ART23-model: Number NP parameters for TMDR is less then 4',c_red)
-        write(*,*) 'Evaluation STOP'
-        stop
+        error stop ErrorString('ART23-model: Number NP parameters for TMDR is less then 4','TMDR_model')
     end if
     
     allocate(NPparam(1:NPlength))
