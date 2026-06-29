@@ -359,7 +359,7 @@ $(OBJ)/aTMDe_Ogata.o: $(SOURCEDIR)/Code/aTMDe_Ogata.f90 $(OBJ)/aTMDe_Numerics.o 
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/aTMDe_Levin.o: $(SOURCEDIR)/Code/aTMDe_Levin.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o
+$(OBJ)/aTMDe_Levin.o: $(SOURCEDIR)/Code/aTMDe_Levin.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o $(OBJ)/aTMDe_invMatrix.o
 	$(FC) -c $(SOURCEDIR)/Code/aTMDe_Levin.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
