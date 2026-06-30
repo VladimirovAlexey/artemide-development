@@ -352,6 +352,16 @@ function KPC_DYconv(Q2,qT_in,x1,x2,mu,proc1)
     real(dp)::tau2,deltaT,qT
     real(dp) :: delta,rho,atan_rho
 
+    !!!!! elementary checks
+    if(x1>=1d0 .or. x2>=1d0) then
+        KPC_DYconv=0d0
+        return
+    else if(convergenceLost) then
+        !!!in the case of lost convergence we return huge number (divergent xSec)
+        KPC_DYconv=1d10
+        return
+    end if
+
     if(qT_in<qTMIN) then
         qT=qTMIN
     else

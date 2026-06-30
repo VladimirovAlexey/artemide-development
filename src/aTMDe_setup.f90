@@ -14,10 +14,10 @@ implicit none
 
 private
 
-character (len=5),parameter :: version="v3.04"
+character (len=5),parameter :: version="v3.05"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=41
+integer,parameter::inputVer=42
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -271,6 +271,7 @@ logical::TMDX_DY_exactX1X2,TMDX_DY_piResum,TMDX_DY_exactScale
 real(dp)::TMDX_DY_maxQbinSize,TMDX_DY_minqTabs
 logical::TMDX_DY_useKPC,TMDX_DY_doPartition
 integer::TMDX_DY_ChNodes
+real(dp)::TMDX_DY_qtMINBIN,TMDX_DY_qMINBIN,TMDX_DY_yMINBIN
 
 !-------------------- TMDX-SIDIS parameters
 logical::include_TMDX_SIDIS
@@ -824,6 +825,9 @@ subroutine SetupDefault(order)
     TMDX_DY_doPartition=.false. !default partitioning of qT-ranges
     TMDX_DY_ChNodes=10   !!!! order of qT interpolation
     TMDX_DY_maxQTrange=18.d0 !!!! maximum range for qT-integral simplification
+    TMDX_DY_qtMINBIN=0.01d0  !!!! minumum size of the qt bin to make comparison (below this size, the bin is considered poin-like)
+    TMDX_DY_qMINBIN=0.01d0   !!!! minumum size of the Q bin to make comparison (below this size, the bin is considered poin-like)
+    TMDX_DY_yMINBIN=0.0001d0 !!!! minumum size of the y bin to make comparison (below this size, the bin is considered poin-like)
     TMDX_DY_order=trim(order)
     TMDX_DY_exactX1X2=.true.
     TMDX_DY_piResum=.false.
@@ -1343,6 +1347,14 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDX_DY_ChNodes
     write(51,"('*p8  : Maximum range of qT to evaluate in a single sequence (in GeV)')")
     write(51,*) TMDX_DY_maxQTrange
+    write(51,"(' ')")
+    write(51,"('*BIN : ---- Numerical evaluation parameters ----')")
+    write(51,"('*p1  : Minimum size of the bin in qT[GeV] (below this value bin is considered point-like)')")
+    write(51,*) TMDX_DY_qtMINBIN
+    write(51,"('*p2  : Minimum size of the bin in Q[GeV] (below this value bin is considered point-like)')")
+    write(51,*) TMDX_DY_qMINBIN
+    write(51,"('*p3  : Minimum size of the bin in y (or xF) (below this value bin is considered point-like)')")
+    write(51,*) TMDX_DY_yMINBIN
     write(51,"(' ')")
     write(51,"('*C   : ---- Definition of LP TMD factorization ----')")
     write(51,"('*p1  : Use the exact values of x1 and x2 (include qT/Q correction)')")
@@ -2519,6 +2531,15 @@ subroutine ReadConstantsFile(file,prefix)
         read(51,*) TMDX_DY_ChNodes
         call MoveTO(51,'*p8  ')
         read(51,*) TMDX_DY_maxQTrange
+    end if
+    if(FILEversion>41) then
+        call MoveTO(51,'*BIN ')
+        call MoveTO(51,'*p1  ')
+        read(51,*) TMDX_DY_qtMINBIN
+        call MoveTO(51,'*p2  ')
+        read(51,*) TMDX_DY_qMINBIN
+        call MoveTO(51,'*p3  ')
+        read(51,*) TMDX_DY_yMINBIN
     end if
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')

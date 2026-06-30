@@ -50,6 +50,7 @@ $(SOURCEDIR)/Code/aTMDe_optGrid.f90 \
 $(SOURCEDIR)/Code/aTMDe_ktGrid.f90 \
 $(SOURCEDIR)/Code/aTMDe_Ogata.f90 \
 $(SOURCEDIR)/Code/aTMDe_Levin.f90 \
+$(SOURCEDIR)/Code/aTMDe_ptSpec.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_alpha.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_PDF.f90 \
 $(SOURCEDIR)/LeptonCutsDY.f90 \
@@ -87,6 +88,8 @@ $(SOURCEDIR)/eeTMDFF.f90 \
 $(SOURCEDIR)/Model/eeTMDFF_model.f90 \
 $(SOURCEDIR)/TMDF.f90 \
 $(SOURCEDIR)/TMDF_KPC.f90 \
+$(SOURCEDIR)/TMDX_DY_point.f90 \
+$(SOURCEDIR)/TMDX_DY_bin.f90 \
 $(SOURCEDIR)/TMDX_DY.f90 \
 $(SOURCEDIR)/TMDX_SIDIS.f90 \
 $(SOURCEDIR)/aTMDe_control.f90
@@ -149,6 +152,7 @@ aTMDeSetupFiles=\
 $(SOURCEDIR)/Code/aTMDe_setup/placeHolder.f90
 
 TMDXFiles=\
+$(SOURCEDIR)/Code/aTMDe_ptSpec.f90 \
 $(SOURCEDIR)/Code/TMDX/DYcoeff-func.f90
 
 aTMDeMODEL = \
@@ -189,6 +193,7 @@ $(OBJ)/aTMDe_ktGrid.o \
 $(OBJ)/aTMDe_Ogata.o \
 $(OBJ)/aTMDe_Levin.o \
 $(OBJ)/aTMDe_invMatrix.o \
+$(OBJ)/aTMDe_ptSpec.o \
 $(OBJ)/LeptonCutsDY.o \
 $(OBJ)/aTMDe_setup.o \
 $(OBJ)/LHA_alpha.o \
@@ -225,6 +230,8 @@ $(OBJ)/CollinsTMDFF.o \
 $(OBJ)/eeTMDFF_model.o \
 $(OBJ)/eeTMDFF.o \
 $(OBJ)/TMDF.o \
+$(OBJ)/TMDX_DY_point.o \
+$(OBJ)/TMDX_DY_bin.o \
 $(OBJ)/TMDX_DY.o \
 $(OBJ)/TMDX_SIDIS.o \
 $(OBJ)/TMDF_KPC.o \
@@ -363,6 +370,12 @@ $(OBJ)/aTMDe_Levin.o: $(SOURCEDIR)/Code/aTMDe_Levin.f90 $(OBJ)/aTMDe_Numerics.o 
 	$(FC) -c $(SOURCEDIR)/Code/aTMDe_Levin.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
+
+$(OBJ)/aTMDe_ptSpec.o: $(SOURCEDIR)/Code/aTMDe_ptSpec.f90 $(OBJ)/aTMDe_Numerics.o
+	$(FC) -c $(SOURCEDIR)/Code/aTMDe_ptSpec.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
 
 $(OBJ)/LeptonCutsDY.o: $(SOURCEDIR)/LeptonCutsDY.f90 $(aTMDeUTILITY)
 	$(FC) -c $(SOURCEDIR)/LeptonCutsDY.f90 -I$(MOD)
@@ -576,6 +589,18 @@ $(OBJ)/TMDF.o: $(SOURCEDIR)/TMDF.f90 $(TMDFFiles) $(OBJ)/EWinput.o $(OBJ)/uTMDPD
 $(OBJ)/TMDF_KPC.o: $(SOURCEDIR)/TMDF_KPC.f90 $(OBJ)/EWinput.o $(OBJ)/uTMDPDF.o $(OBJ)/uTMDFF.o $(OBJ)/lpTMDPDF.o $(OBJ)/SiversTMDPDF.o $(OBJ)/wgtTMDPDF.o $(OBJ)/BoerMuldersTMDPDF.o $(OBJ)/CollinsTMDFF.o $(OBJ)/wglTMDPDF.o $(OBJ)/eeTMDFF.o $(TMDKPCFiles) $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/TMDF_KPC.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/TMDX_DY_point.o: $(SOURCEDIR)/TMDX_DY_point.f90 $(TMDXFiles) $(OBJ)/aTMDe_ptSpec.o $(OBJ)/TMDF.o $(OBJ)/TMDF_KPC.o  $(OBJ)/LeptonCutsDY.o $(OBJ)/QCDinput.o $(aTMDeUTILITY)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/TMDX_DY_point.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/TMDX_DY_bin.o: $(SOURCEDIR)/TMDX_DY_bin.f90 $(TMDXFiles) $(OBJ)/aTMDe_ptSpec.o $(OBJ)/TMDF.o $(OBJ)/TMDF_KPC.o  $(OBJ)/LeptonCutsDY.o $(OBJ)/QCDinput.o $(aTMDeUTILITY) $(OBJ)/TMDX_DY_point.o
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/TMDX_DY_bin.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 

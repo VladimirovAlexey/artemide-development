@@ -424,8 +424,16 @@ subroutine artemide_Initialize(file,prefix,order)
 
     if(outputLevel>1) write(*,*) color(' artemide.control: initialization done.',c_green_bold)
 end subroutine artemide_Initialize
-  
-  !-------------------------------------------------------------- NP parameters ---------------------------
+
+!!!!! goes though all modules and reset what is needed
+subroutine ResetCounters_ALL()
+    if(include_TMDF) call TMDF_ResetCounters()
+    if(include_TMDF_KPC) call TMDF_KPC_ResetCounters()
+    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
+    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
+end subroutine ResetCounters_ALL
+
+!-------------------------------------------------------------- NP parameters ---------------------------
 subroutine artemide_SetNPparameters(lambdaNP)
     real(dp),intent(in)::lambdaNP(:)
     real(dp),dimension(1:NPlength_total)::lambda_cur
@@ -506,9 +514,7 @@ subroutine artemide_SetNPparameters(lambdaNP)
     if(include_CollinsTMDFF) call CollinsTMDFF_SetLambdaNP(lambdaNP_CollinsTMDFF)
 
     !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
+    call ResetCounters_ALL()
 
 end subroutine artemide_SetNPparameters
   
@@ -548,11 +554,7 @@ subroutine artemide_SetNPparameters_TMDR(lambdaNP)
 
     call TMDR_setNPparameters(lambdaNP_TMDR)
 
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDF_KPC) call TMDF_KPC_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
+    call ResetCounters_ALL()
 
 end subroutine artemide_SetNPparameters_TMDR
   
@@ -593,10 +595,7 @@ subroutine artemide_SetNPparameters_uTMDPDF(lambdaNP)
 
     call uTMDPDF_SetLambdaNP(lambdaNP_uTMDPDF)
 
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
+    call ResetCounters_ALL()
 
 end subroutine artemide_SetNPparameters_uTMDPDF
   
@@ -636,10 +635,7 @@ subroutine artemide_SetNPparameters_uTMDFF(lambdaNP)
 
     call uTMDFF_SetLambdaNP(lambdaNP_uTMDFF)
 
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
+    call ResetCounters_ALL()
 
 end subroutine artemide_SetNPparameters_uTMDFF
 
@@ -680,10 +676,7 @@ subroutine artemide_SetNPparameters_lpTMDPDF(lambdaNP)
 
     call lpTMDPDF_SetLambdaNP(lambdaNP_lpTMDPDF)
 
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
+    call ResetCounters_ALL()
 
 end subroutine artemide_SetNPparameters_lpTMDPDF
 
@@ -723,11 +716,7 @@ subroutine artemide_SetNPparameters_SiversTMDPDF(lambdaNP)
 
     call SiversTMDPDF_SetLambdaNP(lambdaNP_SiversTMDPDF)
 
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
-
+    call ResetCounters_ALL()
 end subroutine artemide_SetNPparameters_SiversTMDPDF
 
 subroutine artemide_SetNPparameters_wgtTMDPDF(lambdaNP)
@@ -766,10 +755,7 @@ subroutine artemide_SetNPparameters_wgtTMDPDF(lambdaNP)
 
     call wgtTMDPDF_SetLambdaNP(lambdaNP_wgtTMDPDF)
 
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
+    call ResetCounters_ALL()
 
 end subroutine artemide_SetNPparameters_wgtTMDPDF
 
@@ -809,10 +795,7 @@ subroutine artemide_SetNPparameters_wglTMDPDF(lambdaNP)
 
     call wglTMDPDF_SetLambdaNP(lambdaNP_wglTMDPDF)
 
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
+    call ResetCounters_ALL()
 
 end subroutine artemide_SetNPparameters_wglTMDPDF
 
@@ -853,10 +836,7 @@ subroutine artemide_SetNPparameters_BoerMuldersTMDPDF(lambdaNP)
 
     call BoerMuldersTMDPDF_SetLambdaNP(lambdaNP_BoerMuldersTMDPDF)
 
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
+    call ResetCounters_ALL()
 
 end subroutine artemide_SetNPparameters_BoerMuldersTMDPDF
 
@@ -897,10 +877,7 @@ subroutine artemide_SetNPparameters_eeTMDFF(lambdaNP)
 
     call eeTMDFF_SetLambdaNP(lambdaNP_eeTMDFF)
 
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
+    call ResetCounters_ALL()
 
 end subroutine artemide_SetNPparameters_eeTMDFF
 
@@ -941,10 +918,7 @@ subroutine artemide_SetNPparameters_CollinsTMDFF(lambdaNP)
 
     call CollinsTMDFF_SetLambdaNP(lambdaNP_CollinsTMDFF)
 
-    !!! reseting other packages
-    if(include_TMDF) call TMDF_ResetCounters()
-    if(include_TMDX_DY) call TMDX_DY_ResetCounters()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ResetCounters()
+    call ResetCounters_ALL()
 
 end subroutine artemide_SetNPparameters_CollinsTMDFF
   
@@ -1025,7 +999,7 @@ subroutine artemide_ShowStatistics()
     end if
     
     !if(include_TMDF) call TMDF_ShowStatistic()
-    if(include_TMDX_DY) call TMDX_DY_ShowStatistic()
+    !if(include_TMDX_DY) call TMDX_DY_ShowStatistic()
     if(include_TMDX_SIDIS) call TMDX_SIDIS_ShowStatistic()
 
 

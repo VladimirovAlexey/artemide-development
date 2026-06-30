@@ -115,7 +115,7 @@
 \begin{center}
 {\Huge \texttt{artemide}} 
 \\\vspace{0.5cm}
-{\huge ver.3.04}
+{\huge ver.3.05}
 \\
 \vspace{1cm}
 {\large Alexey Vladimirov}
@@ -2382,26 +2382,46 @@ where $Y=q_T^2/(4\mu)$.
 \section{\texttt{TMDX{\_}DY} module}
 \label{TMDX}
 
+\begin{tcolorbox}
+\begin{center}
+\textbf{WARNING!}
+\end{center}
+This module has been essentially updated/redone in ver.3.05. Now, it is split into sub-modules (allowing for simpler and more detailed operationing), and \textbf{it computes average over bin} (in earlier version it computed integral over the bin). 
+\end{tcolorbox}
+
 This module evaluates cross-sections with the Drell-Yan-like kinematics. I.e. it expects the following kinematic input, $(s,Q,y)$ which defines the variables $x$'s, etc.
 
-The general structure of the cross-section is
-\begin{eqnarray}
-\Delta\sigma(q_T)=\int_{bin} dX ~prefactor2~\times \sum_n F_n,
-\end{eqnarray}
-where $$dX=dQ^2 dy d q^2_T.$$ So, for a small bin
-\begin{eqnarray}
-\Delta\sigma(q_T)\approx\Delta X \frac{d\sigma}{dX},\qquad \Delta X=(Q_{\text{max}}^2-Q_{\text{min}}^2)(y_{\text{max}}-y_{\text{min}})(q_{T\text{max}}^2-q_{T\text{min}}^2).
-\end{eqnarray}
-\textit{Prefactor2} accumulates the definition of the phase-space, and general process. It has the form
-\begin{eqnarray}
-prefactor2=(\text{phase-space Jacobian})\times H(Q,\mu_H)
-\end{eqnarray}
-The $F_n$ is a contribution specific for a channel. Some processes have several channels, which could be computed together or separately (e.g. $\sim f_1f_1$ and $\sim h_1^\perp h_1^\perp$). Generally it has a form
-\begin{eqnarray}
-F_n=(\text{cuts for lepton pair})_n\times F_n(Q,q_T,x_1,x_2,\mu,\zeta_1,\zeta_2),
-\end{eqnarray}
-where $F$ is a product of TMDs and corresponding weight defined in (\ref{TMDF:F}) or (\ref{KPC:main}). There are following feature of current implementation
+The module has three parts, implemented as independent modules:
 \begin{itemize}
+\item \texttt{TMDX\_DY\_point}: This module provides the cross-section of Drell-Yan reaction (or analogous) at a single kinematical point.
+\item \texttt{TMDX\_DY\_bin}: This module provides the cross-section of Drell-Yan reaction (or analogous), obtained from \texttt{TMDX\_DY\_point} \textbf{averaged} over a bin.
+\item \texttt{TMDX\_DY}: This module provides interfaces, checks and parallel machinery for \texttt{TMDX\_DY\_bin} and \texttt{TMDX\_DY\_point}.
+\end{itemize}
+
+\subsection{\texttt{TMDX{\_}DY{\_}point} module}
+
+This module computes the cross-section of Drell-Yan process, or process with a similar kinematics. The main routine of the whole module is \texttt{xSec\_DY} which returns the cross-section depending on the process (see sec. \ref{sec:process_definition}). The general structure of a cross-section is
+\begin{eqnarray}
+d\sigma = prefactor2~\times~(\text{cut-factor for lepton pair})~\times F,
+\end{eqnarray}
+where
+\begin{itemize}
+\item $F$ is provided by \texttt{TMDF} or \texttt{TMDF\_KPC} (depending on the setup). It depends on the all-process numbers except the first one.
+\item cut-factor is computed within \texttt{LeptonCutsDY}, it represents the correction to the lepton tensor due to fiducial cuts on the lepton pair. It depends on process-type (for angular coefficients the cut is different).
+\item prefactor2 accumulates the changes due to the process definition provided in the first number of process.
+\end{itemize}
+
+The structure functions computed in \texttt{TMDF} or \texttt{TMDF\_KPC} are organized such that they make cross-section in $(Q,y,q_T)$, so the change of kinematics is accumulated in prefactor2. So for different cases of \texttt{proc1} one gets
+\begin{eqnarray}
+\texttt{proc1}=1:~~&&\text{\texttt{xSec\_DY}}\longrightarrow \frac{d\sigma}{dQ^2 dy d\vec q_T^2}~~(\text{DEFAULT})
+\\
+\texttt{proc1}=2:~~&&\text{\texttt{xSec\_DY}}\longrightarrow \frac{d\sigma}{dQ^2 dx_F d\vec q_T^2}=\frac{1}{2\tau \cosh(y)}\frac{d\sigma}{dQ^2 dy d\vec q_T^2}.
+\end{eqnarray}
+Other cases (inherited from earlier versions) and marked for depreciation.
+
+There are following feature of current implementation
+\begin{itemize}
+\item The specification of the kinematical point is done by the \texttt{type(DYpoint)}, see section \ref{sec:aTMDE_ptSpec}.
 \item In the current version the scaling variables are set as
 \begin{eqnarray}
 \mu^2=\zeta_1=\zeta_2=Q^2.
@@ -2413,6 +2433,71 @@ Currently, it is hard coded and could not be easily modified. However, there is 
 \begin{tcolorbox}
 The cross-section can be computed by two different means. Using LP factorization or using KPC-resummed factorization. The selection is done by the parameter A.p2. One behavior totally exclude another.
 \end{tcolorbox}
+
+\begin{center}
+List of available commands
+\\
+\begin{tabular}{||l|c|c|p{8cm}||}
+\hline\hline
+Command & ~~Type~~& ~~Sec.~~ & Short description
+\\\hline
+\texttt{TMDX{\_}DY{\_}1pt{\_}Initialize(order)} & subrout. & \ref{TMDX:init} & Initialization of module.
+\\\hline
+\texttt{TMDX{\_}DY{\_}1pt{\_}ResetCounters()} & subrout. & -- & Reset intrinsic counters of the module, and prints current statistic on the number of calls.
+\\\hline
+\texttt{TMDX{\_}DY{\_}SetScaleVariation(c2)} & subrout. & -- & Set new value for the scale-variation constant $c_2$.
+\\\hline
+\texttt{xSec\_DY(p,process,incCut,CutParam)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section at a point specified by \texttt{DYpoint} p, process and cut variables. 
+\\\hline\hline
+\end{tabular}
+\end{center}
+
+\subsection{\texttt{TMDX{\_}DY{\_}bin} module}
+
+This module computes average over a given kinematical bin. The bin is plain i.e.
+\begin{eqnarray}
+\texttt{proc1}=1:~~&&\Delta X=\Delta Q \Delta y \Delta q_T = (Q_{\text{max}}-Q_{\text{min}})(y_{\text{max}}-y_{\text{min}})(q_{T\text{max}}-q_{T\text{min}}),
+\\
+\texttt{proc1}=2:~~&&\Delta X=\Delta Q \Delta x_F \Delta q_T = (Q_{\text{max}}-Q_{\text{min}})(x_{F\text{max}}-x_{F\text{min}})(q_{T\text{max}}-q_{T\text{min}}).
+\end{eqnarray}
+So, the result of computation is
+\begin{eqnarray}
+\frac{\Delta\sigma(q_T)}{\Delta X}=\frac{1}{\Delta X}\int_{bin} dX \frac{d\sigma}{dX}.
+\end{eqnarray}
+So, for small size of a bin the cross-section smoothly turns to a cross-section computed at a point 
+\begin{eqnarray}
+\texttt{proc1}=1:~~&&\text{\texttt{TMDX\_DY{\_}bin}}\longrightarrow \frac{d\sigma}{dQ dy d|q_T|}
+\\
+\texttt{proc1}=2:~~&&\text{\texttt{TMDX\_DY{\_}bin}}\longrightarrow \frac{d\sigma}{dQ dx_F d|q_T|}.
+\end{eqnarray}
+Note, that it is different from result of \texttt{xSec\_DY} by a factor of $(4Qq_T)$. 
+
+There are following feature of current implementation
+\begin{itemize}
+\item If a bin size in any of three variables is small it is considered a point-like in this direction. In this case, the computation of the integral is replaced by the computation of single-point cross-section, which saves a lot of machine-time. It should be also used to compute a cross-section at a point.
+\item The minimum bin size limit is specified in the section (9.BIN)
+\item There is a significant speed-up in the computation of successive $q_T$-bins. See sec.~\ref{TMDX_DY:pT-partitioning}.
+\item Currently, there are two implementations of integration routines, which is dictated by a pre-compile variable \texttt{INTEGRATION\_MODE} (in the header of the code-file). 
+\begin{itemize}
+\item The case (\texttt{INTEGRATION\_MODE} 1) is fully adaptive (and thus accurate and slow).
+\item The case (\texttt{INTEGRATION\_MODE} 2) is fixed-point integration tuned by hands to some reasonable values (and thus not-accurate but fast). In this case artemide show a warning message on start-up, that the approximate mode is used.
+\end{itemize}
+Switch this variable as needed (recompilation of the library is then required).
+\end{itemize}
+
+\begin{center}
+List of available commands
+\\
+\begin{tabular}{||p{6cm}|c|c|p{8cm}||}
+\hline\hline
+Command & ~~Type~~& ~~Sec.~~ & Short description
+\\\hline
+\texttt{TMDX{\_}DY{\_}bin{\_}Initialize(order)} & subrout. & \ref{TMDX:init} & Initialization of module.
+\\\hline
+\texttt{Xsec{\_}PTspectrum{\_}Qint{\_}Yint(} \texttt{proc,incCut,CutParam,s,} \texttt{qtMin,qtMax,Qmin,Qmax,ymin,ymax,Num)} & real(dp) &\ref{TMDX:xsec} & Evaluates cross-section completely averaged over the bin for given specification of the process (proc,incCut,CutParam). Size of the bin specified as (qtMin,qtMax),(Qmin,Qmax),(ymin,ymax)]. Num is the minimal number of sections in the integration over $q_T$
+\\\hline\hline
+\end{tabular}
+\end{center}
 
 \red{This section is to be updated by definition of kinematics }
 
@@ -3182,6 +3267,13 @@ polarized DY
 
 \section{Version history}
 \begin{itemize}
+\item[\textbf{Ver.3.05}]
+\begin{itemize}
+	\item \textbf{TMDX\_DY\_point} Fixed error with Jacobian for single-point cross-section with $dx_F$ measure (it was multiplied, instead of divided)
+		\item \textbf{TMDX\_DY\_bin} Integration over bin is switched into the averaging over a bin.
+	\item \textbf{TMDX\_DY} is split into three modules \textbf{TMDX\_DY\_point}, \textbf{TMDX\_DY\_bin}, \textbf{TMDX\_DY}. Many small fixes (like check of boundaries, etc.).
+	\item \textbf{aTMDe\_ptSpec} Implemented.
+\end{itemize}
 \item[\textbf{Ver.3.04}]
 \begin{itemize}
 	\item \textbf{SiversTMDPDF, wgtTMDPDF, wglTMDPDF, CollinsTMDFF, BoerMuldersTMDPDF} uniformization of the Kt-integration, and grid (now it is like in uTMDPDF and uTMDFF).
@@ -3501,6 +3593,7 @@ polarized DY
 \item +options regarding the $q_T$-integration in TMDX\_SIDIS section (section 10.B.p6-p8)
 \item +added sections for tw3 grids of wgt and wgl functions(sections 13.G.* and 16.G.*)
 \item +added sections for KT grids of Sivers, wgt, and wgl, \textit{it replaces} the older section about Ogata (sections 12.F.*; 13.H.*, and 16.H.*)
+\item +added section for the sizes of minimum bin sizes for DY process (sections 9.BIN.*;). Name of the section is strange in order to place it in a convenient place in the file.
 \end{enumerate}
 
 \begin{center}

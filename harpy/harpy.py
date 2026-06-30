@@ -1741,32 +1741,6 @@ class DY:
                                                numpy.asfortranarray(includeCuts),\
                                                numpy.asfortranarray(CutParameters),\
                                                len(s),doParts)
-        
-        @staticmethod
-        def xSecListAPROX(process,s,qT,Q,y,includeCuts,CutParameters):
-            return artemide.harpy.dy_xsec_list_approximate(numpy.asfortranarray(process),\
-                                               numpy.asfortranarray(s),\
-                                               numpy.asfortranarray(qT),\
-                                               numpy.asfortranarray(Q),\
-                                               numpy.asfortranarray(y),\
-                                               numpy.asfortranarray(includeCuts),\
-                                               numpy.asfortranarray(CutParameters),\
-                                               len(s))
-        
-        @staticmethod
-        def xSecListBINLESS(process,s,qT,Q,y,includeCuts,CutParameters):
-            """ The evaluation of cross-section at a single point. 
-            """
-            #print len(s)
-            
-            return artemide.harpy.dy_xsec_binless_list(numpy.asfortranarray(process),\
-                                               numpy.asfortranarray(s),\
-                                               numpy.asfortranarray(qT),\
-                                               numpy.asfortranarray(Q),\
-                                               numpy.asfortranarray(y),\
-                                               numpy.asfortranarray(includeCuts),\
-                                               numpy.asfortranarray(CutParameters),\
-                                               len(s))
                                 
 ###############################################################################
 class SIDIS:

@@ -1,5 +1,5 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!       arTeMiDe 3.03
+!       arTeMiDe 3.04
 !
 !   Contains definitions interfaces common for the rest of artemide
 !   Used in (almost) each artemide module.
