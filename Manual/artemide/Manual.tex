@@ -632,6 +632,112 @@ Utility modules are used in practically every other module of \texttt{artemide}.
 \end{itemize}
 
 \newpage
+\section{Common structures}
+Artemide uses some commonly defined structures such as conventions on process numbering, specification of kinematics, etc. In this section, we define and describe these conventions.
+
+\subsection{Process numbering}
+\red{TO BE DONE}
+
+\subsection{\texttt{(DYpoint)} Drell-Yan reaction kinematic specification}
+
+The module \texttt{aTMDe\_ptSpec} defines the type \texttt{(DYpoint)} which incorporates and manipulates the variables necessary for efficient operation with Drell-Yan-type reactions. It contains the following public fields
+\begin{tabular}{lll}
+\texttt{s} &: real(dp)& Mandelshtam variable $s=(p_1+p_2)^2$ (GeV$^2$)
+\\
+\texttt{Q} &: real(dp)& photon's invariant mass $Q$ (GeV)
+\\
+\texttt{Q2} &: real(dp)& photon's invariant mass squared $Q^2$ (GeV$^2$)
+\\
+\texttt{qT} &: real(dp)& absolute value of the photon's transverse momentum $q_T$(GeV)
+\\
+\texttt{y} &: real(dp)& photon's rapidity $y$
+\\
+\texttt{expy} &: real(dp)& $e^y$
+\\
+\texttt{tau} &: real(dp)& $\tau=\sqrt{x_1x_2}=\sqrt{\frac{2q^+q^-}{s}}=\sqrt{\frac{Q^2+\vec q_T^2}{s}}$
+\end{tabular}
+
+The constructor for the \texttt{DYpoint} is defined as 
+\begin{center}
+\texttt{p=DYpoint(qT= .. ,s= .. ,Q= .. ,y= ..)}
+\end{center}
+
+Furthermore, it contains the following public functions
+\begin{center}
+\begin{tabular}{||p{4cm}|c|p{9cm}||}
+\hline\hline
+Command & ~~Type~~&  Short description
+\\\hline
+\texttt{updateQ\_DY(p,Q)} & subrout. & Set the value of $Q$, and update all dependent variables within (DYpoint)\texttt{p} by (real(dp)) \texttt{Q}.
+\\\hline
+\texttt{updateQT\_DY(p,qT)} & subrout. & Set the value of $q_T$, and update all dependent variables within (DYpoint)\texttt{p} by (real(dp)) \texttt{qT}.
+\\\hline
+\texttt{updateY\_DY(p,y)} & subrout. & Set the value of $y$, and update all dependent variables within (DYpoint)\texttt{p} by (real(dp)) \texttt{y}.
+\\\hline
+\texttt{coshY()} & real(dp) & Returns $\cosh(y)$.
+\\\hline
+\texttt{yFromXF(xF,p)} & real(dp) & Computes $y$ associated with a Feynman variable $y=\text{asinh}(\frac{x_F}{2\tau})$ for a given point (DYpoint)\texttt{p} and (real(dp)) \texttt{xF}.
+\\\hline\hline
+\end{tabular}
+\end{center}
+
+\subsection{\texttt{(SIDISpoint)} SIDIS reaction kinematic specification}
+
+The module \texttt{aTMDe\_ptSpec} defines the type \texttt{(SIDISpoint)} which incorporates and manipulates the variables necessary for efficient operation with SIDIS-type reactions. It contains the following public fields
+\begin{tabular}{lll}
+\texttt{Q} &: real(dp)& photon's invariant mass $Q$ (GeV)
+\\
+\texttt{Q2} &: real(dp)& photon's invariant mass squared $Q^2$ (GeV$^2$)
+\\
+\texttt{pPerp} &: real(dp)& absolute value of the product-hadron's transverse momentum $p_\perp$(GeV)
+\\
+\texttt{M2target} &: real(dp)& value of mass-squared for the target hadron (GeV$^2$)
+\\
+\texttt{M2product} &: real(dp)& value of mass-squared for the produced hadron (GeV$^2$)
+\\
+\texttt{sM2} &: real(dp)& value of $(s-M_{\rm target}^2)$ with $s$ being the Mandelstam variable $s$(GeV$^2$)
+\\
+\texttt{x} &: real(dp)& SIDIS variable $x$
+\\
+\texttt{z} &: real(dp)& SIDIS variable $z$
+\\
+\texttt{y} &: real(dp)& SIDIS variable $y=\frac{Q^2}{x(s-M_{\rm target}^2)}$
+\\
+\texttt{gamma2} &: real(dp)& SIDIS variable $\gamma^2=\big(\frac{2xM}{Q}\big)^2$
+\end{tabular}
+
+The constructor for the \texttt{SIDISpoint} is defined as 
+\begin{center}
+\texttt{p=SIDISpoint(pPerp= .. ,s= .. ,Q= .. ,x= .., z= .., Mtarget= .., Mproduct= ..)}
+\end{center}
+Note that masses are given in GeV.
+
+Furthermore, it contains the following public functions
+\begin{center}
+\begin{tabular}{||p{5cm}|c|p{9cm}||}
+\hline\hline
+Command & ~~Type~~&  Short description
+\\\hline
+\texttt{updateQ\_SIDIS(p,Q)} & subrout. & Set the value of $Q$, and update all dependent variables within (SIDISpoint)\texttt{p} by (real(dp)) \texttt{Q}.
+\\\hline
+\texttt{updatePperp\_SIDIS(p,pPerp)} & subrout. & Set the value of $p_\perp$ within (SIDISpoint)\texttt{p} by (real(dp)) \texttt{pPerp}.
+\\\hline
+\texttt{updateX\_SIDIS(p,x)} & subrout. & Set the value of $x$, and update all dependent variables within (SIDISpoint)\texttt{p} by (real(dp)) \texttt{x}.
+\\\hline
+\texttt{updateZ\_SIDIS(p,z)} & subrout. & Set the value of $z$, and update all dependent variables within (SIDISpoint)\texttt{p} by (real(dp)) \texttt{z}.
+\\\hline
+\texttt{eps()} & real(dp) & Returns the variable $\varepsilon=\frac{1-y-\frac{\gamma^2 y^2}{4}}{1-y+\frac{y^2}{2}+\frac{\gamma^2 y^2}{4}}$
+\\\hline
+\texttt{qT()} & real(dp) & Returns the variable $q_T$ (transverse momentum of the photon) for SIDIS, defined as $\vec q_T^2=\frac{\vec p_\perp^2}{z^2} \frac{1+\gamma^2}{1-\gamma^2 \gamma_h^2}$ (with $\gamma_h=m/(zQ)$)
+\\\hline
+\texttt{ComputeX1Z1qT(x1,z1,qT)} & subrout. & Returns the LP values of $q_T$, $x_1$ and $z_1$ for the SIDIS structure function, with $x_1=-\frac{q^+}{P^+}=x(1-\frac{\vec qT^2}{Q^2})$ and $z_1=\frac{p_h^-}{q^-}=z$.
+\\\hline
+\texttt{pJacobian()} & real(dp) & Returns the variable $\sqrt{1-\gamma^2 \gamma_h^2-\gamma^2 \frac{\vec p_\perp^2}{(zQ)^2}}$, which is a part of the Jacobian for the transformation from $d^3p_h$ to $dz d\phi d\vec p_\perp^2$.
+\\\hline\hline
+\end{tabular}
+\end{center}
+
+\newpage
 
 \section{\texttt{aTMDe\_setup} module}
 \label{aTMDe_setup}
@@ -2400,7 +2506,7 @@ The module has three parts, implemented as independent modules:
 
 \subsection{\texttt{TMDX{\_}DY{\_}point} module}
 
-This module computes the cross-section of Drell-Yan process, or process with a similar kinematics. The main routine of the whole module is \texttt{xSec\_DY} which returns the cross-section depending on the process (see sec. \ref{sec:process_definition}). The general structure of a cross-section is
+This module computes the cross-section of Drell-Yan process, or process with a similar kinematics. The main routine of this module is \texttt{xSec\_DY\_1pt} which returns the cross-section depending on the process (see sec. \ref{sec:process_definition}). The general structure of a cross-section is
 \begin{eqnarray}
 d\sigma = prefactor2~\times~(\text{cut-factor for lepton pair})~\times F,
 \end{eqnarray}
@@ -2413,11 +2519,11 @@ where
 
 The structure functions computed in \texttt{TMDF} or \texttt{TMDF\_KPC} are organized such that they make cross-section in $(Q,y,q_T)$, so the change of kinematics is accumulated in prefactor2. So for different cases of \texttt{proc1} one gets
 \begin{eqnarray}
-\texttt{proc1}=1:~~&&\text{\texttt{xSec\_DY}}\longrightarrow \frac{d\sigma}{dQ^2 dy d\vec q_T^2}~~(\text{DEFAULT})
+\texttt{proc1}=1:~~&&\text{\texttt{xSec\_DY\_1pt}}\longrightarrow \frac{d\sigma}{dQ^2 dy d\vec q_T^2}~~(\text{DEFAULT})
 \\
-\texttt{proc1}=2:~~&&\text{\texttt{xSec\_DY}}\longrightarrow \frac{d\sigma}{dQ^2 dx_F d\vec q_T^2}=\frac{1}{2\tau \cosh(y)}\frac{d\sigma}{dQ^2 dy d\vec q_T^2}.
+\texttt{proc1}=2:~~&&\text{\texttt{xSec\_DY\_1pt}}\longrightarrow \frac{d\sigma}{dQ^2 dx_F d\vec q_T^2}=\frac{1}{2\tau \cosh(y)}\frac{d\sigma}{dQ^2 dy d\vec q_T^2}.
 \end{eqnarray}
-Other cases (inherited from earlier versions) and marked for depreciation.
+Other cases are inherited from earlier versions and marked for deprecation.
 
 There are following feature of current implementation
 \begin{itemize}
@@ -2427,27 +2533,43 @@ There are following feature of current implementation
 \mu^2=\zeta_1=\zeta_2=Q^2.
 \end{eqnarray}
 Currently, it is hard coded and could not be easily modified. However, there is a possibility to vary the value of $\mu$ as $\mu=c_2 Q$, where $c_2$ is variation parameter (see sec.\ref{TMDX:c2}).
-\item For the definition of \textit{(cuts for lepton pair)}-function see \cite{Scimemi:2017etj}. It is evaluated within module \texttt{LeptonCutsDY.f90}. The presence of cuts, and their parameters are set by the \texttt{SetCuts} subroutine.
+\item The flag \texttt{exactX1X2} (INI section \texttt{*9/*A}) controls how $x_1$ and $x_2$ are computed in the LP version of the factorization. These values correspond
+\begin{eqnarray}
+\text{\texttt{exactX1X2}=\texttt{.true.}}&\qquad & x_{1,2}=\frac{q_+}{P_+}e^{\pm y}=\sqrt{\frac{Q^2+\vec q_T^2}{s}}e^{\pm y},\qquad \text{(DEFAULT)}
+\\
+\text{\texttt{exactX1X2}=\texttt{.false.}}&\qquad & x_{1,2}=\frac{Q}{\sqrt{s}}e^{\pm y}.
+\end{eqnarray}
+In KPC mode, the value of $x$'s unambiguous, and is subject of integral.
+\item The flag \texttt{exactZeta} (INI section \texttt{*9/*A}) controls the definition of $\zeta$-scale in the LP version of factorization. 
+\begin{eqnarray}
+\text{\texttt{exactZeta}=\texttt{.true.}}&\qquad & \zeta=2q^+q^-=Q^2+\vec q_T^2,
+\\
+\text{\texttt{exactZeta}=\texttt{.false.}}&\qquad & \zeta=Q^2,\qquad \text{(DEFAULT)}.
+\end{eqnarray}
+In KPC mode, the value of $\zeta$ is defined unambiguously and $\zeta=Q^2$. Note, in all cases $\mu^2=\zeta$.
+\item For the definition of \textit{(cuts for lepton pair)}-function see \cite{Scimemi:2017etj}. It is evaluated within module \texttt{LeptonCutsDY.f90}. The presence of cuts, and their parameters are set by the \texttt{SetCutParameters} subroutine.
 \item The expression for the hard factor $H$ is taken from \cite{Gehrmann:2010ue}. It is the function of $\ln(Q/\mu_H)$ and $a_s(\mu_H))$. Since in the current realization $\mu_H=Q$, the logarithm is replaced by $\ln(c_2)$, where $c_2$ is the variation constant.
 \end{itemize}
 \begin{tcolorbox}
-The cross-section can be computed by two different means. Using LP factorization or using KPC-resummed factorization. The selection is done by the parameter A.p2. One behavior totally exclude another.
+The cross-section can be computed by two different means: using LP factorization or using KPC-resummed factorization. The selection is controlled by the \texttt{useKPC} flag in the INI file (section \texttt{*9/*A}). The two modes are mutually exclusive.
 \end{tcolorbox}
 
 \begin{center}
 List of available commands
 \\
-\begin{tabular}{||l|c|c|p{8cm}||}
+\begin{tabular}{||p{6cm}|c|c|p{8cm}||}
 \hline\hline
 Command & ~~Type~~& ~~Sec.~~ & Short description
 \\\hline
-\texttt{TMDX{\_}DY{\_}1pt{\_}Initialize(order)} & subrout. & \ref{TMDX:init} & Initialization of module.
+\texttt{TMDX{\_}DY{\_}1pt{\_}Initialize(file[,prefix])} & subrout. & \ref{TMDX:init} & Initialization of module.
+\\\hline
+\texttt{TMDX{\_}DY{\_}1pt{\_}IsInitialized()} & logical & -- & Returns \texttt{.true.} if the module has been initialized.
 \\\hline
 \texttt{TMDX{\_}DY{\_}1pt{\_}ResetCounters()} & subrout. & -- & Reset intrinsic counters of the module, and prints current statistic on the number of calls.
 \\\hline
-\texttt{TMDX{\_}DY{\_}SetScaleVariation(c2)} & subrout. & -- & Set new value for the scale-variation constant $c_2$.
+\texttt{TMDX{\_}DY{\_}1pt{\_}SetScaleVariation(c2)} & subrout. & -- & Set new value for the scale-variation constant $c_2$.
 \\\hline
-\texttt{xSec\_DY(p,process,incCut,CutParam)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section at a point specified by \texttt{DYpoint} p, process and cut variables. 
+\texttt{xSec\_DY\_1pt(pt,process,} \texttt{incCut,CutParam)} & real(dp) &\ref{TMDX:xsec} & Evaluates cross-section at a point specified by \texttt{DYpoint} pt, process and cut variables.
 \\\hline\hline
 \end{tabular}
 \end{center}
@@ -2470,7 +2592,7 @@ So, for small size of a bin the cross-section smoothly turns to a cross-section 
 \\
 \texttt{proc1}=2:~~&&\text{\texttt{TMDX\_DY{\_}bin}}\longrightarrow \frac{d\sigma}{dQ dx_F d|q_T|}.
 \end{eqnarray}
-Note, that it is different from result of \texttt{xSec\_DY} by a factor of $(4Qq_T)$. 
+Note, that it is different from the result of \texttt{xSec\_DY\_1pt} by a factor of $(4Qq_T)$.
 
 There are following feature of current implementation
 \begin{itemize}
@@ -2480,7 +2602,7 @@ There are following feature of current implementation
 \item Currently, there are two implementations of integration routines, which is dictated by a pre-compile variable \texttt{INTEGRATION\_MODE} (in the header of the code-file). 
 \begin{itemize}
 \item The case (\texttt{INTEGRATION\_MODE} 1) is fully adaptive (and thus accurate and slow).
-\item The case (\texttt{INTEGRATION\_MODE} 2) is fixed-point integration tuned by hands to some reasonable values (and thus not-accurate but fast). In this case artemide show a warning message on start-up, that the approximate mode is used.
+\item The case (\texttt{INTEGRATION\_MODE} 2) is fixed-point integration tuned by hands to some reasonable values (and thus not-accurate but fast). In this case artemide show a warning message on start-up, that the approximate mode is used. Exception: the $Z$-boson peak region $[M_Z-3,\,M_Z+3]$~GeV is always integrated with an adaptive Simpson routine to maintain accuracy near the resonance; the fast fixed-point routine is used outside this window.
 \end{itemize}
 Switch this variable as needed (recompilation of the library is then required).
 \end{itemize}
@@ -2492,37 +2614,41 @@ List of available commands
 \hline\hline
 Command & ~~Type~~& ~~Sec.~~ & Short description
 \\\hline
-\texttt{TMDX{\_}DY{\_}bin{\_}Initialize(order)} & subrout. & \ref{TMDX:init} & Initialization of module.
+\texttt{TMDX{\_}DY{\_}bin{\_}Initialize(file[,prefix])} & subrout. & \ref{TMDX:init} & Initialization of module.
 \\\hline
-\texttt{Xsec{\_}PTspectrum{\_}Qint{\_}Yint(} \texttt{proc,incCut,CutParam,s,} \texttt{qtMin,qtMax,Qmin,Qmax,ymin,ymax,Num)} & real(dp) &\ref{TMDX:xsec} & Evaluates cross-section completely averaged over the bin for given specification of the process (proc,incCut,CutParam). Size of the bin specified as (qtMin,qtMax),(Qmin,Qmax),(ymin,ymax)]. Num is the minimal number of sections in the integration over $q_T$
+\texttt{TMDX{\_}DY{\_}bin{\_}IsInitialized()} & logical & -- & Returns \texttt{.true.} if the module has been initialized.
+\\\hline
+\texttt{TMDX{\_}DY{\_}bin{\_}ResetCounters()} & subrout. & -- & Reset warning counters of the bin module.
+\\\hline
+\texttt{Xsec{\_}PTint{\_}Qint{\_}Yint(} \texttt{proc,incCut,CutParam,s,} \texttt{qtMin,qtMax,Qmin,Qmax,} \texttt{ymin,ymax,Num)} & real(dp) &\ref{TMDX:xsec} & Evaluates cross-section averaged over the full bin. Bin specified by scalar edges (qtMin,qtMax),(Qmin,Qmax),(ymin,ymax). Num is the number of sections in the $q_T$ integration.
+\\\hline
+\texttt{Xsec{\_}PTspectrum{\_}Qint{\_}Yint(} \texttt{proc,incCut,CutParam,s,} \texttt{qtMin(:),qtMax(:),Qmin,Qmax,} \texttt{ymin,ymax)} & real(dp)(:) &\ref{TMDX:xsec} & Evaluates cross-section averaged over the bin simultaneously for multiple $q_T$ bins using Chebyshev interpolation. \texttt{qtMin} and \texttt{qtMax} are arrays of bin edges; $Q$ and $y$ bounds are shared across all bins.
 \\\hline\hline
 \end{tabular}
 \end{center}
 
-\red{This section is to be updated by definition of kinematics }
+\subsection{\texttt{TMDX{\_}DY} module}
+
+This module is the public-facing wrapper. It initializes both sub-modules (\texttt{TMDX\_DY\_point} and \texttt{TMDX\_DY\_bin}), provides the \texttt{xSec\_DY} and \texttt{xSec\_DY\_List} interfaces used by the end user, and manages the OpenMP parallel dispatch for list evaluation.
 
 \begin{center}
 List of available commands
 \\
-\begin{tabular}{||l|c|c|p{8cm}||}
+\begin{tabular}{||p{6cm}|c|c|p{8cm}||}
 \hline\hline
 Command & ~~Type~~& ~~Sec.~~ & Short description
 \\\hline
-\texttt{TMDX{\_}DY{\_}Initialize(order)} & subrout. & \ref{TMDX:init} & Initialization of module.
+\texttt{TMDX{\_}DY{\_}Initialize(file[,prefix])} & subrout. & \ref{TMDX:init} & Initialization of module.
 \\\hline
-\texttt{TMDX{\_}DY{\_}ShowStatistic()} & subrout. & -- & Print current statistic on the number of calls.
+\texttt{TMDX{\_}DY{\_}IsInitialized()} & logical & -- & Returns \texttt{.true.} if the module has been initialized.
 \\\hline
-\texttt{TMDX{\_}DY{\_}ResetCounters()} & subrout. & -- & Reset intrinsic counters of the module.
+\texttt{TMDX{\_}DY{\_}ResetCounters()} & subrout. & -- & Reset intrinsic counters of the module (chains into sub-modules; prints statistics if output level is high enough).
 \\\hline
 \texttt{TMDX{\_}DY{\_}SetScaleVariation(c2)} & subrout. & -- & Set new value for the scale-variation constant $c_2$.
 \\\hline
-\texttt{xSec\_DY(X,proc,s,qT,Q,y,iC,CutP,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section completely integrated over the bin. 
+\texttt{xSec\_DY(X,process,s,} \texttt{qT,Q,y,includeCuts,} \texttt{CutParameters,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section averaged over the bin.
 \\\hline
-\texttt{xSec\_DY\_List(X,proc,s,qT,Q,y,iC,CutP,Num,doP)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section completely integrated over the bin over the list. 
-\\\hline
-\texttt{xSec\_DY\_List\_APPROXIMATE(X,proc,s,qT,Q,y,iC,CutP,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section completely integrated over the bin over the list (using several points). 
-\\\hline
-\texttt{xSec\_DY\_List\_BINLESS(X,proc,s,qT,Q,y,iC,CutP,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section at the point over the list. 
+\texttt{xSec\_DY\_List(X,process,s,} \texttt{qT,Q,y,includeCuts,} \texttt{CutParameters,Num,doP)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section averaged over the bin for a list of bins; runs in parallel via OpenMP.
 \\\hline\hline
 \end{tabular}
 \end{center}
@@ -2532,15 +2658,15 @@ Command & ~~Type~~& ~~Sec.~~ & Short description
 
 Prior the usage module is to be initialized (once per run) by
 
-\texttt{call TMDX\_DY{\_}Initialize(file)}
+\texttt{call TMDX\_DY{\_}Initialize(file[,prefix])}
 
-The order of used coefficient function is set in \texttt{constant-file} by \texttt{'LO'}($a_s^0$), \texttt{'NLO'}($a_s^1$),\texttt{'NNLO'} or \texttt{'N2LO'}($a_s^2$), \texttt{'N3LO'}($a_s^3$), \texttt{'N4LO'}($a_s^4$). The value in brackets shows the maximum included perturbative order in the hard coefficient function.
+where \texttt{file} is the path to the constants file and \texttt{prefix} is an optional string prepended to the path (e.g.\ a directory prefix). The order of used coefficient function is set in \texttt{constant-file} by \texttt{'LO'}($a_s^0$), \texttt{'NLO'}($a_s^1$),\texttt{'NNLO'} or \texttt{'N2LO'}($a_s^2$), \texttt{'N3LO'}($a_s^3$), \texttt{'N4LO'}($a_s^4$). The value in brackets shows the maximum included perturbative order in the hard coefficient function.
 
 \subsection{The parameters of cross-section}
 \label{TMDX:setup}
 
 
-\textbf{Process:} The process is encoded by integer numbers \texttt{(/p1,p2,p3,p4,p5,.../)} where
+\textbf{Process:} The process is encoded by integer numbers \texttt{(/p1,p2,p3,p4/)} where
 \begin{itemize}
 \item[\texttt{p1}] (integer) Defines the $prefactor2$ that contains the phase space elements and the universal part of factorization formula. 
 \item[\texttt{p2}] (integer) Defines the type of hadron 1.
@@ -2569,55 +2695,31 @@ The main subroutine is called \texttt{xSec\_DY} and it have the following interf
 
 where
 \begin{itemize}
-\item \texttt{X} is (real*8) value of cross-section.
-\item \texttt{process} (integer)array \texttt{(p1,p2,p3,p4)}.
-\item \texttt{s} is Mandelshtam variable $s$
-\item \texttt{qT} is (real*8)array \texttt{(qtmin,qtmax)}
-\item \texttt{Q} is (real*8)array \texttt{(Qmin,Qmax)}
-\item \texttt{y} is (real*8)array \texttt{(ymin,ymax)}
+\item \texttt{X} is real(dp), \textbf{output}: value of cross-section.
+\item \texttt{process} is integer array \texttt{(p1,p2,p3,p4)}.
+\item \texttt{s} is real(dp): Mandelstam variable $s$
+\item \texttt{qT} is real(dp) array \texttt{(qtmin,qtmax)}
+\item \texttt{Q} is real(dp) array \texttt{(Qmin,Qmax)}
+\item \texttt{y} is real(dp) array \texttt{(ymin,ymax)}
 \item \texttt{includeCuts} is logical
-\item \texttt{CutParameters} is (real*8) array \texttt{(k1,k2,eta1,eta2)} \textbf{OPTIONAL}
-\item \texttt{Num} is even integer that determine number of section in $q_T$ integral \textbf{OPTIONAL}
+\item \texttt{CutParameters} is real(dp) array \texttt{(k1,k2,eta1,eta2)} \textbf{OPTIONAL}
+\item \texttt{Num} is even integer: number of sections in $q_T$ integral \textbf{OPTIONAL}
 \end{itemize}
 Note, that optional variables could be omit during the call. 
 \end{tcolorbox}
-\textbf{IMPORTANT: } Practically, the call of this function coincides with $\texttt{X}$ evaluated by the following set of commands
-\\
-\texttt{call TMDX\_DY{\_}SetProcess(process)}
-\\
-\texttt{call TMDX\_DY{\_}XSetup(s,\red{any},\red{any})}
-\\
-\texttt{call SetCuts(includeCuts,k1,k2,eta1,eta2)}
-\\
-\texttt{call CalcXsec\_DY{\_}PTint{\_}Qint{\_}Yint} \texttt{(X,qtmin,qtmax,Qmin,Qmax,yMin,yMax,Num)}
 
 \begin{tcolorbox}
-\textbf{\blue{There is also an analogous subroutine that evaluate cross-section by list.}} It is called \texttt{xSec\_DY\_List} and it have the following interface:
+\textbf{\blue{There is also an analogous subroutine that evaluates cross-section by list.}} It is called \texttt{xSec\_DY\_List} and it has the following interface:
 \begin{center}
 \texttt{xSec\_DY\_List(X,process,s,qT,Q,y,includeCuts,CutParameters,Num,doP)}
 \end{center}
-All variables are analogues to those of \texttt{xSec\_DY}, but should come in lists, i.e. \texttt{X} is (1:n), \texttt{process} is (1:n,1:4), \texttt{s} is (1:n), \texttt{qT},\texttt{Q},\texttt{y} are (1:n,1:2), \texttt{includeCuts} is (1:n), \texttt{CutParameters} is (1:n,1:4), \texttt{Num} is (1:n), \texttt{doP} is logic-single. \textbf{The arguments \texttt{Num} and \texttt{doP} are OPTIONAL arguments. The argument \texttt{CutParameters} must be presented}. This command compiled by OPENMP, so runs in parallel on multi-core computers. If \texttt{doP} is \texttt{.true.} than the list is split to runs of identical (except $q_T$) bins and integrated by a faster routine (default=False).
-
-In addition there is a subroutine \texttt{xSec\_DY\_List\_APPROXIMATE} with the same interface:
-\begin{center}
-\texttt{xSec\_DY\_List\_APPROXIMATE(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)}
-\end{center}
-It does the same job as \texttt{xSec\_DY\_List}, however using simplified bin-integration routines (non-adaptive). It is several times faster, but has limited numerical precision.
-\end{tcolorbox}
-
-\begin{tcolorbox}
-\textbf{Finally, \blue{there is an also analogous subroutine that evaluate cross-section by list without bin-integration.}} It is called \texttt{xSec\_DY\_List\_BINLESS} and it have the following interface:
-
-\begin{center}
-\texttt{xSec\_DY\_List\_BINLESS(X,process,s,qT,Q,y,includeCuts,CutParameters,Num)}
-\end{center}
-All variables are analogues to those of \texttt{xSec\_DY\_List}, but should come in lists of central values, i.e. \texttt{X} is (1:n), \texttt{process} is (1:n,1:4), \texttt{s} is (1:n), \texttt{qT},\texttt{Q},\texttt{y} \blue{are (1:n)}, \texttt{includeCuts} is (1:n), \texttt{CutParameters} is (1:n,1:4), and \texttt{Num} is (1:n). \textbf{Only the \texttt{Num} argument is OPTIONAL arguments. The argument \texttt{CutParameters} must be presented}. This command compiled by OPENMP, so runs in parallel on multi-core computers.
+All variables are analogous to those of \texttt{xSec\_DY}, but should come in lists, i.e. \texttt{X} is (1:n), \texttt{process} is (1:n,1:4), \texttt{s} is (1:n), \texttt{qT},\texttt{Q},\texttt{y} are (1:n,1:2), \texttt{includeCuts} is (1:n), \texttt{CutParameters} is (1:n,1:4), \texttt{Num} is (1:n), \texttt{doP} is logic-single. \textbf{The arguments \texttt{Num} and \texttt{doP} are OPTIONAL. The argument \texttt{CutParameters} must be present}. This command is compiled with OpenMP and runs in parallel on multi-core computers. If \texttt{doP} is \texttt{.true.} the list is split into runs of identical (except $q_T$) bins and averaged by a faster routine using Chebyshev interpolation in $q_T$ (default=\texttt{.false.}).
 \end{tcolorbox}
 
 \textbf{Extra notes:}
 \begin{itemize}
 \item The integrations over $Q$ and $y$ are adaptive Simpsons. We have found that it is the fastest (adaptive) method for typical cross-sections with tolerance $10^{-3}-10^{-4}$. Naturally, it is not suitable for higher precision, which however is not typically required.
-\item The integration over $p_T$ is not adaptive, since typically $p_T$-bins are rather smooth and integral is already accurate if approximated by 4-8 points (default minimal value is set in INI-file, and is automatically increased for larger bins). For unexceptionally large $q_T$-bins, or very rapid behavior we suggest to use overloaded versions with manual set of $N$ (number of integral sections).
+\item In \texttt{INTEGRATION\_MODE} 2 the integration over $q_T$ is not adaptive, since typically $q_T$-bins are rather smooth and the integral is already accurate if approximated by 4--8 points (default minimal value is set in INI-file, and is automatically increased for larger bins). For exceptionally large $q_T$-bins or very rapid behavior, use the optional \texttt{Num} argument to set the number of sections manually. In \texttt{INTEGRATION\_MODE} 1 the $q_T$ integration is also fully adaptive.
 \item For very small value of $q_T$ the cross-section is frozen at $q_{T(abs~min)}$, which is defined in INI-file ($10^{-4}$ by default). It is done to avoid badly converging integrals.
 \item The evaluation can be done in parallel. The list commands are parallel by default. Basically, in this case, individual values for the list of cross-sections are evaluated in parallel. Unfortunately the parallel scaling-rate is not very high, on 8 processors it is about 400\%-500\% only. The parallelization is made with OPENMP library. To make the parallel computation possible, add \texttt{-fopenmp} option in the compilation instructions. The maximum number of allowed threads is set \texttt{constants-file}.
 \end{itemize}
@@ -2629,7 +2731,7 @@ The calculation of cut prefactor is made in \texttt{LeptonCutsDY.f90}. It has tw
 \begin{itemize}
 \item The subroutine \texttt{SetCutParameters(kT,eta1,eta2)} set a default version of cut parameters: $p_{1,2}<k_T$ and $\eta_1<\eta<\eta_2$.
 \item The overloaded version of the subroutine \texttt{SetCutParameters(k1,k2,eta1,eta2)} set a default version of asymmetric cut parameters. $p_{1}<k_1$,$p_2<k_2$ and $\eta_1<\eta<\eta_2$.
-\item Function \texttt{CutFactor(qT,Q\_in,y\_in, CutParameters)} calculates the cut prefactor at the point $q_T$, $Q$, $y$. The argument \texttt{CutParameters} is \textbf{optional}. If it is not present, cut parameters are taken from default values (which are set by \texttt{SetCutParameters}). \texttt{CutParameters} is array \texttt{(/ k1,k2,eta1,eta2/)}. The usage of global definition for \texttt{CutParameters} is not recommended, since it can result into running condition during parallel computation. This is interface is left fro compatibility with earlier version of \texttt{artemide}.
+\item Function \texttt{CutFactor(qT,Q\_in,y\_in, CutParameters)} calculates the cut prefactor at the point $q_T$, $Q$, $y$. The argument \texttt{CutParameters} is \textbf{optional}. If it is not present, cut parameters are taken from default values (which are set by \texttt{SetCutParameters}). \texttt{CutParameters} is array \texttt{(/ k1,k2,eta1,eta2/)}. The usage of global definition for \texttt{CutParameters} is not recommended, since it can result into running condition during parallel computation. This interface is left for compatibility with earlier versions of \texttt{artemide}.
 \end{itemize} 
 
 \subsection{Variation of scale}
@@ -2712,15 +2814,15 @@ List of enumeration for \texttt{p2}
 \\\hline
 0 & 1 & Test case
 \\\hline
-1 & $\frac{4\pi}{9}\frac{\alpha_{\text{em}}^2(Q)}{sQ^2}|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}). Corresponds to DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$.  The result is in pb/GeV$^2$
+1 & $PF_1=\frac{4\pi}{9}\frac{\alpha_{\text{em}}^2(Q)}{sQ^2}|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}). Corresponds to DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$.  The result is in pb/GeV$^2$
 \\\hline
-2 & $\frac{2\sqrt{Q^2+\vec q_T^2}}{\sqrt{s}}\cosh y$ $\frac{4\pi}{9}\frac{\alpha_{\text{em}}^2(Q)}{sQ^2}|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}).  The result is in pb/GeV$^2$. \textbf{Attention!:} this process corresponds to computation with the $dX=dx_F dQ^2 dq_T^2$ where $x_F=\frac{2\sqrt{Q^2+\vec q_T^2}}{\sqrt{s}}\sinh y$ is Feynman $x$. In this case the integration $y$ is preplaced by the integration over $x_F$ (i.e. limits of integration are treated as for $x_F$).
+2 & $\Big(\frac{2\sqrt{Q^2+\vec q_T^2}}{\sqrt{s}}\cosh y\Big)^{-1} PF_1$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}).  The result is in pb/GeV$^2$. \textbf{Attention!:} this process corresponds to computation with the $dX=dx_F dQ^2 dq_T^2$ where $x_F=\frac{2\sqrt{Q^2+\vec q_T^2}}{\sqrt{s}}\sinh y$ is Feynman $x$. In this case the integration $y$ is preplaced by the integration over $x_F$ (i.e. limits of integration are treated as for $x_F$).
 \\\hline
-3 & $\frac{4\pi^2}{3}\frac{\alpha_{\text{em}}(Q)}{s}Br_Z|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$ for the Z-boson production in the narrow width approximation. $Br_Z=0.03645$ is Z-boson branching ration to leptons. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}). The result is in pb/GeV$^2$
+3 & $\frac{4\pi^2}{3}\frac{\alpha_{\text{em}}(Q)}{s}Br_Z|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$ for the Z-boson production in the narrow width approximation. $Br_Z=0.03645$ is Z-boson branching ration to leptons. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}). The result is in pb/GeV$^2$. \red{TO BE DEPRICATED}
 \\\hline
-4 & $\frac{4\pi^2}{3}\frac{\alpha_{\text{em}}(Q)}{s}Br_W|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$ for the W-boson production in the narrow width approximation. $Br_W=0.1086$ is W-boson branching ration to leptons. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}). Use together with \texttt{p3}=13,...,18. In this case, $Q$ is be $M_Z$. The result is in pb/GeV$^2$
+4 & $\frac{4\pi^2}{3}\frac{\alpha_{\text{em}}(Q)}{s}Br_W|C_V^{DY}(c_2Q)|^2 R \times \text{cut}(q_T)$ & DY-cross-section $\frac{d\sigma}{dQ^2 dy d(q_T^2)}$ for the W-boson production in the narrow width approximation. $Br_W=0.1086$ is W-boson branching ration to leptons. cut($q_T$) is the weight for the lepton tensor with fiducial cuts (see sec.2.6 in \cite{Scimemi:2017etj}). Use together with \texttt{p3}=13,...,18. In this case, $Q$ is be $M_Z$. The result is in pb/GeV$^2$ \red{TO BE DEPRICATED}
 \\\hline
-5 & $\frac{2}{\pi}\frac{\pi m_H^2 a_s^2(Q)}{36 s v^2}C_t^2(m_t,Q)|C_g(Q)|^2|A(x_t)|^2$ & Cross-section $\frac{d\sigma}{dy d(q_T^2)}$ for the exclusive Higgs-boson production. The result is in pb/GeV$^2$. For definition of functions see \cite{Ahrens:2009cxz}.
+5 & $\frac{2}{\pi}\frac{\pi m_H^2 a_s^2(Q)}{36 s v^2}C_t^2(m_t,Q)|C_g(Q)|^2|A(x_t)|^2$ & Cross-section $\frac{d\sigma}{dy d(q_T^2)}$ for the exclusive Higgs-boson production. The result is in pb/GeV$^2$. For definition of functions see \cite{Ahrens:2009cxz}. \red{TO BE DEPRICATED}
 \\\hline\hline
 \end{tabular}
 Here $R=0.3893379\cdot 10^9$ the transformation factor from GeV to pb.
@@ -2745,7 +2847,7 @@ List of enumeration for \texttt{p2}
 \\\hline
 4 & --- & Absent
 \\\hline
-5 & $\frac{\pi m_H^2 a_s^2(Q)}{36 s v^2}Q^2 C_t^2(m_t,Q)|C_g(Q)|^2|A(x_t)|^2$ & Cross-section $\frac{d\sigma}{dy d(q_T^2)}$ for the exclusive Higgs-boson production. The result is in pb/GeV$^2$. For definition of functions see \cite{Ahrens:2009cxz}. \red{The correct formula is to be defined, this is LP formula multiplied by large-Q translation factor.}
+5 & $\frac{\pi m_H^2 a_s^2(Q)}{36 s v^2}Q^2 C_t^2(m_t,Q)|C_g(Q)|^2|A(x_t)|^2$ & Cross-section $\frac{d\sigma}{dy d(q_T^2)}$ for the exclusive Higgs-boson production. The result is in pb/GeV$^2$. For definition of functions see \cite{Ahrens:2009cxz}. \red{The correct formula is to be defined, this is LP formula multiplied by large-Q translation factor.} \red{TO BE DEPRICATED}
 \\\hline\hline
 \end{tabular}
 Here $R=0.3893379\cdot 10^9$ the transformation factor from GeV to pb.

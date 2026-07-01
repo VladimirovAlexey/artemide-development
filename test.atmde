@@ -387,7 +387,7 @@
 *C   : ---- Definition of LP TMD factorization ----
 *p1  : Use the exact LP values of x1 and x2 (include qT/Q correction)
  T
-*p2  : Use the exact LP value for factorization scale (include qT/Q correction)
+*p2  : Use the exact values for the factorization scale zeta (include qT/Q correction)
  F
 
 *D   : ---- Definition of TMD factorization with KPC ----
@@ -431,7 +431,7 @@
  T
 *p4  : Use exact LP values for x1 and z1
  T
-*p5  : Use the exact LP value for factorization scale
+*p5  : Use the exact values for the factorization scale zeta (include qT/Q correction)
  F
 
 *D   : ---- Definition of TMD factorization with KPC ----

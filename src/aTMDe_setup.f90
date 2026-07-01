@@ -267,7 +267,7 @@ logical::include_TMDX_DY
 character*8::TMDX_DY_order
 real(dp)::TMDX_DY_toleranceINT, TMDX_DY_toleranceGEN,TMDX_DY_maxQTrange
 integer::TMDX_DY_ptSECTION
-logical::TMDX_DY_exactX1X2,TMDX_DY_piResum,TMDX_DY_exactScale
+logical::TMDX_DY_exactX1X2,TMDX_DY_piResum,TMDX_DY_exactZeta
 real(dp)::TMDX_DY_maxQbinSize,TMDX_DY_minqTabs
 logical::TMDX_DY_useKPC,TMDX_DY_doPartition
 integer::TMDX_DY_ChNodes
@@ -279,7 +279,7 @@ character*8::TMDX_SIDIS_order
 real(dp)::TMDX_SIDIS_toleranceINT, TMDX_SIDIS_toleranceGEN, TMDX_SIDIS_maxQTrange
 real(dp)::TMDX_SIDIS_minPT
 integer::TMDX_SIDIS_ptSECTION
-logical::TMDX_SIDIS_qTcorr,TMDX_SIDIS_M1corr,TMDX_SIDIS_M2corr,TMDX_SIDIS_exactX1Z1,TMDX_SIDIS_exactScale
+logical::TMDX_SIDIS_qTcorr,TMDX_SIDIS_M1corr,TMDX_SIDIS_M2corr,TMDX_SIDIS_exactX1Z1,TMDX_SIDIS_exactZeta
 logical::TMDX_SIDIS_useKPC,TMDX_SIDIS_doPartition
 integer::TMDX_SIDIS_ChNodes
 
@@ -831,7 +831,7 @@ subroutine SetupDefault(order)
     TMDX_DY_order=trim(order)
     TMDX_DY_exactX1X2=.true.
     TMDX_DY_piResum=.false.
-    TMDX_DY_exactScale=.false.
+    TMDX_DY_exactZeta=.false.
     TMDX_DY_useKPC=.false.
 
     !------------------ parameters for TMDX-SIDIS
@@ -848,7 +848,7 @@ subroutine SetupDefault(order)
     TMDX_SIDIS_M1corr=.false.
     TMDX_SIDIS_M2corr=.false.
     TMDX_SIDIS_exactX1Z1=.true.
-    TMDX_SIDIS_exactScale=.false.
+    TMDX_SIDIS_exactZeta=.false.
     TMDX_SIDIS_useKPC=.false.
 
     !------------------ parameters for TMDF-KPC
@@ -1359,8 +1359,8 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*C   : ---- Definition of LP TMD factorization ----')")
     write(51,"('*p1  : Use the exact values of x1 and x2 (include qT/Q correction)')")
     write(51,*) TMDX_DY_exactX1X2
-    write(51,"('*p2  : Use the exact values for factorization scales (include qT/Q correction)')")
-    write(51,*) TMDX_DY_exactScale
+    write(51,"('*p2  : Use the exact values for the factorization scale zeta (include qT/Q correction)')")
+    write(51,*) TMDX_DY_exactZeta
     write(51,"(' ')")
     write(51,"('*D   : ---- Definition of TMD factorization with KPC ----')")
     write(51,"('*p1  : Include terms induced by fiducial cuts')")
@@ -1408,8 +1408,8 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,*) TMDX_SIDIS_M2corr
     write(51,"('*p4  : Use exact LP values for x1 and z1')")
     write(51,*) TMDX_SIDIS_exactX1Z1
-    write(51,"('*p5  : Use the exact LP value for factorization scale')")
-    write(51,*) TMDX_SIDIS_exactScale
+    write(51,"('*p5  : Use the exact values for the factorization scale zeta (include qT/Q correction)')")
+    write(51,*) TMDX_SIDIS_exactZeta
     write(51,"(' ')")
     write(51,"('*D   : ---- Definition of TMD factorization with KPC ----')")
 
@@ -2545,7 +2545,7 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p1  ')
     read(51,*) TMDX_DY_exactX1X2
     call MoveTO(51,'*p2  ')
-    read(51,*) TMDX_DY_exactScale
+    read(51,*) TMDX_DY_exactZeta
     call MoveTO(51,'*D   ')
 
 
@@ -2585,7 +2585,7 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*p4  ')
     read(51,*) TMDX_SIDIS_exactX1Z1
     call MoveTO(51,'*p5  ')
-    read(51,*) TMDX_SIDIS_exactScale
+    read(51,*) TMDX_SIDIS_exactZeta
     call MoveTO(51,'*D   ')
 
     !# ----                           PARAMETERS OF lpTMDPDF                  -----

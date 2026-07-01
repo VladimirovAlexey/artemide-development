@@ -40,7 +40,7 @@ integer:: orderH_global
 logical::useKPC
 logical::usePIresum
 logical:: exactX1X2    !!!.true. = utilization of exact LP value of x1 (and x2) =q^+/P+, while .false. x1=Q/sqrt(s) [only for LP factorization]
-logical:: exactScales  !!!.true. = utilization of exact LP value of zeta =2q^-q^+, while .false. zeta=Q2 [only for LP factorization]
+logical:: exactZeta  !!!.true. = utilization of exact LP value of zeta =2q^-q^+, while .false. zeta=Q2 [only for LP factorization]
 
 real(dp)::c2_global
 
@@ -170,14 +170,14 @@ subroutine TMDX_DY_1pt_Initialize(file,prefix)
             write(*,*) '    artemide.TMDX_DY: qT/Q corrections for x1 and x2 variables are included.'
         !!exact values for scales
         call MoveTO(51,'*p2  ')
-        read(51,*) exactScales
-        if(outputLevel>2 .and. exactScales) &
+        read(51,*) exactZeta
+        if(outputLevel>2 .and. exactZeta) &
             write(*,*) '    artemide.TMDX_DY: qT/Q correction for scales variables are included.'
 
     else
         !!!------ parameters of KPC factorization
         exactX1X2=.true.
-        exactScales=.false.
+        exactZeta=.false.
 
         call MoveTO(51,'*D   ')
         !!!!! nothing is here yet
@@ -524,7 +524,7 @@ function xSec_DY_1pt(ptKinematic,process,incCut,CutParam)
     end if
     !!! setting values of scales
     !!! scales are always symmetric mu2=zeta
-    if(exactScales) then
+    if(exactZeta) then
         !!!!!! setting the scale zeta of the factorization (zeta=Q2+qT^2)
         scaleZeta=ptKinematic%Q2+ptKinematic%qT*ptKinematic%qT
         scaleMu=sqrt(scaleZeta)
