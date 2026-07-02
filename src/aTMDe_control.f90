@@ -1000,7 +1000,7 @@ subroutine artemide_ShowStatistics()
     
     !if(include_TMDF) call TMDF_ShowStatistic()
     !if(include_TMDX_DY) call TMDX_DY_ShowStatistic()
-    if(include_TMDX_SIDIS) call TMDX_SIDIS_ShowStatistic()
+    !if(include_TMDX_SIDIS) call TMDX_SIDIS_ShowStatistic()
 
 
     write(*,*) '-------------------------------------------------------------------------'

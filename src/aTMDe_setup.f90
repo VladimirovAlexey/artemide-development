@@ -17,7 +17,7 @@ private
 character (len=5),parameter :: version="v3.05"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=42
+integer,parameter::inputVer=43
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -282,6 +282,7 @@ integer::TMDX_SIDIS_ptSECTION
 logical::TMDX_SIDIS_qTcorr,TMDX_SIDIS_M1corr,TMDX_SIDIS_M2corr,TMDX_SIDIS_exactX1Z1,TMDX_SIDIS_exactZeta
 logical::TMDX_SIDIS_useKPC,TMDX_SIDIS_doPartition
 integer::TMDX_SIDIS_ChNodes
+real(dp)::TMDX_SIDIS_ptMINBIN,TMDX_SIDIS_qMINBIN,TMDX_SIDIS_xMINBIN,TMDX_SIDIS_zMINBIN
 
 !---------------------------------------------------
 public::artemide_Setup_fromFile,CreateConstantsFile,ReadConstantsFile,CheckConstantsFile
@@ -843,6 +844,10 @@ subroutine SetupDefault(order)
     TMDX_SIDIS_doPartition=.false. !default partitioning of pT-ranges
     TMDX_SIDIS_ChNodes=10  !!!! order of pT interpolation
     TMDX_SIDIS_maxQTrange = 18.d0 !!!! maximum range for qT-integral simplification
+    TMDX_SIDIS_ptMINBIN=0.01d0  !!!! minumum size of the pt bin to make comparison (below this size, the bin is considered poin-like)
+    TMDX_SIDIS_qMINBIN=0.01d0   !!!! minumum size of the Q bin to make comparison (below this size, the bin is considered poin-like)
+    TMDX_SIDIS_xMINBIN=0.0001d0 !!!! minumum size of the x bin to make comparison (below this size, the bin is considered poin-like)
+    TMDX_SIDIS_zMINBIN=0.0001d0 !!!! minumum size of the z bin to make comparison (below this size, the bin is considered poin-like)
     TMDX_SIDIS_order=trim(order)
     TMDX_SIDIS_qTcorr=.true.
     TMDX_SIDIS_M1corr=.false.
@@ -1348,7 +1353,7 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p8  : Maximum range of qT to evaluate in a single sequence (in GeV)')")
     write(51,*) TMDX_DY_maxQTrange
     write(51,"(' ')")
-    write(51,"('*BIN : ---- Numerical evaluation parameters ----')")
+    write(51,"('*BIN : ---- Bin-related parameters ----')")
     write(51,"('*p1  : Minimum size of the bin in qT[GeV] (below this value bin is considered point-like)')")
     write(51,*) TMDX_DY_qtMINBIN
     write(51,"('*p2  : Minimum size of the bin in Q[GeV] (below this value bin is considered point-like)')")
@@ -1398,13 +1403,22 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*p7  : Maximum range of QT=(pT/z) to evaluate in a single sequence (in GeV)')")
     write(51,*) TMDX_SIDIS_maxQTrange
     write(51,"(' ')")
+    write(51,"('*BIN : ---- Bin-related parameters ----')")
+    write(51,"('*p1  : Minimum size of the bin in qT[GeV] (below this value bin is considered point-like)')")
+    write(51,*) TMDX_SIDIS_ptMINBIN
+    write(51,"('*p2  : Minimum size of the bin in Q[GeV] (below this value bin is considered point-like)')")
+    write(51,*) TMDX_SIDIS_qMINBIN
+    write(51,"('*p3  : Minimum size of the bin in x (below this value bin is considered point-like)')")
+    write(51,*) TMDX_SIDIS_xMINBIN
+    write(51,"('*p4  : Minimum size of the bin in z (below this value bin is considered point-like)')")
+    write(51,*) TMDX_SIDIS_zMINBIN
     write(51,"(' ')")
     write(51,"('*C   : ---- Definition of LP TMD factorization ----')")
     write(51,"('*p1  : Account induced transverse momentum corrections')")
     write(51,*) TMDX_SIDIS_qTcorr
-    write(51,"('*p2  : Account induced target mass corrections')")
+    write(51,"('*p2  : Account induced target mass corrections (DEPRICATED)')")
     write(51,*) TMDX_SIDIS_M1corr
-    write(51,"('*p3  : Account induced product mass corrections')")
+    write(51,"('*p3  : Account induced product mass corrections (DEPRICATED)')")
     write(51,*) TMDX_SIDIS_M2corr
     write(51,"('*p4  : Use exact LP values for x1 and z1')")
     write(51,*) TMDX_SIDIS_exactX1Z1
@@ -2574,6 +2588,17 @@ subroutine ReadConstantsFile(file,prefix)
         read(51,*) TMDX_SIDIS_ChNodes
         call MoveTO(51,'*p7  ')
         read(51,*) TMDX_SIDIS_maxQTrange
+    end if
+    if(FILEversion>42) then
+        call MoveTO(51,'*BIN ')
+        call MoveTO(51,'*p1  ')
+        read(51,*) TMDX_SIDIS_ptMINBIN
+        call MoveTO(51,'*p2  ')
+        read(51,*) TMDX_SIDIS_qMINBIN
+        call MoveTO(51,'*p3  ')
+        read(51,*) TMDX_SIDIS_xMINBIN
+        call MoveTO(51,'*p4  ')
+        read(51,*) TMDX_SIDIS_zMINBIN
     end if
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')

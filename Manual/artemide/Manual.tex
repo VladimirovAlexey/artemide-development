@@ -639,6 +639,7 @@ Artemide uses some commonly defined structures such as conventions on process nu
 \red{TO BE DONE}
 
 \subsection{\texttt{(DYpoint)} Drell-Yan reaction kinematic specification}
+\label{sec:DYpoint}
 
 The module \texttt{aTMDe\_ptSpec} defines the type \texttt{(DYpoint)} which incorporates and manipulates the variables necessary for efficient operation with Drell-Yan-type reactions. It contains the following public fields
 \begin{tabular}{lll}
@@ -682,6 +683,8 @@ Command & ~~Type~~&  Short description
 \end{center}
 
 \subsection{\texttt{(SIDISpoint)} SIDIS reaction kinematic specification}
+\label{sec:SIDISpoint}
+
 
 The module \texttt{aTMDe\_ptSpec} defines the type \texttt{(SIDISpoint)} which incorporates and manipulates the variables necessary for efficient operation with SIDIS-type reactions. It contains the following public fields
 \begin{tabular}{lll}
@@ -2527,20 +2530,20 @@ Other cases are inherited from earlier versions and marked for deprecation.
 
 There are following feature of current implementation
 \begin{itemize}
-\item The specification of the kinematical point is done by the \texttt{type(DYpoint)}, see section \ref{sec:aTMDE_ptSpec}.
+\item The specification of the kinematical point is done by the \texttt{type(DYpoint)}, see section \ref{sec:DYpoint}.
 \item In the current version the scaling variables are set as
 \begin{eqnarray}
 \mu^2=\zeta_1=\zeta_2=Q^2.
 \end{eqnarray}
 Currently, it is hard coded and could not be easily modified. However, there is a possibility to vary the value of $\mu$ as $\mu=c_2 Q$, where $c_2$ is variation parameter (see sec.\ref{TMDX:c2}).
-\item The flag \texttt{exactX1X2} (INI section \texttt{*9/*A}) controls how $x_1$ and $x_2$ are computed in the LP version of the factorization. These values correspond
+\item The flag \texttt{exactX1X2} (INI section \texttt{*9/*C/*p1}) controls how $x_1$ and $x_2$ are computed in the LP version of the factorization. These values correspond
 \begin{eqnarray}
 \text{\texttt{exactX1X2}=\texttt{.true.}}&\qquad & x_{1,2}=\frac{q_+}{P_+}e^{\pm y}=\sqrt{\frac{Q^2+\vec q_T^2}{s}}e^{\pm y},\qquad \text{(DEFAULT)}
 \\
 \text{\texttt{exactX1X2}=\texttt{.false.}}&\qquad & x_{1,2}=\frac{Q}{\sqrt{s}}e^{\pm y}.
 \end{eqnarray}
 In KPC mode, the value of $x$'s unambiguous, and is subject of integral.
-\item The flag \texttt{exactZeta} (INI section \texttt{*9/*A}) controls the definition of $\zeta$-scale in the LP version of factorization. 
+\item The flag \texttt{exactZeta} (INI section \texttt{*9/*C/*p}) controls the definition of $\zeta$-scale in the LP version of factorization. 
 \begin{eqnarray}
 \text{\texttt{exactZeta}=\texttt{.true.}}&\qquad & \zeta=2q^+q^-=Q^2+\vec q_T^2,
 \\
@@ -2856,6 +2859,171 @@ Here $R=0.3893379\cdot 10^9$ the transformation factor from GeV to pb.
 \newpage
 \section{\texttt{TMDX{\_}SIDIS} module}
 \label{TMDXs}
+
+\begin{tcolorbox}
+\begin{center}
+\textbf{WARNING!}
+\end{center}
+This module has been essentially updated/redone in ver.3.05. Now, it is split into sub-modules (allowing for simpler and more detailed operationing), and \textbf{it computes average over bin} (in earlier version it computed integral over the bin). 
+\end{tcolorbox}
+
+This module evaluates cross-sections with the SIDIS-like kinematics. I.e. it expects the following kinematic input, $(s,Q,x,z)$ which defines the variables $x$'s, etc.
+
+The module has three parts, implemented as independent modules:
+\begin{itemize}
+\item \texttt{TMDX\_SIDIS\_point}: This module provides the cross-section of SIDIS reaction (or analogous) at a single kinematical point.
+\item \texttt{TMDX\_SIDIS\_bin}: This module provides the cross-section of SIDIS reaction (or analogous), obtained from \texttt{TMDX\_SIDIS\_point} \textbf{averaged} over a bin.
+\item \texttt{TMDX\_SIDIS}: This module provides interfaces, checks and parallel machinery for \texttt{TMDX\_SIDIS\_bin} and \texttt{TMDX\_SIDIS\_point}.
+\end{itemize}
+
+
+\subsection{\texttt{TMDX{\_}SIDIS{\_}point} module}
+
+This module computes the cross-section of SIDIS, or process with a similar kinematics. The main routine of this module is \texttt{xSec\_SIDIS\_1pt} which returns the cross-section depending on the process (see sec. \ref{sec:process_definition}). The general structure of a cross-section is
+\begin{eqnarray}
+d\sigma = prefactor2~\times F,
+\end{eqnarray}
+where
+\begin{itemize}
+\item $F$ is provided by \texttt{TMDF} or \texttt{TMDF\_KPC} (depending on the setup). It depends on the all-process numbers except the first one.
+\item prefactor2 accumulates the changes due to the process definition provided in the first number of process.
+\end{itemize}
+
+The structure functions computed in \texttt{TMDF} or \texttt{TMDF\_KPC} are organized such that they make cross-section in $(Q,y,q_T)$, so the change of kinematics is accumulated in prefactor2. So for different cases of \texttt{proc1} one gets
+\begin{eqnarray}
+\texttt{proc1}=1:~~&&\text{\texttt{xSec\_SIDIS\_1pt}}\longrightarrow \frac{d\sigma}{dxdzdQ^2 d\vec p_\perp^2}~~(\text{DEFAULT})
+\\
+\texttt{proc1}=2:~~&&\text{\texttt{xSec\_SIDIS\_1pt}}\longrightarrow \frac{d\sigma}{dxdzdy d\vec p_\perp^2}=\frac{Q^2}{y}\frac{d\sigma}{dxdzdQ^2 d\vec p_\perp^2},
+\\
+\texttt{proc1}=3:~~&&\text{\texttt{xSec\_SIDIS\_1pt}}\longrightarrow \frac{d\sigma}{dydzdQ^2 d\vec p_\perp^2}=\frac{x}{y}\frac{d\sigma}{dxdzdQ^2 d\vec p_\perp^2}.
+\end{eqnarray}
+
+There are following feature of current implementation
+\begin{itemize}
+\item The specification of the kinematical point is done by the \texttt{type(SIDISpoint)}, see section \ref{sec:SIDISpoint}.
+\item In the current version the scaling variables are set as
+\begin{eqnarray}
+\mu^2=\zeta_1=\zeta_2=Q^2.
+\end{eqnarray}
+Currently, it is hard coded and could not be easily modified. However, there is a possibility to vary the value of $\mu$ as $\mu=c_2 Q$, where $c_2$ is variation parameter (see sec.\ref{TMDX:c2}).
+\item The flag \texttt{corrQT} (INI section \texttt{*10/*C/*p1}) controls the addition of power-suppressed terms due to non-transversality of the LP hadronic tensor. E.g. the angle-integrated unpolarized part of hadron tensor at LP is $(-g_T^{\mu\nu})$. So being convoluted with lepton tensor it produces extra terms $\sim \frac{\vec p_\perp^2}{Q^2}$, which are included/excluded by this flag. In this example one has
+\begin{eqnarray}
+\text{\texttt{corrQT}=\texttt{.true.}}&\qquad & (-g_T^{\mu\nu}L_{\mu\nu})=\frac{2Q^2}{1-\varepsilon}\(1+\frac{\vec q_T^2}{Q^2}\frac{\varepsilon -\frac{\gamma^2}{2}}{1+\gamma^2}\),\qquad \text{(DEFAULT)}
+\\
+\text{\texttt{corrQT}=\texttt{.false.}}&\qquad & (-g_T^{\mu\nu}L_{\mu\nu})=\frac{2Q^2}{1-\varepsilon}.
+\end{eqnarray}
+In KPC mode, the hadron tensor is exactly transverse and thus the definition is unambiguous.
+\item The flag \texttt{exactX1Z1} (INI section \texttt{*10/*C/*p4}) controls how $x_1$ and $z_1$ are computed in the LP version of the factorization. These values correspond
+\begin{eqnarray}
+\text{\texttt{exactX1Z1}=\texttt{.true.}}&\qquad & x_1=-\frac{q^+}{P^+}=x\(1-\frac{\vec q_T^2}{Q^2}\),\qquad z_1=z,\qquad \text{(DEFAULT)}
+\\
+\text{\texttt{exactX1Z1}=\texttt{.false.}}&\qquad & x_1=x,~z_1=z.
+\end{eqnarray}
+In KPC mode, the value of $x$'s unambiguous, and is subject of integral.
+\item The flag \texttt{exactZeta} (INI section \texttt{*10/*C/*p5}) controls the definition of $\zeta$-scale in the LP version of factorization.
+\begin{eqnarray}
+\text{\texttt{exactZeta}=\texttt{.true.}}&\qquad & \zeta=2q^+q^-=Q^2-\vec q_T^2,
+\\
+\text{\texttt{exactZeta}=\texttt{.false.}}&\qquad & \zeta=Q^2,\qquad \text{(DEFAULT)}.
+\end{eqnarray}
+In KPC mode, the value of $\zeta$ is defined unambiguously and $\zeta=Q^2$. Note, in all cases $\mu^2=\zeta$.
+\item The expression for the hard factor $H$ is taken from \cite{Gehrmann:2010ue}. It is the function of $\ln(Q/\mu_H)$ and $a_s(\mu_H))$. Since in the current realization $\mu_H=Q$, the logarithm is replaced by $\ln(c_2)$, where $c_2$ is the variation constant.
+\end{itemize}
+\begin{tcolorbox}
+The cross-section can be computed by two different means: using LP factorization or using KPC-resummed factorization. The selection is controlled by the \texttt{useKPC} flag in the INI file (section \texttt{*10/*A}). The two modes are mutually exclusive.
+\end{tcolorbox}
+
+\begin{center}
+List of available commands
+\\
+\begin{tabular}{||p{6cm}|c|c|p{8cm}||}
+\hline\hline
+Command & ~~Type~~& ~~Sec.~~ & Short description
+\\\hline
+\texttt{TMDX{\_}SIDIS{\_}1pt{\_}Initialize} \texttt{(file[,prefix])} & subrout. & \ref{TMDX:init} & Initialization of module.
+\\\hline
+\texttt{TMDX{\_}SIDIS{\_}1pt{\_}IsInitialized()} & logical & -- & Returns \texttt{.true.} if the module has been initialized.
+\\\hline
+\texttt{TMDX{\_}SIDIS{\_}1pt{\_}ResetCounters()} & subrout. & -- & Reset intrinsic counters of the module, and prints current statistic on the number of calls.
+\\\hline
+\texttt{TMDX{\_}SIDIS{\_}1pt{\_}SetScaleVariation(c2)} & subrout. & -- & Set new value for the scale-variation constant $c_2$.
+\\\hline
+\texttt{xSec\_SIDIS\_1pt(p,process)} & real(dp) &\ref{TMDX:xsec} & Evaluates cross-section at a point specified by \texttt{SIDISpoint} \texttt{p} and process.
+\\\hline\hline
+\end{tabular}
+\end{center}
+
+\subsection{\texttt{TMDX{\_}SIDIS{\_}bin} module}
+
+This module computes average over a given kinematical bin. The bin is plain i.e.
+\begin{eqnarray}
+\texttt{proc1}=1:~~&&\Delta X=\Delta Q \Delta z \Delta x \Delta p_\perp = 
+(Q_{\text{max}}-Q_{\text{min}})
+(z_{\text{max}}-z_{\text{min}})
+(x_{\text{max}}-x_{\text{min}})
+(p_{\perp\text{max}}-p_{\perp\text{min}}),
+\\
+\texttt{proc1}=2:~~&&\Delta X=\Delta y \Delta z \Delta x \Delta p_\perp = 
+(y_{\text{max}}-y_{\text{min}})
+(z_{\text{max}}-z_{\text{min}})
+(x_{\text{max}}-x_{\text{min}})
+(p_{\perp\text{max}}-p_{\perp\text{min}}),
+\\
+\texttt{proc1}=3:~~&&\Delta X=\Delta Q \Delta z \Delta y \Delta p_\perp = 
+(Q_{\text{max}}-Q_{\text{min}})
+(z_{\text{max}}-z_{\text{min}})
+(y_{\text{max}}-y_{\text{min}})
+(p_{\perp\text{max}}-p_{\perp\text{min}}),
+\end{eqnarray}
+So, the result of computation is
+\begin{eqnarray}
+\frac{\Delta\sigma(q_T)}{\Delta X}=\frac{1}{\Delta X}\int_{bin} dX \frac{d\sigma}{dX}.
+\end{eqnarray}
+So, for small size of a bin the cross-section smoothly turns to a cross-section computed at a point.
+\begin{eqnarray}
+\texttt{proc1}=1:~~&&\text{\texttt{TMDX\_SIDIS{\_}bin}}\longrightarrow \frac{d\sigma}{dQ dz dx  d|p_\perp|}
+\\
+\texttt{proc1}=2:~~&&\text{\texttt{TMDX\_SIDIS{\_}bin}}\longrightarrow \frac{d\sigma}{dy dz dx  d|p_\perp|}
+\\
+\texttt{proc1}=3:~~&&\text{\texttt{TMDX\_SIDIS{\_}bin}}\longrightarrow \frac{d\sigma}{dQ dz dy  d|p_\perp|}
+\end{eqnarray}
+Note, that it is different from the result of \texttt{xSec\_SIDIS\_1pt} (e.g. for \texttt{proc1}=1, by a factor of $4Qp_\perp$).
+
+There are following feature of current implementation
+\begin{itemize}
+\item If a bin size in any of the four variables is small it is considered point-like in this direction. In this case, the computation of the integral is replaced by the computation of single-point cross-section, which saves a lot of machine-time. It can also be used to compute a cross-section at a point.
+\item The minimum bin size limits are specified in the section (10.BIN)
+\item There is a significant speed-up in the computation of successive $p_T$-bins. See sec.~\ref{TMDX_DY:pT-partitioning} for an analogous description.
+\item Currently, there are two implementations of integration routines, which is dictated by a pre-compile variable \texttt{INTEGRATION\_MODE} (in the header of the code-file). 
+\begin{itemize}
+\item The case (\texttt{INTEGRATION\_MODE} 1) is fully adaptive (and thus accurate and slow).
+\item The case (\texttt{INTEGRATION\_MODE} 2) is fixed-point integration tuned by hands to some reasonable values (and thus not-accurate but fast). In this case artemide show a warning message on start-up, that the approximate mode is used. 
+\end{itemize}
+Switch this variable as needed (recompilation of the library is then required).
+\end{itemize}
+
+\begin{center}
+List of available commands
+\\
+\begin{tabular}{||p{6cm}|c|c|p{8cm}||}
+\hline\hline
+Command & ~~Type~~& ~~Sec.~~ & Short description
+\\\hline
+\texttt{TMDX{\_}SIDIS{\_}bin{\_}Initialize(file[,prefix])} & subrout. & \ref{TMDX:init} & Initialization of module.
+\\\hline
+\texttt{TMDX{\_}SIDIS{\_}bin{\_}IsInitialized()} & logical & -- & Returns \texttt{.true.} if the module has been initialized.
+\\\hline
+\texttt{TMDX{\_}SIDIS{\_}bin{\_}ResetCounters()} & subrout. & -- & Reset warning counters of the bin module.
+\\\hline
+\texttt{Xsec{\_}PTint{\_}Qint{\_}Xint{\_}Zint(} \texttt{proc,s,} \texttt{zMin,zMax,xMin,xMax,} \texttt{Qmin,Qmax,ptMin,ptMax,} \texttt{doCut,Cuts,Num,m1,m2)} & real(dp) &\ref{TMDX:xsec} & Evaluates cross-section averaged over the full bin. Bin edges: \texttt{(ptMin,ptMax)}, \texttt{(Qmin,Qmax)}, \texttt{(xMin,xMax)}, \texttt{(zMin,zMax)}. \texttt{m1,m2} are target/product hadron masses (GeV). \texttt{doCut,Cuts=(ymin,ymax,W2min,W2max)} control kinematic cuts. \texttt{Num} is the number of sections in the $p_T$ integration.
+\\\hline
+\texttt{Xsec{\_}pTspectrum{\_}Qint{\_}Xint{\_}Zint(} \texttt{proc,s,} \texttt{zMin,zMax,xMin,xMax,} \texttt{Qmin,Qmax,ptMin(:),ptMax(:),} \texttt{doCut,Cuts,m1,m2)} & real(dp)(:) &\ref{TMDX:xsec} & Evaluates cross-section averaged over the bin simultaneously for multiple $p_T$ bins using Chebyshev interpolation. \texttt{ptMin} and \texttt{ptMax} are arrays of bin edges; $Q$, $x$, and $z$ bounds are shared across all bins.
+\\\hline\hline
+\end{tabular}
+\end{center}
+
+
+\newpage
 
 This module evaluates cross-sections with the SIDIS-like kinematics. I.e. it expects the following kinematic input, $(Q,x,z)$ or $(Q,y,z)$ or $(x,y,z)$, that are equivalent.
 
@@ -3371,6 +3539,7 @@ polarized DY
 \begin{itemize}
 \item[\textbf{Ver.3.05}]
 \begin{itemize}
+		\item \textbf{TMDX\_SIDIS} is split into three modules \textbf{TMDX\_SIDIS\_point}, \textbf{TMDX\_SIDIS\_bin}, \textbf{TMDX\_SIDIS}. 
 	\item \textbf{TMDX\_DY\_point} Fixed error with Jacobian for single-point cross-section with $dx_F$ measure (it was multiplied, instead of divided)
 		\item \textbf{TMDX\_DY\_bin} Integration over bin is switched into the averaging over a bin.
 	\item \textbf{TMDX\_DY} is split into three modules \textbf{TMDX\_DY\_point}, \textbf{TMDX\_DY\_bin}, \textbf{TMDX\_DY}. Many small fixes (like check of boundaries, etc.).
@@ -3696,6 +3865,7 @@ polarized DY
 \item +added sections for tw3 grids of wgt and wgl functions(sections 13.G.* and 16.G.*)
 \item +added sections for KT grids of Sivers, wgt, and wgl, \textit{it replaces} the older section about Ogata (sections 12.F.*; 13.H.*, and 16.H.*)
 \item +added section for the sizes of minimum bin sizes for DY process (sections 9.BIN.*;). Name of the section is strange in order to place it in a convenient place in the file.
+\item +added section for the sizes of minimum bin sizes for SIDIS process (sections 9.BIN.*;). Name of the section is strange in order to place it in a convenient place in the file.
 \end{enumerate}
 
 \begin{center}

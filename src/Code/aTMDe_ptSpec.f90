@@ -50,7 +50,7 @@ end type
 
 public::updateQ_DY,updateQT_DY,updateY_DY,coshY,yFromXF
 
-public::updateQ_SIDIS,updatePperp_SIDIS,updateX_SIDIS,updateZ_SIDIS,eps,qT,ComputeX1Z1qT,pJacobian
+public::updateQ_SIDIS,updatePperp_SIDIS,updateX_SIDIS,updateZ_SIDIS,eps_SIDIS,qT_SIDIS,ComputeX1Z1qT,pJacobian,QfromY,XfromY
 
 interface DYpoint
     procedure :: DYpoint_constructor
@@ -142,8 +142,16 @@ this%Q=Q
 this%Q2=Q*Q
 this%x=x
 this%z=z
-this%M2target=Mtarget*Mtarget
-this%M2product=Mproduct*Mproduct
+if(Mtarget<0) then
+    this%M2target=0._dp
+else
+    this%M2target=Mtarget*Mtarget
+end if
+if(Mproduct<0) then
+    this%M2product=0._dp
+else
+    this%M2product=Mproduct*Mproduct
+end if
 this%sM2=s-this%M2target
 this%y=this%Q2/(this%x*this%sM2)
 this%gamma2=(2*x*Mtarget/Q)**2
@@ -189,41 +197,42 @@ this%z=z
 end subroutine updateZ_SIDIS
 
 !!!!! returns SIDIS variable eps=(1-y-gamma^2 y^2/4)(1-y+y^2/2+gamma^2y^2/4)
-pure function eps(this)
+pure function eps_SIDIS(this)
 type(SIDISpoint),intent(in)::this
+real(dp)::eps_SIDIS
 
-real(dp)::eps,y2,dummy1,dummy2
+real(dp)::y2,dummy1,dummy2
   y2 =this%y*this%y
   dummy1=1._dp-this%y
   dummy2=this%gamma2*y2*0.25_dp
 
-  eps=(dummy1-dummy2)/(dummy1+y2*0.5_dp+dummy2)
-end function eps
+  eps_SIDIS=(dummy1-dummy2)/(dummy1+y2*0.5_dp+dummy2)
+end function eps_SIDIS
 
 !!!!! returns SIDIS variable qT=pPper/z sqrt((1+gamma^2)(1-gamma2 gammah2))
-pure function qT(this)
+pure function qT_SIDIS(this)
 type(SIDISpoint),intent(in)::this
-real(dp)::qT
+real(dp)::qT_SIDIS
 
 !!!! in the case of massless hadron the formula is much simpler
 if(this%M2target>zero) then
     if(this%M2product>zero) then
-        qT=this%pPerp/this%z*sqrt((1+this%gamma2)/(1-this%gamma2*this%M2product/(this%z*this%z*this%Q2)))
+        qT_SIDIS=this%pPerp/this%z*sqrt((1+this%gamma2)/(1-this%gamma2*this%M2product/(this%z*this%z*this%Q2)))
     else
-        qT=this%pPerp/this%z*sqrt(1+this%gamma2)
+        qT_SIDIS=this%pPerp/this%z*sqrt(1+this%gamma2)
     end if
 else
-    qT=this%pPerp/this%z
+    qT_SIDIS=this%pPerp/this%z
 end if
-end function qT
+end function qT_SIDIS
 
 !!!!! returns values of variables qT, x1 and z1 used as inputs to the structure functions
-pure subroutine ComputeX1Z1qT(this,x1,z1,qT_out)
+pure subroutine ComputeX1Z1qT(this,x1,z1,qT)
 type(SIDISpoint),intent(in)::this
-real(dp),intent(out)::qT_out,x1,z1
+real(dp),intent(out)::qT,x1,z1
 
-qT_out=qT(this)
-x1=this%x*(1-qT_out*qT_out/this%Q2)
+qT=qT_SIDIS(this)
+x1=this%x*(1-qT*qT/this%Q2)
 z1=this%z
 end subroutine ComputeX1Z1qT
 
@@ -239,5 +248,21 @@ else
     pJacobian=1._dp
 end if
 end function pJacobian
+
+!!!! Compute X based on given y and other parameters of the point [Q,sM2]
+pure function XfromY(y,this)
+type(SIDISpoint),intent(in)::this
+real(dp),intent(in)::y
+real(dp)::XfromY
+XfromY=this%Q2/y/this%sM2
+end function XfromY
+
+!!!! Compute Q based on given x and other parameters of the point [x,sM2]
+pure function QfromY(y,this)
+type(SIDISpoint),intent(in)::this
+real(dp),intent(in)::y
+real(dp)::QfromY
+QfromY=Sqrt(this%sM2*this%x*y)
+end function QfromY
 
 end module aTMDe_ptSpec

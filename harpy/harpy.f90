@@ -872,21 +872,4 @@ end function GetTw3_WGT
   
   end function SIDIS_xSec_List
   
-  function SIDIS_xSec_BINLESS_List(process,s,pT,z,x,Q,masses,ListLength)
-    integer,intent(in)::ListLength
-    integer,intent(in),dimension(:,:)::process			!the number of process
-    real*8,intent(in),dimension(:)::s				!Mandelshtam s
-    real*8,intent(in),dimension(:)::pT			        !(qt)
-    real*8,intent(in),dimension(:)::z				!(z)
-    real*8,intent(in),dimension(:)::x				!(x)
-    real*8,intent(in),dimension(:)::Q				!(Q)        
-    real*8,intent(in),dimension(:,:)::masses			!(mTARGET,mPRODUCT)
-    real*8,dimension(1:ListLength)::SIDIS_xSec_BINLESS_List
-    
-    call TMDF_ResetCounters()
-    call xSec_SIDIS_BINLESS_List_forharpy(SIDIS_xSec_BINLESS_List,process,s,pT,z,x,Q,masses)
-  
-  end function SIDIS_xSec_BINLESS_List
-  
-  
 end module harpy

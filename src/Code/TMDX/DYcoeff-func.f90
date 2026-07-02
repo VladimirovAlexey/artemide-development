@@ -1,6 +1,6 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!        Part of code that contains hard coefficient functions for Drell-Yan-like x-Sections
-!!                    is a part of artemide.TMDX_DY
+!!                    is a part of artemide.TMDX_DY_point
 !!
 !!            16.06.2019    created A.Vladimirov
 !!

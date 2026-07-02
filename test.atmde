@@ -12,7 +12,7 @@
  
 *A   : ---- Global I/O ----
 *p1  : Input file Version (used to check version compatibility)
-          41
+          43
 *p2  : Output level (0 = no output except critical, 1 = + WARNINGS, 2 = + info,  3 = + details)
            2
 *p3  : Message trigger (the number of continious non-critical warning before stop showing them)
@@ -366,6 +366,7 @@
  F
 *p3  : Use resummation of pi^2-corrections in hard coefficient
  F
+ 
 *B   : ---- Numerical evaluation parameters ----
 *p1  : Tolerance general (variable comparison, etc.)
    1.0000000000000000E-006
@@ -383,6 +384,14 @@
    10
 *p8  : Maximum range of qT to evaluate in a single sequence (in GeV)
    15.0
+   
+*BIN : ---- Bin-related parameters ----
+*p1  : Minimum size of the bin in qT[GeV] (below this value bin is considered point-like)
+   0.01
+*p2  : Minimum size of the bin in Q[GeV] (below this value bin is considered point-like)
+   0.01
+*p3  : Minimum size of the bin in y (or xF) (below this value bin is considered point-like)
+   0.0001
 
 *C   : ---- Definition of LP TMD factorization ----
 *p1  : Use the exact LP values of x1 and x2 (include qT/Q correction)
@@ -421,13 +430,23 @@
    10
 *p7  : Maximum range of QT=(pT/z) to evaluate in a single sequence (in GeV)
    18.0
+   
+*BIN : ---- Bin-related parameters ----
+*p1  : Minimum size of the bin in pPerp[GeV] (below this value bin is considered point-like)
+   0.01
+*p2  : Minimum size of the bin in Q[GeV] (below this value bin is considered point-like)
+   0.01
+*p3  : Minimum size of the bin in x (below this value bin is considered point-like)
+   0.0001
+*p4  : Minimum size of the bin in z (below this value bin is considered point-like)
+   0.0001
 
 *C   : ---- Definition of LP TMD factorization ----
 *p1  : Account induced transverse momentum corrections
  T
-*p2  : Account induced target mass corrections
+*p2  : Account induced target mass corrections (DEPRICATED)
  T
-*p3  : Account induced product mass corrections
+*p3  : Account induced product mass corrections (DEPRICATED)
  T
 *p4  : Use exact LP values for x1 and z1
  T

@@ -303,7 +303,7 @@ end subroutine TMDF_ResetCounters
 !!!This is the defining module function
 !!! It evaluates the integral
 !!!  int_0^infty   b^(n+1) db/2  Jn(b qT) zff F1 F2
-!!!
+!!! (NOTE: the historical factor 1/2)
 function TMDF_F(Q2,qT,x1,x2,mu,zeta1,zeta2,process) result(integral_result)
 real(dp)::integral_result
 real(dp),intent(in)::qT,x1,x2,mu,zeta1,zeta2,Q2

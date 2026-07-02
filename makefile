@@ -54,7 +54,6 @@ $(SOURCEDIR)/Code/aTMDe_ptSpec.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_alpha.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_PDF.f90 \
 $(SOURCEDIR)/LeptonCutsDY.f90 \
-$(SOURCEDIR)/aTMDe_setup.f90 \
 $(SOURCEDIR)/QCDinput.f90 \
 $(SOURCEDIR)/EWinput.f90 \
 $(SOURCEDIR)/TMD_AD.f90 \
@@ -91,7 +90,10 @@ $(SOURCEDIR)/TMDF_KPC.f90 \
 $(SOURCEDIR)/TMDX_DY_point.f90 \
 $(SOURCEDIR)/TMDX_DY_bin.f90 \
 $(SOURCEDIR)/TMDX_DY.f90 \
+$(SOURCEDIR)/TMDX_SIDIS_point.f90 \
+$(SOURCEDIR)/TMDX_SIDIS_bin.f90 \
 $(SOURCEDIR)/TMDX_SIDIS.f90 \
+$(SOURCEDIR)/aTMDe_setup.f90 \
 $(SOURCEDIR)/aTMDe_control.f90
 
 Twist2Files=\
@@ -153,7 +155,8 @@ $(SOURCEDIR)/Code/aTMDe_setup/placeHolder.f90
 
 TMDXFiles=\
 $(SOURCEDIR)/Code/aTMDe_ptSpec.f90 \
-$(SOURCEDIR)/Code/TMDX/DYcoeff-func.f90
+$(SOURCEDIR)/Code/TMDX/DYcoeff-func.f90 \
+$(SOURCEDIR)/Code/TMDX/SIDIScoeff-func.f90
 
 aTMDeMODEL = \
 $(SOURCEDIR)/Model/TMDR_model.f90 \
@@ -195,7 +198,6 @@ $(OBJ)/aTMDe_Levin.o \
 $(OBJ)/aTMDe_invMatrix.o \
 $(OBJ)/aTMDe_ptSpec.o \
 $(OBJ)/LeptonCutsDY.o \
-$(OBJ)/aTMDe_setup.o \
 $(OBJ)/LHA_alpha.o \
 $(OBJ)/LHA_PDF.o \
 $(OBJ)/QCDinput.o \
@@ -233,9 +235,12 @@ $(OBJ)/TMDF.o \
 $(OBJ)/TMDX_DY_point.o \
 $(OBJ)/TMDX_DY_bin.o \
 $(OBJ)/TMDX_DY.o \
+$(OBJ)/TMDX_SIDIS_point.o \
+$(OBJ)/TMDX_SIDIS_bin.o \
 $(OBJ)/TMDX_SIDIS.o \
 $(OBJ)/TMDF_KPC.o \
-$(OBJ)/aTMDe_control.o
+$(OBJ)/aTMDe_control.o \
+$(OBJ)/aTMDe_setup.o
 
 snowOBJ = \
 $(OBJ)/IO_snowflake.o \
@@ -598,30 +603,42 @@ $(OBJ)/TMDX_DY_point.o: $(SOURCEDIR)/TMDX_DY_point.f90 $(TMDXFiles) $(OBJ)/aTMDe
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/TMDX_DY_bin.o: $(SOURCEDIR)/TMDX_DY_bin.f90 $(TMDXFiles) $(OBJ)/aTMDe_ptSpec.o $(OBJ)/TMDF.o $(OBJ)/TMDF_KPC.o  $(OBJ)/LeptonCutsDY.o $(OBJ)/QCDinput.o $(aTMDeUTILITY) $(OBJ)/TMDX_DY_point.o
+$(OBJ)/TMDX_DY_bin.o: $(SOURCEDIR)/TMDX_DY_bin.f90 $(TMDXFiles) $(OBJ)/aTMDe_ptSpec.o $(OBJ)/LeptonCutsDY.o $(OBJ)/EWinput.o $(aTMDeUTILITY) $(OBJ)/TMDX_DY_point.o
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/TMDX_DY_bin.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/TMDX_DY.o: $(SOURCEDIR)/TMDX_DY.f90 $(TMDXFiles) $(OBJ)/TMDF.o $(OBJ)/TMDF_KPC.o  $(OBJ)/LeptonCutsDY.o $(OBJ)/QCDinput.o $(aTMDeUTILITY)
+$(OBJ)/TMDX_DY.o: $(SOURCEDIR)/TMDX_DY.f90 $(TMDXFiles) $(OBJ)/TMDX_DY_bin.o $(OBJ)/QCDinput.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/TMDX_DY.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
-	
-$(OBJ)/TMDX_SIDIS.o: $(SOURCEDIR)/TMDX_SIDIS.f90 $(OBJ)/TMDF.o $(OBJ)/QCDinput.o $(aTMDeUTILITY)
+
+$(OBJ)/TMDX_SIDIS_point.o: $(SOURCEDIR)/TMDX_SIDIS_point.f90 $(TMDXFiles) $(OBJ)/aTMDe_ptSpec.o $(OBJ)/TMDF.o $(OBJ)/TMDF_KPC.o $(OBJ)/QCDinput.o $(aTMDeUTILITY)
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/TMDX_SIDIS_point.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/TMDX_SIDIS_bin.o: $(SOURCEDIR)/TMDX_SIDIS_bin.f90 $(TMDXFiles) $(OBJ)/aTMDe_ptSpec.o $(OBJ)/LeptonCutsDY.o $(aTMDeUTILITY) $(OBJ)/TMDX_SIDIS_point.o
+#	mkdir -p obj
+	$(FC) -c $(SOURCEDIR)/TMDX_SIDIS_bin.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/TMDX_SIDIS.o: $(SOURCEDIR)/TMDX_SIDIS.f90 $(OBJ)/TMDX_SIDIS_bin.o $(TMDXFiles) $(OBJ)/TMDF.o $(OBJ)/QCDinput.o $(aTMDeUTILITY)
 #	mkdir -p obj
 	$(FC) -c $(SOURCEDIR)/TMDX_SIDIS.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 
-$(OBJ)/aTMDe_setup.o: $(SOURCEDIR)/aTMDe_setup.f90 $(aTMDeUTILITY) $(aTMDeSetupFiles)
+$(OBJ)/aTMDe_setup.o: $(SOURCEDIR)/aTMDe_setup.f90 $(aTMDeUTILITY) $(OBJ)/TMDX_SIDIS.o $(OBJ)/TMDX_DY.o
 	$(FC) -c $(SOURCEDIR)/aTMDe_setup.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 	
-$(OBJ)/aTMDe_control.o: $(SOURCEDIR)/aTMDe_control.f90 $(OBJ)/aTMDe_setup.o $(aTMDeUTILITY)
+$(OBJ)/aTMDe_control.o: $(SOURCEDIR)/aTMDe_control.f90 $(OBJ)/aTMDe_setup.o $(aTMDeUTILITY) $(OBJ)/TMDX_SIDIS.o $(OBJ)/TMDX_DY.o
 	$(FC) -c $(SOURCEDIR)/aTMDe_control.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)

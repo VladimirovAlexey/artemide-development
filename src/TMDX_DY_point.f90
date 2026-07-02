@@ -2,7 +2,7 @@
 !            arTeMiDe 3.05
 !
 !    This is a part of TMDX_DY complex of modules.
-!    This module computes the cross-section of a Drell-Yan reaction (and related sub-processes)
+!    This module computes the cross-section of Drell-Yan reaction (and related sub-processes)
 !    at a single kinematical point.
 !
 !    if you use this module please, quote 1706.01473
@@ -295,6 +295,8 @@ function PreFactor2(ptKinematic,scaleMu,proc1)
   real(dp)::PreFactor2
 
   real(dp)::uniPart,tauX1X2
+
+  !!!! Note, that these factors have extra factor 2, which is compensated by the definition of Fourier tranform F with 1/2 (in TMDF)
 
   SELECT CASE(proc1)
   case(0)

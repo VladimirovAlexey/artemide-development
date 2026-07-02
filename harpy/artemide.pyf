@@ -529,17 +529,6 @@ module harpy ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90
         logical intent(in) :: dopartitioning
         real*8 dimension(listlength) :: sidis_xsec_list
     end function sidis_xsec_list
-    function sidis_xsec_binless_list(process,s,pt,z,x,q,masses,listlength) ! in /data/arTeMiDe_Repository/artemide/harpy/harpy.f90:harpy
-        integer dimension(:,:),intent(in) :: process
-        real*8 dimension(:),intent(in) :: s
-        real*8 dimension(:),intent(in) :: pt
-        real*8 dimension(:),intent(in) :: z
-        real*8 dimension(:),intent(in) :: x
-        real*8 dimension(:),intent(in) :: q
-        real*8 dimension(:,:),intent(in) :: masses
-        integer intent(in) :: listlength
-        real*8 dimension(listlength) :: sidis_xsec_binless_list
-    end function sidis_xsec_binless_list
 end module harpy
 
 ! This file was auto-generated with f2py (version:1.26.4).
