@@ -156,22 +156,28 @@ end subroutine TMDX_SIDIS_SetScaleVariation
 
 !!! function determines the best value of PT-sections from PT-bin size, and Q
 !!! it is determined by formula Q/PT< val/ (2 k) => def+2K
-function NumPT_auto(dPT,Q)
+!!! proc1 is the type of process (for some case Q is not Q but y; in this case all is compute for Q=5GeV)
+function NumPT_auto(dPT,Q,proc1)
 real(dp),parameter::val=40d0
 real(dp),intent(in)::dPT,Q
+integer,intent(in)::proc1
 integer::NumPT_auto
 
 real(dp)::rat
 integer::i
 
-rat=Q/dPT
+if(proc1==2) then
+  rat=5._dp/dPT
+else
+  rat=Q/dPT
+end if
 
-if(rat>40d0) then
+if(rat>val) then
   NumPT_auto=NumPTdefault
   return
 else
   do i=1,5
-    if(rat>(40d0/2d0/i)) then
+    if(rat>(val/2d0/i)) then
       NumPT_auto=NumPTdefault+2*i
       return
     end if
@@ -206,7 +212,7 @@ subroutine xSec_SIDIS(xx,process,s,pT,z,x,Q,doCut,Cuts,masses)
 
 if(.not.started) error stop ErrorString('The module is not initialized. Check INI-file.',moduleName)
 
-  Num=NumPT_auto(pt(2)-pt(1),(Q(1)+Q(2))/2d0)
+  Num=NumPT_auto(pt(2)-pt(1),(Q(1)+Q(2))/2d0,process(1))
 
   if(PRESENT(masses)) then
     xx=Xsec_PTint_Qint_Xint_Zint(process,s,z(1),z(2),x(1),x(2),Q(1),Q(2),pT(1),pT(2),doCut,Cuts,Num,masses(1),masses(2))
@@ -350,7 +356,7 @@ if(.not.started) error stop ErrorString('The module is not initialized. Check IN
     do i=1,numberOfP
       !!!!! if bin is not partitioned, it is computed usually
       if(partSize(i)==1) then
-        n_private=NumPT_auto(pT(partI1(i),2)-pT(partI1(i),1),(Q(partI1(i),2)+Q(partI1(i),1))/2d0)
+        n_private=NumPT_auto(pT(partI1(i),2)-pT(partI1(i),1),(Q(partI1(i),2)+Q(partI1(i),1))/2d0,process(partI1(i),1))
 
         XX(partI1(i))=Xsec_PTint_Qint_Xint_Zint(process(partI1(i),1:4),s(partI1(i)),&
               z(partI1(i),1),z(partI1(i),2),x(partI1(i),1),x(partI1(i),2),&
@@ -374,7 +380,7 @@ if(.not.started) error stop ErrorString('The module is not initialized. Check IN
     !$OMP PARALLEL DO SCHEDULE(DYNAMIC) DEFAULT(SHARED) PRIVATE(n_private)
     do i=1,length
 
-      n_private=NumPT_auto(pT(i,2)-pT(i,1),(Q(i,2)+Q(i,1))/2d0)
+      n_private=NumPT_auto(pT(i,2)-pT(i,1),(Q(i,2)+Q(i,1))/2d0,process(i,1))
 
       XX(i)=Xsec_PTint_Qint_Xint_Zint(process(i,1:4),s(i),&
           z(i,1),z(i,2),x(i,1),x(i,2),Q(i,1),Q(i,2),pT(i,1),pT(i,2),&

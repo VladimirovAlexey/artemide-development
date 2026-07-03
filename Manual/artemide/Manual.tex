@@ -2867,7 +2867,7 @@ Here $R=0.3893379\cdot 10^9$ the transformation factor from GeV to pb.
 This module has been essentially updated/redone in ver.3.05. Now, it is split into sub-modules (allowing for simpler and more detailed operationing), and \textbf{it computes average over bin} (in earlier version it computed integral over the bin). 
 \end{tcolorbox}
 
-This module evaluates cross-sections with the SIDIS-like kinematics. I.e. it expects the following kinematic input, $(s,Q,x,z)$ which defines the variables $x$'s, etc.
+This module evaluates cross-sections with the SIDIS-like kinematics. I.e. it expects the following kinematic input, $(s,Q,x,z)$ which defines the variables $x$'s, etc. Note, that the structure of the module repeats the structure of \texttt{TMDX{\_}DY} module.
 
 The module has three parts, implemented as independent modules:
 \begin{itemize}
@@ -2906,7 +2906,7 @@ There are following feature of current implementation
 \mu^2=\zeta_1=\zeta_2=Q^2.
 \end{eqnarray}
 Currently, it is hard coded and could not be easily modified. However, there is a possibility to vary the value of $\mu$ as $\mu=c_2 Q$, where $c_2$ is variation parameter (see sec.\ref{TMDX:c2}).
-\item The flag \texttt{corrQT} (INI section \texttt{*10/*C/*p1}) controls the addition of power-suppressed terms due to non-transversality of the LP hadronic tensor. E.g. the angle-integrated unpolarized part of hadron tensor at LP is $(-g_T^{\mu\nu})$. So being convoluted with lepton tensor it produces extra terms $\sim \frac{\vec p_\perp^2}{Q^2}$, which are included/excluded by this flag. In this example one has
+\item The flag \texttt{corrQT} (INI section \texttt{*10/*C/*p1}) controls the addition of power-suppressed terms due to non-transversality of the LP hadronic tensor. E.g. the angle-integrated unpolarized part of hadron tensor at LP is $(-g_T^{\mu\nu})$. So being convoluted with lepton tensor it produces extra terms $\sim \frac{\vec p_\perp^2}{Q^2}$, which are included/excluded by this flag. In this example one has (see $c_0^{(un)})$ (\ref{SIDIS:c0un}))
 \begin{eqnarray}
 \text{\texttt{corrQT}=\texttt{.true.}}&\qquad & (-g_T^{\mu\nu}L_{\mu\nu})=\frac{2Q^2}{1-\varepsilon}\(1+\frac{\vec q_T^2}{Q^2}\frac{\varepsilon -\frac{\gamma^2}{2}}{1+\gamma^2}\),\qquad \text{(DEFAULT)}
 \\
@@ -3049,47 +3049,6 @@ Command & ~~Type~~& ~~Sec.~~ & Short description
 \end{tabular}
 \end{center}
 
-
-\newpage
-
-This module evaluates cross-sections with the SIDIS-like kinematics. I.e. it expects the following kinematic input, $(Q,x,z)$ or $(Q,y,z)$ or $(x,y,z)$, that are equivalent.
-
-The general structure of the cross-section is
-\begin{eqnarray}
-\frac{d\sigma}{dX}=
-d\sigma(q_T)=\int [bin] ~prefactor2~\times F,
-\end{eqnarray}
-where 
-\begin{eqnarray}
-dX=dx dQ^2d\vec p_T^2.
-\end{eqnarray}
-For further specifications of parameters see sec.\ref{sec:SIDIS:theory}.
-
-\begin{center}
-List of available commands
-\\
-\begin{tabular}{||l|c|c|p{8cm}||}
-\hline\hline
-Command & ~~Type~~& ~~Sec.~~ & Short description
-\\\hline
-\texttt{TMDX{\_}SIDIS{\_}Initialize(file,\blue{prefix})} & subrout. & \ref{TMDX:init} & \blue{*}~~Initialization of module.
-\\\hline
-\texttt{TMDX{\_}SIDIS{\_}ResetCounters()} & subrout. & -- & \blue{*}~~Reset intrinsic counters of module.
-\\\hline
-\texttt{TMDX{\_}SIDIS{\_}ShowStatistic()} & subrout. & -- & \blue{*}~~Print current statistic on the number of calls.
-\\\hline
-\texttt{TMDX{\_}SIDIS{\_}SetScaleVariation(c2)} & subrout. & -- & \blue{*}~~ Set new values for the scale-variation constants.
-\\\hline
-\texttt{xSec\_SIDIS} &subrout. &\ref{TMDXs:xsec} & Evaluates cross-section completely integrated over the bin. 
-\\\hline
-\texttt{xSec\_SIDIS\_List} &subrout. &\ref{TMDXs:xsec} & Evaluates cross-section completely integrated over the bin over the list. 
-\\\hline\hline
-\end{tabular}
-\end{center}
-\begin{tcolorbox}
-\blue{*)}The structure of the module repeats the structure of \texttt{TMDX{\_}DY} module, with the main change in the kinematic definition. Most part of routines has the same input and output with only replacement \texttt{{\_}DY}$\to$\texttt{{\_}SIDIS}. We do not comment such commands. They marked by $*$ in the following table.
-\end{tcolorbox}
-
 \subsection{Cross-section evaluation}
 \label{TMDXs:xsec}
 
@@ -3128,19 +3087,6 @@ All variables are analogues to those of \texttt{xSec\_SIDIS}, but should come in
 \end{itemize}
 \end{tcolorbox}
 
-In addition to these main subroutines the following sub-routines are defined
-\begin{center}
-\texttt{xSec\_SIDIS\_BINLESS(proc,s,pt,z,x,Q,m1,m2)}
-\end{center}
-Compute cross-section without integration over bin (and also ignoring any possible bin-cut options). All kinematic variables are (real*8).
-
-There harpy-interface prevents using optional variables. Thus there are separate copies of the function with argument \texttt{masses} being obligatory:
-\begin{center}
-\texttt{xSec\_SIDIS\_List\_forharpy(xx,process,s,pT,z,x,Q,doCut,Cuts,masses)}
-\\
-\texttt{xSec\_SIDIS\_BINLESS\_List\_forharpy(xx,process,s,pT,z,x,Q,masses)}
-\end{center}
-
 \subsection{Enumeration of processes}
 
 The enumeration of processes for SIDIS is analogous to the DY case. Namely, each process is defined by 4 integer numbers
@@ -3176,12 +3122,12 @@ The factor $R_C$ is standard normalization of the cross-section (however without
 \begin{eqnarray}
 R_C=\frac{2\pi \alpha_{\text{em}}^2(Q)}{Q^4\sqrt{1-\gamma^2 \vec \rho_\perp^2}}\frac{y^2}{1-\varepsilon}|C_V^{SIDIS}(c_2Q)|^2 c^{(un)}_0 R_t~~\text{[pb/GeV$^2$]},
 \end{eqnarray}
-with $R_t=0.3893379\times 10^9$ the transformation factor from GeV to pb, and 
-$$
+with $R_t=0.3893379\times 10^9$ the transformation factor from GeV to pb, and (only at LP)
+\begin{eqnarray}\label{SIDIS:c0un}
 c_0^{(un)}=1+\frac{\vec p_\perp^2}{(zQ)^2}\frac{\varepsilon-\frac{\gamma^2}{2}}{1-\gamma^2\rho^2}
 =1+\frac{\vec q_T^2}{Q^2}\frac{\varepsilon-\frac{\gamma^2}{2}}{1+\gamma^2}
 .
-$$
+\end{eqnarray}
 Note, that different parts of this formula can be switched on/off by parameters of the power-corrections.
 
 \subsection{Kinematic cuts}

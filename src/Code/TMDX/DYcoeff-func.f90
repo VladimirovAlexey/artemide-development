@@ -17,58 +17,86 @@ function HardCoefficientDY(mu)
     real(dp),intent(in)::mu
     real(dp)::alpha,LQ!=Log[Q^2/mu^2]=-2Log[c1]
     
-    If(usePiresum) then 
-    
-    !!! this expression is get by expanding pi-resummedexponent and CV^2 to fixed order
     HardCoefficientDY=1.d0
     alpha=As(mu*c2_global)
 
-    if(orderH_global>=1) then
-      LQ=-2d0*LOG(c2_global)
-      HardCoefficientDY=HardCoefficientDY+alpha*&
-      (-16.946842488404727d0 + 8d0*LQ-2.6666666666666665d0*LQ**2)
-    if(orderH_global>=2) then
-      HardCoefficientDY=HardCoefficientDY+alpha**2*&
-      (-25.413248632430818d0 -208.56946563098907d0*LQ +28.103117631243492d0*LQ**2&
-    - 14.518518518518519d0*LQ**3 + 3.5555555555555554d0*LQ**4)
-    if(orderH_global>=3) then
-      HardCoefficientDY=HardCoefficientDY+alpha**3*&
-      (7884.91043450197d0 -3916.5246445256016d0*LQ +58.76188412075794d0*LQ**2&
-      +418.58823871161303d0*LQ**3 +13.708854670518122d0*LQ**4 + 10.271604938271604d0*LQ**5& 
-      -3.1604938271604937d0*LQ**6)
-    end if
-    end if
+    If(usePiresum) then 
+     !!! this expression is get by expanding pi-resummedexponent and CV^2 to fixed order
+
+    !!!!! in most cases c2=1, and there is no logarithm so we compute by a simpler formula
+    if(abs(c2_global-1)<toleranceGEN) then
+      if(orderH_global>=1) then
+        HardCoefficientDY=HardCoefficientDY+alpha*(-16.946842488404727d0)
+      if(orderH_global>=2) then
+        HardCoefficientDY=HardCoefficientDY+alpha**2*(-25.413248632430818d0)
+      if(orderH_global>=3) then
+        HardCoefficientDY=HardCoefficientDY+alpha**3*(7884.91043450197d0)
+      end if
+      end if
+      end if
+
+    else  !!!!! the complete case with logarithms
+      if(orderH_global>=1) then
+        LQ=-2d0*LOG(c2_global)
+        HardCoefficientDY=HardCoefficientDY+alpha*&
+        (-16.946842488404727d0 + 8d0*LQ-2.6666666666666665d0*LQ**2)
+      if(orderH_global>=2) then
+        HardCoefficientDY=HardCoefficientDY+alpha**2*&
+        (-25.413248632430818d0 -208.56946563098907d0*LQ +28.103117631243492d0*LQ**2&
+      - 14.518518518518519d0*LQ**3 + 3.5555555555555554d0*LQ**4)
+      if(orderH_global>=3) then
+        HardCoefficientDY=HardCoefficientDY+alpha**3*&
+        (7884.91043450197d0 -3916.5246445256016d0*LQ +58.76188412075794d0*LQ**2&
+        +418.58823871161303d0*LQ**3 +13.708854670518122d0*LQ**4 + 10.271604938271604d0*LQ**5&
+        -3.1604938271604937d0*LQ**6)
+      end if
+      end if
+      end if
     end if
     
     HardCoefficientDY=HardCoefficientDY*PiResumFactor_q(alpha)
     
     else
-    
-    HardCoefficientDY=1.d0
-    alpha=As(mu*c2_global)
+      !!!!! in most cases c2=1, and there is no logarithm so we compute by a simpler formula
+      if(abs(c2_global-1)<toleranceGEN) then
+        if(orderH_global>=1) then
+            HardCoefficientDY=HardCoefficientDY+alpha*(9.372102581166892d0)
+          if(orderH_global>=2) then
+            HardCoefficientDY=HardCoefficientDY+alpha**2*(359.39087353234015d0)
+          if(orderH_global>=3) then
+            HardCoefficientDY=HardCoefficientDY+alpha**3*(8935.66841729192d0)
+          if(orderH_global>=4) then
+            HardCoefficientDY=HardCoefficientDY+alpha**4*(135087.2036735284d0)
+          end if
+          end if
+          end if
+          end if
 
-    if(orderH_global>=1) then
-      LQ=-2d0*LOG(c2_global)
-      HardCoefficientDY=HardCoefficientDY+alpha*&
-      (9.372102581166892d0 + 8d0*LQ-2.6666666666666665d0*LQ**2)
-    if(orderH_global>=2) then
-      HardCoefficientDY=HardCoefficientDY+alpha**2*&
-      (359.39087353234015d0 + 1.9820949255839224d0*LQ - 42.08073588761418d0*LQ**2&
-    - 14.518518518518519d0*LQ**3 + 3.5555555555555554d0*LQ**4)
-    if(orderH_global>=3) then
-      HardCoefficientDY=HardCoefficientDY+alpha**3*&
-      (8935.66841729192d0 - 2759.2358438992906d0*LQ - 1417.132743244908d0*LQ**2&
-      + 36.47614733116575d0*LQ**3 + 107.28732602899498d0*LQ**4 + 10.271604938271604d0*LQ**5& 
-      -3.1604938271604937d0*LQ**6)
-    if(orderH_global>=4) then 
-      HardCoefficientDY=HardCoefficientDY+alpha**4*&
-      (135087.2036735284d0 - 150489.22799257038d0*LQ + 64333.03564525264d0*LQ**2 &
-      - 8614.870827808947d0*LQ**3 - 1644.002266122397d0*LQ**4 + 403.72511575802685d0*LQ**5 &
-      - 57.47461249405413d0*LQ**6 - 3.950617283950617d0*LQ**7 + 1.8436213991769548d0*LQ**8)
-    end if
-    end if    
-    end if
-    end if
+
+      else  !!!!! the complete case with logarithms
+        if(orderH_global>=1) then
+          LQ=-2d0*LOG(c2_global)
+          HardCoefficientDY=HardCoefficientDY+alpha*&
+          (9.372102581166892d0 + 8d0*LQ-2.6666666666666665d0*LQ**2)
+        if(orderH_global>=2) then
+          HardCoefficientDY=HardCoefficientDY+alpha**2*&
+          (359.39087353234015d0 + 1.9820949255839224d0*LQ - 42.08073588761418d0*LQ**2&
+        - 14.518518518518519d0*LQ**3 + 3.5555555555555554d0*LQ**4)
+        if(orderH_global>=3) then
+          HardCoefficientDY=HardCoefficientDY+alpha**3*&
+          (8935.66841729192d0 - 2759.2358438992906d0*LQ - 1417.132743244908d0*LQ**2&
+          + 36.47614733116575d0*LQ**3 + 107.28732602899498d0*LQ**4 + 10.271604938271604d0*LQ**5&
+          -3.1604938271604937d0*LQ**6)
+        if(orderH_global>=4) then
+          HardCoefficientDY=HardCoefficientDY+alpha**4*&
+          (135087.2036735284d0 - 150489.22799257038d0*LQ + 64333.03564525264d0*LQ**2 &
+          - 8614.870827808947d0*LQ**3 - 1644.002266122397d0*LQ**4 + 403.72511575802685d0*LQ**5 &
+          - 57.47461249405413d0*LQ**6 - 3.950617283950617d0*LQ**7 + 1.8436213991769548d0*LQ**8)
+        end if
+        end if
+        end if
+        end if
+      end if
     
     end if
 end function HardCoefficientDY

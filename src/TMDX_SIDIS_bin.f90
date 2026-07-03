@@ -375,9 +375,10 @@ end if
 !!! ----- check the input variables
 !!! in the case process=3, the point contains y, which is to be transformed to x
 !!! evaluate the corresponding x bounds from y
+!!! XfromY = Q^2/(y*sM2) is a DECREASING function of y, so y_lo->x_max and y_hi->x_min
 if(process(1)==3) then
-  xmin=XfromY(xmin_in,p)
-  xmax=XfromY(xmax_in,p)
+  xmin=XfromY(xmax_in,p)
+  xmax=XfromY(xmin_in,p)
 else
   xmin=xmin_in
   xmax=xmax_in
@@ -407,15 +408,22 @@ if(xmin>xmax) then
   return
 end if
 
-!!!! ------- WITH INTEGRATION PART --------
+!!!! proc1 is forced to 1 only when proc1=3; in the rest case it must be what it is
 #if INTEGRATION_MODE==1
     !!!! slower but accurate
-    Xsec_Xint_Zint=Integrate_SA(integrandOverX,xMin,xMax,toleranceINT)
+    if(process(1)==3) then
+      Xsec_Xint_Zint=Integrate_SA(integrandOverX_proc3,xMin,xMax,toleranceINT)
+    else
+      Xsec_Xint_Zint=Integrate_SA(integrandOverX,xMin,xMax,toleranceINT)
+    end if
 #elif INTEGRATION_MODE==2
     !!!! fast but not that accurate
-    Xsec_Xint_Zint=Integrate_G7(integrandOverX,xMin,xMax)
+    if(process(1)==3) then
+      Xsec_Xint_Zint=Integrate_G7(integrandOverX_proc3,xMin,xMax)
+    else
+      Xsec_Xint_Zint=Integrate_G7(integrandOverX,xMin,xMax)
+    end if
 #endif
-
 
 !!!!! returns average over the bin
 !!!!! IMPORTANT!!!! if the bin goes beyond the physical region, the integration is still weighted by bin-size without restrictions.
@@ -426,12 +434,19 @@ Xsec_Xint_Zint=Xsec_Xint_Zint/(xmax_in-xmin_in)
 
 contains
 
+function integrandOverX_proc3(x)
+real(dp),intent(in)::x
+real(dp)::integrandOverX_proc3
+call updateX_SIDIS(p,x)
+!!!!! process(1) is forced to 1: actual integration is over x; all Jacobian effects are absorbed into the limits computed from XfromY above.
+integrandOverX_proc3=Xsec_Zint(p,(/1,process(2),process(3),process(4)/),zMin_in,zMax_in)
+end function integrandOverX_proc3
+
 function integrandOverX(x)
 real(dp),intent(in)::x
 real(dp)::integrandOverX
 call updateX_SIDIS(p,x)
-!!!!! process(1) is forced to 1: actual integration is over x; all Jacobian effects are absorbed into the limits computed from XfromY above.
-integrandOverX=Xsec_Zint(p,(/1,process(2),process(3),process(4)/),zMin_in,zMax_in)
+integrandOverX=Xsec_Zint(p,process,zMin_in,zMax_in)
 end function integrandOverX
 
 end function Xsec_Xint_Zint
@@ -462,6 +477,8 @@ end if
 !!! check input parameters
 !!! in the case process=2, evaluate the corresponding Q bounds from y
 if(process(1)==2) then
+  !!!! p%x may be stale from a prior nested x-integration; reset to x_mid before QfromY
+  call updateX_SIDIS(p,(Xmin_in+Xmax_in)*0.5_dp)
   Qmin=QfromY(Qmin_in,p)
   Qmax=QfromY(Qmax_in,p)
 else
@@ -629,7 +646,8 @@ real(dp)::Qmin,Qmax,ptMin,ptMax,s,m1_out,m2_out
 type(SIDISpoint)::p
 
 !!!------------------------- checking Q----------
-if(Qmin_in<0.9d0) then
+!!! for proc1=2 the Q-slot carries y (inelasticity 0<y<1); the Q<0.9 GeV guard does not apply
+if(process(1)/=2 .and. Qmin_in<0.9d0) then
   call Warning_Handler%WarningRaise('Attempt to compute xSec with Q<0.9.')
   write(*,*) "Qmin =",Qmin_in," (Qmin set to 1.GeV)"
   Qmin=1._dp
@@ -769,7 +787,8 @@ do i=1,nBINS
 end do
 
 !!!------------------------- checking Q----------
-if(Qmin_in<0.9d0) then
+!!! for proc1=2 the Q-slot carries y (inelasticity 0<y<1); the Q<0.9 GeV guard does not apply
+if(process(1)/=2 .and. Qmin_in<0.9d0) then
   call Warning_Handler%WarningRaise('Attempt to compute xSec with Q<0.9.')
   write(*,*) "Qmin =",Qmin_in," (Qmin set to 1.GeV)"
   Qmin=1._dp
