@@ -285,7 +285,7 @@
 *p1  : Number of subgrids in X (required to read the next line)
    3
 *p2  : Intervals for subgrids in X (must include 1., as the last point)
-0.05  0.1  0.5  1.
+0.01  0.1  0.5  1.
 *p3  : Number of nodes in the X-subgrid
    8
 *p4  : Number of subgrids in B (required to read the next line)
@@ -396,7 +396,7 @@
 *p1  : Order of coefficient function
  N4LO
 *p2  : Utilize KPC formula (T=KPC formula, F=LP formula)
- F
+ T
 
 *B   : ---- Numerical evaluation parameters ----
 *p1  : Tolerance general (variable comparison, etc.)

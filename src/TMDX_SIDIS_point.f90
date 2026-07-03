@@ -344,7 +344,7 @@ real(dp),intent(in)::x1,z1,qT,eps,scaleMu
 real(dp)::PreFactorKPC,uniPart,jacob
 
 !!!-----------------------------------------------------------------
-!!!------  Prefactors KPC case (TO BE CHECKED!!) [there is a suspicious factor 1/z]
+!!!------  Prefactors KPC case -------------------------------------
 !!!-----------------------------------------------------------------
 
 jacob=pJacobian(p)
@@ -355,7 +355,7 @@ SELECT CASE(process(1))
   CASE(1)
       !!! uniPart is the prefactor for the cross-section
       !pi^2 aEm^2/Q^2 y^2/(1-epsilon)/J
-      uniPart=pi2*alphaEM(scaleMu)**2/(p%Q2)*(p%y)**2/((1d0-eps)*jacob)
+      uniPart=pi2*alphaEM(scaleMu)**2/(p%Q2)*(p%y)**2/((1d0-eps)*jacob)/p%z
 
       PreFactorKPC=uniPart*HardCoefficientSIDIS(scaleMu)*&
       hc2*1d9!from GeV to pbarn
@@ -363,7 +363,7 @@ SELECT CASE(process(1))
   CASE(2)
       !!!! same as for case(1) but with factor Q2/y
 
-      uniPart=pi2*alphaEM(scaleMu)**2*(p%y)/((1d0-eps)*jacob)
+      uniPart=pi2*alphaEM(scaleMu)**2*(p%y)/((1d0-eps)*jacob)/p%z
 
       PreFactorKPC=uniPart*HardCoefficientSIDIS(scaleMu)*&
       hc2*1d9!from GeV to pbarn
@@ -372,7 +372,7 @@ SELECT CASE(process(1))
       !!!! same as for case(1) but with factor x/y
 
       !!! uniPart is the prefactor for the cross-section
-      uniPart=pi2*alphaEM(scaleMu)**2/(p%Q2)*(p%y*p%x)/((1d0-eps)*jacob)
+      uniPart=pi2*alphaEM(scaleMu)**2/(p%Q2)*(p%y*p%x)/((1d0-eps)*jacob)/p%z
 
       PreFactorKPC=uniPart*HardCoefficientSIDIS(scaleMu)*&
       hc2*1d9!from GeV to pbarn
