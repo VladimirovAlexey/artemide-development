@@ -28,7 +28,7 @@ private
 character (len=14),parameter :: moduleName="TMDX-SIDIS-bin"
 character (len=5),parameter :: version="v3.05"
 !Last appropriate version of constants-file
-integer,parameter::inputver=43
+integer,parameter::inputver=44
 
 real(dp) :: toleranceINT=0.0001d0
 real(dp) :: toleranceGEN=0.0000001d0
@@ -38,8 +38,17 @@ type(Warning_OBJ)::Warning_Handler
 
 logical::started=.false.
 
-!!! number of sections for PT-integral by default
+!!! absolute minimum value of pT (GeV); smaller values are frozen to this
 real(dp)::ptMIN_ABS=0.00001d0
+
+!!!======= Interpretation of kinematics
+!! The masses can be included into the definitions of general kinematic parameters (e.g. pPperp, eps) (although the factorization theorem remains massless)
+!! In artemide (from v.3.05) all masses are included into the definitions of corresponding prameters.
+!! To exclude them just set Mtarget = and Mproduct =0.
+!! Alternatively, (in order not to chenge the input data-files) one can set flags includeM1 and includeM2 (analogously to older version of artemide).
+!! If includeM1 = .false. the input Mtarget is nulified at the entry point
+!! If includeM2 = .false. the input Mproduct is nulified at the entry point
+logical:: includeM1,includeM2 !!!if true include
 
 !!!--------- bin specifications
 !!! below these values the computation will be done for a point
@@ -53,8 +62,8 @@ real(dp)::zBINSIZE_min=0.0001_dp
 !!! so few-point Chebyshev approximation gives very good result and can be split into bins and integrated exactly
 logical::doPartitioning_byDefault=.false.
 integer::NumChNodes=10
-real(dp)::MaxQT_range_toPartite=18._dp  !!!!! if the range is bigger than this, it is cut
-!!! the matrix of interpolation, and Chebyschev nodes
+real(dp)::MaxQT_range_toPartite=18._dp  !!!!! if pT_max/z_avg exceeds this, the bin is excluded from pT-spectrum partitioning and computed individually
+!!! the Chebyshev interpolation matrix and node array
 real(dp),allocatable,dimension(:,:)::ChInterpolationMatrix
 real(dp),allocatable,dimension(:)::ChNodes
 
@@ -100,7 +109,7 @@ subroutine TMDX_SIDIS_bin_Initialize(file,prefix)
         error stop ErrorString('const-file version is too old. Update with artemide.setup.',moduleName)
     end if
 
-    !!! Fill the message system
+    !!! Initialize the warning/message system
     call MoveTO(51,'*p2  ')
     read(51,*) outputLevel
     if(outputLevel>2) write(*,*) '--------------------------------------------- '
@@ -144,6 +153,19 @@ subroutine TMDX_SIDIS_bin_Initialize(file,prefix)
     read(51,*) xBINSIZE_min
     call MoveTO(51,'*p4  ')
     read(51,*) zBINSIZE_min
+
+    !!------------------------------------Interpretation of external kinematics
+    call MoveTO(51,'*E   ')
+    !! M-target correction
+    call MoveTO(51,'*p1  ')
+    read(51,*) includeM1
+    if(outputLevel>2 .and. includeM1) &
+            write(*,*) '    artemide.'//trim(moduleName)//': Target-mass effects included into kinematics.'
+    !! M-product correction
+    call MoveTO(51,'*p2  ')
+    read(51,*) includeM2
+    if(outputLevel>2 .and. includeM2) &
+            write(*,*) '    artemide.'//trim(moduleName)//': Product-mass effects included into kinematics.'
 
 
     CLOSE (51, STATUS='KEEP')
@@ -205,9 +227,6 @@ real(dp)::x1,x2,xMinWithCuts
 x1=p%Q2/cutParam(2)/p%sM2
 x2=p%Q2/(p%Q2+cutParam(4)-p%M2target)
 
-!x1=p%Q2/cutParam(2)/(p%sM2-(0.938)**2)
-!x2=p%Q2/(p%Q2+cutParam(4)-(0.938)**2)
-
 xMinWithCuts=max(xmin,x1,x2)
 end function xMinWithCuts
   
@@ -220,9 +239,6 @@ real(dp),intent(in)::xmax
 real(dp)::x1,x2,xMaxWithCuts
 x1=p%Q2/cutParam(1)/p%sM2
 x2=p%Q2/(p%Q2+cutParam(3)-p%M2target)
-
-!x1=p%Q2/cutParam(1)/(p%sM2-(0.938)**2)
-!x2=p%Q2/(p%Q2+cutParam(3)-(0.938)**2)
 
 xMaxWithCuts=min(xmax,x1,x2)
 end function xMaxWithCuts
@@ -238,9 +254,6 @@ real(dp)::Q1,Q2,QMinWithCuts
 Q1=sqrt(xmin*cutParam(1)*p%sM2)
 Q2=sqrt(xmin*(cutParam(3)-p%M2target)/(1d0-xmin))
 
-!Q1=sqrt(xmin*cutParam(1)*(p%sM2-(0.938)**2))
-!Q2=sqrt(xmin*(cutParam(3)-(0.938)**2)/(1d0-xmin))
-
 QMinWithCuts=max(Qmin,Q1,Q2)
 end function QMinWithCuts
   
@@ -254,9 +267,6 @@ real(dp)::Q1,Q2,QMaxWithCuts
 
 Q1=Sqrt(xmax*cutParam(2)*p%sM2)
 Q2=sqrt(xmax*(cutParam(4)-p%M2target)/(1d0-xmax))
-
-!Q1=Sqrt(xmax*cutParam(2)*(p%sM2-(0.938)**2))
-!Q2=sqrt(xmax*(cutParam(4)-(0.938)**2)/(1d0-xmax))
 
 QMaxWithCuts=min(Qmax,Q1,Q2)
 end function QMaxWithCuts
@@ -344,8 +354,9 @@ end function Xsec_Zint
 !---------------------------------INTEGRATED over X---------------------------------------------------------------
 
 !!! function for integration over X
-!!! If proc1=3, the SIDIS point actually contains y instead of x.
-!!! it is a curious fact that until this point the factor gamma2 stored in SIDISpoint is incorrect (however it is corrected within TMDX_SIDIS_1pt).
+!!! If process(1)=3, the SIDIS point actually contains y instead of x.
+!!! Until this point gamma2 in SIDISpoint reflects the constructor's initial x, not the integration variable;
+!!! it is updated correctly when updateX_SIDIS is called inside the integrand.
 function Xsec_Xint_Zint(p,process,zMIN_in,zMAX_in,Xmin_in,Xmax_in,doCut,Cuts)
 type(SIDISpoint)::p
 logical,intent(in)::doCut
@@ -429,8 +440,9 @@ end function Xsec_Xint_Zint
 !---------------------------------INTEGRATED over Q--------------------------------------------------------------
 
 !!! function for integration over Q
-!!! If proc1=2, the SIDIS point actually contains y instead of Q.
-!!! it is a curious fact that until this point the factor gamma2 stored in SIDISpoint is incorrect (however it is corrected within TMDX_SIDIS_1pt).
+!!! If process(1)=2, the SIDIS point actually contains y instead of Q.
+!!! Until this point gamma2 in SIDISpoint reflects the constructor's initial Q, not the integration variable;
+!!! it is updated correctly when updateQ_SIDIS is called inside the integrand.
 !!!! Another note, the integral is over dQ while the xSec is over dQ2;
 function Xsec_Qint_Xint_Zint(p,process,zMIN_in,zMAX_in,Xmin_in,Xmax_in,Qmin_in,Qmax_in,doCut,Cuts)
 type(SIDISpoint)::p
@@ -613,7 +625,7 @@ real(dp),intent(in) :: Qmin_in,Qmax_in,xMin,xMax,zMin,zMax,ptMax_in,ptMin_in,s_i
 integer,intent(in)::Num
 
 real(dp) :: Xsec_PTint_Qint_Xint_Zint
-real(dp)::Qmin,Qmax,ptMin,ptMax,s
+real(dp)::Qmin,Qmax,ptMin,ptMax,s,m1_out,m2_out
 type(SIDISpoint)::p
 
 !!!------------------------- checking Q----------
@@ -681,8 +693,18 @@ if(xmin-xmax>toleranceGEN) then
   return
 end if
 
-
-p=SIDISpoint(pPerp=ptMin,s=s,Q=(Qmin+Qmax)/2,x=(xMax+xMin)/2,z=(zMax+zMin)/2,Mtarget=m1,Mproduct=m2)
+!!!!!! evaluating initial masses
+if(includeM1 .and. m1>0) then
+  m1_out=m1
+else
+  m1_out=0._dp
+end if
+if(includeM2 .and. m2>0) then
+  m2_out=m2
+else
+  m2_out=0._dp
+end if
+p=SIDISpoint(pPerp=ptMin,s=s,Q=(Qmin+Qmax)/2,x=(xMax+xMin)/2,z=(zMax+zMin)/2,Mtarget=m1_out,Mproduct=m2_out)
 
 
 Xsec_PTint_Qint_Xint_Zint=Xsec_PTint_Qint_Xint_Zint_calc(p,process,zMin,zMax,xMin,xMax,Qmin,Qmax,ptMin,ptMax,doCut,Cuts,Num)
@@ -702,7 +724,7 @@ real(dp), dimension(1:),intent(in) :: ptMin_in, ptMax_in
 
 real(dp), dimension(1:size(ptMin_in)) :: Xsec_pTspectrum_Qint_Xint_Zint
 type(SIDISpoint)::p
-real(dp) :: s,Qmin,Qmax
+real(dp) :: s,Qmin,Qmax,m1_out,m2_out
 
 integer::nBINS,i
 real(dp):: pt_min(1:size(ptMin_in)),pt_max(1:size(ptMin_in))
@@ -791,14 +813,23 @@ if(xmin-xmax>toleranceGEN) then
   return
 end if
 
+!!!!!! evaluating initial masses
+if(includeM1 .and. m1>0) then
+  m1_out=m1
+else
+  m1_out=0._dp
+end if
+if(includeM2 .and. m2>0) then
+  m2_out=m2
+else
+  m2_out=0._dp
+end if
 
 !!!!!------------------------ here we start the actual computation
 !!!! determining the total pT range
 pT_bin_MIN=minval(pT_min)
 pT_bin_MAX=maxval(pT_max)
 
-! write(*,*) pT_bin_MAX
-!
 !!!! making intermediate variables.
 !!!---(1) linear
 diffAB=(pT_bin_MAX-pT_bin_MIN)/2
@@ -807,13 +838,10 @@ sumAB=(pT_bin_MAX+pT_bin_MIN)/2
 !!!!!! Computation of the function at nodes
 !!!! longest part: computation of the cross-section at Chebyshev nodes
 
-! write(*,*) "Number of Chebyshev nodes", NumChNodes
-
-
 do i=0,NumChNodes
   !!!!! ----(1) linear
   pTInter=diffAB*ChNodes(i)+sumAB
-  p=SIDISpoint(pPerp=pTInter,s=s,Q=(Qmin+Qmax)/2,x=(xMax+xMin)/2,z=(zMax+zMin)/2,Mtarget=m1,Mproduct=m2)
+  p=SIDISpoint(pPerp=pTInter,s=s,Q=(Qmin+Qmax)/2,x=(xMax+xMin)/2,z=(zMax+zMin)/2,Mtarget=m1_out,Mproduct=m2_out)
 
   fAtNodes(i)=2*pTInter*Xsec_Qint_Xint_Zint(p,process,zMIN,zMAX,Xmin,Xmax,Qmin,Qmax,doCut,Cuts)
 end do
@@ -826,7 +854,6 @@ do i=1,nBINS
    vectorR=ChebyshevT_int_array(NumChNodes,(pT_max(i)-sumAB)/diffAB)-ChebyshevT_int_array(NumChNodes,(pT_min(i)-sumAB)/diffAB)
 
    Xsec_pTspectrum_Qint_Xint_Zint(i)=diffAB*dot_product(vectorR,fAtNodes)
-   !write(*,*) "---->",vectorR
 
    !!!! do not forget to divide by bin size to get average
   Xsec_pTspectrum_Qint_Xint_Zint(i)=Xsec_pTspectrum_Qint_Xint_Zint(i)/(pT_max(i)-pT_min(i))

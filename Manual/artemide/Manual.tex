@@ -2983,9 +2983,9 @@ So, for small size of a bin the cross-section smoothly turns to a cross-section 
 \begin{eqnarray}
 \texttt{proc1}=1:~~&&\text{\texttt{TMDX\_SIDIS{\_}bin}}\longrightarrow \frac{d\sigma}{dQ dz dx  d|p_\perp|}
 \\
-\texttt{proc1}=2:~~&&\text{\texttt{TMDX\_SIDIS{\_}bin}}\longrightarrow \frac{d\sigma}{dy dz dx  d|p_\perp|}
+\texttt{proc1}=2:~~&&\text{\texttt{TMDX\_SIDIS{\_}bin}}\longrightarrow \frac{d\sigma}{dy dz dx  d|p_\perp|}=\frac{Q^2}{y}\frac{d\sigma}{dQ^2 dz dx  d|p_\perp|}
 \\
-\texttt{proc1}=3:~~&&\text{\texttt{TMDX\_SIDIS{\_}bin}}\longrightarrow \frac{d\sigma}{dQ dz dy  d|p_\perp|}
+\texttt{proc1}=3:~~&&\text{\texttt{TMDX\_SIDIS{\_}bin}}\longrightarrow \frac{d\sigma}{dQ dz dy  d|p_\perp|}=\frac{x}{y}\frac{d\sigma}{dQ dz dy  d|p_\perp|}
 \end{eqnarray}
 Note, that it is different from the result of \texttt{xSec\_SIDIS\_1pt} (e.g. for \texttt{proc1}=1, by a factor of $4Qp_\perp$).
 
@@ -2997,9 +2997,10 @@ There are following feature of current implementation
 \item Currently, there are two implementations of integration routines, which is dictated by a pre-compile variable \texttt{INTEGRATION\_MODE} (in the header of the code-file). 
 \begin{itemize}
 \item The case (\texttt{INTEGRATION\_MODE} 1) is fully adaptive (and thus accurate and slow).
-\item The case (\texttt{INTEGRATION\_MODE} 2) is fixed-point integration tuned by hands to some reasonable values (and thus not-accurate but fast). In this case artemide show a warning message on start-up, that the approximate mode is used. 
+\item The case (\texttt{INTEGRATION\_MODE} 2) is fixed-point integration tuned by hands to some reasonable values (and thus not-accurate but fast). In this case artemide show a warning message on start-up, that the approximate mode is used.
 \end{itemize}
 Switch this variable as needed (recompilation of the library is then required).
+\item The mass effects are taken into account in the definitions of external kinematical parameters e.g. $\vec p_\perp$, $\varepsilon$, etc., as well as in the definitions of the cut-region. They are eliminated by setting the input masses to zero. Alternatively, one can set the flags \texttt{includeM1} and/or \texttt{includeM2} to \texttt{.false.}, which sets the masses (of the target and/or product hadrons, correspondingly) to zero at the entry to the module. These flags are controlled by section \texttt{*E/*p1,*p2} of the INI-file.
 \end{itemize}
 
 \begin{center}
@@ -3018,6 +3019,32 @@ Command & ~~Type~~& ~~Sec.~~ & Short description
 \texttt{Xsec{\_}PTint{\_}Qint{\_}Xint{\_}Zint(} \texttt{proc,s,} \texttt{zMin,zMax,xMin,xMax,} \texttt{Qmin,Qmax,ptMin,ptMax,} \texttt{doCut,Cuts,Num,m1,m2)} & real(dp) &\ref{TMDX:xsec} & Evaluates cross-section averaged over the full bin. Bin edges: \texttt{(ptMin,ptMax)}, \texttt{(Qmin,Qmax)}, \texttt{(xMin,xMax)}, \texttt{(zMin,zMax)}. \texttt{m1,m2} are target/product hadron masses (GeV). \texttt{doCut,Cuts=(ymin,ymax,W2min,W2max)} control kinematic cuts. \texttt{Num} is the number of sections in the $p_T$ integration.
 \\\hline
 \texttt{Xsec{\_}pTspectrum{\_}Qint{\_}Xint{\_}Zint(} \texttt{proc,s,} \texttt{zMin,zMax,xMin,xMax,} \texttt{Qmin,Qmax,ptMin(:),ptMax(:),} \texttt{doCut,Cuts,m1,m2)} & real(dp)(:) &\ref{TMDX:xsec} & Evaluates cross-section averaged over the bin simultaneously for multiple $p_T$ bins using Chebyshev interpolation. \texttt{ptMin} and \texttt{ptMax} are arrays of bin edges; $Q$, $x$, and $z$ bounds are shared across all bins.
+\\\hline\hline
+\end{tabular}
+\end{center}
+
+\subsection{\texttt{TMDX{\_}SIDIS} module}
+
+This module is the public-facing wrapper. It initializes both sub-modules (\texttt{TMDX\_SIDIS\_point} and \texttt{TMDX\_SIDIS\_bin}), provides the \texttt{xSec\_SIDIS} and \texttt{xSec\_SIDIS\_List} interfaces used by the end user, and manages the OpenMP parallel dispatch for list evaluation.
+
+\begin{center}
+List of available commands
+\\
+\begin{tabular}{||p{6cm}|c|c|p{8cm}||}
+\hline\hline
+Command & ~~Type~~& ~~Sec.~~ & Short description
+\\\hline
+\texttt{TMDX{\_}SIDIS{\_}Initialize(file[,prefix])} & subrout. & \ref{TMDX:init} & Initialization of module.
+\\\hline
+\texttt{TMDX{\_}SIDIS{\_}IsInitialized()} & logical & -- & Returns \texttt{.true.} if the module has been initialized.
+\\\hline
+\texttt{TMDX{\_}SIDIS{\_}ResetCounters()} & subrout. & -- & Reset intrinsic counters of the module (chains into sub-modules; prints statistics if output level is high enough).
+\\\hline
+\texttt{TMDX{\_}SIDIS{\_}SetScaleVariation(c2)} & subrout. & -- & Set new value for the scale-variation constant $c_2$.
+\\\hline
+\texttt{xSec\_SIDIS(X,process,s,} \texttt{qT,Q,y,includeCuts,} \texttt{CutParameters,Num)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section averaged over the bin.
+\\\hline
+\texttt{xSec\_SIDIS\_List(X,process,s,} \texttt{qT,Q,y,includeCuts,} \texttt{CutParameters,Num,doP)} &subrout. &\ref{TMDX:xsec} & Evaluates cross-section averaged over the bin for a list of bins; runs in parallel via OpenMP.
 \\\hline\hline
 \end{tabular}
 \end{center}
@@ -3539,9 +3566,10 @@ polarized DY
 \begin{itemize}
 \item[\textbf{Ver.3.05}]
 \begin{itemize}
-		\item \textbf{TMDX\_SIDIS} is split into three modules \textbf{TMDX\_SIDIS\_point}, \textbf{TMDX\_SIDIS\_bin}, \textbf{TMDX\_SIDIS}. 
+	\item \textbf{TMDX\_SIDIS} The definition of mass-correction is somewhat changed. Now, mass-corrections can be included only into the kinematic variables, and switch off entirely if mass=0. It was not very clear and strict in older versions.
+	\item \textbf{TMDX\_SIDIS} is split into three modules \textbf{TMDX\_SIDIS\_point}, \textbf{TMDX\_SIDIS\_bin}, \textbf{TMDX\_SIDIS}. 
 	\item \textbf{TMDX\_DY\_point} Fixed error with Jacobian for single-point cross-section with $dx_F$ measure (it was multiplied, instead of divided)
-		\item \textbf{TMDX\_DY\_bin} Integration over bin is switched into the averaging over a bin.
+	\item \textbf{TMDX\_DY\_bin} Integration over bin is switched into the averaging over a bin.
 	\item \textbf{TMDX\_DY} is split into three modules \textbf{TMDX\_DY\_point}, \textbf{TMDX\_DY\_bin}, \textbf{TMDX\_DY}. Many small fixes (like check of boundaries, etc.).
 	\item \textbf{aTMDe\_ptSpec} Implemented.
 \end{itemize}
@@ -3866,6 +3894,7 @@ polarized DY
 \item +added sections for KT grids of Sivers, wgt, and wgl, \textit{it replaces} the older section about Ogata (sections 12.F.*; 13.H.*, and 16.H.*)
 \item +added section for the sizes of minimum bin sizes for DY process (sections 9.BIN.*;). Name of the section is strange in order to place it in a convenient place in the file.
 \item +added section for the sizes of minimum bin sizes for SIDIS process (sections 9.BIN.*;). Name of the section is strange in order to place it in a convenient place in the file.
+\item + the flags for including masses-effects in SIDIS are moved from sec. 10.C.p3-p4 to 10.E.p1-p2.
 \end{enumerate}
 
 \begin{center}

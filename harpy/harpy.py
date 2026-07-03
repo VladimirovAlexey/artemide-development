@@ -1768,7 +1768,7 @@ class SIDIS:
                         cc=CutParameters
                 
                 
-                return artemide.harpy.sidis_xsec_single_withmasses(\
+                return artemide.harpy.sidis_xsec_single(\
                     numpy.asfortranarray(process),\
                     s,\
                     numpy.asfortranarray(pT),\
@@ -1792,20 +1792,4 @@ class SIDIS:
                                                numpy.asfortranarray(CutParameters),\
                                                numpy.asfortranarray(masses),\
                                                len(s),doParts)
-            
-        @staticmethod
-        def xSecListBINLESS(process,s,pT,z,x,Q,masses):  
-            """ The evaluation of cross-section at a single point. 
-            
-            No binning effects.
-            Consiquetly, no cuts.
-            """
-            return artemide.harpy.sidis_xsec_binless_list(numpy.asfortranarray(process),\
-                                               numpy.asfortranarray(s),\
-                                               numpy.asfortranarray(pT),\
-                                               numpy.asfortranarray(z),\
-                                               numpy.asfortranarray(x),\
-                                               numpy.asfortranarray(Q),\
-                                               numpy.asfortranarray(masses),\
-                                               len(s))
                                 

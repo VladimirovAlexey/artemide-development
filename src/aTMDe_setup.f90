@@ -17,7 +17,7 @@ private
 character (len=5),parameter :: version="v3.05"
 character (len=11),parameter :: moduleName="aTMDe-setup"
 !! actual version of input file
-integer,parameter::inputVer=43
+integer,parameter::inputVer=44
 
 !detalization of output: 0 = no output except critical, 1 = + WARNINGS, 2 = + states of initialization,sets,etc, 3 = + details
 integer::outputLevel
@@ -850,8 +850,8 @@ subroutine SetupDefault(order)
     TMDX_SIDIS_zMINBIN=0.0001d0 !!!! minumum size of the z bin to make comparison (below this size, the bin is considered poin-like)
     TMDX_SIDIS_order=trim(order)
     TMDX_SIDIS_qTcorr=.true.
-    TMDX_SIDIS_M1corr=.false.
-    TMDX_SIDIS_M2corr=.false.
+    TMDX_SIDIS_M1corr=.false.   !!!! In version 3.05, this migrated to the section of interpretation of kinematics
+    TMDX_SIDIS_M2corr=.false.   !!!! In version 3.05, this migrated to the section of interpretation of kinematics
     TMDX_SIDIS_exactX1Z1=.true.
     TMDX_SIDIS_exactZeta=.false.
     TMDX_SIDIS_useKPC=.false.
@@ -1416,16 +1416,24 @@ subroutine CreateConstantsFile(file,prefix)
     write(51,"('*C   : ---- Definition of LP TMD factorization ----')")
     write(51,"('*p1  : Account induced transverse momentum corrections')")
     write(51,*) TMDX_SIDIS_qTcorr
+    if(inputVer<44) then !!!!!!!!! This is depricated section; never executed (left for historical reasons)
     write(51,"('*p2  : Account induced target mass corrections (DEPRICATED)')")
     write(51,*) TMDX_SIDIS_M1corr
     write(51,"('*p3  : Account induced product mass corrections (DEPRICATED)')")
     write(51,*) TMDX_SIDIS_M2corr
+    end if
     write(51,"('*p4  : Use exact LP values for x1 and z1')")
     write(51,*) TMDX_SIDIS_exactX1Z1
     write(51,"('*p5  : Use the exact values for the factorization scale zeta (include qT/Q correction)')")
     write(51,*) TMDX_SIDIS_exactZeta
     write(51,"(' ')")
     write(51,"('*D   : ---- Definition of TMD factorization with KPC ----')")
+    write(51,"(' ')")
+    write(51,"('*E   : ---- Interpretation of the external kinematics ----')")
+    write(51,"('*p1  : Include target mass into definitions of kinematical varibles')")
+    write(51,*) TMDX_SIDIS_M1corr
+    write(51,"('*p2  : Include product mass into definitions of kinematical varibles')")
+    write(51,*) TMDX_SIDIS_M2corr
 
     write(51,"(' ')")
     write(51,"(' ')")
@@ -2603,15 +2611,24 @@ subroutine ReadConstantsFile(file,prefix)
     call MoveTO(51,'*C   ')
     call MoveTO(51,'*p1  ')
     read(51,*) TMDX_SIDIS_qTcorr
-    call MoveTO(51,'*p2  ')
-    read(51,*) TMDX_SIDIS_M1corr
-    call MoveTO(51,'*p3  ')
-    read(51,*) TMDX_SIDIS_M2corr
+    if(FILEversion<44) then !!!!! replaced in newer versions
+        call MoveTO(51,'*p2  ')
+        read(51,*) TMDX_SIDIS_M1corr
+        call MoveTO(51,'*p3  ')
+        read(51,*) TMDX_SIDIS_M2corr
+    end if
     call MoveTO(51,'*p4  ')
     read(51,*) TMDX_SIDIS_exactX1Z1
     call MoveTO(51,'*p5  ')
     read(51,*) TMDX_SIDIS_exactZeta
     call MoveTO(51,'*D   ')
+    if(FILEversion>43) then !!!!! replaced in newer versions
+        call MoveTO(51,'*E   ')
+        call MoveTO(51,'*p1  ')
+        read(51,*) TMDX_SIDIS_M1corr
+        call MoveTO(51,'*p2  ')
+        read(51,*) TMDX_SIDIS_M2corr
+    end if
 
     !# ----                           PARAMETERS OF lpTMDPDF                  -----
     call MoveTO(51,'*11  ')

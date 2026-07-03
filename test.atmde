@@ -12,7 +12,7 @@
  
 *A   : ---- Global I/O ----
 *p1  : Input file Version (used to check version compatibility)
-          43
+          44
 *p2  : Output level (0 = no output except critical, 1 = + WARNINGS, 2 = + info,  3 = + details)
            2
 *p3  : Message trigger (the number of continious non-critical warning before stop showing them)
@@ -454,6 +454,12 @@
  F
 
 *D   : ---- Definition of TMD factorization with KPC ----
+
+*E   : ---- Interpretation of the external kinematics ----
+*p1  : Include target mass into definitions of kinematical varibles
+ F
+*p2  : Include product mass into definitions of kinematical varibles
+ F
  
 # ---------------------------------------------------------------------------
 # ----                           PARAMETERS OF lpTMDPDF                 -----

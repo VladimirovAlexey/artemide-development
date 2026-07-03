@@ -198,8 +198,8 @@ subroutine xSec_SIDIS(xx,process,s,pT,z,x,Q,doCut,Cuts,masses)
   real(dp),intent(in),dimension(1:2)::x                 !(xmin,xmax)
   real(dp),intent(in),dimension(1:2)::Q                 !(Qmin,Qmax)
   logical,intent(in)::doCut                             !triger cuts
-  real(dp),intent(in),dimension(1:4)::Cuts              !(ymin,yMax,W2)
-  real(dp),intent(in),dimension(1:2),optional::masses   !(mass_target,mass-product)GeV
+  real(dp),intent(in),dimension(1:4)::Cuts              !(ymin,ymax,W2min,W2max)
+  real(dp),intent(in),dimension(1:2),optional::masses   !(mass_target,mass_product)GeV
   real(dp),intent(out)::xx
 
   integer::Num
@@ -240,7 +240,7 @@ if(.not.started) error stop ErrorString('The module is not initialized. Check IN
 
   length=size(s)
 
-  !!! cheking sizes
+  !!! checking sizes
   if(size(xx)/=length) then
     error stop ErrorString('xSec_SIDIS_List: sizes of xSec and s lists are not equal.',moduleName)
   end if
@@ -266,7 +266,7 @@ if(.not.started) error stop ErrorString('The module is not initialized. Check IN
     error stop ErrorString('xSec_SIDIS_List: sizes of Cuts and s lists are not equal.',moduleName)
   end if
   if(size(process,2)/=4) then
-    error stop ErrorString('xSec_SIDIS_List: process list must be (:,1:3).',moduleName)
+    error stop ErrorString('xSec_SIDIS_List: process list must be (:,1:4).',moduleName)
   end if
   if(size(pT,2)/=2) then
     error stop ErrorString('xSec_SIDIS_List: pt list must be (:,1:2).',moduleName)
@@ -303,9 +303,9 @@ if(.not.started) error stop ErrorString('The module is not initialized. Check IN
   end if
 
   if(doP) then
-  !!!! attempt to make partitioning in to pt-sectors
+  !!!! attempt to make partitioning into pt-sectors
   !!!! basically, I run though the whole list and compare the terms if all (except pT) are the same, they are marked by the same number
-  !!!! Only consequetive ranges are marked, and there is also upper cut
+  !!!! Only consecutive ranges are marked, and there is also an upper cut
     k=1
     listOfParts(1)=k
     do i=2,length
@@ -327,7 +327,7 @@ if(.not.started) error stop ErrorString('The module is not initialized. Check IN
       listOfParts(i)=k
     end do
     numberOfP=k
-    !!!! partitions is a list that contain initial numbers of each partition
+    !!!! partI1 is a list that contains the initial index of each partition
     allocate(partI1(1:numberOfP))
     partI1(1)=1
     k=2
@@ -338,7 +338,7 @@ if(.not.started) error stop ErrorString('The module is not initialized. Check IN
       end if
     end do
 
-    !!!! partSize is a list that contain sizes of partI1
+    !!!! partSize is a list that contains the size of each partition
     allocate(partSize(1:numberOfP))
 
     do i=1,numberOfP-1

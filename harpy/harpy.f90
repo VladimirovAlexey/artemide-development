@@ -792,10 +792,8 @@ end function GetTw3_WGT
     logical,intent(in)::includeCuts			!include cuts
     real*8,intent(in),dimension(1:4)::CutParameters	!(p1,p2,eta1,eta2)
     real*8::DY_xSec_Single
-    real*8::X
 
-    call xSec_DY(X,process,s,qT,Q,y,includeCuts,CutParameters)
-    DY_xSec_Single=X
+    call xSec_DY(DY_xSec_Single,process,s,qT,Q,y,includeCuts,CutParameters)
 
   end function DY_xSec_Single
   
@@ -820,23 +818,7 @@ end function GetTw3_WGT
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!SIDIS CROSS-SECTION
   
-  function SIDIS_xSec_Single(process,s,pT,z,x,Q,doCut,Cuts)
-    integer,intent(in),dimension(1:4)::process			!the number of process
-    real*8,intent(in)::s					!Mandelshtam s
-    real*8,intent(in),dimension(1:2)::pT			!(qtMin,qtMax)
-    real*8,intent(in),dimension(1:2)::z				!(zmin,zmax)
-    real*8,intent(in),dimension(1:2)::x				!(xmin,xmax)
-    real*8,intent(in),dimension(1:2)::Q				!(Qmin,Qmax)    
-    logical,intent(in)::doCut					!triger cuts
-    real*8,intent(in),dimension(1:4)::Cuts			!(ymin,yMax,W2min,W2max)
-    real*8::SIDIS_xSec_Single
-    
-    call TMDF_ResetCounters()
-    call xSec_SIDIS(SIDIS_xSec_Single,process,s,pT,z,x,Q,doCut,Cuts)
-  
-  end function SIDIS_xSec_Single
-  
-  function SIDIS_xSec_Single_withMasses(process,s,pT,z,x,Q,doCut,Cuts,masses)
+  function SIDIS_xSec_Single(process,s,pT,z,x,Q,doCut,Cuts,masses)
     integer,intent(in),dimension(1:4)::process			!the number of process
     real*8,intent(in)::s					!Mandelshtam s
     real*8,intent(in),dimension(1:2)::pT			!(qtMin,qtMax)
@@ -846,12 +828,11 @@ end function GetTw3_WGT
     logical,intent(in)::doCut					!triger cuts
     real*8,intent(in),dimension(1:4)::Cuts			!(ymin,yMax,W2min,W2max)
     real*8,intent(in),dimension(1:2)::masses			!(mTARGET,mPRODUCT)
-    real*8::SIDIS_xSec_Single_withMasses
+    real*8::SIDIS_xSec_Single
     
-    call TMDF_ResetCounters()
-    call xSec_SIDIS(SIDIS_xSec_Single_withMasses,process,s,pT,z,x,Q,doCut,Cuts,masses)
+    call xSec_SIDIS(SIDIS_xSec_Single,process,s,pT,z,x,Q,doCut,Cuts,masses)
   
-  end function SIDIS_xSec_Single_withMasses
+  end function SIDIS_xSec_Single
   
   function SIDIS_xSec_List(process,s,pT,z,x,Q,doCut,Cuts,masses,ListLength,doPartitioning)
     integer,intent(in)::ListLength
@@ -867,7 +848,6 @@ end function GetTw3_WGT
     logical,intent(in)::doPartitioning   !!! specification to make the partitioning in pT-integrations
     real*8,dimension(1:ListLength)::SIDIS_xSec_List
     
-    call TMDF_ResetCounters()
     call xSec_SIDIS_List(SIDIS_xSec_List,process,s,pT,z,x,Q,doCut,Cuts,masses=masses,doPartitioning=doPartitioning)
   
   end function SIDIS_xSec_List

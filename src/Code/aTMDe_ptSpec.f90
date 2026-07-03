@@ -142,16 +142,8 @@ this%Q=Q
 this%Q2=Q*Q
 this%x=x
 this%z=z
-if(Mtarget<0) then
-    this%M2target=0._dp
-else
-    this%M2target=Mtarget*Mtarget
-end if
-if(Mproduct<0) then
-    this%M2product=0._dp
-else
-    this%M2product=Mproduct*Mproduct
-end if
+this%M2target=Mtarget*Mtarget
+this%M2product=Mproduct*Mproduct
 this%sM2=s-this%M2target
 this%y=this%Q2/(this%x*this%sM2)
 this%gamma2=(2*x*Mtarget/Q)**2

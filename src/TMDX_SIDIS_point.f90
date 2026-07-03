@@ -41,16 +41,16 @@ real(dp)::hc2
 integer:: orderH_global
 
 !!!----------------------POWER CORRECTIONS---------------------------------
-!!! The SIDIS cross-section is defined in laboratory frame, whereas the factorization theorem in Breit frame
-!!! Thus, many variables have involved form, depending on masses of hadrons.
+!!! The SIDIS cross-section is defined in the laboratory frame, whereas the factorization theorem is formulated in the Breit frame.
+!!! Thus, many variables take a more involved form, depending on the masses of hadrons.
 !!! However, the factorization theorem is strictly massless.
-!!! Thus, if masses set non-zero, they are accounted in the kinematic factors (lepton tensor, Jacobians, etc),
+!!! Thus, if masses are set non-zero, they are accounted for in the kinematic factors (lepton tensor, Jacobians, etc),
 !!! but not in the factorization variables (x,z,..)
 !!!======= LP factorization
 !! inclusion of power corrections to the definition
 !! corrQT ~ qT/Q in cross-section
 !! exactX1Z1 ~ x1,z1 as at LP factorization
-!! exactZeta Use exact LP factorization scale =-2q^+q^-
+!! exactZeta: Use exact LP factorization scale = -2q^+q^-
 logical:: corrQT,exactX1Z1, exactZeta !!!if true include
 !!!======= KPC factorization
 logical:: useKPC !!! use the KPC formula
@@ -162,7 +162,6 @@ subroutine TMDX_SIDIS_1pt_Initialize(file,prefix)
 
 
     !!------------------------------------LP FACTORIZATION
-
     call MoveTO(51,'*C   ')
     !! qT correction in kinematics
     call MoveTO(51,'*p1  ')
@@ -244,7 +243,7 @@ subroutine TMDX_SIDIS_1pt_ResetCounters()
 end subroutine TMDX_SIDIS_1pt_ResetCounters
 
 
-!!!!Call this after TMD initialization but before NP, and X parameters
+!!!!Call this after TMD initialization but before NP and X parameters
 subroutine TMDX_SIDIS_1pt_SetScaleVariation(c2_in)
 real(dp),intent(in)::c2_in
 
@@ -259,7 +258,7 @@ end if
 
 end subroutine TMDX_SIDIS_1pt_SetScaleVariation
 
-!!!!! wrapper, to check the convergence in proper module.
+!!!!! wrapper, to check the convergence in the proper submodule.
 function isConvergenceLost_inSubmodule()
 logical::isConvergenceLost_inSubmodule
 if(useKPC) then
@@ -279,8 +278,8 @@ INCLUDE '/Code/TMDX/SIDIScoeff-func.f90'
 !!!!! Prefactor2 is (universal part) x H
 !!!!! In addition to usual p and processes, it receives the following variables (to be computed only once, to save time)
 !!!!! x1, z1 = LP variables x1 and z1
-!!!!! qT = photon's transverse momentum
-!!!!! eps = SIDIS variables varepsilon
+!!!!! qT = TMD transverse momentum (= pPerp/z with mass corrections)
+!!!!! eps = SIDIS variable varepsilon
 !!!!! scaleMU = factorization scale MU
 function PreFactor2(p,process,x1,z1,qT,eps,scaleMu)
 type(SIDISpoint),intent(in)::p
@@ -335,8 +334,8 @@ end function PreFactor2
 !!!!! Prefactor for KPC-case is (universal part) x H
 !!!!! In addition to usual p and processes, it receives the following variables (to be computed only once, to save time)
 !!!!! x1, z1 = LP variables x1 and z1
-!!!!! qT = photon's transverse momentum
-!!!!! eps = SIDIS variables varepsilon
+!!!!! qT = TMD transverse momentum (= pPerp/z with mass corrections)
+!!!!! eps = SIDIS variable varepsilon
 !!!!! scaleMU = factorization scale MU
 function PreFactorKPC(p,process,x1,z1,qT,eps,scaleMu)
 type(SIDISpoint),intent(in)::p
