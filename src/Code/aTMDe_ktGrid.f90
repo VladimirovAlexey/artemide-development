@@ -234,7 +234,7 @@ KfromNode=exp(this%KIntervals(n)*this%KNodes(k)+this%KMeans(n))
 end function KfromNode
 
 !!!!! compute and store grid for any TMDgrid_inKT-compatible function
-!!!!! In most occasions this is provided by Fourier_Levin_array in Fourier_Levin module
+!!!!! In most occasions this is provided by Fourier_array in aTMDe_Levin class
 !!!!! the Grid is TMD*x*kT^2 (factor kT^2 is in the Fourier_Levin_array)
 subroutine ktGrid_MakeGrid(this,F)
 class(ktGrid), intent(inout)::this
@@ -399,6 +399,48 @@ interpolateInK_array=interpolateInK_array/sum(deltaT)
 
 end function interpolateInK_array
 
+!!!!! this function returns the weights of the baricentric formula (unnormalized)
+!!!!! w(i)= b(i)/(t-t(i))
+pure function weightsX(this,t)
+type(ktGrid),intent(in)::this
+real(dp),intent(in)::t
+real(dp),dimension(0:this%xGridSize)::weightsX
+integer::i
+
+weightsX=t-this%xNodes
+!!! pass through each term, if it is close to 0, then the value of fucntion is given by this node
+do i=0,this%xGridSize
+    if(abs(weightsX(i))<this%zero) then
+      weightsX=0._dp
+      weightsX(i)=1._dp
+    return
+  end if
+end do
+
+weightsX=this%xNodeFactors/weightsX
+end function weightsX
+
+!!!!! this function returns the weights of the baricentric formula (unnormalized)
+!!!!! w(i)= b(i)/(t-t(i))
+pure function weightsKT(this,t)
+type(ktGrid),intent(in)::this
+real(dp),intent(in)::t
+real(dp),dimension(0:this%kGridSize)::weightsKT
+integer::i
+
+weightsKT=t-this%kNodes
+!!! pass through each term, if it is close to 0, then the value of fucntion is given by this node
+do i=0,this%kGridSize
+    if(abs(weightsKT(i))<this%zero) then
+      weightsKT=0._dp
+      weightsKT(i)=1._dp
+    return
+  end if
+end do
+
+weightsKT=this%kNodeFactors/weightsKT
+end function weightsKT
+
 !!!! Interpolation from the grid.
 !!!! for values below xMin, above x=1 terminates
 !!!! for values below kMin freeze value
@@ -409,12 +451,15 @@ real(dp),intent(in)::x,kT,Q
 integer,intent(in)::h
 real(dp),dimension(-5:5)::ExtractFromGrid
 
-integer::i,nX,nK,nQ
+integer::i,j,nX,nK,nQ
 real(dp)::tX,tK,kTOdiv
 
-real(dp),dimension(0:this%xGridSize,-5:5)::interGrid
+!real(dp),dimension(0:this%xGridSize,-5:5)::interGrid   !!!!!preliminary
 real(dp),dimension(1:4,-5:5)::interQ
 real(dp),dimension(1:4)::deltaTQ
+
+real(dp),dimension(0:this%kGridSize)::wKT
+real(dp),dimension(0:this%xGridSize)::wX
 
 if(.not.this%gridReady) then
 error stop ErrorString('attempt to extract from grid while it is not ready',this%parentName,moduleName)
@@ -501,24 +546,45 @@ else
         interQ(4,:)=interpolateInX(this,tX,this%mainGRID(nX,0:this%xGridSize,1,this%kGridSize,nQ+2,-5:5,h))
 
         kTOdiv=this%kMIN
+
     else
 
         tX=TfromX(this,x,nX)
         tK=TfromK(this,kT,nK)
 
-        !!! first in kT then in x
-        interGrid=interpolateInK_array(this,tK,this%mainGRID(nX,0:this%xGridSize,nK,0:this%kGridSize,nQ-1,-5:5,h))
-        interQ(1,:)=interpolateInX(this,tX,interGrid)
+!         !!! This is version then I send the sub-grid to a routine to interpolate.
+!         !!! It should be slower (due to multiple coping of grids), however tests are not conclusive.
+!         !!! first in kT then in x
+!         interGrid=interpolateInK_array(this,tK,this%mainGRID(nX,0:this%xGridSize,nK,0:this%kGridSize,nQ-1,-5:5,h))
+!         interQ(1,:)=interpolateInX(this,tX,interGrid)
+!
+!         interGrid=interpolateInK_array(this,tK,this%mainGRID(nX,0:this%xGridSize,nK,0:this%kGridSize,nQ-0,-5:5,h))
+!         interQ(2,:)=interpolateInX(this,tX,interGrid)
+!
+!         interGrid=interpolateInK_array(this,tK,this%mainGRID(nX,0:this%xGridSize,nK,0:this%kGridSize,nQ+1,-5:5,h))
+!         interQ(3,:)=interpolateInX(this,tX,interGrid)
+!
+!         interGrid=interpolateInK_array(this,tK,this%mainGRID(nX,0:this%xGridSize,nK,0:this%kGridSize,nQ+2,-5:5,h))
+!         interQ(4,:)=interpolateInX(this,tX,interGrid)
 
-        interGrid=interpolateInK_array(this,tK,this%mainGRID(nX,0:this%xGridSize,nK,0:this%kGridSize,nQ-0,-5:5,h))
-        interQ(2,:)=interpolateInX(this,tX,interGrid)
+        !!! This is version then I compute the weights and multipli elements of grid
+        !!! It should be faster (because of non-coping subgrid). However tests are not conclusive
+        !!! -- some times it is faster, sometimes the same(?), but it seems that it about 30-40% faster.
+        !!! I tried to make to add here weights in Q, but it seems do not work
+        wKT=weightsKT(this,tK)
+        wX=weightsX(this,tX)
 
-        interGrid=interpolateInK_array(this,tK,this%mainGRID(nX,0:this%xGridSize,nK,0:this%kGridSize,nQ+1,-5:5,h))
-        interQ(3,:)=interpolateInX(this,tX,interGrid)
+        interQ=0._dp
 
-        interGrid=interpolateInK_array(this,tK,this%mainGRID(nX,0:this%xGridSize,nK,0:this%kGridSize,nQ+2,-5:5,h))
-        interQ(4,:)=interpolateInX(this,tX,interGrid)
-
+        do i=0,this%xGridSize
+        do j=0,this%kGridSize
+            interQ(1,-5:5)=interQ(1,-5:5)+wX(i)*wKT(j)*this%mainGRID(nX,i,nK,j,nQ-1,-5:5,h)
+            interQ(2,-5:5)=interQ(2,-5:5)+wX(i)*wKT(j)*this%mainGRID(nX,i,nK,j,nQ-0,-5:5,h)
+            interQ(3,-5:5)=interQ(3,-5:5)+wX(i)*wKT(j)*this%mainGRID(nX,i,nK,j,nQ+1,-5:5,h)
+            interQ(4,-5:5)=interQ(4,-5:5)+wX(i)*wKT(j)*this%mainGRID(nX,i,nK,j,nQ+2,-5:5,h)
+        end do
+        end do
+        interQ=interQ/sum(wKT)/sum(wX)
         kTOdiv=kT
     end if
 end if

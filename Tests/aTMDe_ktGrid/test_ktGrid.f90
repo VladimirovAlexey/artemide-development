@@ -18,16 +18,16 @@
 !   Error metric: ae / max_kT|f(x,fv)|  (normalised by function scale per (x,Q,fv))
 !   Reported accuracy: "accurate digits" = -log10( ae / f_scale )
 !
-!   Config requirement: *p1 = T in the uTMDPDF *F section so that
-!   Initialize_Fourier_Levin allocates the TranformationArray used by Fourier_Levin_array.
+!   Config requirement: *p1 = T in the *F section so that
+!   LevinIntegrator allocates the TransformationArray used by Fourier_array.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 program test_ktGrid
 use aTMDe_IO
 use aTMDe_ktGrid
+use aTMDe_Levin
 use aTMDe_numerics
 use aTMDe_control
 use uTMDPDF
-use Fourier_Levin_uTMDPDF
 implicit none
 
 !! ---- configuration ----
@@ -59,7 +59,8 @@ real(dp), dimension(-5:5) :: from_grid, from_exact
 real(dp) :: ae, re, nd, nd_min, nd_min_Q
 character(len=200) :: buf
 
-type(ktGrid) :: grid
+type(ktGrid)          :: grid
+type(LevinIntegrator) :: levin_obj
 
 !! shared state for toGrid_test / toFourier_inner (accessed via host association)
 real(dp) :: x_cur, Q_cur
@@ -89,6 +90,7 @@ open(newunit=fu, file=trim(prefix)//'test.out', status='replace', action='write'
 !! Initialization
 !! ============================================================
 call artemide_Initialize(inifile, prefix=prefix)
+levin_obj = LevinIntegrator(trim(prefix)//trim(inifile), '*4   ', '*F   ', 'test_ktGrid', 1, 0)
 call artemide_SetNPparameters_uTMDPDF([&
     0.874245_dp, 0.913883_dp, 0.991563_dp, 6.05412_dp, &
     0.353908_dp, 46.6064_dp,  0.115161_dp, 1.53235_dp, &
@@ -243,7 +245,7 @@ function toGrid_test(x_in, Q_in, h_in, s1, s2)
     x_cur = x_in
     Q_cur = Q_in
     h_cur = h_in
-    toGrid_test = Fourier_Levin_array(toFourier_inner)
+    toGrid_test = levin_obj%Fourier_array(toFourier_inner)
 end function toGrid_test
 
 !! b-space TMD at fixed (x_cur, Q_cur, Q_cur^2, h_cur).
