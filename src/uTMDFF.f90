@@ -1,5 +1,5 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 3.04
+!			arTeMiDe 3.05
 !
 !	Evaluation of the unpolarized TMD FF at low normalization point in zeta-prescription.
 !	
@@ -7,6 +7,7 @@
 !
 !	18.08.2023  Implementation in ver.3.0
 !	23.06.2026  Removed old INCLUDE-dependencies
+!   06.07.2026  Changing to a new h-enumeration scheme
 !
 ! !				A.Vladimirov (24.06.2026)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -27,7 +28,7 @@ implicit none
 private 
 
 !Current version of module
-character (len=5),parameter :: version="v3.04"
+character (len=5),parameter :: version="v3.05"
 character (len=7),parameter :: moduleName="uTMDFF"
 !Last appropriate version of constants-file
 integer,parameter::inputver=31
@@ -351,7 +352,28 @@ function TMD_opt(x,bT,hadron)
     end if
 
     !!!! OPE and FNP evaluated using |h|, i.e. for hadron.
-    TMD_opt=uTMDFF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
+    !!!! different hadron cases
+    if(abs(hadron)==12) then
+        !!!!! h=1+2   (e.g. charged hadron = pi+K)
+        TMD_opt=uTMDFF_OPE_convolution(x,bT,1)*FNP(x,bT,1,lambdaNP)&
+                +uTMDFF_OPE_convolution(x,bT,2)*FNP(x,bT,2,lambdaNP)
+    else if(abs(hadron)==123) then
+        !!!!! h=1+2+3  (e.g. charged hadron = pi+K+p)
+        TMD_opt=uTMDFF_OPE_convolution(x,bT,1)*FNP(x,bT,1,lambdaNP)&
+                +uTMDFF_OPE_convolution(x,bT,2)*FNP(x,bT,2,lambdaNP)&
+                +uTMDFF_OPE_convolution(x,bT,3)*FNP(x,bT,3,lambdaNP)
+    else if(abs(hadron)==10) then
+        !!!!! h=(1+1bar)/2 from h=1 (pi^0)
+        TMD_opt=uTMDFF_OPE_convolution(x,bT,1)*FNP(x,bT,1,lambdaNP)
+        TMD_opt=(TMD_opt+TMD_opt(5:-5:-1))/2._dp
+    else if(abs(hadron)==20) then
+        !!!!! h=(2+2bar)/2 from h=2 (K^0)
+        TMD_opt=uTMDFF_OPE_convolution(x,bT,2)*FNP(x,bT,2,lambdaNP)
+        TMD_opt=(TMD_opt+TMD_opt(5:-5:-1))/2._dp
+    else
+        !!!!! standard case
+        TMD_opt=uTMDFF_OPE_convolution(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
+    end if
 
     !!!! here the array is reversed for anti-hadron
     if(hadron<0) TMD_opt=TMD_opt(5:-5:-1)
@@ -382,7 +404,6 @@ function TMD_ev(x,bt,muf,zetaf,hadron)
         Rkernel=TMDR_Rzeta(bt,muf,zetaf,1)
         TMD_ev=Rkernel*TMD_opt(x,bT,hadron)
     end if
-
 
     !!! forcefully set =0 below threshold
     if(muf<mBOTTOM) then
@@ -474,7 +495,27 @@ function TMD_grid_inKT(x,kT,mu,hadron)
     integer,intent(in)::hadron
 
     if(makeGrid_inKT) then
-        TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,abs(hadron))
+
+        !!!! different hadron cases
+        if(abs(hadron)==12) then
+            !!!!! h=1+2   (e.g. charged hadron = pi+K)
+            TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,1)+mainKTGrid%Extract(x,kT,mu,2)
+        else if(abs(hadron)==123) then
+            !!!!! h=1+2+3  (e.g. charged hadron = pi+K+p)
+            TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,1)+mainKTGrid%Extract(x,kT,mu,2)+mainKTGrid%Extract(x,kT,mu,3)
+        else if(abs(hadron)==10) then
+            !!!!! h=(1+1bar)/2 from h=1 (pi^0)
+            TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,1)
+            TMD_grid_inKT=(TMD_grid_inKT+TMD_grid_inKT(5:-5:-1))/2._dp
+        else if(abs(hadron)==20) then
+            !!!!! h=(2+2bar)/2 from h=2 (K^0)
+            TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,2)
+            TMD_grid_inKT=(TMD_grid_inKT+TMD_grid_inKT(5:-5:-1))/2._dp
+        else
+            !!!!! standard case
+            TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,abs(hadron))
+        end if
+
         if(hadron<0) TMD_grid_inKT=TMD_grid_inKT(5:-5:-1)
     else
         TMD_grid_inKT=TMD_ev_inKT(x,kT,mu,mu**2,hadron)

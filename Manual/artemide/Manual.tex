@@ -635,6 +635,97 @@ Utility modules are used in practically every other module of \texttt{artemide}.
 \section{Common structures}
 Artemide uses some commonly defined structures such as conventions on process numbering, specification of kinematics, etc. In this section, we define and describe these conventions.
 
+\subsection{Parton-flavor enumeration}
+
+Artemide uses the LHA-pattern for parton flavor enumeration. I.e. the TMDPDF, TMDFF, and collinear distributions are given by \textit{real(dp)(-5:5)} arrays: \begin{eqnarray}
+\textit{real(dp)(-5:5)}=[
+\underbrace{\bar b}_{-5},\underbrace{\bar c}_{-4},\underbrace{\bar s}_{-3},\underbrace{\bar u}_{-2},\underbrace{\bar d}_{-1},
+\underbrace{g}_{0},
+\underbrace{d}_{1},\underbrace{u}_{2},\underbrace{s}_{3},\underbrace{c}_{4},\underbrace{b}_{5}
+],
+\end{eqnarray}
+where the number indicates the FORTRAN index of the array.
+
+\subsection{Hadron enumeration (PDF-case)}
+
+The hadrons are composed of partons, and carry independent non-perturbative structure, which is encoded in the collinear input, and the non-perturbative functions. The type of hadron is specified by an \textit{integer} hadron (=\texttt{h}). At the same time, there are special "hadrons", i.e. systems, that are made as particular combination of ordinary hadrons, such as neutron or deuteron. The current convention within artemide is following
+\begin{itemize}
+\item There are fundamental hadrons, which are given by \texttt{h}=1,...,9. I.e. maximum 9 such hadrons. By default, \texttt{h}=1 correspond to a proton. Then \texttt{h}=2 correspond to e.g. $\pi$, etc. (As a matter of fact, in very rare cases one needs more than a proton). These hadrons have unique collinear input and unique non-perturbative profiles.
+\item The derived hadrons are all derived from \texttt{h}=1, i.e., artemide computes the TMD for $\texttt{h}=1$ and then manipulates it. The numbering for these cases is given below.
+\item The negative \texttt{h} corresponds to anti-particle, and has the reversed parton content. i.e.
+$$
+\texttt{h}= [\bar b,\bar c,\bar s,\bar u,\bar d,g,d,u,s,c,b]~~~\Leftrightarrow~~
+-\texttt{h}= [b,c,s,u,d,g,\bar d,\bar u,\bar s,\bar c,\bar b],
+$$
+for $\texttt{h}>0$. It is applied after the computation of the hadron (so, for example, $\texttt{h}=-11$ corresponds to anti-neutron)
+\end{itemize}
+\begin{center}
+\begin{tabular}{||c|l|c|p{4cm}||}
+\hline
+~~\texttt{h}~~ & name & Parton transformation rule & Comment
+\\\hline
+11 & neutron & $[\bar b,\bar c,\bar s,\bar d,\bar u,g,u,d,s,c,b]$&
+Proton with $(u\leftrightarrow d,\bar u\leftrightarrow \bar d)$
+\\\hline
+12 & deuteron & $[\bar b,\bar c,\bar s,\frac{\bar d+\bar u}{2},\frac{\bar d+\bar u}{2},g,\frac{u+d}{2},\frac{u+d}{2},s,c,b]$&
+Proton + neutron
+\\\hline\hline
+$\overbrace{\underbrace{A}_{3\text{dig.}}\underbrace{Z}_{3\text{dig.}}}^{\geqslant 4digits}$ & nuclei $\,^A_ZX$ & $[\bar b,\bar c,\bar s,\frac{Z\bar u+(A-Z)\bar d}{A},\frac{(A-Z)\bar u+Z\bar d}{A},g,\frac{(A-Z)u+Z d}{A},\frac{Z u+(A-Z) d}{A},s,c,b]$& Z Protons + (A-Z) neutrons (normalized)
+\\\hline
+\multicolumn{4}{||c||}{In particular}
+\\
+\hline 
+64029 & $^{64}_{29}Cu$(copper) & $[\bar b,\bar c,\bar s,\frac{29\bar u+35\bar d}{64},\frac{35\bar u+29\bar d}{64},g,\frac{35 u+29 d}{64},\frac{29u+35 d}{64},s,c,b]$
+& Used as E288 target
+\\
+\hline 
+184074 & $^{184}_{74}W$(tungsten) & $[\bar b,\bar c,\bar s,\frac{37\bar u+55\bar d}{92},\frac{55\bar u+37\bar d}{92},g,\frac{55 u+37 d}{92},\frac{37u+55 d}{92},s,c,b]$
+& Used as E537 target
+\\\hline\hline
+\end{tabular}
+\end{center}
+
+\begin{tcolorbox}
+\begin{center}
+These definitions are specified in \texttt{aTMDe\_hDef}
+\end{center}
+\end{tcolorbox}
+
+\subsection{Hadron enumeration (FF-case)}
+
+The same system is implemented in the FF case. However, here, there is one important difference. The hadrons can be composed (i.e. $\pi^++K^+$), so the changes are implemented at the entry of the procedure. The current convention within artemide is following
+\begin{itemize}
+\item There are fundamental hadrons, which are given by \texttt{h}=1,...,9. I.e. maximum 9 such hadrons. By default, \texttt{h}=1 correspond to a $\pi^+$. Then \texttt{h}=2 corresponds to $K^+$, etc. However, it is not fixed, and should be consistent with input collinear FF. These hadrons have unique collinear input and unique non-perturbative profiles.
+\item The derived hadrons are all derived from the special combinations of $(h<10)$. The numbering for these cases is given below.
+\item The negative \texttt{h} corresponds to anti-particle, and has the reversed parton content. i.e.
+$$
+\texttt{h}= [\bar b,\bar c,\bar s,\bar u,\bar d,g,d,u,s,c,b]~~~\Leftrightarrow~~
+-\texttt{h}= [b,c,s,u,d,g,\bar d,\bar u,\bar s,\bar c,\bar b],
+$$
+for $\texttt{h}>0$. It is applied after the computation of hadron (so, for example, $\texttt{h}=-1$ corresponds to $\pi^-$)
+\end{itemize}
+\begin{center}
+\begin{tabular}{||c|l|c|p{6cm}||}
+\hline
+~~\texttt{h}~~ & name & Parton transformation rule & Comment
+\\\hline
+12 & $h^+=\pi^++K^+$ & $f_{12}=f_{h=1}+f_{h=2}$ & Charged hadron simulated by two main channels (e.g. for COMPASS)
+\\\hline
+123 & $h^+=\pi^++K^++p$ & $f_{123}=f_{h=1}+f_{h=2}+f_{h=3}$ & Charged hadron simulated by three channels (e.g. $\pi+K+p$)
+\\\hline
+10 & $\pi^0=\frac{\pi^++\pi^-}{2}$ & $[\frac{b+\bar b}{2},..., \frac{u+\bar u}{2},\frac{d+\bar d}{2},g,\frac{d+\bar d}{2},...]_{\text{h=1}}$ & Approximate $\pi^0$ \textbf{Derived from h=1}
+\\\hline
+20 & $K^0=\frac{K^++K^-}{2}$ & $[\frac{b+\bar b}{2},..., \frac{u+\bar u}{2},\frac{d+\bar d}{2},g,\frac{d+\bar d}{2},...]_{\text{h=2}}$ & Approximate $K^0$ \textbf{Derived from h=2}
+\\\hline\hline
+\end{tabular}
+\end{center}
+
+\begin{tcolorbox}
+\begin{center}
+These definitions are specified directly in the FF modules.
+\end{center}
+\end{tcolorbox}
+
 \subsection{Process numbering}
 \red{TO BE DONE}
 
@@ -3512,6 +3603,7 @@ polarized DY
 \begin{itemize}
 \item[\textbf{Ver.3.05}]
 \begin{itemize}
+	\item \textbf{All TMD-modules} changed the hadron numeration rule (added composite hadrons, and nuclei). Part of definitions are placed in \textbf{aTMDe\_hDef}.
 	\item \textbf{TMDX\_SIDIS} The definition of mass-correction is somewhat changed. Now, mass-corrections can be included only into the kinematic variables, and switch off entirely if mass=0. It was not very clear and strict in older versions.
 	\item \textbf{TMDX\_SIDIS} is split into three modules \textbf{TMDX\_SIDIS\_point}, \textbf{TMDX\_SIDIS\_bin}, \textbf{TMDX\_SIDIS}. 
 	\item \textbf{TMDX\_DY\_point} Fixed error with Jacobian for single-point cross-section with $dx_F$ measure (it was multiplied, instead of divided)

@@ -50,6 +50,7 @@ $(SOURCEDIR)/Code/aTMDe_optGrid.f90 \
 $(SOURCEDIR)/Code/aTMDe_ktGrid.f90 \
 $(SOURCEDIR)/Code/aTMDe_Ogata.f90 \
 $(SOURCEDIR)/Code/aTMDe_Levin.f90 \
+$(SOURCEDIR)/Code/aTMDe_hDef.f90 \
 $(SOURCEDIR)/Code/aTMDe_ptSpec.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_alpha.f90 \
 $(SOURCEDIR)/Code/LHA/LHA_PDF.f90 \
@@ -195,6 +196,7 @@ $(OBJ)/aTMDe_optGrid.o \
 $(OBJ)/aTMDe_ktGrid.o \
 $(OBJ)/aTMDe_Ogata.o \
 $(OBJ)/aTMDe_Levin.o \
+$(OBJ)/aTMDe_hDef.o \
 $(OBJ)/aTMDe_invMatrix.o \
 $(OBJ)/aTMDe_ptSpec.o \
 $(OBJ)/LeptonCutsDY.o \
@@ -261,7 +263,8 @@ $(OBJ)/aTMDe_optGrid.o\
 $(OBJ)/aTMDe_ktGrid.o\
 $(OBJ)/aTMDe_invMatrix.o \
 $(OBJ)/aTMDe_Ogata.o\
-$(OBJ)/aTMDe_Levin.o
+$(OBJ)/aTMDe_Levin.o\
+$(OBJ)/aTMDe_hDef.o
 
 
 
@@ -373,6 +376,11 @@ $(OBJ)/aTMDe_Ogata.o: $(SOURCEDIR)/Code/aTMDe_Ogata.f90 $(OBJ)/aTMDe_Numerics.o 
 
 $(OBJ)/aTMDe_Levin.o: $(SOURCEDIR)/Code/aTMDe_Levin.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_interfaces.o $(OBJ)/aTMDe_IO.o $(OBJ)/aTMDe_invMatrix.o
 	$(FC) -c $(SOURCEDIR)/Code/aTMDe_Levin.f90 -I$(MOD)
+	mv *.o $(OBJ)
+	mv *.mod $(MOD)
+
+$(OBJ)/aTMDe_hDef.o: $(SOURCEDIR)/Code/aTMDe_hDef.f90 $(OBJ)/aTMDe_Numerics.o $(OBJ)/aTMDe_IO.o
+	$(FC) -c $(SOURCEDIR)/Code/aTMDe_hDef.f90 -I$(MOD)
 	mv *.o $(OBJ)
 	mv *.mod $(MOD)
 

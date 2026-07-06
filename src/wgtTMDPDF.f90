@@ -1,5 +1,5 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 3.04
+!			arTeMiDe 3.05
 !
 !	Evaluation of the worm-gear-T TMD PDF at low normalization point in zeta-prescription.
 !	
@@ -7,6 +7,7 @@
 !
 !	21.08.2023  Implementation in ver.3.0
 !	23.06.2026  Removed old INCLUDE-dependencies + updated of KT-part
+!   06.07.2026  Changing to a new h-enumeration scheme
 !
 !				A.Vladimirov (21.08.2023)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -16,6 +17,7 @@ use aTMDe_IO
 use aTMDe_Ogata
 use aTMDe_Levin
 use aTMDe_ktGrid
+use aTMDe_hDef
 use QCDinput
 use TMDR
 use wgtTMDPDF_OPE
@@ -27,7 +29,7 @@ implicit none
 private 
 
 !Current version of module
-character (len=5),parameter :: version="v3.04"
+character (len=5),parameter :: version="v3.05"
 character (len=9),parameter :: moduleName="wgtTMDPDF"
 !Last appropriate version of constants-file
 integer,parameter::inputver=41
@@ -363,10 +365,18 @@ function TMD_opt(x,bT,hadron)
         error stop ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
     end if
 
-    TMD_opt=wgtTMDPDF_OPE_tw2(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)&
+    if(abs(hadron)<10) then
+        !!! This is usual hadron
+        TMD_opt=wgtTMDPDF_OPE_tw2(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)&
         +wgtTMDPDF_OPE_tw3(x,bT,abs(hadron))*FNP_tw3(x,bT,abs(hadron),lambdaNP)
+        if(hadron<0) TMD_opt=TMD_opt(5:-5:-1)
+    else
+        !!! This is an unusual hadron (all unusual hadrons are derived from hadron 1)
+        TMD_opt=wgtTMDPDF_OPE_tw2(x,bT,1)*FNP(x,bT,1,lambdaNP)&
+        +wgtTMDPDF_OPE_tw3(x,bT,1)*FNP_tw3(x,bT,1,lambdaNP)
 
-    if(hadron<0) TMD_opt=TMD_opt(5:-5:-1)
+        TMD_opt=PDFforH(TMD_opt,hadron)
+    end if
 
 end function TMD_opt
 
@@ -486,8 +496,15 @@ function TMD_grid_inKT(x,kT,mu,hadron)
     integer,intent(in)::hadron
 
     if(makeGrid_inKT) then
-        TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,abs(hadron))
-        if(hadron<0) TMD_grid_inKT=TMD_grid_inKT(5:-5:-1)
+        if(abs(hadron)<10) then
+            !!!! this is usual hadron
+            TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,abs(hadron))
+            if(hadron<0) TMD_grid_inKT=TMD_grid_inKT(5:-5:-1)
+        else
+            !!!! This is unusual hadron (all unusual hadrons are made from hadron 1)
+            TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,1)
+            TMD_grid_inKT=PDFforH(TMD_grid_inKT,hadron)
+        end if
     else
         TMD_grid_inKT=TMD_ev_inKT(x,kT,mu,mu**2,hadron)
     end if

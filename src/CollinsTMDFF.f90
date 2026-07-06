@@ -1,10 +1,11 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!			arTeMiDe 3.04
+!			arTeMiDe 3.05
 !
 !	Evaluation of the Collins TMD FF at low normalization point in zeta-prescription.
 !
 !    ver 3.03: release (SP & AV, 27.10.2025)
 !	23.06.2026  Removed old INCLUDE-dependencies + updated of KT-part
+!   06.07.2026  Changing to a new h-enumeration scheme
 !
 !                S.Piloneta (27.10.2025)
 !                A.Vladimirov (23.06.2026)
@@ -26,7 +27,7 @@ implicit none
 private 
 
 !Current version of module
-character (len=5),parameter :: version="v3.04"
+character (len=5),parameter :: version="v3.05"
 character (len=12),parameter :: moduleName="CollinsTMDFF"
 !Last appropriate version of constants-file
 integer,parameter::inputver=37
@@ -351,7 +352,29 @@ function TMD_opt(x,bT,hadron)
         error stop ErrorString('Called b<0. b='//numToStr(bT)//' . Evaluation STOP',moduleName)
     end if
 
-    TMD_opt=CollinsTMDFF_OPE_tw3(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
+    !!!! OPE and FNP evaluated using |h|, i.e. for hadron.
+    !!!! different hadron cases
+    if(abs(hadron)==12) then
+        !!!!! h=1+2   (e.g. charged hadron = pi+K)
+        TMD_opt=CollinsTMDFF_OPE_tw3(x,bT,1)*FNP(x,bT,1,lambdaNP)&
+                +CollinsTMDFF_OPE_tw3(x,bT,2)*FNP(x,bT,2,lambdaNP)
+    else if(abs(hadron)==123) then
+        !!!!! h=1+2+3  (e.g. charged hadron = pi+K+p)
+        TMD_opt=CollinsTMDFF_OPE_tw3(x,bT,1)*FNP(x,bT,1,lambdaNP)&
+                +CollinsTMDFF_OPE_tw3(x,bT,2)*FNP(x,bT,2,lambdaNP)&
+                +CollinsTMDFF_OPE_tw3(x,bT,3)*FNP(x,bT,3,lambdaNP)
+    else if(abs(hadron)==10) then
+        !!!!! h=(1+1bar)/2 from h=1 (pi^0)
+        TMD_opt=CollinsTMDFF_OPE_tw3(x,bT,1)*FNP(x,bT,1,lambdaNP)
+        TMD_opt=(TMD_opt+TMD_opt(5:-5:-1))/2._dp
+    else if(abs(hadron)==20) then
+        !!!!! h=(2+2bar)/2 from h=2 (K^0)
+        TMD_opt=CollinsTMDFF_OPE_tw3(x,bT,2)*FNP(x,bT,2,lambdaNP)
+        TMD_opt=(TMD_opt+TMD_opt(5:-5:-1))/2._dp
+    else
+        !!!!! standard case
+        TMD_opt=CollinsTMDFF_OPE_tw3(x,bT,abs(hadron))*FNP(x,bT,abs(hadron),lambdaNP)
+    end if
 
     if(hadron<0) TMD_opt=TMD_opt(5:-5:-1)
 
@@ -473,7 +496,26 @@ function TMD_grid_inKT(x,kT,mu,hadron)
     integer,intent(in)::hadron
 
     if(makeGrid_inKT) then
-        TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,abs(hadron))
+        !!!! different hadron cases
+        if(abs(hadron)==12) then
+            !!!!! h=1+2   (e.g. charged hadron = pi+K)
+            TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,1)+mainKTGrid%Extract(x,kT,mu,2)
+        else if(abs(hadron)==123) then
+            !!!!! h=1+2+3  (e.g. charged hadron = pi+K+p)
+            TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,1)+mainKTGrid%Extract(x,kT,mu,2)+mainKTGrid%Extract(x,kT,mu,3)
+        else if(abs(hadron)==10) then
+            !!!!! h=(1+1bar)/2 from h=1 (pi^0)
+            TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,1)
+            TMD_grid_inKT=(TMD_grid_inKT+TMD_grid_inKT(5:-5:-1))/2._dp
+        else if(abs(hadron)==20) then
+            !!!!! h=(2+2bar)/2 from h=2 (K^0)
+            TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,2)
+            TMD_grid_inKT=(TMD_grid_inKT+TMD_grid_inKT(5:-5:-1))/2._dp
+        else
+            !!!!! standard case
+            TMD_grid_inKT=mainKTGrid%Extract(x,kT,mu,abs(hadron))
+        end if
+
         if(hadron<0) TMD_grid_inKT=TMD_grid_inKT(5:-5:-1)
     else
         TMD_grid_inKT=TMD_ev_inKT(x,kT,mu,mu**2,hadron)
