@@ -35,11 +35,11 @@ SELECT CASE(abs(h))
         ud=0.5*(pdf(1)+pdf(2))
         PDFforH=[pdf(-5),pdf(-4),pdf(-3),ud_bar,ud_bar,&
                 pdf(0),ud,ud,pdf(3),pdf(4),pdf(5)]
-    CASE(64029)
-        !!! copper A=64, Z=29, N=35
-        PDFforH=[pdf(-5),pdf(-4),pdf(-3),29._dp/64._dp*pdf(-2)+35._dp/64._dp*pdf(-1),29._dp/64._dp*pdf(-1)+35._dp/64._dp*pdf(-2),&
+    CASE(63029)
+        !!! copper A=63, Z=29, N=34
+        PDFforH=[pdf(-5),pdf(-4),pdf(-3),29._dp/63._dp*pdf(-2)+34._dp/63._dp*pdf(-1),29._dp/63._dp*pdf(-1)+34._dp/63._dp*pdf(-2),&
                 pdf(0),&
-                29._dp/64._dp*pdf(1)+35._dp/64._dp*pdf(2),29._dp/64._dp*pdf(2)+35._dp/64._dp*pdf(1),pdf(3),pdf(4),pdf(5)]
+                29._dp/63._dp*pdf(1)+34._dp/63._dp*pdf(2),29._dp/63._dp*pdf(2)+34._dp/63._dp*pdf(1),pdf(3),pdf(4),pdf(5)]
     CASE(184074)
         !!! tungsten A=184, Z=74, N=110
         PDFforH=[pdf(-5),pdf(-4),pdf(-3),37._dp/92._dp*pdf(-2)+55._dp/92._dp*pdf(-1),37._dp/92._dp*pdf(-1)+55._dp/92._dp*pdf(-2),&
@@ -64,7 +64,7 @@ SELECT CASE(abs(h))
         end if
 END SELECT
 
-!!!! finally revert the anti-hadron content
+!!!! finally reverse the anti-hadron content
 if(h<0) PDFforH=PDFforH(5:-5:-1)
 
 end function PDFforH
