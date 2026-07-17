@@ -1,65 +1,72 @@
 # artemide-development
-The public repository of artemide package for TMD-physics (transverse momentum dependent).
-Here you can find the current unstable version of artemide.
 
-Starting from the ver.3.02 _artemide_ includes files of _snowflake_ (VladimirovAlexey/SnowFlake). They are compiled together, and the snowflake rutines can be used within the models for TMD-distributions, although principal codes for each of these packages are mutually independent.
+<img src="Manual/artemide/aTMDe_logo.png" alt="artemide logo" width="180">
 
-The stable version is in VladimirovAlexey/artemide-public repository.
-The artemide version2 is in VladimirovAlexey/artemide2 repository.
-The standalone version of snoflake is in VladimirovAlexey/SnowFlake repository.
 
-------------------------------------------------------------------------------------------------------
-	CHECK:
-	In makefile set (in the begining of file)
-	FCompiler    	<= your prefered fortran compiler (f95 at least, gfortran also works)
-	Fflags		<= The flags to be used by compiler (e.g. if you use openmp). 
- 			   Use default version if do not know what to set here. 
-       			 **The flag -cpp MUST be present** (to compile pre-processor directives correctly)
-	FOPT		<= For extra options, links,etc. see LHAPDF (not used in version better then v3.01)
-	
-	the harpy compiles with the help of f2py package from numpy (python2)
-	
-	The file "constants" must be in the same location as your program. Also check it, it accumulates all options.
+The public repository of the _artemide_ package for TMD-physics (transverse momentum dependent distributions).
+This is the current **unstable/development** version of artemide.
+
+The stable version is in [VladimirovAlexey/artemide-public](https://github.com/VladimirovAlexey/artemide-public).
+The legacy artemide-version2 is in [VladimirovAlexey/artemide2](https://github.com/VladimirovAlexey/artemide2).
+The standalone version of snowflake is in [VladimirovAlexey/SnowFlake](https://github.com/VladimirovAlexey/SnowFlake).
+
+Since ver.3.02, _artemide_ includes the files of _snowflake_ (VladimirovAlexey/SnowFlake). They are compiled together, and the snowflake routines can be used within the models for TMD-distributions, although the principal codes of the two packages are mutually independent.
 
 ------------------------------------------------------------------------------------------------------
+### Setup
 
-Commands in make
+In `makefile`, near the top, set:
+- `FCompilator` <= your preferred Fortran compiler (gfortran recommended; any Fortran95+ compiler works)
+- `Fflags` <= flags used by the compiler (e.g. `-fopenmp` for OpenMP). Use the default set if unsure.
+  **The flag `-cpp` MUST be present** (needed to compile pre-processor directives correctly).
+- `FOPT` <= extra options/links (e.g. LHAPDF). Not needed since v3.01+ for the core package.
+- `harpy` (the Python interface) is built with `f2py` (from numpy); the compiler paths for it are set with `Fpath`/`F77path`.
 
-make
-=> Compiles the artemide package (complete)
-
-make artemide
-=> Compiles the artemide only
-
-make snow
-=> Compiles the snowflake only
-
-make test
-=> Compiles the simple test code and runs it
-
-make test-snow
-=> Compiles the simple test code for snowflake and runs it
-
-make harpy
-=> Compiles the harpy from artemide
-
-make program TARGET=path
-=> Compiles a program abc.f90 "path" with artemide
-
-make update TARGET=path
-=> Updates the constants file "path" to the current version of artemide
+Each run needs a configuration file (extension `.atmde`), generated/updated by `aTMDe_setup`
+(see `make update` below and `Prog/update-constants-file.f90`). It must be placed alongside your program and lists all runtime options; check its content before running.
 
 ------------------------------------------------------------------------------------------------------
+### Make targets
 
-The _snowflake_ is used together with pre-computed kernels. These files are too large to be included into repository (upto 300-400 Mb depending on the setup). They could be created by compiling abd running _Prog_snowflake/saveKernels.f90_ (see details in the file itself). This could take few hours for dense grids. Alternatively, I can send them by request.
+`make` (or `make default`)
+=> Compiles the artemide+snowflake object files (`obj`)
+
+`make artemide`
+=> Compiles the artemide objects only
+
+`make snow`
+=> Compiles the snowflake objects only
+
+`make test`
+=> Compiles and runs the simple test program (`Prog/test.f90`)
+
+`make test-snow`
+=> Compiles and runs the simple test program for snowflake (`Prog_snowflake/TEST.f90`)
+
+`make harpy`
+=> Compiles the Python interface (harpy) via f2py
+
+`make program TARGET=path/to/file.f90`
+=> Compiles a program at `path` linked against artemide+snowflake
+
+`make update TARGET=path/to/file.atmde`
+=> Updates a configuration file to the format of the current artemide version
+
+`make clean`
+=> Removes compiled objects/modules and harpy build artifacts
+
+Additional, more targeted tests for individual modules live under `Tests/` (e.g. `Tests/TMDX_DY`, `Tests/TMDX_SIDIS`, `Tests/aTMDe_ktGrid`) and are compiled/run individually rather than through the top-level `make test`.
 
 ------------------------------------------------------------------------------------------------------
+_snowflake_ can be used together with pre-computed kernel grids. These files are too large for the repository (up to 300-400 Mb depending on the setup). They can be generated by compiling and running `Prog_snowflake/saveKernels.f90` (see details in the file itself) — this can take a few hours for dense grids. Alternatively, they can be provided on request.
 
-*Older (<3.01) versions of artemide use LHAPDF* it should be specified in make file. Modern versions do not need it.
+------------------------------------------------------------------------------------------------------
+Ready-to-use TMD models/fits (parameter replicas, in JSON format) are provided under `Models/` (e.g. `ART23`, `ART25`, `BPV20`, `SV19`, `PDFbias22`); see `Models/Model-List.txt` for the full list.
 
--------------------------------------------------------------------------------------------------------
-See manual for details on artemide  in /Manual/artemide
-See manual for details on snowflake  in /Manual/snowflake
-If you have quesions, suggestions => E-mail: vladimirov.aleksey@gmail.com
+------------------------------------------------------------------------------------------------------
+*Only older (<3.01) versions of artemide use LHAPDF*, specified via `FOPT` in the makefile. Modern versions do not need it.
 
-
+------------------------------------------------------------------------------------------------------
+- Manual for artemide: `Manual/artemide`
+- Manual for snowflake: `Manual/snowflake`
+- Questions, suggestions => E-mail: vladimirov.aleksey@gmail.com
