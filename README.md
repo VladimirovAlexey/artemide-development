@@ -4,11 +4,12 @@
 
 
 The public repository of the _artemide_ package for TMD-physics (transverse momentum dependent distributions).
+
 This is the current **unstable/development** version of artemide.
 
-The stable version is in [VladimirovAlexey/artemide-public](https://github.com/VladimirovAlexey/artemide-public).
-The legacy artemide-version2 is in [VladimirovAlexey/artemide2](https://github.com/VladimirovAlexey/artemide2).
-The standalone version of snowflake is in [VladimirovAlexey/SnowFlake](https://github.com/VladimirovAlexey/SnowFlake).
+- The stable version is in [VladimirovAlexey/artemide-public](https://github.com/VladimirovAlexey/artemide-public).
+- The legacy artemide-version2 is in [VladimirovAlexey/artemide2](https://github.com/VladimirovAlexey/artemide2).
+- The standalone version of snowflake is in [VladimirovAlexey/SnowFlake](https://github.com/VladimirovAlexey/SnowFlake).
 
 Since ver.3.02, _artemide_ includes the files of _snowflake_ (VladimirovAlexey/SnowFlake). They are compiled together, and the snowflake routines can be used within the models for TMD-distributions, although the principal codes of the two packages are mutually independent.
 
